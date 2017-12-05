@@ -8,6 +8,9 @@ public class TheLastBastion : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay" });
-	}
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "OnlineSubsystem", "OnlineSubsystemUtils", "UMG", "Slate", "SlateCore" });
+
+        DynamicallyLoadedModuleNames.Add("OnlineSubsystemNull");
+        DynamicallyLoadedModuleNames.Add("OnlineSubsystemSteam");
+    }
 }
