@@ -34,9 +34,12 @@ void UGI_TheLastBastion::Init()
 	IOnlineSubsystem* OnlineSubSystem = IOnlineSubsystem::Get();
 	if (OnlineSubSystem)
 	{
+
+		UE_LOG(LogTemp, Warning, TEXT("Find online system %s"), *OnlineSubSystem->GetSubsystemName().ToString())
 		mSessionInterface = OnlineSubSystem->GetSessionInterface();
 		if (!mSessionInterface.IsValid())
 			UE_LOG(LogTemp, Warning, TEXT("Can not Get Session Interface"));
+		
 
 		mSessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UGI_TheLastBastion::OnSessionCreateComplete);
 		mSessionInterface->OnSessionFailureDelegates.AddUObject(this, &UGI_TheLastBastion::OnSessionCreateFailed);
@@ -138,7 +141,7 @@ void UGI_TheLastBastion::FindLobby()
 	if (mSessionSearch.IsValid())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("start find session"));
-		mSessionSearch->bIsLanQuery = true;
+		mSessionSearch->bIsLanQuery = bIsLan;
 		mSessionInterface->FindSessions(0, mSessionSearch.ToSharedRef());
 	}
 }
