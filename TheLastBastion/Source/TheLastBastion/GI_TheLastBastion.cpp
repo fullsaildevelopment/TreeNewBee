@@ -143,7 +143,8 @@ void UGI_TheLastBastion::FindLobby()
 		UE_LOG(LogTemp, Warning, TEXT("start find session, bIslan %d"), bIsLan);
 		mSessionSearch->bIsLanQuery = bIsLan;
 		mSessionSearch->MaxSearchResults = 5;
-		mSessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
+		if (!bIsLan)
+			mSessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
 
 		mSessionInterface->FindSessions(0, mSessionSearch.ToSharedRef());
 	}
@@ -153,13 +154,14 @@ void UGI_TheLastBastion::CreateSession(bool _bIsLan, int _numOfConnections)
 {
 	if (mSessionInterface.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("create session, bIslan %b"), bIsLan);
+		UE_LOG(LogTemp, Warning, TEXT("create session, bIslan %d"), bIsLan);
 
 		FOnlineSessionSettings sessionSettings;
 		sessionSettings.bIsLANMatch = _bIsLan;
 		sessionSettings.NumPublicConnections = _numOfConnections;
 		sessionSettings.bShouldAdvertise = true;
-		sessionSettings.bUsesPresence = true;
+		if (!bIsLan)
+			sessionSettings.bUsesPresence = true;
 
 		mSessionInterface->CreateSession(0, SESSION_NAME, sessionSettings);
 	}

@@ -48,7 +48,7 @@ void ULobbyRow::SetRowProperty(const FText & _ServerName, const FText & _Players
 
 void ULobbyRow::OnLobbyClick()
 {
-	UE_LOG(LogTemp, Warning, TEXT("d%, Lobby Row Pick"), index);
+	UE_LOG(LogTemp, Warning, TEXT("%d, Lobby Row Pick"), index);
 	mGameInstanceRef->JoinServer(index);
 }
 
