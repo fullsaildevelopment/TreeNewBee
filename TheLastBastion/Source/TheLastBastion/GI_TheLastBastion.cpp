@@ -34,30 +34,22 @@ UGI_TheLastBastion::UGI_TheLastBastion(const FObjectInitializer & ObjectInitiali
 
 void UGI_TheLastBastion::Init()
 {
-
-	UE_LOG(LogTemp, Warning, TEXT("GI Init"));
-
-	IOnlineSubsystem* OnlineSubSystem = IOnlineSubsystem::Get();
-	if (OnlineSubSystem)
+	mOnlineSubSystem = IOnlineSubsystem::Get();
+	if (mOnlineSubSystem)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Find online system %s"), *OnlineSubSystem->GetSubsystemName().ToString())
-		mSessionInterface = OnlineSubSystem->GetSessionInterface();
+		UE_LOG(LogTemp, Warning, TEXT("Find online system %s"), *mOnlineSubSystem->GetSubsystemName().ToString())
+		mSessionInterface = mOnlineSubSystem->GetSessionInterface();
 		if (!mSessionInterface.IsValid())
-			UE_LOG(LogTemp, Warning, TEXT("Can not Get Session Interface"));
-		
-		//mSessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UGI_TheLastBastion::OnSessionCreateComplete);
-		//mSessionInterface->OnSessionFailureDelegates.AddUObject(this, &UGI_TheLastBastion::OnSessionCreateFailed);
-		//mSessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UGI_TheLastBastion::OnSessionDestroyComplete);
-		//mSessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UGI_TheLastBastion::OnSessionFindComplete);
-		//mSessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UGI_TheLastBastion::OnSessionJoinComplete);
-
-		mSessionSearch = MakeShareable(new FOnlineSessionSearch);
-
+			UE_LOG(LogTemp, Warning, TEXT("Can not Get Session Interface"));		
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("can not find online subsystem"));
-		
+		UE_LOG(LogTemp, Warning, TEXT("Can not find online subsystem during initialization"));		
+	}
+
+	if (mOnlineSubSystem && mSessionInterface.IsValid())
+	{
+		mSessionSearch = MakeShareable(new FOnlineSessionSearch);
 	}
 }
 
@@ -129,54 +121,44 @@ void UGI_TheLastBastion::ShowMenu(UUserWidget* & _widget, const TSubclassOf<clas
 
 #pragma region Create && Join && Find Lobby
 
+bool UGI_TheLastBastion::OnlineSubSystemCheck()
+{
+	mOnlineSubSystem = IOnlineSubsystem::Get();
+	if (mOnlineSubSystem)
+	{
+		mSessionInterface = mOnlineSubSystem->GetSessionInterface();
+		if (mSessionInterface.IsValid())
+			return true;
+		else
+			return false;
+	}
+	else return false;
+}
+const TSharedPtr<const FUniqueNetId> UGI_TheLastBastion::GetUserId()
+{
+	return this->GetFirstLocalPlayerController()->PlayerState->UniqueId.GetUniqueNetId();
+}
+
+
 void UGI_TheLastBastion::LaunchLobby(int _numOfConnections)
 {
-
-	// check if the session exist?
-	IOnlineSubsystem* const OnlineSub = IOnlineSubsystem::Get();
-
-	if (OnlineSub == nullptr)
+	mNumOfConnection = _numOfConnections;
+	if (DestroySession(true) == false)
 	{
-		return;
-	}
-	else
-	{
-		IOnlineSessionPtr sessionInterface = OnlineSub->GetSessionInterface();
-		if (sessionInterface.IsValid())
-		{
-			FNamedOnlineSession* session = sessionInterface->GetNamedSession(SESSION_NAME);
-			mNumOfConnection = _numOfConnections;
-			if (session)
-			{
-				DestroySession(true);			 
-			}
-			else
-			{
-				//ULocalPlayer* const Lp = this->GetFirstGamePlayer();
-				APlayerController* const pc = this->GetFirstLocalPlayerController();
-				const TSharedPtr<const FUniqueNetId>  userId =   pc->PlayerState->UniqueId.GetUniqueNetId();
-				UE_LOG(LogTemp, Warning, TEXT("Userid: %s"), *userId->ToString());
-				HostSession(userId, bIsLan, mNumOfConnection);
-			}
-		}
+		HostSession(bIsLan, mNumOfConnection);
 	}
 }
 
-bool UGI_TheLastBastion::HostSession(TSharedPtr<const FUniqueNetId> _userId, bool _bIsLan, int _numOfConnections)
+bool UGI_TheLastBastion::HostSession(bool _bIsLan, int _numOfConnections)
 {
-	IOnlineSubsystem* const OnlineSub = IOnlineSubsystem::Get();
-	if (OnlineSub == nullptr)
+	if (OnlineSubSystemCheck())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("OnlineSub is null during Host session"));
-		return false;
-	}
-	else
-	{
-		IOnlineSessionPtr sessionInterface = OnlineSub->GetSessionInterface();
-		if (sessionInterface.IsValid() && _userId.IsValid())
+		const TSharedPtr<const FUniqueNetId>  userId = GetUserId();
+		UE_LOG(LogTemp, Warning, TEXT("Host lobby Userid: %s"), *userId->ToString());
+		if (userId.IsValid())
 		{
-
-			mOnCreateSessionCompleteDelegateHandle = sessionInterface->AddOnCreateSessionCompleteDelegate_Handle(mOnCreateSessionCompleteDelegate);
+			mOnCreateSessionCompleteDelegateHandle 
+				= mSessionInterface->AddOnCreateSessionCompleteDelegate_Handle(mOnCreateSessionCompleteDelegate);
 
 			UE_LOG(LogTemp, Warning, TEXT("Host for a LAN? %d, connectionNum? %d"), _bIsLan, _numOfConnections);
 			FOnlineSessionSettings sessionSettings;
@@ -186,261 +168,185 @@ bool UGI_TheLastBastion::HostSession(TSharedPtr<const FUniqueNetId> _userId, boo
 			sessionSettings.bAllowJoinInProgress = true;
 			sessionSettings.bUsesPresence = true;
 			sessionSettings.bAllowJoinViaPresence = true;
-
 			//sessionSettings.NumPrivateConnections = 0;
 			//sessionSettings.bAllowInvites = false;
 			//sessionSettings.bAllowJoinInProgress = true;
 			//sessionSettings.bAllowJoinViaPresence = true;
 			//sessionSettings.bAllowJoinViaPresenceFriendsOnly = false
-			//sessionSettings.Set(SETTING_MAPNAME, FString("Lobby"), EOnlineDataAdvertisementType::ViaOnlineService);
-
-			
-			return sessionInterface->CreateSession(*_userId, SESSION_NAME, sessionSettings);
+			//sessionSettings.Set(SETTING_MAPNAME, FString("Lobby"), EOnlineDataAdvertisementType::ViaOnlineService);			
+			UE_LOG(LogTemp, Warning, TEXT("Creating Session, %s"), *SESSION_NAME.ToString());
+			return mSessionInterface->CreateSession(*userId, SESSION_NAME, sessionSettings);
 		}
 		else
 		{
-			if (_userId.IsValid())
-			{
-				UE_LOG(LogTemp, Warning, TEXT("sessionInterface is not valid during Host session"));
-			}
-			else
-				UE_LOG(LogTemp, Warning, TEXT("_userId is not valid during Host session"));
-
+			UE_LOG(LogTemp, Warning, TEXT("userId is not valid during Host session"));
 			return false;
 		}
 	}
-
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OnlineSubSystemCheck is failed during Host session"));
+		return false;
+	}
 }
 
 void UGI_TheLastBastion::FindLobby()
 {
-	// Find Session
-	//if (mSessionSearch.IsValid())
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("start find session, bIslan %d"), bIsLan);
-	//	mSessionSearch->bIsLanQuery = bIsLan;
-	//	mSessionSearch->MaxSearchResults = 5;
-	//	if (!bIsLan)
-	//		mSessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
-
-	//	mSessionInterface->FindSessions(0, mSessionSearch.ToSharedRef());
-	//}
-
-	ULocalPlayer* const Lp = GetFirstGamePlayer();
-	TSharedPtr<const FUniqueNetId> userId = Lp->GetPreferredUniqueNetId();
-
-	IOnlineSubsystem* const OnlineSub = IOnlineSubsystem::Get();
-	if (OnlineSub == nullptr)
+	if (OnlineSubSystemCheck())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("OnlineSub is null during FindLobby"));
-		OnSessionFindComplete(false);
-
-		return;
-	}
-	else
-	{
-		IOnlineSessionPtr sessionInterface = OnlineSub->GetSessionInterface();
-		if (sessionInterface.IsValid() && userId.IsValid())
+		const TSharedPtr<const FUniqueNetId>  userId = GetUserId();
+		UE_LOG(LogTemp, Warning, TEXT("Find Lobby Userid: %s"), *userId->ToString());
+		if (userId.IsValid())
 		{
+
+			mOnFindSessionssCompleteDelegateHandle 
+				= mSessionInterface ->AddOnFindSessionsCompleteDelegate_Handle(mOnFindSessionsCompleteDelegate);
+
 			UE_LOG(LogTemp, Warning, TEXT("Search for a LAN? %d"), bIsLan);
 			mSessionSearch->bIsLanQuery = bIsLan;
 			mSessionSearch->MaxSearchResults = 50;
 			mSessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
 
-			mOnFindSessionssCompleteDelegateHandle = sessionInterface->AddOnFindSessionsCompleteDelegate_Handle(mOnFindSessionsCompleteDelegate);
-			sessionInterface->FindSessions(*userId, mSessionSearch.ToSharedRef());
+			mSessionInterface ->FindSessions(*userId, mSessionSearch.ToSharedRef());
 		}
 		else
-		{
-			if (userId.IsValid())
-			{
-				UE_LOG(LogTemp, Warning, TEXT("sessionInterface is not valid during FindLobby"));
-			}
-			else
-				UE_LOG(LogTemp, Warning, TEXT("_userId is not valid during FindLobby"));
-
-		}
+			UE_LOG(LogTemp, Warning, TEXT("userId is not valid during Find Lobby"));
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OnlineSubSystemCheck is failed during Host session"));
+		OnSessionFindComplete(false);
+	}
+
+	//ULocalPlayer* const Lp = GetFirstGamePlayer();
+	//TSharedPtr<const FUniqueNetId> userId = Lp->GetPreferredUniqueNetId();
+	//IOnlineSubsystem* const OnlineSub = IOnlineSubsystem::Get();
+	//if (OnlineSub == nullptr)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("OnlineSub is null during FindLobby"));
+	//	OnSessionFindComplete(false);
+	//	return;
+	//}
+	//else
+	//{
+	//	IOnlineSessionPtr sessionInterface = OnlineSub->GetSessionInterface();
+	//	if (sessionInterface.IsValid() && userId.IsValid())
+	//	{
+	//		mOnFindSessionssCompleteDelegateHandle = sessionInterface->AddOnFindSessionsCompleteDelegate_Handle(mOnFindSessionsCompleteDelegate);
+	//		UE_LOG(LogTemp, Warning, TEXT("Search for a LAN? %d"), bIsLan);
+	//		mSessionSearch->bIsLanQuery = bIsLan;
+	//		mSessionSearch->MaxSearchResults = 50;
+	//		mSessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
+	//		sessionInterface->FindSessions(*userId, mSessionSearch.ToSharedRef());
+	//	}
+	//	else
+	//	{
+	//		if (userId.IsValid())
+	//		{
+	//			UE_LOG(LogTemp, Warning, TEXT("sessionInterface is not valid during FindLobby"));
+	//		}
+	//		else
+	//			UE_LOG(LogTemp, Warning, TEXT("_userId is not valid during FindLobby"));
+	//	}
+	//}
 }
 
-//void UGI_TheLastBastion::HostSession(bool _bIsLan, int _numOfConnections)
-//{
-//	if (mSessionInterface.IsValid())
-//	{
-//		UE_LOG(LogTemp, Warning, TEXT("create session, bIslan %d"), bIsLan);
-//
-//		FOnlineSessionSettings sessionSettings;
-//		sessionSettings.bIsLANMatch = _bIsLan;
-//		sessionSettings.NumPublicConnections = _numOfConnections;
-//		sessionSettings.bShouldAdvertise = true;
-//		if (!bIsLan)
-//			sessionSettings.bUsesPresence = true;
-//
-//		mSessionInterface->CreateSession(0, SESSION_NAME, sessionSettings);
-//	}
-//	else
-//	{
-//		UE_LOG(LogTemp, Warning, TEXT("Session Interface is invalid during create"));
-//	}
-//}
-
-void UGI_TheLastBastion::DestroySession(bool _recreate)
+bool UGI_TheLastBastion::DestroySession(bool _recreate)
 {
-
-	IOnlineSubsystem* OnlineSub = IOnlineSubsystem::Get();
-	if (OnlineSub)
+	if (OnlineSubSystemCheck())
 	{
-		IOnlineSessionPtr Sessions = OnlineSub->GetSessionInterface();
-
-		if (Sessions.IsValid())
+		FNamedOnlineSession* session = mSessionInterface->GetNamedSession(SESSION_NAME);
+		bRecreateSession = _recreate;
+		if (session != nullptr)
 		{
-			Sessions->AddOnDestroySessionCompleteDelegate_Handle(mOnDestroySessionCompleteDelegate);
-			bRecreateSession = _recreate;
-			Sessions->DestroySession(SESSION_NAME);
+			mSessionInterface->AddOnDestroySessionCompleteDelegate_Handle(mOnDestroySessionCompleteDelegate);
+			mSessionInterface->DestroySession(SESSION_NAME);
+			UE_LOG(LogTemp, Warning, TEXT("Destroying Session, %s"), *SESSION_NAME.ToString());
+			return true;
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Session Interface is invalid during destroy"));
+			bRecreateSession = false;
+			return false;
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("OnlineSub is null during destroy"));
+		UE_LOG(LogTemp, Warning, TEXT("OnlineSubSystemCheck failed during destroy"));
+		return false;
 	}
-	//if (mSessionInterface.IsValid())
-	//	mSessionInterface->DestroySession(SESSION_NAME);
-	//else
-	//	UE_LOG(LogTemp, Warning, TEXT("Session Interface is invalid during destroy"));
-
 }
 
 void UGI_TheLastBastion::JoinServer(int _index)
 {
-	bool conditionCheck = mSessionInterface.IsValid() && mSessionSearch.IsValid();
-
-	if (conditionCheck)
+	if (OnlineSubSystemCheck())
 	{
-		APlayerController* const pc = this->GetFirstLocalPlayerController();
-		const TSharedPtr<const FUniqueNetId>  userId = pc->PlayerState->UniqueId.GetUniqueNetId();
-		UE_LOG(LogTemp, Warning, TEXT("Userid: %s"), *userId->ToString());
+		const TSharedPtr<const FUniqueNetId>  userId = GetUserId();
+		UE_LOG(LogTemp, Warning, TEXT("Join, Userid: %s"), *userId->ToString());
 		mOnJoinSessionCompleteDelegateHandle = mSessionInterface->AddOnJoinSessionCompleteDelegate_Handle(mOnJoinSessionCompleteDelegate);
-
 		mSessionInterface->JoinSession(*userId, SESSION_NAME, mSessionSearch->SearchResults[_index]);
 	}
-}
-
-void UGI_TheLastBastion::BackToMainMenu()
-{
-	FNamedOnlineSession* session = mSessionInterface->GetNamedSession(SESSION_NAME);
-	if (session != nullptr)
-		DestroySession(false);
-
-
-	ShowMainMenu();
-	UWorld* world = GetWorld();
-	UGameplayStatics::OpenLevel(world, TEXT("StartMenu_Map"), true);
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OnlineSubSystemCheck Failed during Join Server"));
+	}
 }
 
 void UGI_TheLastBastion::OnSessionCreateComplete(FName _sessionName, bool _success)
 {
 	UE_LOG(LogTemp, Warning, TEXT("OnCreateSessionComplete %s, %d"), *_sessionName.ToString(), _success);
-	IOnlineSubsystem* const OnlineSub = IOnlineSubsystem::Get();
-	if (OnlineSub == nullptr)
+
+	if (OnlineSubSystemCheck())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("OnlineSub is null OnSessionCreateComplete"));
+		mSessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(mOnCreateSessionCompleteDelegateHandle);
+		if (_success)
+		{
+			mOnStartSessionCompleteDelegateHandle = mSessionInterface->AddOnStartSessionCompleteDelegate_Handle(mOnStartSessionCompleteDelegate);
+			mSessionInterface->StartSession(SESSION_NAME);
+		}
 	}
 	else
 	{
-		IOnlineSessionPtr sessionInterface = OnlineSub->GetSessionInterface();
-		if (sessionInterface.IsValid())
-		{
-			sessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(mOnCreateSessionCompleteDelegateHandle);
-			if (_success)
-			{
-				mOnStartSessionCompleteDelegateHandle = sessionInterface->AddOnStartSessionCompleteDelegate_Handle(mOnStartSessionCompleteDelegate);
-				sessionInterface->StartSession(SESSION_NAME);
-			}
-		}
-		else
-			UE_LOG(LogTemp, Warning, TEXT("sessionInterface is not valid OnSessionCreateComplete"));
+		UE_LOG(LogTemp, Warning, TEXT("OnlineSubSystemCheck failed during OnSessionCreateComplete"));
 	}
-
-	//if (!_success)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("Create Session Failed"));
-	//	return;
-	//}
-	//else
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("Hosting"));
-	//	UWorld* world = GetWorld();
-	//	UGameplayStatics::OpenLevel(world, TEXT("Lobby"), true);
-	//}
 }
 
 void UGI_TheLastBastion::OnStartOnlineGameComplete(FName _sessionName, bool _success)
 {
 	UE_LOG(LogTemp, Warning, TEXT("OnStartOnlineGameComplete %s, %d"), *_sessionName.ToString(), _success);
-	IOnlineSubsystem* const OnlineSub = IOnlineSubsystem::Get();
-	if (OnlineSub == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("OnlineSub is null OnStartOnlineGameComplete"));
-	}
+
+	if (OnlineSubSystemCheck())
+		mSessionInterface->ClearOnStartSessionCompleteDelegate_Handle(mOnStartSessionCompleteDelegateHandle);
 	else
 	{
-		IOnlineSessionPtr sessionInterface = OnlineSub->GetSessionInterface();
-		if (sessionInterface.IsValid())
-		{
-			sessionInterface->ClearOnStartSessionCompleteDelegate_Handle(mOnStartSessionCompleteDelegateHandle);
-		}
+		UE_LOG(LogTemp, Warning, TEXT("OnlineSubSystemCheck failed during OnStartOnlineGameComplete"));
 	}
 
 	if (_success)
-	{
 		UGameplayStatics::OpenLevel(GetWorld(), "Lobby", true, "listen");
-	}
 }
-
-
 
 void UGI_TheLastBastion::OnSessionDestroyComplete(FName _sessionName, bool _success)
 {
 	UE_LOG(LogTemp, Warning, TEXT("OnSessionDestroyComplete %s, %d"), *_sessionName.ToString(), _success);
-	IOnlineSubsystem* const OnlineSub = IOnlineSubsystem::Get();
-	if (OnlineSub == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("OnlineSub is null OnSessionDestroyComplete"));
-	}
-	else
-	{
-		IOnlineSessionPtr sessionInterface = OnlineSub->GetSessionInterface();
-		if (sessionInterface.IsValid())
-		{
-			sessionInterface->ClearOnDestroySessionCompleteDelegate_Handle(mOnDestroySessionCompleteDelegateHandle);
-		}
-	}
 
+	if (OnlineSubSystemCheck())
+	{
+		mSessionInterface->ClearOnDestroySessionCompleteDelegate_Handle(mOnDestroySessionCompleteDelegateHandle);
+	}
 	if (_success)
 	{
 		if (bRecreateSession)
 		{
-			APlayerController* const pc = this->GetFirstLocalPlayerController();
-			const TSharedPtr<const FUniqueNetId>  userId = pc->PlayerState->UniqueId.GetUniqueNetId();
-			UE_LOG(LogTemp, Warning, TEXT("Userid: %s"), *userId->ToString());
-			HostSession(userId, bIsLan, mNumOfConnection);
+			HostSession(bIsLan, mNumOfConnection);
 		}
 	}
 	bRecreateSession = false;
 }
 
-void UGI_TheLastBastion::OnSessionCreateFailed(const FUniqueNetId & _netId, ESessionFailure::Type _failureType)
-{
-}
-
 void UGI_TheLastBastion::OnSessionJoinComplete(FName _sessionName, EOnJoinSessionCompleteResult::Type _result)
 {
-
-	if (mSessionInterface.IsValid())
+	if (OnlineSubSystemCheck())
 	{
 		mSessionInterface->ClearOnJoinSessionCompleteDelegate_Handle(mOnJoinSessionCompleteDelegateHandle);
 		FString address;
@@ -454,51 +360,45 @@ void UGI_TheLastBastion::OnSessionJoinComplete(FName _sessionName, EOnJoinSessio
 	}
 }
 
-
 void UGI_TheLastBastion::OnSessionFindComplete(bool _success)
 {
 
 	UE_LOG(LogTemp, Warning, TEXT("OnSessionFindComplete %d"), _success);
 
-	IOnlineSubsystem* const OnlineSub = IOnlineSubsystem::Get();
-	if (OnlineSub == nullptr)
+	if (OnlineSubSystemCheck())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("OnlineSub is null OnSessionFindComplete"));
+		mSessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(mOnFindSessionssCompleteDelegateHandle);
 	}
 	else
 	{
-		IOnlineSessionPtr sessionInterface = OnlineSub->GetSessionInterface();
-		if (sessionInterface.IsValid())
+		UE_LOG(LogTemp, Warning, TEXT("OnlineSubSystemCheck Failed during OnSessionFindComplete %d"));
+	}
+
+	if (_success)
+	{
+		if (mJoinMenu_Widget != nullptr)
 		{
-			sessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(mOnFindSessionssCompleteDelegateHandle);
-			if (_success)
+			UJoinMenu* const joinMenu = Cast<UJoinMenu>(mJoinMenu_Widget);
+			if (joinMenu)
 			{
-				if (mJoinMenu_Widget != nullptr)
-				{
-					UJoinMenu* const joinMenu = Cast<UJoinMenu>(mJoinMenu_Widget);
-					if (joinMenu)
-					{
-						joinMenu->PopLobbyList(mSessionSearch.ToSharedRef());
-					}
-				}
+				joinMenu->PopLobbyList(mSessionSearch.ToSharedRef());
 			}
 		}
 	}
 
-
-	//if (mSessionSearch.IsValid() && _success)
-	//{
-	//	if (mJoinMenu_Widget != nullptr)
-	//	{
-	//		UJoinMenu* const joinMenu = Cast<UJoinMenu>(mJoinMenu_Widget);
-	//		if (joinMenu)
-	//		{
-	//			joinMenu->PopLobbyList(mSessionSearch.ToSharedRef());
-	//		}
-	//	}
-	//}
 }
 
+void UGI_TheLastBastion::BackToMainMenu()
+{
+	FNamedOnlineSession* session = mSessionInterface->GetNamedSession(SESSION_NAME);
+	if (session != nullptr)
+		DestroySession(false);
+
+
+	ShowMainMenu();
+	UWorld* world = GetWorld();
+	UGameplayStatics::OpenLevel(world, TEXT("StartMenu_Map"), true);
+}
 
 #pragma endregion
 

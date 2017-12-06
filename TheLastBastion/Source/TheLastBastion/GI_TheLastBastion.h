@@ -63,7 +63,7 @@ private:
 
 #pragma region Session Settings
 
-
+	class IOnlineSubsystem* mOnlineSubSystem;
 	IOnlineSessionPtr mSessionInterface;
 	TSharedPtr<class FOnlineSessionSearch> mSessionSearch;
 
@@ -145,16 +145,23 @@ public:
 
 private:
 
+	// Helpers
 	void ShowMenu(class UUserWidget* &_widget, const TSubclassOf<class UUserWidget>& _class);
-	bool HostSession(TSharedPtr<const FUniqueNetId> _userId, bool _bIsLan, int _numOfConnections);
-	void DestroySession(bool _recreate);
+	bool OnlineSubSystemCheck();
+	const TSharedPtr<const FUniqueNetId> GetUserId();
+
+	bool HostSession(bool _bIsLan, int _numOfConnections);
+	
+	
+	
+	/* return true, if there was a session with same name exist*/
+	bool DestroySession(bool _recreate); 
 
 
 
 	void OnStartOnlineGameComplete(FName _sessionName, bool _success);
 	void OnSessionCreateComplete(FName _sessionName, bool _success);
 	void OnSessionDestroyComplete(FName _sessionName, bool _success);
-	void OnSessionCreateFailed(const FUniqueNetId& _netId, ESessionFailure::Type _failureType);
 	void OnSessionJoinComplete(FName _sessionName, EOnJoinSessionCompleteResult::Type _result);
 	void OnSessionFindComplete(bool _success);
 };
