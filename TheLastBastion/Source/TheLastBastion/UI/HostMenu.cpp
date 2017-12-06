@@ -37,7 +37,7 @@ bool UHostMenu::Initialize()
 		Back->OnClicked.AddDynamic(this, &UHostMenu::OnBackClick);
 		ToggleLeft->OnClicked.AddDynamic(this, &UHostMenu::OnToggleLeftClick);
 		ToggleRight->OnClicked.AddDynamic(this, &UHostMenu::OnToggleRightClick);
-		LobbyName->OnTextCommitted.AddDynamic(this, &UHostMenu::OnLobbyNameChangedWithEnterCommit);
+		LobbyName->OnTextChanged.AddDynamic(this, &UHostMenu::OnLobbyNameChange);
 	}
 	else
 		return false;
@@ -73,13 +73,15 @@ void UHostMenu::OnToggleRightClick()
 	NumberOfPlayers->SetText(FText::AsNumber(numOfPlayers));
 }
 
-void UHostMenu::OnLobbyNameChangedWithEnterCommit(const FText & _text, ETextCommit::Type _commitMethod)
+void UHostMenu::OnLobbyNameChange(const FText & _text)
 {
-	if (_commitMethod == ETextCommit::Type::OnEnter)
+	if (!_text.IsEmpty())
 	{
-		if (!_text.IsEmpty())
-		{
-			Accept->SetVisibility(ESlateVisibility::Visible);
-		}
+		Accept->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		Accept->SetVisibility(ESlateVisibility::Hidden);
+
 	}
 }

@@ -50,6 +50,7 @@ bool UStartMenu::Initialize()
 	BackButton->OnClicked.AddDynamic(this, &UStartMenu::OnBackButtonClick);
 
 	// Init Button
+	ListSwitcher->SetActiveWidgetIndex(0);
 	BackButton->SetVisibility(ESlateVisibility::Hidden);
 	return true;
 }

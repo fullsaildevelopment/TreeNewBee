@@ -10,5 +10,7 @@ public class TheLastBastion : ModuleRules
 
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "OnlineSubsystem", "OnlineSubsystemUtils", "UMG", "Slate", "SlateCore", "OnlineSubSystemSteam" });
 
+        DynamicallyLoadedModuleNames.Add("OnlineSubsystemNull");
+
     }
 }

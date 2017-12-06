@@ -77,7 +77,7 @@ private:
 		void OnToggleRightClick();
 
 	UFUNCTION()
-		void OnPlayerNameChangedWithEnterCommit(const FText& _text, ETextCommit::Type _commitMethod);
+		void OnPlayerNameChange(const FText& _text);
 
 
 	// Check if there is a locally saved player profile during init

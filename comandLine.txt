@@ -1,0 +1,5 @@
+"D:\GameDev\UE4\UE_4.17\Engine\Binaries\Win64\UE4Editor.exe" "D:\GameDev\UE4_Projects\TheLastBastion\TheLastBastion.uproject" -game -log -WINDOWED
+
+Steam Log
+
+Log LogOnline VeryVerbose

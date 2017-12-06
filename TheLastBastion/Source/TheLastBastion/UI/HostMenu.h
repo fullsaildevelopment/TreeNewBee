@@ -52,7 +52,7 @@ private:
 		void OnToggleRightClick();
 
 	UFUNCTION()
-		void OnLobbyNameChangedWithEnterCommit(const FText& _text, ETextCommit::Type _commitMethod);
+		void OnLobbyNameChange(const FText& _text);
 
 
 	

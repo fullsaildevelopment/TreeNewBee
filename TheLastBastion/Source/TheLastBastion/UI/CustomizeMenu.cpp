@@ -50,7 +50,7 @@ bool UCustomizeMenu::Initialize()
 		Back->OnClicked.AddDynamic(this, &UCustomizeMenu::OnBackClick);
 		ToggleLeft->OnClicked.AddDynamic(this, &UCustomizeMenu::OnToggleLeftClick);
 		ToggleRight->OnClicked.AddDynamic(this, &UCustomizeMenu::OnToggleRightClick);
-		PlayerName->OnTextCommitted.AddDynamic(this, &UCustomizeMenu::OnPlayerNameChangedWithEnterCommit);
+		PlayerName->OnTextChanged.AddDynamic(this, &UCustomizeMenu::OnPlayerNameChange);
 	}
 	else
 		return false;
@@ -102,19 +102,16 @@ void UCustomizeMenu::OnToggleRightClick()
 	mCurrentAvatar = allAvatars[mCurrentAvatarSelectionIndex];
 }
 
-void UCustomizeMenu::OnPlayerNameChangedWithEnterCommit(const FText& _text, ETextCommit::Type _commitMethod)
+void UCustomizeMenu::OnPlayerNameChange(const FText& _text)
 {
-	if (_commitMethod == ETextCommit::OnEnter)
-	{
-		if (!_text.IsEmpty())
-		{
-			Accept->SetIsEnabled(true);
-		}
-		else
-		{
-			Accept->SetIsEnabled(false);
-		}
-	}
+     if (!_text.IsEmpty())
+     {
+     	Accept->SetIsEnabled(true);
+     }
+     else
+     {
+     	Accept->SetIsEnabled(false);
+     }
 }
 
 void UCustomizeMenu::PlayerProfileSaveCheck()

@@ -61,9 +61,35 @@ protected:
 
 private:
 
+#pragma region Session Settings
+
+
 	IOnlineSessionPtr mSessionInterface;
 	TSharedPtr<class FOnlineSessionSearch> mSessionSearch;
+
+	FOnCreateSessionCompleteDelegate mOnCreateSessionCompleteDelegate; 
+	FDelegateHandle                  mOnCreateSessionCompleteDelegateHandle;
+	FOnStartSessionCompleteDelegate  mOnStartSessionCompleteDelegate;
+	FDelegateHandle                  mOnStartSessionCompleteDelegateHandle;
+
+	FOnFindSessionsCompleteDelegate  mOnFindSessionsCompleteDelegate;
+	FDelegateHandle                  mOnFindSessionssCompleteDelegateHandle;
+
+	FOnJoinSessionCompleteDelegate   mOnJoinSessionCompleteDelegate;
+	FDelegateHandle                  mOnJoinSessionCompleteDelegateHandle;
+
+	FOnDestroySessionCompleteDelegate mOnDestroySessionCompleteDelegate;
+	FDelegateHandle                   mOnDestroySessionCompleteDelegateHandle;
+
+
+	int  mNumOfConnection;
 	bool bIsLan;
+	bool bRecreateSession;
+
+#pragma endregion
+
+
+
 
 public:
 
@@ -109,7 +135,7 @@ public:
 		void JoinServer(int _index);
 
 	UFUNCTION(Exec)
-		void Host();
+		void BackToMainMenu();
 
 #pragma endregion
 
@@ -120,9 +146,12 @@ public:
 private:
 
 	void ShowMenu(class UUserWidget* &_widget, const TSubclassOf<class UUserWidget>& _class);
-	void CreateSession(bool _bIsLan, int _numOfConnections);
-	void DestroySession();
+	bool HostSession(TSharedPtr<const FUniqueNetId> _userId, bool _bIsLan, int _numOfConnections);
+	void DestroySession(bool _recreate);
 
+
+
+	void OnStartOnlineGameComplete(FName _sessionName, bool _success);
 	void OnSessionCreateComplete(FName _sessionName, bool _success);
 	void OnSessionDestroyComplete(FName _sessionName, bool _success);
 	void OnSessionCreateFailed(const FUniqueNetId& _netId, ESessionFailure::Type _failureType);
