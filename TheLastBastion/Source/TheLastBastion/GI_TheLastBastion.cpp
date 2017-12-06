@@ -245,7 +245,7 @@ void UGI_TheLastBastion::FindLobby()
 			UE_LOG(LogTemp, Warning, TEXT("Search for a LAN? %d"), bIsLan);
 			mSessionSearch->bIsLanQuery = bIsLan;
 			mSessionSearch->MaxSearchResults = 50;
-			//mSessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
+			mSessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
 
 			mOnFindSessionssCompleteDelegateHandle = sessionInterface->AddOnFindSessionsCompleteDelegate_Handle(mOnFindSessionsCompleteDelegate);
 			sessionInterface->FindSessions(*userId, mSessionSearch.ToSharedRef());
@@ -452,8 +452,8 @@ void UGI_TheLastBastion::OnSessionJoinComplete(FName _sessionName, EOnJoinSessio
 			pc->ClientTravel(address, ETravelType::TRAVEL_Absolute);
 		}
 	}
-
 }
+
 
 void UGI_TheLastBastion::OnSessionFindComplete(bool _success)
 {
