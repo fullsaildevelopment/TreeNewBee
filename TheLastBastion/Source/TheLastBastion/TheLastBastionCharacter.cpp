@@ -8,12 +8,15 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Animation/Hero_AnimInstance.h"
+
 
 //////////////////////////////////////////////////////////////////////////
 // ATheLastBastionCharacter
 
 ATheLastBastionCharacter::ATheLastBastionCharacter()
-{
+{	
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
@@ -47,11 +50,22 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
 
+
+void ATheLastBastionCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	// Get Anim Bp Reference
+	mAnimInstance = Cast<UHero_AnimInstance>(this->GetMesh()->GetAnimInstance());
+	if (mAnimInstance == nullptr) { UE_LOG(LogTemp, Warning, TEXT("ATheLastBastionCharacter can not take other AnimInstance other than UHero_AnimInstance, - ATheLastBastionCharacter")); return; }
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
 void ATheLastBastionCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
+
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
@@ -67,30 +81,8 @@ void ATheLastBastionCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAxis("TurnRate", this, &ATheLastBastionCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &ATheLastBastionCharacter::LookUpAtRate);
-
-	// handle touch devices
-	PlayerInputComponent->BindTouch(IE_Pressed, this, &ATheLastBastionCharacter::TouchStarted);
-	PlayerInputComponent->BindTouch(IE_Released, this, &ATheLastBastionCharacter::TouchStopped);
-
-	// VR headset functionality
-	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &ATheLastBastionCharacter::OnResetVR);
 }
 
-
-void ATheLastBastionCharacter::OnResetVR()
-{
-	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
-}
-
-void ATheLastBastionCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
-{
-		Jump();
-}
-
-void ATheLastBastionCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
-{
-		StopJumping();
-}
 
 void ATheLastBastionCharacter::TurnAtRate(float Rate)
 {
