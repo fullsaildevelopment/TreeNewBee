@@ -24,6 +24,13 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
 
+	bIsSprinting = false;
+	SprintSpeed = 850.0f;
+	JogSpeed = 595.0f;
+	walkSpeed = 255.0f;
+	minTurnRate = 180.0f;
+	maxTurnRate = 540.0f;
+
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -31,7 +38,8 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, maxTurnRate, 0.0f); // ...at this rotation rate
+	GetCharacterMovement()->MaxWalkSpeed = JogSpeed; // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.2f;
 
@@ -48,6 +56,8 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+
+
 }
 
 
@@ -55,8 +65,8 @@ void ATheLastBastionCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	// Get Anim Bp Reference
-	mAnimInstance = Cast<UHero_AnimInstance>(this->GetMesh()->GetAnimInstance());
-	if (mAnimInstance == nullptr) { UE_LOG(LogTemp, Warning, TEXT("ATheLastBastionCharacter can not take other AnimInstance other than UHero_AnimInstance, - ATheLastBastionCharacter")); return; }
+	mAnimInstanceRef = Cast<UHero_AnimInstance>(this->GetMesh()->GetAnimInstance());
+	if (mAnimInstanceRef == nullptr) { UE_LOG(LogTemp, Warning, TEXT("ATheLastBastionCharacter can not take other AnimInstance other than UHero_AnimInstance, - ATheLastBastionCharacter")); return; }
 }
 
 
@@ -68,8 +78,6 @@ void ATheLastBastionCharacter::SetupPlayerInputComponent(class UInputComponent* 
 
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ATheLastBastionCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ATheLastBastionCharacter::MoveRight);
@@ -81,6 +89,13 @@ void ATheLastBastionCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAxis("TurnRate", this, &ATheLastBastionCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &ATheLastBastionCharacter::LookUpAtRate);
+
+
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ATheLastBastionCharacter::OnSprintPressed);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ATheLastBastionCharacter::OnSprintReleased);
 }
 
 
@@ -94,6 +109,21 @@ void ATheLastBastionCharacter::LookUpAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void ATheLastBastionCharacter::OnSprintPressed()
+{
+	if (!mAnimInstanceRef->IsSpeedOverrideByAnim())
+	{
+		this->GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+		bIsSprinting = true;
+	}
+}
+
+void ATheLastBastionCharacter::OnSprintReleased()
+{
+	this->GetCharacterMovement()->MaxWalkSpeed = JogSpeed;
+	bIsSprinting = false;
 }
 
 void ATheLastBastionCharacter::MoveForward(float Value)

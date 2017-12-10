@@ -13,21 +13,58 @@ UCLASS()
 class THELASTBASTION_API UHero_AnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
-	
+
+
+private:
+
+	bool bSpeedOverrideByAnim;
+
+	bool bRotationRateOverrideByAnim;
+
+protected:
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+		bool bTryToMove;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+		float currentSpeed;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+		float turn;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+		FVector acceleration_bodySpace;
+
 protected:
 
 	UPROPERTY(BlueprintReadOnly)
-		class UCharacterMovementComponent* mMovementComp;
+		class ATheLastBastionCharacter* mCharacter;
 
-	UFUNCTION(BlueprintCallable)
+protected:
+
 		virtual void OnBeginPlay();
 
-	UFUNCTION(BlueprintCallable)
 		virtual void OnInit();
 
-	UFUNCTION(BlueprintCallable)
 		virtual void OnUpdate(float _deltaTime);
 
-	UFUNCTION(BlueprintCallable)
 		virtual void OnPostEvaluate();	
+
+#pragma region Anim Notification
+
+		UFUNCTION(BlueprintCallable)
+			void StartOverrideSpeed();
+
+		UFUNCTION(BlueprintCallable)
+			void StopOverrideSpeed();
+
+
+#pragma endregion
+
+
+
+public:
+
+	FORCEINLINE bool IsSpeedOverrideByAnim() const { return bSpeedOverrideByAnim; }
+	FORCEINLINE bool IsRotationRateOverrideByAnim() const { return bRotationRateOverrideByAnim; }
 };

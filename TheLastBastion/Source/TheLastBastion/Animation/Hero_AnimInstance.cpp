@@ -3,40 +3,72 @@
 #include "Hero_AnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "TheLastBastionCharacter.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Engine.h"
 
 void UHero_AnimInstance::OnBeginPlay()
 {
 	APawn* pawn = TryGetPawnOwner();
-	ATheLastBastionCharacter* hero = Cast<ATheLastBastionCharacter>(pawn);
-	if (hero == nullptr)
+	mCharacter = Cast<ATheLastBastionCharacter>(pawn);
+	if (mCharacter == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("The MeleeHero can only assigned to ATheLastBastionCharacter - UMeleeHero_AnimInstance "));
 		return;
 	}
-	mMovementComp = hero->GetCharacterMovement();
-
-	UE_LOG(LogTemp, Warning, TEXT("UHero_AnimInstance Call BeginPlay"));
+	UE_LOG(LogTemp, Warning, TEXT("UHero_AnimInstance Call OnBeginPlay"));
 }
 
 void UHero_AnimInstance::OnInit()
 {
+	//UE_LOG(LogTemp, Warning, TEXT("UHero_AnimInstance Call OnInit"));
 }
 
 void UHero_AnimInstance::OnUpdate(float _deltaTime)
 {
-	ensure(mMovementComp != nullptr);
-	float maxSpeed = 0, rotationSpeed = 0;
 
-	if (!GetCurveValue("Speed"), maxSpeed) {
-		UE_LOG(LogTemp, Warning, TEXT("UHero_AnimInstance Unable to get value from Curve Speed"));
+	if (mCharacter != nullptr)
+	{
+		UCharacterMovementComponent* movementComp = mCharacter->GetCharacterMovement();
+
+		// Check if the player try to move?
+		bTryToMove = movementComp->GetCurrentAcceleration().SizeSquared() > 0;
+
+		currentSpeed = movementComp->Velocity.Size();
+
+		FVector acceleration = movementComp->GetCurrentAcceleration();
+		acceleration.Normalize();
+		acceleration_bodySpace
+			= UKismetMathLibrary::InverseTransformDirection(mCharacter->GetTransform(), acceleration);
+		
+		turn = FMath::RadiansToDegrees(FMath::Atan2(acceleration_bodySpace.Y, acceleration_bodySpace.X));
+
+		// the more of the angle between forward vector and acceleration, the more rotation speed
+		movementComp->RotationRate.Yaw 
+			= UKismetMathLibrary::MapRangeClamped(FMath::Abs(turn), 0, 180.0f, mCharacter->GetMinTurnRate(), mCharacter->GetMaxTurnRate());
+
+		if (bSpeedOverrideByAnim)
+			//movementComp->MaxWalkSpeed = GetCurveValue("Speed");
+			movementComp->Velocity = mCharacter->GetActorForwardVector() * GetCurveValue("Speed");
+
+		if (bRotationRateOverrideByAnim)
+			movementComp->RotationRate.Yaw = GetCurveValue("Rotation");
+
 	}
-	if (!GetCurveValue("Rotation"), rotationSpeed) {
-		UE_LOG(LogTemp, Warning, TEXT("UHero_AnimInstance Unable to get value from Curve Speed"));
+	else
+	{
 	}
 
 
-	mMovementComp->MaxWalkSpeed = maxSpeed * GetOwningComponent()->GetPlayRate();
-	mMovementComp->RotationRate.Yaw = rotationSpeed * GetOwningComponent()->GetPlayRate();
+	//if (!GetCurveValue("Speed"), maxSpeed) {
+	//	UE_LOG(LogTemp, Warning, TEXT("UHero_AnimInstance Unable to get value from Curve Speed"));
+	//}
+	//if (!GetCurveValue("Rotation"), rotationSpeed) {
+	//	UE_LOG(LogTemp, Warning, TEXT("UHero_AnimInstance Unable to get value from Curve Speed"));
+	//}
+
+
+	//mMovementComp->MaxWalkSpeed = maxSpeed * GetOwningComponent()->GetPlayRate();
+	//mMovementComp->RotationRate.Yaw = rotationSpeed * GetOwningComponent()->GetPlayRate();
 
 
 	
@@ -44,4 +76,16 @@ void UHero_AnimInstance::OnUpdate(float _deltaTime)
 
 void UHero_AnimInstance::OnPostEvaluate()
 {
+}
+
+void UHero_AnimInstance::StartOverrideSpeed()
+{
+	bSpeedOverrideByAnim = true;
+}
+
+void UHero_AnimInstance::StopOverrideSpeed()
+{
+	bSpeedOverrideByAnim = false;
+	mCharacter->GetCharacterMovement()->MaxWalkSpeed 
+		= (mCharacter->IsSprinting())? mCharacter->GetSprintSpeed() : mCharacter->GetJogSpeed();
 }
