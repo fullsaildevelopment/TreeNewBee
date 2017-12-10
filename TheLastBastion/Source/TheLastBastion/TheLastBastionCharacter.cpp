@@ -91,8 +91,8 @@ void ATheLastBastionCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAxis("LookUpRate", this, &ATheLastBastionCharacter::LookUpAtRate);
 
 
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ATheLastBastionCharacter::OnJumpPressed);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ATheLastBastionCharacter::OnJumpReleased);
 
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ATheLastBastionCharacter::OnSprintPressed);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ATheLastBastionCharacter::OnSprintReleased);
@@ -118,12 +118,28 @@ void ATheLastBastionCharacter::OnSprintPressed()
 		this->GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
 		bIsSprinting = true;
 	}
+	UE_LOG(LogTemp, Warning, TEXT("OnSprintPressed"));
 }
 
 void ATheLastBastionCharacter::OnSprintReleased()
 {
 	this->GetCharacterMovement()->MaxWalkSpeed = JogSpeed;
 	bIsSprinting = false;
+}
+
+void ATheLastBastionCharacter::OnJumpPressed()
+{
+	if (mAnimInstanceRef->GetIsJumpEnable())
+	{
+		mAnimInstanceRef->SetIsJump(true);
+		this->Jump();
+	}
+}
+
+void ATheLastBastionCharacter::OnJumpReleased()
+{
+	mAnimInstanceRef->SetIsJump(false);
+	this->StopJumping();
 }
 
 void ATheLastBastionCharacter::MoveForward(float Value)

@@ -49,7 +49,6 @@ private:
 
 	bool bIsSprinting;
 
-
 protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
@@ -95,6 +94,13 @@ protected:
 
 	/** Called when Sprint button is Released*/
 	void OnSprintReleased();
+
+	/** Called when Sprint button is Pressed*/
+	void OnJumpPressed();
+
+	/** Called when Sprint button is Released*/
+	void OnJumpReleased();
+
 
 #pragma endregion
 

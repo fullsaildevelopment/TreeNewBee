@@ -18,10 +18,20 @@ class THELASTBASTION_API UHero_AnimInstance : public UAnimInstance
 private:
 
 	bool bSpeedOverrideByAnim;
-
 	bool bRotationRateOverrideByAnim;
 
+
 protected:
+	
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+		bool bEnableJump;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+		bool bTryToJump;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+		bool bIsInAir;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
 		bool bTryToMove;
@@ -58,6 +68,14 @@ protected:
 		UFUNCTION(BlueprintCallable)
 			void StopOverrideSpeed();
 
+		UFUNCTION(BlueprintCallable)
+			void EnableJump();
+
+		UFUNCTION(BlueprintCallable)
+			void DisableJump();
+
+
+
 
 #pragma endregion
 
@@ -67,4 +85,9 @@ public:
 
 	FORCEINLINE bool IsSpeedOverrideByAnim() const { return bSpeedOverrideByAnim; }
 	FORCEINLINE bool IsRotationRateOverrideByAnim() const { return bRotationRateOverrideByAnim; }
+
+
+	FORCEINLINE bool GetIsJumpEnable() const { return bEnableJump; }
+	FORCEINLINE void SetIsJump(bool _val) { bTryToJump = _val; }
+
 };

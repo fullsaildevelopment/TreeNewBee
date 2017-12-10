@@ -30,6 +30,9 @@ void UHero_AnimInstance::OnUpdate(float _deltaTime)
 	{
 		UCharacterMovementComponent* movementComp = mCharacter->GetCharacterMovement();
 
+		// Check if the play is falling?
+		bIsInAir = movementComp->IsFalling();
+
 		// Check if the player try to move?
 		bTryToMove = movementComp->GetCurrentAcceleration().SizeSquared() > 0;
 
@@ -56,22 +59,7 @@ void UHero_AnimInstance::OnUpdate(float _deltaTime)
 	}
 	else
 	{
-	}
-
-
-	//if (!GetCurveValue("Speed"), maxSpeed) {
-	//	UE_LOG(LogTemp, Warning, TEXT("UHero_AnimInstance Unable to get value from Curve Speed"));
-	//}
-	//if (!GetCurveValue("Rotation"), rotationSpeed) {
-	//	UE_LOG(LogTemp, Warning, TEXT("UHero_AnimInstance Unable to get value from Curve Speed"));
-	//}
-
-
-	//mMovementComp->MaxWalkSpeed = maxSpeed * GetOwningComponent()->GetPlayRate();
-	//mMovementComp->RotationRate.Yaw = rotationSpeed * GetOwningComponent()->GetPlayRate();
-
-
-	
+	}	
 }
 
 void UHero_AnimInstance::OnPostEvaluate()
@@ -88,4 +76,14 @@ void UHero_AnimInstance::StopOverrideSpeed()
 	bSpeedOverrideByAnim = false;
 	mCharacter->GetCharacterMovement()->MaxWalkSpeed 
 		= (mCharacter->IsSprinting())? mCharacter->GetSprintSpeed() : mCharacter->GetJogSpeed();
+}
+
+void UHero_AnimInstance::EnableJump()
+{
+	bEnableJump = true;
+}
+
+void UHero_AnimInstance::DisableJump()
+{
+	bEnableJump = false;
 }
