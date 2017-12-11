@@ -8,7 +8,7 @@ public class TheLastBastion : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "OnlineSubsystem", "OnlineSubsystemUtils", "UMG", "Slate", "SlateCore", "OnlineSubSystemSteam" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "OnlineSubsystem", "OnlineSubsystemUtils", "UMG", "Slate", "SlateCore", "OnlineSubSystemSteam", "AIModule", "GameplayTasks" });
 
         DynamicallyLoadedModuleNames.Add("OnlineSubsystemNull");
 
