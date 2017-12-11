@@ -47,6 +47,13 @@ private:
 	UPROPERTY()
 		class UHero_AnimInstance*  mAnimInstanceRef;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		class UStaticMeshComponent* RightHand;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		class UStaticMeshComponent* LeftHand;
+
+
 	bool bIsSprinting;
 
 protected:
@@ -101,12 +108,10 @@ protected:
 	/** Called when Sprint button is Released*/
 	void OnJumpReleased();
 
+	/** Called when Attack button is Pressed*/
+	void OnAttackPressed();
 
 #pragma endregion
-
-
-
-
 
 
 

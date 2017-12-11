@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/Hero_AnimInstance.h"
 
@@ -29,7 +30,7 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	JogSpeed = 595.0f;
 	walkSpeed = 255.0f;
 	minTurnRate = 180.0f;
-	maxTurnRate = 540.0f;
+	maxTurnRate = 720.0f;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -38,7 +39,6 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, maxTurnRate, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->MaxWalkSpeed = JogSpeed; // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.2f;
@@ -52,7 +52,16 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	FollowCamera->bUsePawnControlRotation = false;
+	// Camera does not rotate relative to arm
+
+	// Create a static mesh for right and left hand equipment
+	LeftHand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LeftHandWeapon"));
+	LeftHand->SetupAttachment(GetMesh(), TEXT("Shield"));
+
+	RightHand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RightHandWeapon"));
+	RightHand->SetupAttachment(GetMesh(), TEXT("Weapon"));
+
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
@@ -64,6 +73,8 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 void ATheLastBastionCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, maxTurnRate, 0.0f); 
 	// Get Anim Bp Reference
 	mAnimInstanceRef = Cast<UHero_AnimInstance>(this->GetMesh()->GetAnimInstance());
 	if (mAnimInstanceRef == nullptr) { UE_LOG(LogTemp, Warning, TEXT("ATheLastBastionCharacter can not take other AnimInstance other than UHero_AnimInstance, - ATheLastBastionCharacter")); return; }
@@ -96,6 +107,9 @@ void ATheLastBastionCharacter::SetupPlayerInputComponent(class UInputComponent* 
 
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ATheLastBastionCharacter::OnSprintPressed);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ATheLastBastionCharacter::OnSprintReleased);
+
+	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &ATheLastBastionCharacter::OnAttackPressed);
+
 }
 
 
@@ -140,6 +154,11 @@ void ATheLastBastionCharacter::OnJumpReleased()
 {
 	mAnimInstanceRef->SetIsJump(false);
 	this->StopJumping();
+}
+
+void ATheLastBastionCharacter::OnAttackPressed()
+{
+	mAnimInstanceRef->OnAttack();
 }
 
 void ATheLastBastionCharacter::MoveForward(float Value)

@@ -15,6 +15,10 @@ class THELASTBASTION_API UMeleeHero_AnimInstance : public UHero_AnimInstance
 {
 	GENERATED_BODY()
 
+
+
+
+
 protected:
 	
 	UFUNCTION(BlueprintCallable)
@@ -28,4 +32,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 		void OnPostEvaluate();
+
+
+public:
+
+	void OnAttack() override;
 };

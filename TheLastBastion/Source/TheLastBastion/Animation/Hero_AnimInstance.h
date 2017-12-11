@@ -43,6 +43,10 @@ protected:
 		float turn;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+		int activatedStateMachine;
+
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
 		FVector acceleration_bodySpace;
 
 protected:
@@ -74,19 +78,17 @@ protected:
 		UFUNCTION(BlueprintCallable)
 			void DisableJump();
 
-
-
-
 #pragma endregion
 
 
 
 public:
 
+
+	virtual void OnAttack();
+
 	FORCEINLINE bool IsSpeedOverrideByAnim() const { return bSpeedOverrideByAnim; }
 	FORCEINLINE bool IsRotationRateOverrideByAnim() const { return bRotationRateOverrideByAnim; }
-
-
 	FORCEINLINE bool GetIsJumpEnable() const { return bEnableJump; }
 	FORCEINLINE void SetIsJump(bool _val) { bTryToJump = _val; }
 

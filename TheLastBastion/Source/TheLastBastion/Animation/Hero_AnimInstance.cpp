@@ -20,6 +20,7 @@ void UHero_AnimInstance::OnBeginPlay()
 
 void UHero_AnimInstance::OnInit()
 {
+	activatedStateMachine = 0;
 	//UE_LOG(LogTemp, Warning, TEXT("UHero_AnimInstance Call OnInit"));
 }
 
@@ -86,4 +87,9 @@ void UHero_AnimInstance::EnableJump()
 void UHero_AnimInstance::DisableJump()
 {
 	bEnableJump = false;
+}
+
+void UHero_AnimInstance::OnAttack()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Attack ! - UHero_AnimInstance"));
 }

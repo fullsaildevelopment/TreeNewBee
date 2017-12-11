@@ -14,7 +14,7 @@ void UMeleeHero_AnimInstance::OnBeginPlay()
 
 void UMeleeHero_AnimInstance::OnInit()
 {
-	//Super::OnInit();
+	Super::OnInit();
 	//UE_LOG(LogTemp, Warning, TEXT("UMeleeHero_AnimInstance Call OnInit"));
 
 }
@@ -27,4 +27,15 @@ void UMeleeHero_AnimInstance::OnUpdate(float _deltaTime)
 void UMeleeHero_AnimInstance::OnPostEvaluate()
 {
 
+}
+
+void UMeleeHero_AnimInstance::OnAttack()
+{
+	Super::OnAttack();
+	activatedStateMachine++;
+	if (activatedStateMachine == 2)
+	{
+		activatedStateMachine = 0;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Attack ! - UMeleeHero_AnimInstance"));
 }
