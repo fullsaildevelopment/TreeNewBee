@@ -210,7 +210,7 @@ void ATheLastBastionCharacter::OnAttackPressed()
 	if (bIsSprinting)
 		StopSprint();
 
-	SetCapsuleSizeToFitSwordShield();
+	//SetCapsuleSizeToFitSwordShield();
 	// Increase the turn rate for flexible control
 	GetCharacterMovement()->RotationRate.Yaw = maxTurnRate_Combat;
 }
@@ -222,14 +222,14 @@ void ATheLastBastionCharacter::OnEquipPressed()
 
 	if (mAnimInstanceRef->GetActivatedEquipmentType() != EEquipType::Travel )
 	{
-		SetCapsuleSizeToFitSwordShield();
+		//SetCapsuleSizeToFitSwordShield();
 		GetCharacterMovement()->RotationRate.Yaw = maxTurnRate_Combat;
 		if(bIsSprinting)
 			StopSprint();
 	}
 	else
 	{
-		SetCapsuleSizeToFitTravel();
+		//SetCapsuleSizeToFitTravel();
 		GetCharacterMovement()->RotationRate.Yaw = maxTurnRate_Travel;
 		if (bTryToSprint)
 			StartSprint();
