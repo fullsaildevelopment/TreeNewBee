@@ -18,19 +18,31 @@
 
 ATheLastBastionCharacter::ATheLastBastionCharacter()
 {	
-	// Set size for collision capsule
-	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
 	// set our turn rates for input
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
 
 	bIsSprinting = false;
+	bTryToSprint = false;
 	SprintSpeed = 850.0f;
 	JogSpeed = 595.0f;
 	walkSpeed = 255.0f;
 	minTurnRate = 180.0f;
-	maxTurnRate = 720.0f;
+	maxTurnRate_Travel = 630.0f;
+	maxTurnRate_Combat = 1440.0f;
+	maxTurnRate = maxTurnRate_Travel;
+
+	// Init capsule size of each situations
+	CapHalfSize_Travel = 90.0f;
+	CapRadius_Travel = 34.0f;
+	CapHalfSize_ShieldSword = 80.0f;
+	CapRadius_ShieldSword = 30.0;
+
+
+	// Set size for collision capsule
+	GetCapsuleComponent()->InitCapsuleSize(CapRadius_Travel, CapHalfSize_Travel);
+	GetMesh()->RelativeLocation = FVector(0, 0, -CapRadius_Travel);
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -109,9 +121,9 @@ void ATheLastBastionCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ATheLastBastionCharacter::OnSprintReleased);
 
 	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &ATheLastBastionCharacter::OnAttackPressed);
+	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ATheLastBastionCharacter::OnEquipPressed);
 
 }
-
 
 void ATheLastBastionCharacter::TurnAtRate(float Rate)
 {
@@ -127,19 +139,52 @@ void ATheLastBastionCharacter::LookUpAtRate(float Rate)
 
 void ATheLastBastionCharacter::OnSprintPressed()
 {
-	if (!mAnimInstanceRef->IsSpeedOverrideByAnim())
+	bTryToSprint = true;
+		 
+	bool ableToSprint = !mAnimInstanceRef->IsSpeedOverrideByAnim()
+		&& mAnimInstanceRef->GetActivatedEquipmentType() == EEquipType::Travel;
+	if (ableToSprint)
 	{
-		this->GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
-		bIsSprinting = true;
+		StartSprint();
 	}
 	UE_LOG(LogTemp, Warning, TEXT("OnSprintPressed"));
 }
 
 void ATheLastBastionCharacter::OnSprintReleased()
 {
+
+	bTryToSprint = false;
+	StopSprint();
+}
+
+void ATheLastBastionCharacter::StartSprint()
+{
+	this->GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+	bIsSprinting = true;
+}
+
+void ATheLastBastionCharacter::StopSprint()
+{
 	this->GetCharacterMovement()->MaxWalkSpeed = JogSpeed;
 	bIsSprinting = false;
 }
+
+void ATheLastBastionCharacter::SetCapsuleSizeToFitTravel()
+{
+	GetCapsuleComponent()->SetCapsuleHalfHeight(CapHalfSize_Travel, false);
+	GetCapsuleComponent()->SetCapsuleRadius(CapRadius_Travel);
+
+	GetMesh()->RelativeLocation = FVector(0, 0, -CapHalfSize_Travel);
+}
+
+void ATheLastBastionCharacter::SetCapsuleSizeToFitSwordShield()
+{
+	GetCapsuleComponent()->SetCapsuleHalfHeight(CapHalfSize_ShieldSword, false);
+	GetCapsuleComponent()->SetCapsuleRadius(CapRadius_ShieldSword);
+
+	GetMesh()->RelativeLocation = FVector(0, 0, -CapHalfSize_ShieldSword);
+}
+
 
 void ATheLastBastionCharacter::OnJumpPressed()
 {
@@ -158,7 +203,38 @@ void ATheLastBastionCharacter::OnJumpReleased()
 
 void ATheLastBastionCharacter::OnAttackPressed()
 {
+
 	mAnimInstanceRef->OnAttack();
+
+	// Once Attack, we activate combat mode, hence we have to slow our speed down
+	if (bIsSprinting)
+		StopSprint();
+
+	SetCapsuleSizeToFitSwordShield();
+	// Increase the turn rate for flexible control
+	GetCharacterMovement()->RotationRate.Yaw = maxTurnRate_Combat;
+}
+
+void ATheLastBastionCharacter::OnEquipPressed()
+{
+	// let animInstance handle equip
+	mAnimInstanceRef->OnEquip();
+
+	if (mAnimInstanceRef->GetActivatedEquipmentType() != EEquipType::Travel )
+	{
+		SetCapsuleSizeToFitSwordShield();
+		GetCharacterMovement()->RotationRate.Yaw = maxTurnRate_Combat;
+		if(bIsSprinting)
+			StopSprint();
+	}
+	else
+	{
+		SetCapsuleSizeToFitTravel();
+		GetCharacterMovement()->RotationRate.Yaw = maxTurnRate_Travel;
+		if (bTryToSprint)
+			StartSprint();
+	}
+
 }
 
 void ATheLastBastionCharacter::MoveForward(float Value)

@@ -6,6 +6,13 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine.h"
 
+
+UHero_AnimInstance::UHero_AnimInstance(const FObjectInitializer& _objectInitalizer) :Super(_objectInitalizer)
+{
+	headTrackRate = 3.0f;
+	activatedEquipment = EEquipType::Travel;
+}
+
 void UHero_AnimInstance::OnBeginPlay()
 {
 	APawn* pawn = TryGetPawnOwner();
@@ -20,7 +27,7 @@ void UHero_AnimInstance::OnBeginPlay()
 
 void UHero_AnimInstance::OnInit()
 {
-	activatedStateMachine = 0;
+	//activatedEquipment = EEquipType::Travel;
 	//UE_LOG(LogTemp, Warning, TEXT("UHero_AnimInstance Call OnInit"));
 }
 
@@ -57,6 +64,10 @@ void UHero_AnimInstance::OnUpdate(float _deltaTime)
 		if (bRotationRateOverrideByAnim)
 			movementComp->RotationRate.Yaw = GetCurveValue("Rotation");
 
+
+		// Head Track
+		HeadTrack();
+
 	}
 	else
 	{
@@ -89,7 +100,71 @@ void UHero_AnimInstance::DisableJump()
 	bEnableJump = false;
 }
 
+float UHero_AnimInstance::PlayMontage(UAnimMontage * _animMontage, float _rate, FName _startSectionName)
+{
+	if (_animMontage)
+	{
+		float const duration = this->Montage_Play(_animMontage, _rate);
+		if (duration > 0.f)
+		{
+			if (_startSectionName != NAME_None)
+			{
+				this->Montage_JumpToSection(_startSectionName, _animMontage);
+			}
+		}
+		return duration;
+	}
+	return 0.f;
+}
+
 void UHero_AnimInstance::OnAttack()
 {
+	// Travel mode to combat mode on attack
+	if (activatedEquipment == EEquipType::Travel)
+		activatedEquipment = currentEquipment;
+
 	UE_LOG(LogTemp, Warning, TEXT("Attack ! - UHero_AnimInstance"));
+}
+
+void UHero_AnimInstance::OnEquip()
+{
+	if (activatedEquipment != currentEquipment)
+		// Equip
+		activatedEquipment = currentEquipment;
+	else
+		// Unequip
+		activatedEquipment = EEquipType::Travel;
+}
+
+void UHero_AnimInstance::HeadTrack()
+{
+	
+	// Calculate the headTrack yaw and pitch
+	FRotator actorRotation = mCharacter->GetActorRotation();
+	FRotator delta = UKismetMathLibrary::NormalizedDeltaRotator(mCharacter->GetControlRotation(), actorRotation);
+
+	float headTrack_yaw_target = delta.Yaw;
+	float headTrack_pitch_target = delta.Pitch;
+	if (headTrack_yaw_target >= 135.0f)
+	{
+		if (headTrack_yaw_target < 90)
+			headTrack_yaw_target = -headTrack_yaw_target;
+		else
+			headTrack_yaw_target = headTrack_yaw_target - 180.0f;
+
+		headTrack_pitch_target = -headTrack_pitch_target;
+	}
+	else if (headTrack_yaw_target <= -135.0f)
+	{
+		if (headTrack_yaw_target > -90)
+			headTrack_yaw_target = -headTrack_yaw_target;
+		else
+			headTrack_yaw_target = headTrack_yaw_target + 180.0f;
+
+		headTrack_pitch_target = -headTrack_pitch_target;
+	}
+
+	headTrackYaw = FMath::FInterpTo(headTrackYaw, headTrack_yaw_target, GetWorld()->DeltaTimeSeconds, headTrackRate);
+	headTrackPitch = FMath::FInterpTo(headTrackPitch, headTrack_pitch_target, GetWorld()->DeltaTimeSeconds, headTrackRate);
+
 }

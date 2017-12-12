@@ -21,9 +21,6 @@ protected:
 public:
 	ATheLastBastionCharacter();
 
-
-
-
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
@@ -35,6 +32,7 @@ public:
 
 
 private:
+
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class USpringArmComponent* CameraBoom;
@@ -47,32 +45,62 @@ private:
 	UPROPERTY()
 		class UHero_AnimInstance*  mAnimInstanceRef;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
 		class UStaticMeshComponent* RightHand;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
 		class UStaticMeshComponent* LeftHand;
 
 
-	bool bIsSprinting;
 
-protected:
+#pragma region Combat Collision Capsole Vals Presets
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = CombatCollision, meta = (AllowPrivateAccess = "true"))
+		float CapHalfSize_Travel;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = CombatCollision, meta = (AllowPrivateAccess = "true"))
+		float CapRadius_Travel;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = CombatCollision, meta = (AllowPrivateAccess = "true"))
+		float CapHalfSize_ShieldSword;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = CombatCollision, meta = (AllowPrivateAccess = "true"))
+		float CapRadius_ShieldSword;
+
+#pragma endregion
+
+
+#pragma region Hero Movement Stats
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 		float SprintSpeed = 850.0f;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 		float JogSpeed = 595.0f;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 		float walkSpeed = 255.0f;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 		float minTurnRate = 180.0f;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
-		float maxTurnRate = 540.0f;
+	UPROPERTY(BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+		float maxTurnRate = 630.0f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+		float maxTurnRate_Travel = 630.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+		float maxTurnRate_Combat = 1440.0f;
+
+	/** Is Character currently sprinting*/
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+		bool bIsSprinting;
+
+	/** Is Sprinting button is still pressed */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+		bool bTryToSprint;
+
+#pragma endregion
 
 
 protected:
@@ -111,6 +139,11 @@ protected:
 	/** Called when Attack button is Pressed*/
 	void OnAttackPressed();
 
+	/** Called when Attack button is Pressed*/
+	void OnEquipPressed();
+
+
+
 #pragma endregion
 
 
@@ -119,6 +152,16 @@ protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
+
+
+private:
+
+	void StartSprint();
+	void StopSprint();
+
+	void SetCapsuleSizeToFitTravel();
+	void SetCapsuleSizeToFitSwordShield();
+
 
 public:
 	/** Returns CameraBoom subobject **/
@@ -131,6 +174,9 @@ public:
 
 	FORCEINLINE float GetJogSpeed() const { return JogSpeed; }
 	FORCEINLINE float GetSprintSpeed() const { return SprintSpeed; }
+
 	FORCEINLINE bool IsSprinting() const { return bIsSprinting; }
+	FORCEINLINE bool IsTryingSprinting() const { return bTryToSprint; }
+
 };
 
