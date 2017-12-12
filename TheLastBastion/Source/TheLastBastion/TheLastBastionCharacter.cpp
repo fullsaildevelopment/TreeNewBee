@@ -68,12 +68,30 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	FollowCamera->bUsePawnControlRotation = false;
 	// Camera does not rotate relative to arm
 
+	InitCombatComponentsCollision();
+
+
+	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
+	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+}
+
+void ATheLastBastionCharacter::InitCombatComponentsCollision()
+{
 	// Create a static mesh for right and left hand equipment
 	LeftHand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LeftHandWeapon"));
 	LeftHand->SetupAttachment(GetMesh(), TEXT("Shield"));
+	LeftHand->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	LeftHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LeftHand->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	LeftHand->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
 
 	RightHand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RightHandWeapon"));
 	RightHand->SetupAttachment(GetMesh(), TEXT("Weapon"));
+	RightHand->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	RightHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightHand->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	RightHand->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
+	RightHand->SetCollisionProfileName(TEXT("Weapon"));
 
 
 	Body = CreateDefaultSubobject<UBoxComponent>(TEXT("Body"));
@@ -81,20 +99,24 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	Body->InitBoxExtent(FVector(40, 15, 25));
 	Body->RelativeLocation = FVector(-10, 0, 0);
 
+	Body->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	Body->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	Body->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	Body->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
+
 
 	Head = CreateDefaultSubobject<USphereComponent>(TEXT("Head"));
 	Head->SetupAttachment(GetMesh(), TEXT("head"));
 	Head->InitSphereRadius(12);
 	Head->RelativeLocation = FVector(5, 2.5f, 0);
 
-
-
-
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
-
+	Head->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	Head->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	Head->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	Head->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
 
 }
+
 
 
 void ATheLastBastionCharacter::BeginPlay()
@@ -171,6 +193,7 @@ void ATheLastBastionCharacter::OnSprintReleased()
 	bTryToSprint = false;
 	StopSprint();
 }
+
 
 void ATheLastBastionCharacter::StartSprint()
 {
