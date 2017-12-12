@@ -54,6 +54,9 @@ protected:
 
 #pragma endregion
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+		FName LobbyMap;
+
 	UPROPERTY(BlueprintReadWrite)
 		FPlayerProfile playerProflie;
 	UPROPERTY()
