@@ -161,6 +161,8 @@ protected:
 
 private:
 
+	void InitCombatComponentsCollision();
+
 	void StartSprint();
 	void StopSprint();
 
