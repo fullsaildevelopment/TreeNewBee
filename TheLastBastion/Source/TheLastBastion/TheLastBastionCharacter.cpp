@@ -11,7 +11,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/Hero_AnimInstance.h"
-
+#include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ATheLastBastionCharacter
@@ -30,7 +31,7 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	walkSpeed = 255.0f;
 	minTurnRate = 180.0f;
 	maxTurnRate_Travel = 630.0f;
-	maxTurnRate_Combat = 1440.0f;
+	maxTurnRate_Combat = 1080.0f;
 	maxTurnRate = maxTurnRate_Travel;
 
 	// Init capsule size of each situations
@@ -73,6 +74,20 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 
 	RightHand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RightHandWeapon"));
 	RightHand->SetupAttachment(GetMesh(), TEXT("Weapon"));
+
+
+	Body = CreateDefaultSubobject<UBoxComponent>(TEXT("Body"));
+	Body->SetupAttachment(GetMesh(), TEXT("spine_02"));
+	Body->InitBoxExtent(FVector(40, 15, 25));
+	Body->RelativeLocation = FVector(-10, 0, 0);
+
+
+	Head = CreateDefaultSubobject<USphereComponent>(TEXT("Head"));
+	Head->SetupAttachment(GetMesh(), TEXT("head"));
+	Head->InitSphereRadius(12);
+	Head->RelativeLocation = FVector(5, 2.5f, 0);
+
+
 
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
@@ -210,9 +225,9 @@ void ATheLastBastionCharacter::OnAttackPressed()
 	if (bIsSprinting)
 		StopSprint();
 
-	SetCapsuleSizeToFitSwordShield();
+	//SetCapsuleSizeToFitSwordShield();
 	// Increase the turn rate for flexible control
-	GetCharacterMovement()->RotationRate.Yaw = maxTurnRate_Combat;
+	maxTurnRate = maxTurnRate_Combat;
 }
 
 void ATheLastBastionCharacter::OnEquipPressed()
@@ -222,15 +237,15 @@ void ATheLastBastionCharacter::OnEquipPressed()
 
 	if (mAnimInstanceRef->GetActivatedEquipmentType() != EEquipType::Travel )
 	{
-		SetCapsuleSizeToFitSwordShield();
-		GetCharacterMovement()->RotationRate.Yaw = maxTurnRate_Combat;
+		//SetCapsuleSizeToFitSwordShield();
+		maxTurnRate = maxTurnRate_Combat;
 		if(bIsSprinting)
 			StopSprint();
 	}
 	else
 	{
-		SetCapsuleSizeToFitTravel();
-		GetCharacterMovement()->RotationRate.Yaw = maxTurnRate_Travel;
+		//SetCapsuleSizeToFitTravel();
+		maxTurnRate = maxTurnRate_Travel;
 		if (bTryToSprint)
 			StartSprint();
 	}

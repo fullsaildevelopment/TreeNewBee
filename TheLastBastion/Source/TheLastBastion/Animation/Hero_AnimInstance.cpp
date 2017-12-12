@@ -58,11 +58,14 @@ void UHero_AnimInstance::OnUpdate(float _deltaTime)
 			= UKismetMathLibrary::MapRangeClamped(FMath::Abs(turn), 0, 180.0f, mCharacter->GetMinTurnRate(), mCharacter->GetMaxTurnRate());
 
 		if (bSpeedOverrideByAnim)
-			//movementComp->MaxWalkSpeed = GetCurveValue("Speed");
-			movementComp->Velocity = mCharacter->GetActorForwardVector() * GetCurveValue("Speed");
+		{
+			// we restore the velocity from gravity, and override the x,y component
+			float Z = movementComp->Velocity.Z;
+			FVector overrideVelocity = mCharacter->GetActorForwardVector() * GetCurveValue("Speed");
+			movementComp->Velocity = FVector(overrideVelocity.X, overrideVelocity.Y, Z);
 
-		if (bRotationRateOverrideByAnim)
-			movementComp->RotationRate.Yaw = GetCurveValue("Rotation");
+		}
+
 
 
 		// Head Track

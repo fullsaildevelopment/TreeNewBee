@@ -30,6 +30,8 @@ UGI_TheLastBastion::UGI_TheLastBastion(const FObjectInitializer & ObjectInitiali
 	mOnStartSessionCompleteDelegate = FOnStartSessionCompleteDelegate::CreateUObject(this, &UGI_TheLastBastion::OnStartOnlineGameComplete);
 	mOnFindSessionsCompleteDelegate = FOnFindSessionsCompleteDelegate::CreateUObject(this, &UGI_TheLastBastion::OnSessionFindComplete);
 	mOnJoinSessionCompleteDelegate = FOnJoinSessionCompleteDelegate::CreateUObject(this, &UGI_TheLastBastion::OnSessionJoinComplete);
+
+	LobbyMap = TEXT("Lobby");
 }
 
 void UGI_TheLastBastion::Init()
@@ -323,7 +325,7 @@ void UGI_TheLastBastion::OnStartOnlineGameComplete(FName _sessionName, bool _suc
 	}
 
 	if (_success)
-		UGameplayStatics::OpenLevel(GetWorld(), "Lobby", true, "listen");
+		UGameplayStatics::OpenLevel(GetWorld(), LobbyMap, true, "listen");
 }
 
 void UGI_TheLastBastion::OnSessionDestroyComplete(FName _sessionName, bool _success)
