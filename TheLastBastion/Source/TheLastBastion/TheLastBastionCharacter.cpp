@@ -80,17 +80,10 @@ void ATheLastBastionCharacter::InitCombatComponentsCollision()
 	// Create a static mesh for right and left hand equipment
 	LeftHand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LeftHandWeapon"));
 	LeftHand->SetupAttachment(GetMesh(), TEXT("Shield"));
-	LeftHand->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
-	LeftHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	LeftHand->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	LeftHand->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
+	LeftHand->SetCollisionProfileName(TEXT("Weapon"));
 
 	RightHand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RightHandWeapon"));
 	RightHand->SetupAttachment(GetMesh(), TEXT("Weapon"));
-	RightHand->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
-	RightHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	RightHand->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	RightHand->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
 	RightHand->SetCollisionProfileName(TEXT("Weapon"));
 
 
@@ -98,36 +91,14 @@ void ATheLastBastionCharacter::InitCombatComponentsCollision()
 	Body->SetupAttachment(GetMesh(), TEXT("spine_02"));
 	Body->InitBoxExtent(FVector(40, 15, 25));
 	Body->RelativeLocation = FVector(-10, 0, 0);
+	Body->SetCollisionProfileName(TEXT("HitBody"));
 
-<<<<<<< HEAD
 
 	Head = CreateDefaultSubobject<USphereComponent>(TEXT("Head"));
 	Head->SetupAttachment(GetMesh(), TEXT("head"));
 	Head->InitSphereRadius(12);
 	Head->RelativeLocation = FVector(5, 2.5f, 0);
-
-
-
-
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
-=======
-	Body->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
-	Body->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	Body->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	Body->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
-
->>>>>>> 926d466e0b21ac06fa0f82bb277f0b5f5dd0d7bd
-
-	Head = CreateDefaultSubobject<USphereComponent>(TEXT("Head"));
-	Head->SetupAttachment(GetMesh(), TEXT("head"));
-	Head->InitSphereRadius(12);
-	Head->RelativeLocation = FVector(5, 2.5f, 0);
-
-	Head->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
-	Head->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	Head->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	Head->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
+	Head->SetCollisionProfileName(TEXT("HitBody"));
 
 }
 
