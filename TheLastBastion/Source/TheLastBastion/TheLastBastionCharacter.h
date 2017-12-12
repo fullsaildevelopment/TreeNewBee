@@ -51,6 +51,11 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
 		class UStaticMeshComponent* LeftHand;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DamageDetection, meta = (AllowPrivateAccess = "true"))
+		class USphereComponent* Head;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DamageDetection, meta = (AllowPrivateAccess = "true"))
+		class UBoxComponent* Body;
 
 
 #pragma region Combat Collision Capsole Vals Presets
