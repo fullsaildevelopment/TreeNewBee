@@ -10,10 +10,17 @@
 /**
  * 
  */
+
 UCLASS()
 class THELASTBASTION_API UMeleeHero_AnimInstance : public UHero_AnimInstance
 {
 	GENERATED_BODY()
+
+
+public:
+
+	UMeleeHero_AnimInstance(const FObjectInitializer& _objectInitalizer);
+
 
 protected:
 	
@@ -35,10 +42,44 @@ public:
 	void OnEquip() override;
 
 
+protected:
+
+
+	// perform the next non - first attack
+	UFUNCTION(BlueprintCallable)
+		void OnNextAttack() override;
+
+
+	UFUNCTION(BlueprintCallable)
+		void OnResetCombo() override;
+
+
+	UFUNCTION(BlueprintCallable)
+		virtual void OnEnableDamage(bool bIsright = true, bool bIsAll = false);
+
+	UFUNCTION(BlueprintCallable)
+		virtual void OnDisableDamage(bool bIsright = true, bool bIsAll = false);
+
+
+
+
+
 private:
 
+	/** The very basic combo */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Action, meta = (AllowPrivateAccess = "true"))
-		class UAnimMontage* attack;
+		class UAnimMontage* Attack_Montage;
+
+	/** which section I am going play next in Attack_Montage*/
+	UPROPERTY(BlueprintReadOnly, Category = Action, meta = (AllowPrivateAccess = "true"))
+	     int CurrentComboIndex;
+
+private:
+
+	void DoNextAttack();
+
+
+
 
 
 };
