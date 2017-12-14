@@ -32,7 +32,7 @@ protected:
 
 private:
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 		UStaticMeshComponent* Mesh;
 	
 

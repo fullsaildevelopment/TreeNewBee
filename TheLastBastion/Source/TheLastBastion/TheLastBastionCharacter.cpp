@@ -81,25 +81,25 @@ void ATheLastBastionCharacter::InitCombatComponentsCollision()
 	// Create a static mesh for right and left hand equipment
 	LeftHand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LeftHandWeapon"));
 	LeftHand->SetupAttachment(GetMesh(), TEXT("Shield"));
-	LeftHand->SetCollisionProfileName(TEXT("Weapon"));
+	LeftHand->SetCollisionProfileName(TEXT("HeroWeapon"));
 
 	RightHand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RightHandWeapon"));
 	RightHand->SetupAttachment(GetMesh(), TEXT("Weapon"));
-	RightHand->SetCollisionProfileName(TEXT("Weapon"));
+	RightHand->SetCollisionProfileName(TEXT("HeroWeapon"));
 
 
 	Body = CreateDefaultSubobject<UBoxComponent>(TEXT("Body"));
 	Body->SetupAttachment(GetMesh(), TEXT("spine_02"));
 	Body->InitBoxExtent(FVector(40, 15, 25));
 	Body->RelativeLocation = FVector(-10, 0, 0);
-	Body->SetCollisionProfileName(TEXT("HitBody"));
+	Body->SetCollisionProfileName(TEXT("HeroBody"));
 
 
 	Head = CreateDefaultSubobject<USphereComponent>(TEXT("Head"));
 	Head->SetupAttachment(GetMesh(), TEXT("head"));
 	Head->InitSphereRadius(12);
 	Head->RelativeLocation = FVector(5, 2.5f, 0);
-	Head->SetCollisionProfileName(TEXT("HitBody"));
+	Head->SetCollisionProfileName(TEXT("HeroBody"));
 
 
 	//Body->OnComponentBeginOverlap.AddDynamic(this, &ATheLastBastionCharacter::OnBeingHit);
