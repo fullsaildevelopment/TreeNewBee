@@ -9,8 +9,13 @@
 
 UHero_AnimInstance::UHero_AnimInstance(const FObjectInitializer& _objectInitalizer) :Super(_objectInitalizer)
 {
-	headTrackRate = 3.0f;
-	activatedEquipment = EEquipType::Travel;
+	HeadTrackRate = 3.0f;
+	ActivatedEquipment = EEquipType::Travel;
+	AttackState = EAttackState::None;
+	bTryToAttack = false;
+	bRotationRateOverrideByAnim = false;
+	bSpeedOverrideByAnim = false;
+
 }
 
 void UHero_AnimInstance::OnBeginPlay()
@@ -23,6 +28,9 @@ void UHero_AnimInstance::OnBeginPlay()
 		return;
 	}
 	UE_LOG(LogTemp, Warning, TEXT("UHero_AnimInstance Call OnBeginPlay"));
+
+
+
 }
 
 void UHero_AnimInstance::OnInit()
@@ -48,14 +56,17 @@ void UHero_AnimInstance::OnUpdate(float _deltaTime)
 
 		FVector acceleration = movementComp->GetCurrentAcceleration();
 		acceleration.Normalize();
-		acceleration_bodySpace
+		Acceleration_bodySpace
 			= UKismetMathLibrary::InverseTransformDirection(mCharacter->GetTransform(), acceleration);
 		
-		turn = FMath::RadiansToDegrees(FMath::Atan2(acceleration_bodySpace.Y, acceleration_bodySpace.X));
+		turn = FMath::RadiansToDegrees(FMath::Atan2(Acceleration_bodySpace.Y, Acceleration_bodySpace.X));
 
 		// the more of the angle between forward vector and acceleration, the more rotation speed
-		movementComp->RotationRate.Yaw 
-			= UKismetMathLibrary::MapRangeClamped(FMath::Abs(turn), 0, 180.0f, mCharacter->GetMinTurnRate(), mCharacter->GetMaxTurnRate());
+		if (!bRotationRateOverrideByAnim)
+		{
+			movementComp->RotationRate.Yaw
+				= UKismetMathLibrary::MapRangeClamped(FMath::Abs(turn), 0, 180.0f, mCharacter->GetMinTurnRate(), mCharacter->GetMaxTurnRate());
+		}
 
 		if (bSpeedOverrideByAnim)
 		{
@@ -63,7 +74,6 @@ void UHero_AnimInstance::OnUpdate(float _deltaTime)
 			float Z = movementComp->Velocity.Z;
 			FVector overrideVelocity = mCharacter->GetActorForwardVector() * GetCurveValue("Speed");
 			movementComp->Velocity = FVector(overrideVelocity.X, overrideVelocity.Y, Z);
-
 		}
 
 
@@ -103,6 +113,27 @@ void UHero_AnimInstance::DisableJump()
 	bEnableJump = false;
 }
 
+void UHero_AnimInstance::OnEnableDamage(bool _bIsright, bool _bIsAll)
+{
+	AttackState = EAttackState::Attacking;
+	mCharacter->EnableDamage(_bIsright, _bIsAll);
+}
+
+void UHero_AnimInstance::OnDisableDamage(bool _bIsright, bool _bIsAll)
+{
+	mCharacter->DisableDamage(_bIsright, _bIsAll);
+}
+
+void UHero_AnimInstance::OnNextAttack()
+{
+	AttackState = EAttackState::ReadyForNext;
+}
+
+void UHero_AnimInstance::OnResetCombo()
+{
+	AttackState = EAttackState::None;
+}
+
 float UHero_AnimInstance::PlayMontage(UAnimMontage * _animMontage, float _rate, FName _startSectionName)
 {
 	if (_animMontage)
@@ -122,21 +153,61 @@ float UHero_AnimInstance::PlayMontage(UAnimMontage * _animMontage, float _rate, 
 
 void UHero_AnimInstance::OnAttack()
 {
-	// Travel mode to combat mode on attack
-	if (activatedEquipment == EEquipType::Travel)
-		activatedEquipment = currentEquipment;
+	// switch to combat mode on attack
+	if (ActivatedEquipment == EEquipType::Travel)
+		ActivatedEquipment = CurrentEquipment;
 
+	bTryToAttack = true;
 	UE_LOG(LogTemp, Warning, TEXT("Attack ! - UHero_AnimInstance"));
 }
 
 void UHero_AnimInstance::OnEquip()
 {
-	if (activatedEquipment != currentEquipment)
+	if (ActivatedEquipment != CurrentEquipment)
 		// Equip
-		activatedEquipment = currentEquipment;
+		ActivatedEquipment = CurrentEquipment;
 	else
 		// Unequip
-		activatedEquipment = EEquipType::Travel;
+		ActivatedEquipment = EEquipType::Travel;
+}
+
+void UHero_AnimInstance::OnBeingHit(const class AActor* const _attacker)
+{
+
+
+	//bool bNoHitAnimIsPlaying = this->Montage_IsActive(Hit_Montage) == false;
+	//if (bNoHitAnimIsPlaying)
+	//{
+	//}
+
+	FVector forward = mCharacter->GetActorForwardVector();
+	FVector right = mCharacter->GetActorRightVector();
+	FVector away = _attacker->GetActorLocation() - mCharacter->GetActorLocation();
+	away = away.GetUnsafeNormal();
+
+	float vert = FVector::DotProduct(forward, away);
+
+	FName sectionName;
+	if (vert >= 0.7f)
+		sectionName = TEXT("HitCenter");
+	else if (vert <= -0.7f)
+		sectionName = TEXT("HitBack");
+	else
+	{
+		float hor = FVector::DotProduct(right, away);
+		if (hor > 0)
+			sectionName = TEXT("HitRight");
+		else
+			sectionName = TEXT("HitLeft");
+	}
+
+	if (Hit_Montage)
+		this->PlayMontage(Hit_Montage, 1.0f, sectionName);
+	else
+		UE_LOG(LogTemp, Error, TEXT("Hit_Montage is nullptr - UHero_AnimInstance::OnBeingHit"));
+
+
+
 }
 
 void UHero_AnimInstance::HeadTrack()
@@ -167,7 +238,7 @@ void UHero_AnimInstance::HeadTrack()
 		headTrack_pitch_target = -headTrack_pitch_target;
 	}
 
-	headTrackYaw = FMath::FInterpTo(headTrackYaw, headTrack_yaw_target, GetWorld()->DeltaTimeSeconds, headTrackRate);
-	headTrackPitch = FMath::FInterpTo(headTrackPitch, headTrack_pitch_target, GetWorld()->DeltaTimeSeconds, headTrackRate);
+	HeadTrackYaw = FMath::FInterpTo(HeadTrackYaw, headTrack_yaw_target, GetWorld()->DeltaTimeSeconds, HeadTrackRate);
+	HeadTrackPitch = FMath::FInterpTo(HeadTrackPitch, headTrack_pitch_target, GetWorld()->DeltaTimeSeconds, HeadTrackRate);
 
 }

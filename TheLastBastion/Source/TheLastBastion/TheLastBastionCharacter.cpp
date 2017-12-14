@@ -13,6 +13,7 @@
 #include "Animation/Hero_AnimInstance.h"
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
+#include "Engine.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ATheLastBastionCharacter
@@ -100,9 +101,9 @@ void ATheLastBastionCharacter::InitCombatComponentsCollision()
 	Head->RelativeLocation = FVector(5, 2.5f, 0);
 	Head->SetCollisionProfileName(TEXT("HitBody"));
 
+
+	//Body->OnComponentBeginOverlap.AddDynamic(this, &ATheLastBastionCharacter::OnBeingHit);
 }
-
-
 
 void ATheLastBastionCharacter::BeginPlay()
 {
@@ -112,6 +113,9 @@ void ATheLastBastionCharacter::BeginPlay()
 	// Get Anim Bp Reference
 	mAnimInstanceRef = Cast<UHero_AnimInstance>(this->GetMesh()->GetAnimInstance());
 	if (mAnimInstanceRef == nullptr) { UE_LOG(LogTemp, Warning, TEXT("ATheLastBastionCharacter can not take other AnimInstance other than UHero_AnimInstance, - ATheLastBastionCharacter")); return; }
+	
+	Body->OnComponentBeginOverlap.AddDynamic(this, &ATheLastBastionCharacter::OnBeingHit);
+
 }
 
 
@@ -206,6 +210,51 @@ void ATheLastBastionCharacter::SetCapsuleSizeToFitSwordShield()
 	GetCapsuleComponent()->SetCapsuleRadius(CapRadius_ShieldSword);
 
 	GetMesh()->RelativeLocation = FVector(0, 0, -CapHalfSize_ShieldSword);
+}
+
+void ATheLastBastionCharacter::OnBeingHit(
+	UPrimitiveComponent * _overlappedComponent, AActor * _otherActor, 
+	UPrimitiveComponent * _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult& _SweepResult)
+{
+
+
+	mAnimInstanceRef->OnBeingHit(_otherActor);
+	UE_LOG(LogTemp, Warning, TEXT("Body is being hit, %d, %d, %d"), _SweepResult.Location.X, _SweepResult.Location.Y, _SweepResult.Location.Z
+	);
+}
+
+
+void ATheLastBastionCharacter::EnableDamage(bool _bIsRightHand, bool _bIsAll)
+{
+	if (_bIsAll)
+	{
+		RightHand->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		LeftHand->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	}
+	else
+	{
+		if (_bIsRightHand)
+			RightHand->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		else
+			LeftHand->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	}
+}
+
+void ATheLastBastionCharacter::DisableDamage(bool _bIsRightHand, bool _bIsAll)
+{
+	if (_bIsAll)
+	{
+		RightHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		LeftHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	else
+	{
+		if (_bIsRightHand)
+			RightHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		else
+			LeftHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+
 }
 
 

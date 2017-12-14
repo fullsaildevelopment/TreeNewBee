@@ -149,7 +149,10 @@ protected:
 
 
 
+
+
 #pragma endregion
+
 
 
 
@@ -170,6 +173,13 @@ private:
 	void SetCapsuleSizeToFitSwordShield();
 
 
+	UFUNCTION()
+	void OnBeingHit(UPrimitiveComponent* _overlappedComponent, AActor* _otherActor
+		, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex, 
+		bool _bFromSweep, const FHitResult& _SweepResult);
+
+
+
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -184,6 +194,11 @@ public:
 
 	FORCEINLINE bool IsSprinting() const { return bIsSprinting; }
 	FORCEINLINE bool IsTryingSprinting() const { return bTryToSprint; }
+
+	public:
+
+		void EnableDamage(bool _bIsRightHand = true, bool _bIsAll = false);
+		void DisableDamage(bool _bIsRightHand = true, bool _bIsAll = false);
 
 };
 
