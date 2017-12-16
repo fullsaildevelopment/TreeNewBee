@@ -32,13 +32,8 @@ protected:
 
 private:
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
-		UStaticMeshComponent* Mesh;
-	
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true", BlueprintProtected = "true"))
 		EGearType GearType;
-
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 		float PhysicalDamage;
@@ -65,3 +60,5 @@ private:
 		float StaminaBonus;
 	
 };
+
+

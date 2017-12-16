@@ -40,6 +40,7 @@ public:
 
 	void OnAttack() override;
 	void OnEquip() override;
+	void OnComboInterrupt() override;
 
 
 protected:
@@ -49,10 +50,8 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		void OnNextAttack() override;
 
-
 	UFUNCTION(BlueprintCallable)
 		void OnResetCombo() override;
-
 
 	UFUNCTION(BlueprintCallable)
 		virtual void OnEnableDamage(bool bIsright = true, bool bIsAll = false);

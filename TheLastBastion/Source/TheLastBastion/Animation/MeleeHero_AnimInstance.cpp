@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MeleeHero_AnimInstance.h"
-#include "TheLastBastionCharacter.h"
+#include "TheLastBastionHeroCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 
@@ -65,12 +65,12 @@ void UMeleeHero_AnimInstance::OnAttack()
 			if (AttackState != EAttackState::None)
 			{
 				// this means our melee character is finish his last combo cycle but not ready for next, so do nothing
-				UE_LOG(LogTemp, Warning, TEXT("mCurrentComboIndex: %d, finishing last combo cycle, attack ignore "), CurrentComboIndex);
+				//UE_LOG(LogTemp, Warning, TEXT("mCurrentComboIndex: %d, finishing last combo cycle, attack ignore "), CurrentComboIndex);
 				bTryToAttack = false;
 				return;
 			}
 
-			UE_LOG(LogTemp, Warning, TEXT("mCurrentComboIndex: %d, first combo "), CurrentComboIndex);
+			//UE_LOG(LogTemp, Warning, TEXT("mCurrentComboIndex: %d, first combo "), CurrentComboIndex);
 			this->PlayMontage(Attack_Montage, 1.0f, TEXT("Combo_0_cl"));
 			bTryToAttack = false;
 			AttackState = EAttackState::PreWinding;
@@ -81,7 +81,7 @@ void UMeleeHero_AnimInstance::OnAttack()
 			// if the our character is waiting for next combo instruction, launch the next combo
 			if (AttackState == EAttackState::ReadyForNext)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("mCurrentComboIndex: %d, during Ready for next "), CurrentComboIndex);
+				//UE_LOG(LogTemp, Warning, TEXT("mCurrentComboIndex: %d, during Ready for next "), CurrentComboIndex);
 				DoNextAttack();
 			}			
 		}
@@ -90,7 +90,7 @@ void UMeleeHero_AnimInstance::OnAttack()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Attack_Montage is Null ! - UMeleeHero_AnimInstance"));
+		//UE_LOG(LogTemp, Warning, TEXT("Attack_Montage is Null ! - UMeleeHero_AnimInstance"));
 	}
 
 }
@@ -103,16 +103,22 @@ void UMeleeHero_AnimInstance::OnEquip()
 	{
 	case EEquipType::ShieldSword:
 		if (ActivatedEquipment == EEquipType::Travel)
+		{
 			// Unequip
 			this->PlayMontage(Equip_Montage, 1.0f, TEXT("UnequipSHSword"));
+			OnComboInterrupt();
+		}
 		else if (ActivatedEquipment == CurrentEquipment)
 			// Equip
 			this->PlayMontage(Equip_Montage, 1.0f, TEXT("EquipSHSword"));
 		break;
 	case EEquipType::TwoHandSword:
 		if (ActivatedEquipment == EEquipType::Travel)
+		{
 			// Unequip
 			this->PlayMontage(Equip_Montage, 1.0f, TEXT("UnequipTHSword"));
+			OnComboInterrupt();
+		}
 		else if (ActivatedEquipment == CurrentEquipment)
 			// Equip
 			this->PlayMontage(Equip_Montage, 1.0f, TEXT("EquipTHSword"));
@@ -123,6 +129,12 @@ void UMeleeHero_AnimInstance::OnEquip()
 
 }
 
+void UMeleeHero_AnimInstance::OnComboInterrupt()
+{
+	Super::OnComboInterrupt();
+	CurrentComboIndex = 0;
+}
+
 void UMeleeHero_AnimInstance::OnNextAttack()
 {
 
@@ -131,8 +143,7 @@ void UMeleeHero_AnimInstance::OnNextAttack()
 	if (CurrentComboIndex == 0)
 	{
 		bTryToAttack = false;
-		UE_LOG(LogTemp, Warning, 
-			TEXT("mCurrentComboIndex: %d, on try next attack to the perform the first combo, action abort "), CurrentComboIndex);
+		//UE_LOG(LogTemp, Warning, TEXT("mCurrentComboIndex: %d, on try next attack to the perform the first combo, action abort "), CurrentComboIndex);
 		AttackState = EAttackState::None;
 
 		// Unlock the character rotation
@@ -142,15 +153,12 @@ void UMeleeHero_AnimInstance::OnNextAttack()
 	{
 		if (bTryToAttack)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("mCurrentComboIndex: %d, AT Ready for next "), CurrentComboIndex);
+			//UE_LOG(LogTemp, Warning, TEXT("mCurrentComboIndex: %d, AT Ready for next "), CurrentComboIndex);
 			DoNextAttack();
 		}
 		
 	}
 	bRotationRateOverrideByAnim = false;
-
-
-
 }
 
 void UMeleeHero_AnimInstance::DoNextAttack()
@@ -176,7 +184,7 @@ void UMeleeHero_AnimInstance::OnResetCombo()
 
 void UMeleeHero_AnimInstance::OnEnableDamage(bool bIsright, bool bIsAll)
 {
-	Super::OnEnableDamage(bIsright, bIsAll);
+	Super::OnEnableWeapon(bIsright, bIsAll);
 
 	//Lock the character rotation during attacking
 	bRotationRateOverrideByAnim = true;
@@ -185,7 +193,7 @@ void UMeleeHero_AnimInstance::OnEnableDamage(bool bIsright, bool bIsAll)
 
 void UMeleeHero_AnimInstance::OnDisableDamage(bool bIsright, bool bIsAll)
 {
-	Super::OnDisableDamage(bIsright, bIsAll);
+	Super::OnDisableWeapon(bIsright, bIsAll);
 }
 
 

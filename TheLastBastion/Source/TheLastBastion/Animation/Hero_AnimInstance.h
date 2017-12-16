@@ -45,12 +45,14 @@ public:
 
 protected:
 	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
-	    bool bSpeedOverrideByAnim;
+
+#pragma region Movement
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
-	    bool bRotationRateOverrideByAnim;
+		bool bSpeedOverrideByAnim;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+		bool bRotationRateOverrideByAnim;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
 		bool bEnableJump;
@@ -64,13 +66,26 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
 		bool bTryToMove;
 
+	/** Is Character currently sprinting*/
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
+		bool bIsSprinting;
+
+	/** Is Sprinting button is still pressed, only reset by button release */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
+		bool bTryToSprint;
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
 		float currentSpeed;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
 		float turn;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+		FVector Acceleration_bodySpace;
+#pragma endregion
 
+
+#pragma region HeadTrack
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = HeadTrack)
 		float HeadTrackRate;
 
@@ -82,39 +97,36 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = HeadTrack)
 		float HeadTrackAlpha;
+#pragma endregion
 
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
-		FVector Acceleration_bodySpace;
 
+
+	/** Check if player is trying to attack, set by player input,
+	and reset when actual attack is happen, or player's attack get interruptted*/
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+		bool bTryToAttack;
 
 	/** Current activated equipment type */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Equipment)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
 		EEquipType ActivatedEquipment;
 
 	/** The type of weapon is going to use when player draw weapon*/
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Equipment)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
 		EEquipType CurrentEquipment;
 	
-	/** Check if player is trying to attack, set by player input,
-	and reset when actual attack is happen, or player's attack get interruptted*/
-	UPROPERTY(BlueprintReadOnly, Category = Action)
-		bool bTryToAttack;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Action)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
 		class UAnimMontage* Equip_Montage;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Action)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
 		class UAnimMontage* Hit_Montage;
 
-	UPROPERTY(BlueprintReadOnly, Category = Action, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 		EAttackState AttackState;
 
-
-
-
 	UPROPERTY(BlueprintReadOnly)
-		class ATheLastBastionCharacter* mCharacter;
+		class ATheLastBastionHeroCharacter* mCharacter;
 
 
 protected:
@@ -141,9 +153,6 @@ protected:
 		UFUNCTION(BlueprintCallable)
 			void DisableJump();
 
-			virtual void OnEnableDamage(bool bIsright = true, bool bIsAll = false);
-
-			virtual void OnDisableDamage(bool bIsright = true, bool bIsAll = false);
 
 		UFUNCTION(BlueprintCallable)
 			virtual void OnNextAttack();
@@ -151,18 +160,45 @@ protected:
 		UFUNCTION(BlueprintCallable)
 			virtual void OnResetCombo();
 
+
+		virtual void OnEnableWeapon(bool bIsright = true, bool bIsAll = false);
+
+		virtual void OnDisableWeapon(bool bIsright = true, bool bIsAll = false);
+
+
+		/** Called when Character draw his weapon during animation*/
+		UFUNCTION(BlueprintCallable)
+		virtual void OnEquipWeapon();
+
+		/** Called when Character collect his weapon during animation*/
+		UFUNCTION(BlueprintCallable)
+		virtual void OnSheathWeapon();
+
 #pragma endregion
 
 		float PlayMontage(class UAnimMontage* _animMontage, float _rate, FName _startSectionName = NAME_None);
 
 
-
 public:
 
-
+	/** Called when attack button is called*/
 	virtual void OnAttack();
+	/** Called when equip button is pressed*/
 	virtual void OnEquip();
+
+	virtual void OnJumpStart();
+
+	virtual void OnJumpStop();
+
 	virtual void OnBeingHit( const class AActor* const _attacker);
+
+	virtual void OnComboInterrupt();
+
+	void SetTryToSprint(bool _val);
+
+	/** the Animation Instance react to Sprint Key Button*/ 
+	void OnSprintPressed();
+	void OnSprintReleased();
 
 	FORCEINLINE bool IsSpeedOverrideByAnim() const { return bSpeedOverrideByAnim; }
 	FORCEINLINE bool IsRotationRateOverrideByAnim() const { return bRotationRateOverrideByAnim; }

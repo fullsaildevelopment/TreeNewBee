@@ -2,8 +2,9 @@
 
 #include "Hero_AnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "TheLastBastionCharacter.h"
+#include "TheLastBastionHeroCharacter.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Combat/PawnStatsComponent.h"
 #include "Engine.h"
 
 
@@ -13,6 +14,8 @@ UHero_AnimInstance::UHero_AnimInstance(const FObjectInitializer& _objectInitaliz
 	ActivatedEquipment = EEquipType::Travel;
 	AttackState = EAttackState::None;
 	bTryToAttack = false;
+	bTryToSprint = false;
+	bIsSprinting = false;
 	bRotationRateOverrideByAnim = false;
 	bSpeedOverrideByAnim = false;
 
@@ -21,15 +24,13 @@ UHero_AnimInstance::UHero_AnimInstance(const FObjectInitializer& _objectInitaliz
 void UHero_AnimInstance::OnBeginPlay()
 {
 	APawn* pawn = TryGetPawnOwner();
-	mCharacter = Cast<ATheLastBastionCharacter>(pawn);
+	mCharacter = Cast<ATheLastBastionHeroCharacter>(pawn);
 	if (mCharacter == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("The MeleeHero can only assigned to ATheLastBastionCharacter - UMeleeHero_AnimInstance "));
 		return;
 	}
 	UE_LOG(LogTemp, Warning, TEXT("UHero_AnimInstance Call OnBeginPlay"));
-
-
 
 }
 
@@ -100,7 +101,7 @@ void UHero_AnimInstance::StopOverrideSpeed()
 {
 	bSpeedOverrideByAnim = false;
 	mCharacter->GetCharacterMovement()->MaxWalkSpeed 
-		= (mCharacter->IsSprinting())? mCharacter->GetSprintSpeed() : mCharacter->GetJogSpeed();
+		= (bIsSprinting)? mCharacter->GetSprintSpeed() : mCharacter->GetJogSpeed();
 }
 
 void UHero_AnimInstance::EnableJump()
@@ -113,15 +114,15 @@ void UHero_AnimInstance::DisableJump()
 	bEnableJump = false;
 }
 
-void UHero_AnimInstance::OnEnableDamage(bool _bIsright, bool _bIsAll)
+void UHero_AnimInstance::OnEnableWeapon(bool _bIsright, bool _bIsAll)
 {
 	AttackState = EAttackState::Attacking;
-	mCharacter->EnableDamage(_bIsright, _bIsAll);
+	mCharacter->GetPawnStatsComp()-> EnableWeapon(_bIsright, _bIsAll);
 }
 
-void UHero_AnimInstance::OnDisableDamage(bool _bIsright, bool _bIsAll)
+void UHero_AnimInstance::OnDisableWeapon(bool _bIsright, bool _bIsAll)
 {
-	mCharacter->DisableDamage(_bIsright, _bIsAll);
+	mCharacter->GetPawnStatsComp()->DisableWeapon(_bIsright, _bIsAll);
 }
 
 void UHero_AnimInstance::OnNextAttack()
@@ -153,22 +154,85 @@ float UHero_AnimInstance::PlayMontage(UAnimMontage * _animMontage, float _rate, 
 
 void UHero_AnimInstance::OnAttack()
 {
-	// switch to combat mode on attack
+	// when attack during travel mode
 	if (ActivatedEquipment == EEquipType::Travel)
+	{
+		// switch to attck 
 		ActivatedEquipment = CurrentEquipment;
+		// attach weapon 
+		mCharacter->GetPawnStatsComp()->OnEquipWeapon();
+	}
 
 	bTryToAttack = true;
+
+	// Once Attack, we activate combat mode, hence we have to slow our speed down
+	// if we are sprinting then stop
+
+	if (bIsSprinting)
+	{
+		mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
+		bIsSprinting = false;
+	}
+	// Increase the turn rate for flexible control
+	mCharacter->SetMaxTurnRate(mCharacter->GetMaxTurnRateForCombat());
 	UE_LOG(LogTemp, Warning, TEXT("Attack ! - UHero_AnimInstance"));
 }
 
 void UHero_AnimInstance::OnEquip()
 {
 	if (ActivatedEquipment != CurrentEquipment)
+	{
 		// Equip
 		ActivatedEquipment = CurrentEquipment;
+		mCharacter->SetMaxTurnRate(mCharacter->GetMaxTurnRateForCombat());
+		// if we are sprinting then stop
+		if (bIsSprinting)
+		{
+			mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
+			bIsSprinting = false;
+		}
+	}
 	else
+	{
 		// Unequip
 		ActivatedEquipment = EEquipType::Travel;
+		mCharacter->SetMaxTurnRate(mCharacter->GetMaxTurnRateForTravel());
+		// After we sheath our weapon, and the sprint button is not release, we will restore sprinting
+		if (bTryToSprint)
+		{
+			mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetSprintSpeed();
+			bIsSprinting = true;
+		}
+
+	}
+
+}
+
+void UHero_AnimInstance::OnJumpStart()
+{
+	if (bEnableJump)
+	{
+		bTryToJump = true;
+		mCharacter->Jump();
+	}
+}
+
+void UHero_AnimInstance::OnJumpStop()
+{
+	bTryToJump = false;
+	mCharacter->StopJumping();
+}
+
+
+void UHero_AnimInstance::OnEquipWeapon()
+{
+	mCharacter->GetPawnStatsComp()->OnEquipWeapon();
+}
+
+void UHero_AnimInstance::OnSheathWeapon()
+{
+	mCharacter->GetPawnStatsComp()->OnSheathWeapon();
+
 }
 
 void UHero_AnimInstance::OnBeingHit(const class AActor* const _attacker)
@@ -205,10 +269,44 @@ void UHero_AnimInstance::OnBeingHit(const class AActor* const _attacker)
 		this->PlayMontage(Hit_Montage, 1.0f, sectionName);
 	else
 		UE_LOG(LogTemp, Error, TEXT("Hit_Montage is nullptr - UHero_AnimInstance::OnBeingHit"));
-
-
-
 }
+
+void UHero_AnimInstance::OnComboInterrupt()
+{
+	bSpeedOverrideByAnim = false;
+	bRotationRateOverrideByAnim = false;
+	AttackState = EAttackState::None;
+}
+
+void UHero_AnimInstance::SetTryToSprint(bool _val)
+{
+	bTryToSprint = _val;
+}
+
+void UHero_AnimInstance::OnSprintPressed()
+{
+	bTryToSprint = true;
+
+	bool ableToSprint
+		= !bSpeedOverrideByAnim &&
+		ActivatedEquipment == EEquipType::Travel;
+
+	if (ableToSprint)
+	{
+		mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetSprintSpeed();
+		bIsSprinting = true;
+	}
+}
+
+void UHero_AnimInstance::OnSprintReleased()
+{
+	bTryToSprint = false;
+
+	mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
+	bIsSprinting = false;
+}
+
+
 
 void UHero_AnimInstance::HeadTrack()
 {
