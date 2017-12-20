@@ -16,37 +16,27 @@
 // Sets default values for this component's properties
 UPawnStatsComponent::UPawnStatsComponent()
 {
-
+	
 	mCharacter = Cast<ATheLastBastionCharacter>(this->GetOwner());
 
-	if (mCharacter != nullptr)
+	if (mCharacter)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("PawnStatsComponent is owned by TheLastBastion Character"));
-
-		UCustomType::FindClass<AWeapon>(LeftHandWeapon_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_Shield"));
-		UCustomType::FindClass<AWeapon>(RightHandWeapon_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_SHSword"));
-		UCustomType::FindClass<AArmor>(Armor_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_Armor"));
-
+		bAutoActivate = true;
 		Head = CreateDefaultSubobject<USphereComponent>(TEXT("Head"));
 		Head->SetupAttachment(mCharacter->GetMesh(), TEXT("head"));
 		Head->InitSphereRadius(12);
 		Head->RelativeLocation = FVector(5, 2.5f, 0);
-		Head->SetCollisionProfileName(TEXT("HeroBody"));
 		Head->bGenerateOverlapEvents = true;
-		Head->bHiddenInGame = false;
+		Head->SetCanEverAffectNavigation(false);
+
 
 		Body = CreateDefaultSubobject<UBoxComponent>(TEXT("Body"));
 		Body->SetupAttachment(mCharacter->GetMesh(), TEXT("spine_02"));
 		Body->InitBoxExtent(FVector(40, 15, 25));
 		Body->RelativeLocation = FVector(-10, 0, 0);
-		Body->SetCollisionProfileName(TEXT("HeroBody"));
 		Body->bGenerateOverlapEvents = true;
-		Body->bHiddenInGame = false;
-
+		Body->SetCanEverAffectNavigation(false);
 	}
-	else
-		UE_LOG(LogTemp, Warning, TEXT("PawnStatsComponent owner must be a TheLastBastion Character"));
-
 }
 
 
@@ -63,27 +53,33 @@ void UPawnStatsComponent::BeginPlay()
 		if (LeftHandWeapon_ClassBp)
 		{
 			LeftHandWeapon = world->SpawnActor<AWeapon>(LeftHandWeapon_ClassBp);
-			LeftHandWeapon->AttachToComponent(mCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("Shield"));
+			LeftHandWeapon->Equip(mCharacter->GetMesh());
+			//LeftHandWeapon->AttachToComponent(mCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("Shield"));
 		}
 
 		if (RightHandWeapon_ClassBp)
 		{
 			RightHandWeapon = world->SpawnActor<AWeapon>(RightHandWeapon_ClassBp);
-			RightHandWeapon->AttachToComponent(mCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("SHSwordEquip"));
+			RightHandWeapon->Equip(mCharacter->GetMesh());
+			//RightHandWeapon->AttachToComponent(mCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("SHSwordEquip"));
 		}
 
 		if (Armor_ClassBp)
 		{
 			Armor = world->SpawnActor<AArmor>(Armor_ClassBp);
-			Armor->AttachToComponent(mCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("Root"));
+			//Armor->AttachToComponent(mCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("Root"));
 			Armor->Equip(mCharacter->GetMesh());
 		}
 	}
 
-	if (Head && Body && LeftHandWeapon && RightHandWeapon)
+	if (Head && Body) 
 	{
 		Head->OnComponentBeginOverlap.AddDynamic(this, &UPawnStatsComponent::OnHeadHit);
 		Body->OnComponentBeginOverlap.AddDynamic(this, &UPawnStatsComponent::OnBodyHit);
+	}
+
+	if (LeftHandWeapon && RightHandWeapon)
+	{
 		LeftHandWeapon->GetWeaponMeshRef()
 			->OnComponentBeginOverlap.AddDynamic(this, &UPawnStatsComponent::OnLeftHandWeaponHit);
 		RightHandWeapon->GetWeaponMeshRef()
@@ -103,7 +99,7 @@ void UPawnStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 void UPawnStatsComponent::EnableWeapon(bool _bIsRightHand, bool _bIsAll)
 {
 
-	UE_LOG(LogTemp, Warning, TEXT("enable Weapon"));
+	//UE_LOG(LogTemp, Warning, TEXT("enable Weapon"));
 	if (_bIsAll)
 	{
 		LeftHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -121,7 +117,7 @@ void UPawnStatsComponent::EnableWeapon(bool _bIsRightHand, bool _bIsAll)
 
 void UPawnStatsComponent::DisableWeapon(bool _bIsRightHand, bool _bIsAll)
 {
-	UE_LOG(LogTemp, Warning, TEXT("disable Weapon"));
+	//UE_LOG(LogTemp, Warning, TEXT("disable Weapon"));
 
 	if (_bIsAll)
 	{
@@ -140,15 +136,22 @@ void UPawnStatsComponent::DisableWeapon(bool _bIsRightHand, bool _bIsAll)
 
 void UPawnStatsComponent::OnEquipWeapon()
 {
-	RightHandWeapon->AttachToComponent(mCharacter->GetMesh(),
-		FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("SingleHandWeapon"));
+	RightHandWeapon->Arm(mCharacter->GetMesh());
+
 }
 
 void UPawnStatsComponent::OnSheathWeapon()
 {
-	RightHandWeapon->AttachToComponent(mCharacter->GetMesh(),
-		FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("SHSwordEquip"));
+	RightHandWeapon->Equip(mCharacter->GetMesh());
 
+	//RightHandWeapon->AttachToComponent(mCharacter->GetMesh(),
+	//	FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("SHSwordEquip"));
+}
+
+void UPawnStatsComponent::SetDamageDetectorsCollsionProfile(FName _profileName)
+{
+	Head->SetCollisionProfileName(_profileName);
+	Body->SetCollisionProfileName(_profileName);
 }
 
 

@@ -23,12 +23,28 @@ enum class EAttackState : uint8
 {
 	/** Player init state*/
 	None = 0   UMETA(DisplayName = "None"),
-	/** Player can dodge freely in this state*/
+	/** Player speed will be override by animation, can dodge freely in this state*/
 	PreWinding = 1  UMETA(DisplayName = "PreWinding"),
 	/** Player action will be locked in this state*/
 	Attacking = 2   UMETA(DisplayName = "Attacking"),
 	/** Player action can move freely*/
-	ReadyForNext = 3 UMETA(DisplayName = "ReadyForNext")
+	ReadyForNext = 3 UMETA(DisplayName = "ReadyForNext"),
+	/** Player action will be locked in this state*/
+	BeAttacked = 4 UMETA(DisplayName = "BeAttacked"),
+	/** Player speed and direction will be override by dodge animation in this state
+	*   No Only Action allowed */
+	Dodging = 5 UMETA(DisplayName = "Dodging"),
+	/** Player speed and direction still override by Dodging anim, but can perform next action, but not dodge*/
+	PostDodging = 6 UMETA(DisplayName = "PostDodging")
+};
+
+UENUM(BlueprintType)
+enum class EActionType : uint8
+{
+	None = 0   UMETA(DisplayName = "None"),
+	Attack = 1  UMETA(DisplayName = "Attack"),
+	Skill = 2  UMETA(DisplayName = "Skill"),
+	Dodge = 3   UMETA(DisplayName = "Dodge")
 };
 
 
@@ -44,14 +60,24 @@ public:
 	UHero_AnimInstance(const FObjectInitializer& _objectInitalizer);
 
 protected:
-	
+
+	UPROPERTY(BlueprintReadOnly)
+		class ATheLastBastionHeroCharacter* mCharacter;
+
 
 #pragma region Movement
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
-		bool bSpeedOverrideByAnim;
+
+	/** if true, the player controller can change the value of bRotationRateOverrideByAnim */
+	bool bIsAnimationRotationPrior;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+		/** If true, the velocity of character is controlled by animation
+		* and calculated direction */
+		bool bVelocityOverrideByAnim;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+		/** If true, the rotation rate is controlled by animation */
 		bool bRotationRateOverrideByAnim;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
@@ -81,7 +107,18 @@ protected:
 		float turn;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+		float MoveForwardAxis;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+		float MoveRightAxis;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
 		FVector Acceleration_bodySpace;
+
+	FVector mAccelerationDirection;
+
+	FVector mSpeedOverrideDirection;
+
 #pragma endregion
 
 
@@ -100,21 +137,36 @@ protected:
 #pragma endregion
 
 
-
-
-	/** Check if player is trying to attack, set by player input,
-	and reset when actual attack is happen, or player's attack get interruptted*/
+#pragma region Combat
+	
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
-		bool bTryToAttack;
+		/** Catch the next action,
+		whether is dodge, attack or use skills
+		None if there isnt one */
+		EActionType NextAction;
 
-	/** Current activated equipment type */
+
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+		/** Flag to check if our character is in strafe mode,
+		*  Set by Focus Button, Reset by Equip button and focus button
+		*  if player is in travel mode, focus button will automatically implement equip*/
+		bool bIsFocused;
+
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
+		/** Angle between Acceleration and Forward Direction must less than this angle to trigger dodge*/
+		float DodgeMinTurnThreshold;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
+		/** Current activated equipment type */
 		EEquipType ActivatedEquipment;
 
-	/** The type of weapon is going to use when player draw weapon*/
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
+		/** The type of weapon is going to use when player draw weapon*/
 		EEquipType CurrentEquipment;
-	
+
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+		EAttackState AttackState;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
 		class UAnimMontage* Equip_Montage;
@@ -122,13 +174,16 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
 		class UAnimMontage* Hit_Montage;
 
-	UPROPERTY(BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
-		EAttackState AttackState;
+	/** Basic Attack */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
+		class UAnimMontage* Attack_Montage;							
+																	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
+		class UAnimMontage* Dodge_Montage;
 
-	UPROPERTY(BlueprintReadOnly)
-		class ATheLastBastionHeroCharacter* mCharacter;
+#pragma endregion
 
-
+	
 protected:
 
 		virtual void OnBeginPlay();
@@ -139,9 +194,16 @@ protected:
 
 		virtual void OnPostEvaluate();	
 
+
+		float PlayMontage(class UAnimMontage* _animMontage, float _rate, FName _startSectionName = NAME_None);
+
+		virtual void LaunchDodge();
+
 #pragma region Anim Notification
 
+
 		UFUNCTION(BlueprintCallable)
+			/** Called by animation state machine, to sync animation and movement */
 			void StartOverrideSpeed();
 
 		UFUNCTION(BlueprintCallable)
@@ -153,6 +215,11 @@ protected:
 		UFUNCTION(BlueprintCallable)
 			void DisableJump();
 
+		UFUNCTION(BlueprintCallable)
+			virtual void OnDodgePost();
+
+		UFUNCTION(BlueprintCallable)
+			virtual void OnDodgeFinish();
 
 		UFUNCTION(BlueprintCallable)
 			virtual void OnNextAttack();
@@ -168,31 +235,34 @@ protected:
 
 		/** Called when Character draw his weapon during animation*/
 		UFUNCTION(BlueprintCallable)
-		virtual void OnEquipWeapon();
+			virtual void OnEquipWeapon();
 
 		/** Called when Character collect his weapon during animation*/
 		UFUNCTION(BlueprintCallable)
-		virtual void OnSheathWeapon();
+			virtual void OnSheathWeapon();
 
 #pragma endregion
 
-		float PlayMontage(class UAnimMontage* _animMontage, float _rate, FName _startSectionName = NAME_None);
 
 
 public:
 
 	/** Called when attack button is called*/
-	virtual void OnAttack();
+	virtual bool OnAttack();
 	/** Called when equip button is pressed*/
 	virtual void OnEquip();
-
+	/** Called when Focus button is pressed*/
+	virtual void OnFocus();
+	/** Called when Focus button is pressed*/
+	virtual bool OnDodge();
+	/** Called when Jump button is pressed*/
 	virtual void OnJumpStart();
-
+	/** Called when Jump button is released*/
 	virtual void OnJumpStop();
 
 	virtual void OnBeingHit( const class AActor* const _attacker);
 
-	virtual void OnComboInterrupt();
+	virtual void OnActionInterrupt();
 
 	void SetTryToSprint(bool _val);
 
@@ -200,9 +270,10 @@ public:
 	void OnSprintPressed();
 	void OnSprintReleased();
 
-	FORCEINLINE bool IsSpeedOverrideByAnim() const { return bSpeedOverrideByAnim; }
+	FORCEINLINE bool IsSpeedOverrideByAnim() const { return bVelocityOverrideByAnim; }
 	FORCEINLINE bool IsRotationRateOverrideByAnim() const { return bRotationRateOverrideByAnim; }
 	FORCEINLINE bool GetIsJumpEnable() const { return bEnableJump; }
+	FORCEINLINE bool GetIsFocus() const { return bIsFocused; }
 	FORCEINLINE void SetIsJump(bool _val) { bTryToJump = _val; }
 
 	FORCEINLINE EEquipType GetCurrentEquipmentType() const { return CurrentEquipment; }

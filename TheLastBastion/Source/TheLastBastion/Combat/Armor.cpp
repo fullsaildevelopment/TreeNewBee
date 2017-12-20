@@ -15,6 +15,7 @@ AArmor::AArmor()
 
 void AArmor::Equip(USkeletalMeshComponent * const _skeletonMeshComponent)
 {
+	Super::Equip(_skeletonMeshComponent);
 	if (BodyMeshRef)
 		_skeletonMeshComponent->SetSkeletalMesh(BodyMeshRef);
 

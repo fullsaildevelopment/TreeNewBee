@@ -29,5 +29,7 @@ private:
 
 public:
 	FORCEINLINE class UStaticMeshComponent* GetWeaponMeshRef() const { return Mesh; }
+
+	void Arm(USkeletalMeshComponent * const _skeletonMeshComponent);
 	
 };

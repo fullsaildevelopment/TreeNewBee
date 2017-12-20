@@ -2,7 +2,7 @@
 
 #include "Gear.h"
 #include "Components/StaticMeshComponent.h"
-
+#include "Components/SkeletalMeshComponent.h"
 
 // Sets default values
 AGear::AGear()
@@ -15,9 +15,38 @@ AGear::AGear()
 // Called when the game starts or when spawned
 void AGear::BeginPlay()
 {
-	Super::BeginPlay();
-	
+	Super::BeginPlay();	
 }
+
+void AGear::Equip(class USkeletalMeshComponent* const _skeletonMeshComponent)
+{
+	FName SlotName;
+
+	switch (GearType)
+	{
+	case EGearType::Armor:
+	default:
+		SlotName = TEXT("Root");
+		break;
+	case EGearType::Shield:
+		SlotName = TEXT("Shield");
+		break;
+	case EGearType::SingleHandWeapon:
+		SlotName = TEXT("SHSwordEquip");
+		break;
+	case EGearType::DoubleHandWeapon:
+		SlotName = TEXT("DHSwordEquip");
+		break;
+	case EGearType::CrossBow:
+		SlotName = TEXT("CrossBowEquip");
+		break;
+	case EGearType::CrossBowBolt:
+		SlotName = TEXT("BoltsEquip");
+		break;
+	}
+	this->AttachToComponent(_skeletonMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, SlotName);
+}
+
 
 
 

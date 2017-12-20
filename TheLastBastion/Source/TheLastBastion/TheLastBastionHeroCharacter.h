@@ -24,37 +24,6 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 
-
-private:
-
-#pragma region Animation
-	/** Animation Bp Reference */
-	UPROPERTY()
-		class UHero_AnimInstance*  mAnimInstanceRef;
-
-#pragma endregion
-
-#pragma region  Camera
-
-	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		float BaseTurnRate;
-
-	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		float BaseLookUpRate;
-
-	/** Camera boom positioning the camera behind the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class USpringArmComponent* CameraBoom;
-
-	/** Follow camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class UCameraComponent* FollowCamera;
-
-#pragma endregion
-
-
 protected:
 
 #pragma region KeyBindings Event
@@ -94,17 +63,70 @@ protected:
 	/** Called when Attack button is Pressed*/
 	void OnEquipPressed();
 
+	/** Called when Focus Button is Pressed*/
+	void OnFocusPressed();
+
+	/** Called when Dodge Button is Pressed*/
+	void OnDodgePressed();
+
+
+	/** Preserve the Yaw input from Pawn interface, and capatable with camera Lock - on*/
+	void AddControllerYaw(float _yaw);
+
+
+
+
+
 #pragma endregion
 
-	
+
+protected:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
+		class UHeroStatsComponent* HeroStats;
+
 private:
 
+	/** Animation Bp Reference */
+	UPROPERTY()
+		class UHero_AnimInstance*  mAnimInstanceRef;
 
+	float MoveForwardAxis;
+	float MoveRightAxis;
+
+#pragma region  Camera
+
+	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		float BaseTurnRate;
+
+	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		float BaseLookUpRate;
+
+	/** Camera boom positioning the camera behind the character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		class USpringArmComponent* CameraBoom;
+
+	/** Follow camera */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		class UCameraComponent* FollowCamera;
+
+#pragma endregion
 
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	/** Returns FollowCamera subobject **/
+	FORCEINLINE class UHeroStatsComponent* GetHeroStatsComp() const { return HeroStats; }	
+	FORCEINLINE class UHero_AnimInstance* GetAnimInstanceRef() const { return mAnimInstanceRef; }
+
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE float GetMoveForwardAxis() const { return MoveForwardAxis; }
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE float GetMoveRightAxis() const { return MoveRightAxis; }
+
 
 };

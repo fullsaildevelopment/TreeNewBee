@@ -10,15 +10,17 @@
 #include "CustomType.h"
 #include "Combat/Weapon.h"
 #include "Combat/Armor.h"
+#include "Combat/HeroStatsComponent.h"
 
-ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter() 
+
+ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter() : Super()
 {
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 300.0f; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
-
+	CameraBoom->bEnableCameraRotationLag = false;
 												// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
@@ -29,40 +31,8 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
 
-
-	//TSubclassOf<AGear> initWeaponClass;
-
-	//if (UCustomType::FindClass<AGear>(initWeaponClass, TEXT("/Game/Blueprints/Gears/Tsun_Sword")))
-	//{
-	//	RightHandWeapon->SetChildActorClass(initWeaponClass);
-	//	RightHandWeapon->CreateChildActor();
-	//}
-
-	//if (UCustomType::FindClass<AGear>(initWeaponClass, TEXT("/Game/Blueprints/Gears/Tsun_Shield")))
-	//{
-	//	LeftHandWeapon->SetChildActorClass(initWeaponClass);
-	//	LeftHandWeapon->CreateChildActor();
-	//}
-
-
-	//TSubclassOf<AArmor> initalArmorClass;
-	//if (UCustomType::FindClass<AArmor>(initalArmorClass, TEXT("/Game/Blueprints/Gears/Tsun_Armor")))
-	//{
-	//	Armor->SetChildActorClass(initalArmorClass);
-	//	Armor->CreateChildActor();
-	//	AArmor* InitArmor = Cast<AArmor>(Armor->GetChildActor());
-	//	if (InitArmor)
-	//	{
-	//		InitArmor->GetMeshRef()->SetMasterPoseComponent(GetMesh());
-	//		UE_LOG(LogTemp, Warning, TEXT("InitArmor set pose"));
-	//	}
-	//	else
-	//	{
-	//		UE_LOG(LogTemp, Warning, TEXT("InitArmor is null"));
-	//	}
-	//}
-	
-	
+	HeroStats = CreateDefaultSubobject<UHeroStatsComponent>(TEXT("Stats"));
+	PawnStats = HeroStats;	
 }
 
 void ATheLastBastionHeroCharacter::BeginPlay()
@@ -72,8 +42,6 @@ void ATheLastBastionHeroCharacter::BeginPlay()
 	// Get Anim Bp Reference
 	mAnimInstanceRef = Cast<UHero_AnimInstance>(this->GetMesh()->GetAnimInstance());
 	if (mAnimInstanceRef == nullptr) { UE_LOG(LogTemp, Warning, TEXT("ATheLastBastionCharacter can not take other AnimInstance other than UHero_AnimInstance, - ATheLastBastionCharacter")); return; }
-
-
 
 }
 
@@ -89,7 +57,7 @@ void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputCompone
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("Turn", this, &ATheLastBastionHeroCharacter::AddControllerYaw);
 	PlayerInputComponent->BindAxis("TurnRate", this, &ATheLastBastionHeroCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &ATheLastBastionHeroCharacter::LookUpAtRate);
@@ -103,6 +71,8 @@ void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputCompone
 
 	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnAttackPressed);
 	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnEquipPressed);
+	PlayerInputComponent->BindAction("Focus", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnFocusPressed);
+	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnDodgePressed);
 
 }
 
@@ -111,6 +81,7 @@ void ATheLastBastionHeroCharacter::TurnAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+
 }
 
 void ATheLastBastionHeroCharacter::LookUpAtRate(float Rate)
@@ -134,19 +105,12 @@ void ATheLastBastionHeroCharacter::OnSprintReleased()
 void ATheLastBastionHeroCharacter::OnJumpPressed()
 {
 	mAnimInstanceRef->OnJumpStart();
-	//if (mAnimInstanceRef->GetIsJumpEnable())
-	//{
-	//	mAnimInstanceRef->SetIsJump(true);
-	//	this->Jump();
-	//}
+
 }
 
 void ATheLastBastionHeroCharacter::OnJumpReleased()
 {
-
 	mAnimInstanceRef->OnJumpStop();
-	//mAnimInstanceRef->SetIsJump(false);
-	//this->StopJumping();
 }
 
 void ATheLastBastionHeroCharacter::OnAttackPressed()
@@ -157,6 +121,25 @@ void ATheLastBastionHeroCharacter::OnAttackPressed()
 void ATheLastBastionHeroCharacter::OnEquipPressed()
 {
 	mAnimInstanceRef->OnEquip();
+}
+
+void ATheLastBastionHeroCharacter::OnFocusPressed()
+{
+	// figure out which target to focus
+	HeroStats->OnFocus();
+
+	mAnimInstanceRef->OnFocus();
+}
+
+void ATheLastBastionHeroCharacter::OnDodgePressed()
+{
+	mAnimInstanceRef->OnDodge();
+}
+
+void ATheLastBastionHeroCharacter::AddControllerYaw(float _yaw)
+{
+	if (!mAnimInstanceRef->GetIsFocus())
+		this->AddControllerYawInput(_yaw);
 }
 
 void ATheLastBastionHeroCharacter::MoveForward(float Value)
@@ -171,6 +154,8 @@ void ATheLastBastionHeroCharacter::MoveForward(float Value)
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, Value);
 	}
+	MoveForwardAxis = Value;
+
 }
 
 void ATheLastBastionHeroCharacter::MoveRight(float Value)
@@ -186,4 +171,6 @@ void ATheLastBastionHeroCharacter::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+	MoveRightAxis = Value;
+
 }

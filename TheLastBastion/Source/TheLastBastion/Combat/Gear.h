@@ -13,8 +13,8 @@ enum class EGearType : uint8
 	Shield = 1 UMETA(DisplayName = "Shield"),
 	SingleHandWeapon = 2 UMETA(DisplayName = "SingleHandWeapon"),
 	DoubleHandWeapon = 3 UMETA(DisplayName = "DoubleHandWeapon"),
-	CrossBow = 4 UMETA(DisplayName = "CrossBow")
-
+	CrossBow = 4 UMETA(DisplayName = "CrossBow"),
+	CrossBowBolt = 5 UMETA(DisplayName = "CrossBowBolt")
 };
 
 UCLASS()
@@ -30,10 +30,12 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-private:
+protected:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true", BlueprintProtected = "true"))
 		EGearType GearType;
+
+private:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 		float PhysicalDamage;
@@ -59,6 +61,10 @@ private:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 		float StaminaBonus;
 	
+public:
+
+	virtual void Equip(class USkeletalMeshComponent* const _skeletonMeshComponent);
+
 };
 
 

@@ -31,6 +31,7 @@ protected:
 		void OnInit();
 
 	UFUNCTION(BlueprintCallable)
+		/** Animation Update tick, run every frame*/
 		void OnUpdate(float _deltaTime);
 
 	UFUNCTION(BlueprintCallable)
@@ -38,17 +39,40 @@ protected:
 
 public:
 
-	void OnAttack() override;
+	/** Called When Attack button is pressed, 
+	depending on current attack state, it will decide to perform combo immediately, or catch 
+	it and implement at OnNextAttack Event, or ignore */
+	bool OnAttack() override;
+
+
+	/** Called when equip button is pressed, 
+	depending on current equipment, play different equip animation, reset combat properties 
+	when unequip */
 	void OnEquip() override;
-	void OnComboInterrupt() override;
+
+	/** Called when combat properties requires to be reset*/
+	void OnActionInterrupt() override;
+
+
+	void OnFocus() override;
+	bool OnDodge() override;
+
 
 
 protected:
 
 
-	// perform the next non - first attack
 	UFUNCTION(BlueprintCallable)
+		/** Called when before attack state enter the ReadyForNext Stage,
+		*   Trigger the catched action, if the next action is not None */
 		void OnNextAttack() override;
+
+
+	UFUNCTION(BlueprintCallable)
+		/** Called when before attack state enter the DodgePost Stage,
+		*   Trigger the catched action (except for dodge), if the next action is not None */
+		virtual void OnDodgePost();
+
 
 	UFUNCTION(BlueprintCallable)
 		void OnResetCombo() override;
@@ -60,22 +84,22 @@ protected:
 		virtual void OnDisableDamage(bool bIsright = true, bool bIsAll = false);
 
 
-
+	UFUNCTION(BlueprintCallable)
+		virtual void OnDodgeFinish();
 
 
 private:
 
-	/** The very basic combo */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Action, meta = (AllowPrivateAccess = "true"))
-		class UAnimMontage* Attack_Montage;
 
-	/** which section I am going play next in Attack_Montage*/
-	UPROPERTY(BlueprintReadOnly, Category = Action, meta = (AllowPrivateAccess = "true"))
+
+	UPROPERTY(BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		/** which section I am going play next in Attack_Montage*/
 	     int CurrentComboIndex;
-
 private:
 
-	void DoNextAttack();
+
+	void LaunchCombo();
+	void LaunchDodge() override;
 
 
 

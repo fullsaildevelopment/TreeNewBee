@@ -12,7 +12,6 @@
 
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
-#include "Combat/PawnStatsComponent.h"
 #include "Engine.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -20,13 +19,16 @@
 
 ATheLastBastionCharacter::ATheLastBastionCharacter()
 {	
+	CharacterType = ECharacterType::None;
+
 	SprintSpeed = 850.0f;
 	JogSpeed = 595.0f;
 	walkSpeed = 255.0f;
-	minTurnRate = 180.0f;
+	minTurnRate_Travel = 180.0f;
 	maxTurnRate_Travel = 630.0f;
-	maxTurnRate_Combat = 1080.0f;
-	maxTurnRate = maxTurnRate_Travel;
+	minTurnRate_Combat = 360.0f;
+
+	maxTurnRate_Combat = 1440.0f;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -46,18 +48,15 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(CapRadius, CapHalfSize);
-	GetMesh()->RelativeLocation = FVector(0, 0, -CapRadius);
-	
-	PawnStats = CreateDefaultSubobject<UPawnStatsComponent>(TEXT("Stats"));
-
+	GetMesh()->RelativeLocation = FVector(0, 0, -CapHalfSize);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+		
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
 
-
 void ATheLastBastionCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, maxTurnRate, 0.0f); 	
 }
 

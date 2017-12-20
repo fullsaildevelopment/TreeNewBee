@@ -19,7 +19,7 @@ public:
 	
 private:
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 		class USkeletalMeshComponent* Mesh;	
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (AllowPrivateAccess = "true"))
@@ -34,6 +34,6 @@ private:
 
 public:
 	
-	void Equip(class USkeletalMeshComponent* const _skeletonMeshComponent);
+	void Equip(class USkeletalMeshComponent* const _skeletonMeshComponent) override;
 
 };

@@ -8,6 +8,17 @@
 
 
 
+UENUM(BlueprintType)
+enum class ECharacterType : uint8
+{
+	None = 0              UMETA(DisplayName = "None"),
+	Ranger = 1            UMETA(DisplayName = "Ranger"),
+	Builder = 2           UMETA(DisplayName = "Builder"),
+	SouthArcher = 3 	  UMETA(DisplayName = "SouthArcher")
+               
+};
+
+
 UCLASS(config=Game)
 class ATheLastBastionCharacter : public ACharacter
 {
@@ -22,10 +33,12 @@ public:
 protected:
 
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
-		class UPawnStatsComponent* PawnStats;
+		const class UPawnStatsComponent* PawnStats;
 
-#pragma region Hero Movement Stats
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+		ECharacterType CharacterType;
+
+#pragma region Movement Stats
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 		float CapHalfSize;
@@ -43,38 +56,34 @@ protected:
 		float walkSpeed = 255.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
-		float minTurnRate = 180.0f;
-
-	UPROPERTY(BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
-		float maxTurnRate = 630.0f;
+		float minTurnRate_Travel = 180.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 		float maxTurnRate_Travel = 630.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+		float minTurnRate_Combat = 360.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 		float maxTurnRate_Combat = 1440.0f;
 
 #pragma endregion
 
-
-private:
-
-
-
 public:
 
-	FORCEINLINE void  SetMaxTurnRate(float _val) { maxTurnRate = _val; }
 	FORCEINLINE float GetMaxTurnRateForTravel() const { return  maxTurnRate_Travel; }
 	FORCEINLINE float GetMaxTurnRateForCombat() const { return  maxTurnRate_Combat; }
 
-	FORCEINLINE float GetMinTurnRate() const { return minTurnRate; }
-	FORCEINLINE float GetMaxTurnRate() const { return maxTurnRate; }
+	FORCEINLINE float GetMinTurnRateForTravel() const { return  minTurnRate_Travel; }
+	FORCEINLINE float GetMinTurnRateForCombat() const { return  minTurnRate_Combat; }
+
 
 
 	FORCEINLINE float GetJogSpeed() const { return JogSpeed; }
 	FORCEINLINE float GetSprintSpeed() const { return SprintSpeed; }
 
-	FORCEINLINE class UPawnStatsComponent*  GetPawnStatsComp() const { return PawnStats; }
+	FORCEINLINE ECharacterType GetCharacterType() const { return CharacterType; }
+	FORCEINLINE const class UPawnStatsComponent*  GetPawnStatsComp() const { return PawnStats; }
 
 };
 
