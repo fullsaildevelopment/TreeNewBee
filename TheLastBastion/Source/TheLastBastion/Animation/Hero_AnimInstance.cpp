@@ -6,7 +6,6 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Combat/HeroStatsComponent.h"
 #include "Engine.h"
-#include "GameFramework/SpringArmComponent.h"
 
 
 UHero_AnimInstance::UHero_AnimInstance(const FObjectInitializer& _objectInitalizer) :Super(_objectInitalizer)
@@ -22,6 +21,7 @@ UHero_AnimInstance::UHero_AnimInstance(const FObjectInitializer& _objectInitaliz
 
 	bRotationRateOverrideByAnim = false;
 	bVelocityOverrideByAnim = false;
+	FocusDodgeDirection = EFocusDodgeDirection::None;
 }
 
 void UHero_AnimInstance::OnBeginPlay()
@@ -108,17 +108,23 @@ void UHero_AnimInstance::OnUpdate(float _deltaTime)
 				movementComp->Velocity = FVector(overrideVelocity.X, overrideVelocity.Y, Z);
 				break;
 
-			case EAttackState::BeAttacked:
+			case EAttackState::BeAttacked:		
+				break;
 			case EAttackState::Dodging:
 			case EAttackState::PostDodging:
-				overrideVelocity = mSpeedOverrideDirection * GetCurveValue("Speed");
+			{
+				if (bIsFocused)
+					overrideVelocity = GetFocusDodgeDirection() * GetCurveValue("Speed");
+				else
+					overrideVelocity = mSpeedOverrideDirection * GetCurveValue("Speed");
 				//UE_LOG(LogTemp, Warning, TEXT("Dodge Direction x: %f, y: %f, z: %f"),
 				//	mSpeedOverrideDirection.X, mSpeedOverrideDirection.Y, mSpeedOverrideDirection.Z);
 				movementComp->Velocity = FVector(overrideVelocity.X, overrideVelocity.Y, Z);
 				break;
 			}
+			}
 		}
-
+	
 		// Head Track
 		HeadTrack();
 	}
@@ -181,33 +187,18 @@ float UHero_AnimInstance::PlayMontage(UAnimMontage * _animMontage, float _rate, 
 	return 0.f;
 }
 
-
-
+#pragma region Attack && Combo
 bool UHero_AnimInstance::OnAttack()
 {
-	bool ignore = Attack_Montage == nullptr;
+	bool ignore = Attack_Montage == nullptr || bIsInAir;
 
 	// Apply Input Filter
 	if (!ignore)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Attack ! - UHero_AnimInstance"));
+		// UE_LOG(LogTemp, Warning, TEXT("Attack ! - UHero_AnimInstance"));
 		// when attack during travel mode
 		if (ActivatedEquipment == EEquipType::Travel)
-		{
-			// switch to attack 
-			ActivatedEquipment = CurrentEquipment;
-			// attach weapon 
-			mCharacter->GetHeroStatsComp()->OnEquipWeapon();
-
-			mCharacter->GetCameraBoom()->bEnableCameraRotationLag = true;
-			if (bIsSprinting)
-			{
-				// Once Attack, we activate combat mode, hence we have to slow our speed down
-				// if we are sprinting then stop
-				mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
-				bIsSprinting = false;
-			}
-		}
+			SkipEquip();
 	}
 	else
 	{
@@ -241,21 +232,28 @@ void UHero_AnimInstance::OnResetCombo()
 
 }
 
+#pragma endregion
 
 #pragma region Dodge Event Start, Init, Combination, Finish
 bool UHero_AnimInstance::OnDodge()
 {
 	// Apply Input Filter
 	bool ignore
-		= FMath::Abs(turn) > DodgeMinTurnThreshold ||
-		bIsInAir || Dodge_Montage == nullptr;
+		= (FMath::Abs(turn) > DodgeMinTurnThreshold && !bIsFocused) ||
+		bIsInAir || Dodge_Montage  == nullptr;
 
-	if (ignore)
+	if (!ignore)
+	{
+		if (ActivatedEquipment == EEquipType::Travel)
+			SkipEquip();
+		return true;
+	}
+	else
 	{
 		UE_LOG(LogTemp, Warning,
-			TEXT("Dodge is ignored due to inAir, turn %f, travel or Montage Null"), turn);
+			TEXT("Dodge is ignored due to inAir or Montage Null"), turn);
+		return false;
 	}
-	return !ignore;
 }
 
 void UHero_AnimInstance::LaunchDodge()
@@ -267,26 +265,7 @@ void UHero_AnimInstance::LaunchDodge()
 	// Clear Next Action Marker
 	NextAction = EActionType::None;
 
-	bRotationRateOverrideByAnim = true;
-	mCharacter->GetCharacterMovement()->RotationRate.Yaw = 0;
-
 	bVelocityOverrideByAnim = true;
-
-	if (!bIsFocused)
-	{
-		if (bTryToMove)
-		{
-			mSpeedOverrideDirection = mAccelerationDirection;
-			this->PlayMontage(Dodge_Montage, 1.0f, TEXT("Dodge_Fwd"));
-		}
-		else
-		{
-			mSpeedOverrideDirection = mCharacter->GetActorForwardVector();
-			mSpeedOverrideDirection = FVector(-mSpeedOverrideDirection.X, -mSpeedOverrideDirection.Y, -mSpeedOverrideDirection.Z);
-			this->PlayMontage(Dodge_Montage, 1.0f, TEXT("Dodge_Bwd"));
-		}
-	}
-
 }
 
 void UHero_AnimInstance::OnDodgePost()
@@ -304,40 +283,73 @@ void UHero_AnimInstance::OnDodgeFinish()
 
 #pragma endregion
 
-void UHero_AnimInstance::OnEquip()
+#pragma region Equip && Unequip
+
+bool UHero_AnimInstance::OnEquip()
 {
-	if (ActivatedEquipment != CurrentEquipment)
+	bool ignore
+		= AttackState != EAttackState::None
+		|| Montage_IsPlaying(Equip_Montage)
+		|| Equip_Montage == nullptr;
+
+	if (ignore)
 	{
-		// Equip
-		ActivatedEquipment = CurrentEquipment;
-		// if we are sprinting then stop
-		if (bIsSprinting)
-		{
-			mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
-			bIsSprinting = false;
-		}
-		mCharacter->GetCameraBoom()->bEnableCameraRotationLag = true;
+		UE_LOG(LogTemp, Warning,
+			TEXT("Equip Function is ignore due to wrong attack state, running montage or null Montage"));
+		return false;
 	}
 	else
 	{
-		if (bIsFocused)
+		//bVelocityOverrideByAnim = false;
+
+		if (ActivatedEquipment != CurrentEquipment)
 		{
-			OnFocus();
-			UE_LOG(LogTemp, Warning, TEXT("Unequip during focus, unfocus is implemented automatically"));
+			// if we are sprinting then stop
+			if (bIsSprinting)
+			{
+				mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
+				bIsSprinting = false;
+			}
 		}
-		// Unequip
-		ActivatedEquipment = EEquipType::Travel;
-		mCharacter->GetCameraBoom()->bEnableCameraRotationLag = false;
-		// After we sheath our weapon, and the sprint button is not release, we will restore sprinting
-		if (bTryToSprint)
+		else
 		{
-			mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetSprintSpeed();
-			bIsSprinting = true;
+			/** No need to be in focus mode, if we already sheath our weapon*/
+			if (bIsFocused)
+			{
+				OnFocus();
+				UE_LOG(LogTemp, Warning, TEXT("Unequip during focus, unfocus is implemented automatically"));
+			}
+
+			// Sprint recover is moved to sheathWeapon for animation refine :)
 		}
+
+		// let derived class to handle animation
+		return true;
 	}
-	bVelocityOverrideByAnim = false;
 
 }
+
+void UHero_AnimInstance::OnEquipWeapon()
+{
+	ActivatedEquipment = CurrentEquipment;
+	mCharacter->GetHeroStatsComp()->OnEquipWeapon();
+}
+
+void UHero_AnimInstance::OnSheathWeapon()
+{
+	ActivatedEquipment = EEquipType::Travel;
+	mCharacter->GetHeroStatsComp()->OnSheathWeapon();
+
+	// After we sheath our weapon, and the sprint button is not release, we will restore sprinting
+	if (bTryToSprint)
+	{
+		mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetSprintSpeed();
+		bIsSprinting = true;
+	}
+}
+
+#pragma endregion
+
 
 void UHero_AnimInstance::OnJumpStart()
 {
@@ -352,17 +364,6 @@ void UHero_AnimInstance::OnJumpStop()
 {
 	bTryToJump = false;
 	mCharacter->StopJumping();
-}
-
-void UHero_AnimInstance::OnEquipWeapon()
-{
-	mCharacter->GetHeroStatsComp()->OnEquipWeapon();
-}
-
-void UHero_AnimInstance::OnSheathWeapon()
-{
-	mCharacter->GetHeroStatsComp()->OnSheathWeapon();
-
 }
 
 void UHero_AnimInstance::OnBeingHit(const class AActor* const _attacker)
@@ -429,6 +430,19 @@ void UHero_AnimInstance::OnSprintReleased()
 	bIsSprinting = false;
 }
 
+void UHero_AnimInstance::SkipEquip()
+{
+	OnEquipWeapon();
+	if (bIsSprinting)
+	{
+		// Once Attack, we activate combat mode, hence we have to slow our speed down
+		// if we are sprinting then stop
+		mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
+		bIsSprinting = false;
+	}
+
+}
+
 void UHero_AnimInstance::HeadTrack()
 {
 	
@@ -460,4 +474,52 @@ void UHero_AnimInstance::HeadTrack()
 	HeadTrackYaw = FMath::FInterpTo(HeadTrackYaw, headTrack_yaw_target, GetWorld()->DeltaTimeSeconds, HeadTrackRate);
 	HeadTrackPitch = FMath::FInterpTo(HeadTrackPitch, headTrack_pitch_target, GetWorld()->DeltaTimeSeconds, HeadTrackRate);
 
+}
+
+void UHero_AnimInstance::ToggleFocusMode(bool _IsOn)
+{
+	bIsFocused = _IsOn;
+	if (bIsFocused)
+		mCharacter->GetCameraBoom()->CameraRotationLagSpeed = 5.0f;
+	mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = _IsOn;
+	mCharacter->GetCharacterMovement()->bOrientRotationToMovement = !_IsOn;
+	bIsFocusEnterPending = false;
+	bIsFocusExitPending = false;
+}
+
+FVector UHero_AnimInstance::GetFocusDodgeDirection() const
+{
+	switch (FocusDodgeDirection)
+	{
+	case EFocusDodgeDirection::Forward:
+		return mCharacter->GetActorForwardVector();
+
+	case EFocusDodgeDirection::Right45:
+		return (.5 * mCharacter->GetActorForwardVector() +  mCharacter->GetActorRightVector()).GetUnsafeNormal();
+
+	case EFocusDodgeDirection::Left45:
+		return (.5f *  mCharacter->GetActorForwardVector() -  mCharacter->GetActorRightVector()).GetUnsafeNormal();
+
+	case EFocusDodgeDirection::Right135:
+		return (-.5f * mCharacter->GetActorForwardVector() + mCharacter->GetActorRightVector()).GetUnsafeNormal();
+
+	case EFocusDodgeDirection::Left135:
+		return (-.5f * mCharacter->GetActorForwardVector() - mCharacter->GetActorRightVector()).GetUnsafeNormal();
+
+	case EFocusDodgeDirection::Right90:
+		return mCharacter->GetActorRightVector();
+	case EFocusDodgeDirection::Back:
+	default:
+	{
+		FVector back = mCharacter->GetActorForwardVector();
+		back = FVector(-back.X, -back.Y, -back.Z);
+		return back;
+	}
+	case EFocusDodgeDirection::Left90:
+	{
+		FVector left = mCharacter->GetActorRightVector();
+		left = FVector(-left.X, -left.Y, -left.Z);
+		return left;
+	}
+	}
 }

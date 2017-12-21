@@ -47,6 +47,20 @@ enum class EActionType : uint8
 	Dodge = 3   UMETA(DisplayName = "Dodge")
 };
 
+UENUM(BlueprintType)
+enum class EFocusDodgeDirection :uint8
+{
+	None = 0 UMETA(DisplayName = "None"),
+	Forward  = 1  UMETA(DisplayName = "Forward"),
+	Right45 = 2   UMETA(DisplayName = "Right45"),
+	Right90 = 3   UMETA(DisplayName = "Right90"),
+	Right135 = 4  UMETA(DisplayName = "Right135"),
+	Back = 5      UMETA(DisplayName = "Back"),
+	Left135 = 6   UMETA(DisplayName = "Left135"),
+	Left90 = 7    UMETA(DisplayName = "Left90"),
+	Left45 = 8    UMETA(DisplayName = "Left45")
+};
+
 
 
 UCLASS()
@@ -152,6 +166,16 @@ protected:
 		*  if player is in travel mode, focus button will automatically implement equip*/
 		bool bIsFocused;
 
+	/** Due to I dont want to mess up my dodge movement property,
+	*   if someone try to enter focus mode  during dodge, toggle this boolean to true, and wait
+	*   until the dodge finish, enter the focus mode, reset this boolean*/
+	bool bIsFocusEnterPending;
+
+	/** Due to I dont want to mess up my dodge movement property,
+	*   if someone try to exit focus mode during dodge, toggle this boolean to true, and wait
+	*   until the dodge finish, exit the focus mode, reset this boolean */
+	bool bIsFocusExitPending;
+
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
 		/** Angle between Acceleration and Forward Direction must less than this angle to trigger dodge*/
@@ -177,7 +201,11 @@ protected:
 	/** Basic Attack */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
 		class UAnimMontage* Attack_Montage;							
-																	
+						
+
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+		/** Must be assigned for before focused dodge*/
+		EFocusDodgeDirection FocusDodgeDirection;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
 		class UAnimMontage* Dodge_Montage;
 
@@ -194,9 +222,9 @@ protected:
 
 		virtual void OnPostEvaluate();	
 
-
 		float PlayMontage(class UAnimMontage* _animMontage, float _rate, FName _startSectionName = NAME_None);
 
+		/** Called when decide to make a dodge*/
 		virtual void LaunchDodge();
 
 #pragma region Anim Notification
@@ -250,7 +278,7 @@ public:
 	/** Called when attack button is called*/
 	virtual bool OnAttack();
 	/** Called when equip button is pressed*/
-	virtual void OnEquip();
+	virtual bool OnEquip();
 	/** Called when Focus button is pressed*/
 	virtual void OnFocus();
 	/** Called when Focus button is pressed*/
@@ -278,8 +306,18 @@ public:
 
 	FORCEINLINE EEquipType GetCurrentEquipmentType() const { return CurrentEquipment; }
 	FORCEINLINE EEquipType GetActivatedEquipmentType() const { return ActivatedEquipment;  }
+	FORCEINLINE bool GetFocusPendingEnter() const { return bIsFocusEnterPending; }
+	FORCEINLINE bool GetFocusPendingExit() const { return bIsFocusExitPending; }
 
-private:
 
+protected:
+
+
+	/** Called when player try to attack and dodge and use skill without equip at the first place
+	    Simply attach a weapon on the slot, and handle equip transition without play the animation*/
+	void SkipEquip();
 	void HeadTrack();
+	void ToggleFocusMode(bool _IsOn);
+
+	FVector GetFocusDodgeDirection() const;
 };

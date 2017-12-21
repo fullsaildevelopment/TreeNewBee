@@ -85,6 +85,15 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
 		class UHeroStatsComponent* HeroStats;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera)
+		float NonLockOn_CamRotationLagging;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera)
+		float LockOn_CamRotationLagging;
+
+
+
+
 private:
 
 	/** Animation Bp Reference */
@@ -122,6 +131,9 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UHeroStatsComponent* GetHeroStatsComp() const { return HeroStats; }	
 	FORCEINLINE class UHero_AnimInstance* GetAnimInstanceRef() const { return mAnimInstanceRef; }
+
+	FORCEINLINE float GetLockOnCameraRotationLag() const { return LockOn_CamRotationLagging; }
+	FORCEINLINE float GetNonLockOnCameraRotationLag() const { return NonLockOn_CamRotationLagging; }
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE float GetMoveForwardAxis() const { return MoveForwardAxis; }

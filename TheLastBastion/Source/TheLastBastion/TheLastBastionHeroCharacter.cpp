@@ -20,7 +20,11 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter() : Super()
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 300.0f; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
-	CameraBoom->bEnableCameraRotationLag = false;
+	CameraBoom->bEnableCameraRotationLag = true;
+
+	LockOn_CamRotationLagging = 10.0f;
+	NonLockOn_CamRotationLagging = 50.0f;
+
 												// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
@@ -39,6 +43,8 @@ void ATheLastBastionHeroCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	CameraBoom->CameraRotationLagSpeed = NonLockOn_CamRotationLagging;
+
 	// Get Anim Bp Reference
 	mAnimInstanceRef = Cast<UHero_AnimInstance>(this->GetMesh()->GetAnimInstance());
 	if (mAnimInstanceRef == nullptr) { UE_LOG(LogTemp, Warning, TEXT("ATheLastBastionCharacter can not take other AnimInstance other than UHero_AnimInstance, - ATheLastBastionCharacter")); return; }

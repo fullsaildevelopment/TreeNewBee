@@ -46,9 +46,8 @@ public:
 
 
 	/** Called when equip button is pressed, 
-	depending on current equipment, play different equip animation, reset combat properties 
-	when unequip */
-	void OnEquip() override;
+	depending on current equipment, play different equip animation */
+	bool OnEquip() override;
 
 	/** Called when combat properties requires to be reset*/
 	void OnActionInterrupt() override;
@@ -100,7 +99,6 @@ private:
 
 	void LaunchCombo();
 	void LaunchDodge() override;
-
 
 
 

@@ -40,7 +40,7 @@ UHeroStatsComponent::UHeroStatsComponent() : Super()
 
 		MeleeTargetDetector = CreateDefaultSubobject<USphereComponent>(TEXT("MeleeTargetDetector"));
 		MeleeTargetDetector->SetupAttachment(mCharacter->GetMesh(), TEXT("Root"));
-		MeleeTargetDetector->InitSphereRadius(1500);
+		MeleeTargetDetector->InitSphereRadius(1200);
 		MeleeTargetDetector->SetCanEverAffectNavigation(false);
 		MeleeTargetDetector->bGenerateOverlapEvents = true;
 		MeleeTargetDetector->bHiddenInGame = false;
@@ -71,9 +71,16 @@ void UHeroStatsComponent::OnFocus()
 	if (mHeroCharacter)
 	{
 		// if not focused, enter focus mode, else quit
-		if (!mHeroCharacter->GetAnimInstanceRef()->GetIsFocus())
+		bool setTargetToNull
+			= mHeroCharacter->GetAnimInstanceRef()->GetIsFocus() ||
+			mHeroCharacter->GetAnimInstanceRef()->GetFocusPendingExit();
+		if (setTargetToNull)
 		{
-
+			mCurrentTarget = nullptr;
+			UE_LOG(LogTemp, Warning, TEXT("Quit Focus !!!"));
+		}
+		else
+		{
 			if (mCharacter->GetCharacterType() == ECharacterType::Ranger)
 			{
 				// Melee hero focus target determination
@@ -83,11 +90,7 @@ void UHeroStatsComponent::OnFocus()
 			{
 
 			}
-		}
-		else
-		{
-			mCurrentTarget = nullptr;
-			UE_LOG(LogTemp, Warning, TEXT("Quit Focus !!!"));
+
 		}
 	}
 }
@@ -107,16 +110,16 @@ void UHeroStatsComponent::OnEnemyEnter(UPrimitiveComponent * _overlappedComponen
 
 void UHeroStatsComponent::OnEnemyLeave(UPrimitiveComponent * _overlappedComponent, AActor * _otherActor, UPrimitiveComponent * _otherComp, int32 _otherBodyIndex)
 {
-	const ATheLastBastionEnemyCharacter* newPotentialTarget = Cast<ATheLastBastionEnemyCharacter>(_otherActor);
-	if (newPotentialTarget)
+	const ATheLastBastionEnemyCharacter* leave = Cast<ATheLastBastionEnemyCharacter>(_otherActor);
+	if (leave)
 	{
-		mPotentialTargets.Remove(newPotentialTarget);
-		UE_LOG(LogTemp, Warning, 
-			TEXT("Detect Enemy Leave, remove %s, %d left in list"),
-			*_otherActor->GetName(), mPotentialTargets.Num());
-		if (mPotentialTargets.Num() == 0)
+		mPotentialTargets.Remove(leave);
+		//UE_LOG(LogTemp, Warning, 
+		//	TEXT("Detect Enemy Leave, remove %s, %d left in list"),
+		//	*_otherActor->GetName(), mPotentialTargets.Num());
+		if (leave == mCurrentTarget)
 		{
-			// if there is not potental enemy in range, quit Focus
+			// if our current target is leaving the detector, quit Focus
 			// Stay away from enemy will leave focus mode
 			if (mHeroCharacter->GetAnimInstanceRef()->GetIsFocus())
 			{
