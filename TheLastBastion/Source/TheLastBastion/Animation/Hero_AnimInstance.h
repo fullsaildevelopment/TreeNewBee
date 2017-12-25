@@ -29,13 +29,11 @@ enum class EAttackState : uint8
 	Attacking = 2   UMETA(DisplayName = "Attacking"),
 	/** Player action can move freely*/
 	ReadyForNext = 3 UMETA(DisplayName = "ReadyForNext"),
-	/** Player action will be locked in this state*/
-	BeAttacked = 4 UMETA(DisplayName = "BeAttacked"),
 	/** Player speed and direction will be override by dodge animation in this state
 	*   No Only Action allowed */
-	Dodging = 5 UMETA(DisplayName = "Dodging"),
+	Dodging = 4 UMETA(DisplayName = "Dodging"),
 	/** Player speed and direction still override by Dodging anim, but can perform next action, but not dodge*/
-	PostDodging = 6 UMETA(DisplayName = "PostDodging")
+	PostDodging = 5 UMETA(DisplayName = "PostDodging")
 };
 
 UENUM(BlueprintType)
@@ -237,9 +235,12 @@ protected:
 		UFUNCTION(BlueprintCallable)
 			void StopOverrideSpeed();
 
+
+		/** Called when enter idle state and loop state during travel mode*/
 		UFUNCTION(BlueprintCallable)
 			void EnableJump();
 
+		/** Called when leave idle state or loop state, and also called when exit travel mode*/
 		UFUNCTION(BlueprintCallable)
 			void DisableJump();
 
@@ -271,8 +272,6 @@ protected:
 
 #pragma endregion
 
-
-
 public:
 
 	/** Called when attack button is called*/
@@ -288,7 +287,7 @@ public:
 	/** Called when Jump button is released*/
 	virtual void OnJumpStop();
 
-	virtual void OnBeingHit( const class AActor* const _attacker);
+	virtual void OnBeingHit( const class AActor* const _attacker, float _damagePercentage, bool _IsHeadShot = false);
 
 	virtual void OnActionInterrupt();
 
@@ -314,7 +313,7 @@ protected:
 
 
 	/** Called when player try to attack and dodge and use skill without equip at the first place
-	    Simply attach a weapon on the slot, and handle equip transition without play the animation*/
+	    Simply attach a weapon on the slot without play the animation, disable jump*/
 	void SkipEquip();
 	void HeadTrack();
 	void ToggleFocusMode(bool _IsOn);

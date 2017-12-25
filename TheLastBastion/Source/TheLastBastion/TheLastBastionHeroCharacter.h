@@ -85,14 +85,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
 		class UHeroStatsComponent* HeroStats;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Targeting)
+		class USphereComponent*    TargetDetector;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera)
 		float NonLockOn_CamRotationLagging;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera)
 		float LockOn_CamRotationLagging;
-
-
-
 
 private:
 
@@ -124,6 +124,10 @@ private:
 #pragma endregion
 
 public:
+	
+	FORCEINLINE class USphereComponent* GetTargetDetector() const { return TargetDetector; }
+
+
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/

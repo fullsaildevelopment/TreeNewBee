@@ -3,7 +3,7 @@
 #include "TheLastBastionEnemyCharacter.h"
 #include "Combat/PawnStatsComponent.h"
 #include "Components/CapsuleComponent.h"
-
+#include "Animation/AIBase_AnimInstance.h"
 
 
 
@@ -22,4 +22,11 @@ ATheLastBastionEnemyCharacter::ATheLastBastionEnemyCharacter() : Super()
 void ATheLastBastionEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	mAnimInstanceRef = Cast<UAIBase_AnimInstance>(this->GetMesh()->GetAnimInstance());
+	if (mAnimInstanceRef == nullptr) 
+	{ 
+		UE_LOG(LogTemp, Warning, TEXT("ATheLastBastionEnemyCharacter can not take other AnimInstance other than AIBase_AnimInstance, - ATheLastBastionCharacter")); 
+		return; 
+	}
+
 }

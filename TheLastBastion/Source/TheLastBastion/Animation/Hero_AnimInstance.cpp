@@ -33,7 +33,7 @@ void UHero_AnimInstance::OnBeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("The MeleeHero can only assigned to ATheLastBastionCharacter - UMeleeHero_AnimInstance "));
 		return;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("UHero_AnimInstance Call OnBeginPlay"));
+	//UE_LOG(LogTemp, Warning, TEXT("UHero_AnimInstance Call OnBeginPlay"));
 
 }
 
@@ -107,9 +107,6 @@ void UHero_AnimInstance::OnUpdate(float _deltaTime)
 				overrideVelocity = mCharacter->GetActorForwardVector() * GetCurveValue("Speed");
 				movementComp->Velocity = FVector(overrideVelocity.X, overrideVelocity.Y, Z);
 				break;
-
-			case EAttackState::BeAttacked:		
-				break;
 			case EAttackState::Dodging:
 			case EAttackState::PostDodging:
 			{
@@ -150,8 +147,7 @@ void UHero_AnimInstance::StartOverrideSpeed()
 void UHero_AnimInstance::StopOverrideSpeed()
 {
 
-	bool ignore = AttackState == EAttackState::Dodging || AttackState == EAttackState::BeAttacked
-		|| AttackState == EAttackState::Attacking;
+	bool ignore = AttackState == EAttackState::Dodging || AttackState == EAttackState::Attacking;
 	if (ignore)
 		return;	
 
@@ -160,15 +156,6 @@ void UHero_AnimInstance::StopOverrideSpeed()
 		= (bIsSprinting)? mCharacter->GetSprintSpeed() : mCharacter->GetJogSpeed();
 }
 
-void UHero_AnimInstance::EnableJump()
-{
-	bEnableJump = true;
-}
-
-void UHero_AnimInstance::DisableJump()
-{
-	bEnableJump = false;
-}
 
 float UHero_AnimInstance::PlayMontage(UAnimMontage * _animMontage, float _rate, FName _startSectionName)
 {
@@ -190,7 +177,7 @@ float UHero_AnimInstance::PlayMontage(UAnimMontage * _animMontage, float _rate, 
 #pragma region Attack && Combo
 bool UHero_AnimInstance::OnAttack()
 {
-	bool ignore = Attack_Montage == nullptr || bIsInAir;
+	bool ignore = Montage_IsPlaying(Hit_Montage) || Attack_Montage == nullptr || bIsInAir;
 
 	// Apply Input Filter
 	if (!ignore)
@@ -239,7 +226,8 @@ bool UHero_AnimInstance::OnDodge()
 {
 	// Apply Input Filter
 	bool ignore
-		= (FMath::Abs(turn) > DodgeMinTurnThreshold && !bIsFocused) ||
+		= Montage_IsPlaying(Hit_Montage) ||
+		(FMath::Abs(turn) > DodgeMinTurnThreshold && !bIsFocused) ||
 		bIsInAir || Dodge_Montage  == nullptr;
 
 	if (!ignore)
@@ -300,8 +288,7 @@ bool UHero_AnimInstance::OnEquip()
 	}
 	else
 	{
-		//bVelocityOverrideByAnim = false;
-
+		// Equip
 		if (ActivatedEquipment != CurrentEquipment)
 		{
 			// if we are sprinting then stop
@@ -310,7 +297,10 @@ bool UHero_AnimInstance::OnEquip()
 				mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
 				bIsSprinting = false;
 			}
+			DisableJump();
+
 		}
+		// UnEquip
 		else
 		{
 			/** No need to be in focus mode, if we already sheath our weapon*/
@@ -320,7 +310,6 @@ bool UHero_AnimInstance::OnEquip()
 				UE_LOG(LogTemp, Warning, TEXT("Unequip during focus, unfocus is implemented automatically"));
 			}
 
-			// Sprint recover is moved to sheathWeapon for animation refine :)
 		}
 
 		// let derived class to handle animation
@@ -348,15 +337,43 @@ void UHero_AnimInstance::OnSheathWeapon()
 	}
 }
 
+void UHero_AnimInstance::SkipEquip()
+{
+	OnEquipWeapon();
+	if (bIsSprinting)
+	{
+		// Once Attack, we activate combat mode, hence we have to slow our speed down
+		// if we are sprinting then stop
+		mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
+		bIsSprinting = false;
+	}
+	DisableJump();
+
+}
+
 #pragma endregion
 
+#pragma region Jump
+void UHero_AnimInstance::EnableJump()
+{
+	bEnableJump = true;
+}
+
+void UHero_AnimInstance::DisableJump()
+{
+	bEnableJump = false;
+	UE_LOG(LogTemp, Warning, TEXT("DisableJump"));
+}
 
 void UHero_AnimInstance::OnJumpStart()
 {
 	if (bEnableJump)
 	{
-		bTryToJump = true;
-		mCharacter->Jump();
+		if (AttackState == EAttackState::None)
+		{
+			bTryToJump = true;
+			mCharacter->Jump();
+		}
 	}
 }
 
@@ -366,18 +383,33 @@ void UHero_AnimInstance::OnJumpStop()
 	mCharacter->StopJumping();
 }
 
-void UHero_AnimInstance::OnBeingHit(const class AActor* const _attacker)
+#pragma endregion
+
+
+
+
+
+void UHero_AnimInstance::OnBeingHit(const class AActor* const _attacker, float _damagePercentage, bool _IsHeadShot)
 {
+	// reset the attack state and movement override, cuz we are being attack
+	OnActionInterrupt();
+
+
 	FVector forward = mCharacter->GetActorForwardVector();
 	FVector right = mCharacter->GetActorRightVector();
 	FVector away = _attacker->GetActorLocation() - mCharacter->GetActorLocation();
 	away = away.GetUnsafeNormal();
-
 	float vert = FVector::DotProduct(forward, away);
 
 	FName sectionName;
 	if (vert >= 0.7f)
-		sectionName = TEXT("HitCenter");
+	{
+		if (_IsHeadShot)
+			sectionName = TEXT("HitHead");
+		else
+			sectionName = TEXT("HitCenter");
+	}
+
 	else if (vert <= -0.7f)
 		sectionName = TEXT("HitBack");
 	else
@@ -393,6 +425,7 @@ void UHero_AnimInstance::OnBeingHit(const class AActor* const _attacker)
 		this->PlayMontage(Hit_Montage, 1.0f, sectionName);
 	else
 		UE_LOG(LogTemp, Error, TEXT("Hit_Montage is nullptr - UHero_AnimInstance::OnBeingHit"));
+
 }
 
 void UHero_AnimInstance::OnActionInterrupt()
@@ -401,6 +434,8 @@ void UHero_AnimInstance::OnActionInterrupt()
 	bRotationRateOverrideByAnim = false;
 	AttackState = EAttackState::None;
 	NextAction = EActionType::None;
+
+
 }
 
 void UHero_AnimInstance::SetTryToSprint(bool _val)
@@ -430,18 +465,6 @@ void UHero_AnimInstance::OnSprintReleased()
 	bIsSprinting = false;
 }
 
-void UHero_AnimInstance::SkipEquip()
-{
-	OnEquipWeapon();
-	if (bIsSprinting)
-	{
-		// Once Attack, we activate combat mode, hence we have to slow our speed down
-		// if we are sprinting then stop
-		mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
-		bIsSprinting = false;
-	}
-
-}
 
 void UHero_AnimInstance::HeadTrack()
 {

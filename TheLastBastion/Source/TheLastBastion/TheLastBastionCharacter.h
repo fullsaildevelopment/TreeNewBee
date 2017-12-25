@@ -32,8 +32,7 @@ public:
 
 protected:
 
-
-		const class UPawnStatsComponent* PawnStats;
+	class UPawnStatsComponent* PawnStats;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 		ECharacterType CharacterType;
@@ -69,7 +68,31 @@ protected:
 
 #pragma endregion
 
+
+
+#pragma region Stats Components
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Combat)
+		class USphereComponent*        Head;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Combat)
+		class UBoxComponent*           Body;
+
+#pragma endregion
+
+
+
+
+
+private:
+
+	void CreateStatsComponents();
+
 public:
+
+	FORCEINLINE class USphereComponent*  GetHeadComp() const { return Head; }
+	FORCEINLINE class UBoxComponent*     GetBodyComp() const { return Body; }
+
 
 	FORCEINLINE float GetMaxTurnRateForTravel() const { return  maxTurnRate_Travel; }
 	FORCEINLINE float GetMaxTurnRateForCombat() const { return  maxTurnRate_Combat; }
@@ -77,13 +100,11 @@ public:
 	FORCEINLINE float GetMinTurnRateForTravel() const { return  minTurnRate_Travel; }
 	FORCEINLINE float GetMinTurnRateForCombat() const { return  minTurnRate_Combat; }
 
-
-
 	FORCEINLINE float GetJogSpeed() const { return JogSpeed; }
 	FORCEINLINE float GetSprintSpeed() const { return SprintSpeed; }
 
 	FORCEINLINE ECharacterType GetCharacterType() const { return CharacterType; }
-	FORCEINLINE const class UPawnStatsComponent*  GetPawnStatsComp() const { return PawnStats; }
+	FORCEINLINE class UPawnStatsComponent*  GetPawnStatsComp() const { return PawnStats; }
 
 };
 

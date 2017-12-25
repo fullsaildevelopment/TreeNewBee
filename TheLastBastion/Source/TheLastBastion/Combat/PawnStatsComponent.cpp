@@ -13,32 +13,25 @@
 #include "CustomType.h"
 #include "TheLastBastionCharacter.h"
 
+const float RangerInitHp = 230.0f;
+const float BuilderInitHp = 180.0f;
+
+
 // Sets default values for this component's properties
 UPawnStatsComponent::UPawnStatsComponent()
 {
 	
 	mCharacter = Cast<ATheLastBastionCharacter>(this->GetOwner());
 
+	Level = 1;
+
 	if (mCharacter)
 	{
-		bAutoActivate = true;
-		Head = CreateDefaultSubobject<USphereComponent>(TEXT("Head"));
-		Head->SetupAttachment(mCharacter->GetMesh(), TEXT("head"));
-		Head->InitSphereRadius(12);
-		Head->RelativeLocation = FVector(5, 2.5f, 0);
-		Head->bGenerateOverlapEvents = true;
-		Head->SetCanEverAffectNavigation(false);
-
-
-		Body = CreateDefaultSubobject<UBoxComponent>(TEXT("Body"));
-		Body->SetupAttachment(mCharacter->GetMesh(), TEXT("spine_02"));
-		Body->InitBoxExtent(FVector(40, 15, 25));
-		Body->RelativeLocation = FVector(-10, 0, 0);
-		Body->bGenerateOverlapEvents = true;
-		Body->SetCanEverAffectNavigation(false);
+		Head = mCharacter->GetHeadComp();
+		Body = mCharacter->GetBodyComp();
 	}
-}
 
+}
 
 // Called when the game starts
 void UPawnStatsComponent::BeginPlay()
@@ -78,13 +71,15 @@ void UPawnStatsComponent::BeginPlay()
 		Body->OnComponentBeginOverlap.AddDynamic(this, &UPawnStatsComponent::OnBodyHit);
 	}
 
-	if (LeftHandWeapon && RightHandWeapon)
-	{
+	if (LeftHandWeapon)
 		LeftHandWeapon->GetWeaponMeshRef()
 			->OnComponentBeginOverlap.AddDynamic(this, &UPawnStatsComponent::OnLeftHandWeaponHit);
+
+	if (RightHandWeapon)
 		RightHandWeapon->GetWeaponMeshRef()
-			->OnComponentBeginOverlap.AddDynamic(this, &UPawnStatsComponent::OnRightHandWeaponHit);
-	}
+		->OnComponentBeginOverlap.AddDynamic(this, &UPawnStatsComponent::OnRightHandWeaponHit);
+
+	GenerateRawStatsByLevel(1);
 }
 
 // Called every frame
@@ -94,7 +89,6 @@ void UPawnStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 	// ...
 }
-
 
 void UPawnStatsComponent::EnableWeapon(bool _bIsRightHand, bool _bIsAll)
 {
@@ -155,14 +149,125 @@ void UPawnStatsComponent::SetDamageDetectorsCollsionProfile(FName _profileName)
 }
 
 
+
+
+#pragma region Stats Generatrion
+void UPawnStatsComponent::GenerateRawStatsByLevel(int Level)
+{
+
+	Level--;
+	// Just Avoid negative
+	if (Level < 0) Level = 0;
+
+	StaminaRaw = -1;
+
+	switch (mCharacter->GetCharacterType())
+	{
+	case ECharacterType::None:
+	default:
+		break;
+	case ECharacterType::Ranger:
+	{
+		HpRaw = 230.0f + Level * 15;
+		StaminaRaw = 100.0f;
+		break;
+	}
+	case ECharacterType::Builder:
+	{
+		HpRaw = 180.0f + Level * 11.5f;
+		StaminaRaw = 100.0f;
+		break;
+	}
+	}
+
+	GenerateMaxStats();
+}
+
+void UPawnStatsComponent::GenerateMaxStats()
+{
+	float
+		factorHp = 1,
+		factorStamina = 1;
+	if (LeftHandWeapon)
+	{
+		factorHp += LeftHandWeapon->GetHpBonus();
+		factorStamina += LeftHandWeapon->GetStaminaBonus();
+	}
+
+	if (RightHandWeapon)
+	{
+		factorHp += RightHandWeapon->GetHpBonus();
+		factorStamina += RightHandWeapon->GetStaminaBonus();
+	}
+
+	if (Armor)
+	{
+		factorHp += Armor->GetHpBonus();
+		factorStamina += Armor->GetStaminaBonus();
+	}
+
+
+	HpMax = factorHp * HpRaw;
+	StaminaMax = factorStamina * StaminaRaw;
+	DivByHpMax = 1 / HpMax;
+	DivByStaminaMax = 1 / StaminaMax;
+}
+
+void UPawnStatsComponent::LevelUp()
+{
+	Level++;
+	GenerateRawStatsByLevel(Level);
+	HpCurrent = HpMax;
+	StaminaCurrent = StaminaMax;
+}
+
+void UPawnStatsComponent::Born()
+{
+	Level = 1;
+	GenerateRawStatsByLevel(Level);
+	HpCurrent = HpMax;
+	StaminaCurrent = StaminaMax;
+}
+#pragma endregion
+
+
+#pragma region  Damage Calculation
+float UPawnStatsComponent::CalculateHealth(AActor * _otherActor)
+{
+
+	AGear* const AttackerWeapon = Cast<AGear>(_otherActor);
+	if (AttackerWeapon == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AttackerWeapon is not a gear - UPawnStatsComponent::CalculateHealth "));
+		return 0.0f;
+	}
+	UPawnStatsComponent* const AttackerStats = AttackerWeapon->GetGearOwner()->GetPawnStatsComp();
+	float damage = AttackerStats->GetDamage();;
+	HpCurrent = HpCurrent - damage;
+	
+	float damagePercentage = damage * DivByHpMax;
+	return damagePercentage;
+}
+float UPawnStatsComponent::GetDamage()
+{
+	return 	FMath::RandRange(50, 100);
+
+}
+
+#pragma endregion
+
+
+#pragma region hit Event
 void UPawnStatsComponent::OnBodyHit(UPrimitiveComponent * _overlappedComponent, AActor * _otherActor, UPrimitiveComponent * _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult & _SweepResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Body hit by %s"), *_otherActor->GetName());
+
 }
 
 void UPawnStatsComponent::OnHeadHit(UPrimitiveComponent * _overlappedComponent, AActor * _otherActor, UPrimitiveComponent * _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult & _SweepResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Head hit by %s"), *_otherActor->GetName());
+
 }
 
 void UPawnStatsComponent::OnRightHandWeaponHit(UPrimitiveComponent * _overlappedComponent, AActor * _otherActor, UPrimitiveComponent * _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult & _SweepResult)
@@ -176,5 +281,9 @@ void UPawnStatsComponent::OnLeftHandWeaponHit(UPrimitiveComponent * _overlappedC
 	UE_LOG(LogTemp, Warning, TEXT("Left Hand Weapon hit %s"), *_otherActor->GetName());
 
 }
+
+#pragma endregion
+
+
 
 

@@ -45,6 +45,10 @@ void AWeapon::Arm(USkeletalMeshComponent * const _skeletonMeshComponent)
 	case EGearType::CrossBowBolt:
 		SlotName = TEXT("BoltsEquip");
 		break;
+	case EGearType::TwinBlade:
+		SlotName = TEXT("ik_hand_r");
+		break;
+
 	}
 	this->AttachToComponent(_skeletonMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, SlotName);
 

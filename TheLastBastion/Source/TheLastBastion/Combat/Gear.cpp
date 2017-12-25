@@ -3,6 +3,7 @@
 #include "Gear.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "TheLastBastionCharacter.h"
 
 // Sets default values
 AGear::AGear()
@@ -20,8 +21,15 @@ void AGear::BeginPlay()
 
 void AGear::Equip(class USkeletalMeshComponent* const _skeletonMeshComponent)
 {
-	FName SlotName;
 
+
+	GearOwner = Cast<ATheLastBastionCharacter>(_skeletonMeshComponent->GetOwner());
+	if (GearOwner == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GearOwner is not a ATheLastBastionCharacter - AGear::Equip "));
+		return;
+	}
+	FName SlotName;
 	switch (GearType)
 	{
 	case EGearType::Armor:
@@ -42,6 +50,9 @@ void AGear::Equip(class USkeletalMeshComponent* const _skeletonMeshComponent)
 		break;
 	case EGearType::CrossBowBolt:
 		SlotName = TEXT("BoltsEquip");
+		break;
+	case EGearType::TwinBlade:
+		SlotName = TEXT("ik_hand_r");
 		break;
 	}
 	this->AttachToComponent(_skeletonMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, SlotName);

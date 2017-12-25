@@ -32,13 +32,35 @@ protected:
 		TSubclassOf <class AArmor> Armor_ClassBp;
 	class AArmor *    Armor;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Combat)
-	   class USphereComponent*        Head;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Combat)
-	   class UBoxComponent*           Body;
+	class USphereComponent*        Head;
+	class UBoxComponent*           Body;
+
+	
+#pragma region Character Stats
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = CharactorStats)
+		// Init health by Level
+		float HpRaw;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = CharactorStats)
+		// Init stamina
+		float StaminaRaw;
 
 
+
+	float
+		HpMax,
+		HpCurrent,
+		StaminaMax,
+		StaminaCurrent,
+		DivByHpMax,
+		DivByStaminaMax;
+
+	int Level;
+
+
+#pragma endregion
 
 	
 protected:
@@ -60,9 +82,39 @@ public:
 
 	void OnSheathWeapon();
 
+
+
 public:
 
 	void SetDamageDetectorsCollsionProfile(FName _profileName);
+
+	FORCEINLINE float GetHpRaw() const { return HpRaw; }
+	FORCEINLINE float GetStamina() const { return StaminaRaw; }
+	FORCEINLINE float GetHpCurrent() const { return HpCurrent; }
+	FORCEINLINE float GetStaminaCurrent() const { return StaminaCurrent; }
+	FORCEINLINE float GetHpMax() const { return HpMax; }
+	FORCEINLINE float GetStaminaMax() const { return StaminaMax; }
+
+	// Calculate the damage that this character cause as the attacker
+	virtual float GetDamage();
+
+
+
+	// Called after a character is spawned, generate the raw stats according to its level
+	void GenerateRawStatsByLevel(int Level);
+
+	// Called after equip and unequip 
+	void GenerateMaxStats();
+
+	// Called after character is level up, generater raw && max stats, recover full health
+	void LevelUp();
+	
+	// Called 
+	void Born();
+
+
+
+
 
 protected:
 
@@ -90,6 +142,12 @@ protected:
 		virtual void OnLeftHandWeaponHit(UPrimitiveComponent* _overlappedComponent, AActor* _otherActor
 			, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex,
 			bool _bFromSweep, const FHitResult& _SweepResult);
+
+
+	// Calculate the health that this character left after being attacked
+	virtual float CalculateHealth(AActor* _otherActor);
+
+
 
 
 };

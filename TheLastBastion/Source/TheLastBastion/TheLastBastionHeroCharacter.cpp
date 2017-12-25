@@ -11,7 +11,10 @@
 #include "Combat/Weapon.h"
 #include "Combat/Armor.h"
 #include "Combat/HeroStatsComponent.h"
+#include "Components/SphereComponent.h"
 
+#include "GI_TheLastBastion.h"
+#include "UI/InGameHUD.h"
 
 ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter() : Super()
 {
@@ -35,6 +38,15 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter() : Super()
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
 
+
+	TargetDetector = CreateDefaultSubobject<USphereComponent>(TEXT("MeleeTargetDetector"));
+	TargetDetector->SetupAttachment(GetMesh(), TEXT("Root"));
+	TargetDetector->InitSphereRadius(1200);
+	TargetDetector->SetCanEverAffectNavigation(false);
+	TargetDetector->bGenerateOverlapEvents = true;
+	TargetDetector->bHiddenInGame = false;
+	TargetDetector->SetCollisionProfileName("EnemyDetector");
+
 	HeroStats = CreateDefaultSubobject<UHeroStatsComponent>(TEXT("Stats"));
 	PawnStats = HeroStats;	
 }
@@ -49,6 +61,14 @@ void ATheLastBastionHeroCharacter::BeginPlay()
 	mAnimInstanceRef = Cast<UHero_AnimInstance>(this->GetMesh()->GetAnimInstance());
 	if (mAnimInstanceRef == nullptr) { UE_LOG(LogTemp, Warning, TEXT("ATheLastBastionCharacter can not take other AnimInstance other than UHero_AnimInstance, - ATheLastBastionCharacter")); return; }
 
+	UE_LOG(LogTemp, Warning, TEXT("Try Get GameInstance"));
+
+	UWorld* world = GetWorld();
+	if (world == nullptr)
+		return;
+	UGI_TheLastBastion* const gi = Cast<UGI_TheLastBastion>(world->GetGameInstance());
+	if (gi)
+		gi->ShowInGameHUD();
 }
 
 void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -81,7 +101,6 @@ void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputCompone
 	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnDodgePressed);
 
 }
-
 
 void ATheLastBastionHeroCharacter::TurnAtRate(float Rate)
 {

@@ -132,6 +132,9 @@ bool UMeleeHero_AnimInstance::OnEquip()
 
 void UMeleeHero_AnimInstance::OnActionInterrupt()
 {
+
+	UE_LOG(LogTemp, Error, TEXT("OnActionInterrupt UMeleeHero_AnimInstance"));
+
 	Super::OnActionInterrupt();
 	CurrentComboIndex = 0;
 }
@@ -207,7 +210,6 @@ bool UMeleeHero_AnimInstance::OnAttack()
 			return true;
 		}
 
-		case EAttackState::BeAttacked:
 		case EAttackState::PreWinding:
 		default:
 			UE_LOG(LogTemp, Warning, TEXT("current attack state ignore attack action"));
@@ -316,8 +318,6 @@ bool UMeleeHero_AnimInstance::OnDodge()
 			NextAction = EActionType::Dodge;
 			return true;
 		}
-
-		case EAttackState::BeAttacked:
 		case EAttackState::Dodging:
 		default:
 		{

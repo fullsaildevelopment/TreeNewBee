@@ -29,13 +29,13 @@ protected:
 
 	class ATheLastBastionHeroCharacter* mHeroCharacter;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Targeting)
-	    class USphereComponent*    MeleeTargetDetector;
 
 private:
 
 	const class ATheLastBastionEnemyCharacter* mCurrentTarget;
 	const class ATheLastBastionEnemyCharacter* mNextThreat;
+
+	class USphereComponent*    TargetDetector;
 
 	TArray<const class ATheLastBastionEnemyCharacter*> mPotentialTargets;
 
@@ -58,6 +58,21 @@ private:
 		virtual void OnEnemyLeave(UPrimitiveComponent* _overlappedComponent, AActor* _otherActor
 			, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex);
 
-	void MeleeFocus();
+
+	// Called When Body Is overlapped by weapon
+	UFUNCTION()
+		virtual void OnBodyHit(UPrimitiveComponent* _overlappedComponent, AActor* _otherActor
+			, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex,
+			bool _bFromSweep, const FHitResult& _SweepResult) override;
+
+	// Called When Head Is overlapped by weapon
+	UFUNCTION()
+		virtual void OnHeadHit(UPrimitiveComponent* _overlappedComponent, AActor* _otherActor
+			, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex,
+			bool _bFromSweep, const FHitResult& _SweepResult) override;
+
+
 	
+	void MeleeFocus();
+
 };

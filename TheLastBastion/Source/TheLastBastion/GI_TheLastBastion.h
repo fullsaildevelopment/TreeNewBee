@@ -52,6 +52,13 @@ protected:
 	UPROPERTY()
 		class UUserWidget* mJoinMenu_Widget;
 
+
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<class UUserWidget> InGameHUD_Class;
+	UPROPERTY()
+		class UUserWidget* mInGameHUD_Widget;
+
+
 #pragma endregion
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -101,6 +108,8 @@ public:
 
 	void SetIsLan(bool _val);
 
+	class UInGameHUD* GetInGameHUDRef() const;
+
 public:
 
 #pragma region Show Menu Func
@@ -122,6 +131,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void DisplayLoadingScreen();
+
+	UFUNCTION(BlueprintCallable)
+		void ShowInGameHUD();
 
 
 #pragma endregion
@@ -149,7 +161,8 @@ public:
 private:
 
 	// Helpers
-	void ShowMenu(class UUserWidget* &_widget, const TSubclassOf<class UUserWidget>& _class);
+	void ShowMenu(class UUserWidget* &_widget, const TSubclassOf<class UUserWidget>& _class, bool _showMouseCursor = true);
+
 	bool OnlineSubSystemCheck();
 	const TSharedPtr<const FUniqueNetId> GetUserId();
 

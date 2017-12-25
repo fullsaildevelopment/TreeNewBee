@@ -38,7 +38,7 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	GetCharacterMovement()->MaxWalkSpeed = JogSpeed; // ...at this rotation rate
-	GetCharacterMovement()->JumpZVelocity = 600.f;
+	GetCharacterMovement()->JumpZVelocity = 1500.0f;
 	GetCharacterMovement()->AirControl = 0.2f;
 
 
@@ -49,14 +49,36 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(CapRadius, CapHalfSize);
 	GetMesh()->RelativeLocation = FVector(0, 0, -CapHalfSize);
+	GetMesh()->RelativeRotation = FRotator(0, -90, 0);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 		
+	CreateStatsComponents();
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+}
+
+void ATheLastBastionCharacter::CreateStatsComponents()
+{
+
+	Head = CreateDefaultSubobject<USphereComponent>(TEXT("Head"));
+	Head->SetupAttachment(GetMesh(), TEXT("head"));
+	Head->InitSphereRadius(12);
+	Head->RelativeLocation = FVector(5, 2.5f, 0);
+	Head->bGenerateOverlapEvents = true;
+	Head->SetCanEverAffectNavigation(false);
+
+	Body = CreateDefaultSubobject<UBoxComponent>(TEXT("Body"));
+	Body->SetupAttachment(GetMesh(), TEXT("spine_02"));
+	Body->InitBoxExtent(FVector(40, 15, 25));
+	Body->RelativeLocation = FVector(-10, 0, 0);
+	Body->bGenerateOverlapEvents = true;
+	Body->SetCanEverAffectNavigation(false);
+
 }
 
 void ATheLastBastionCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
 }
 

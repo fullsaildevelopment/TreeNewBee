@@ -14,7 +14,8 @@ enum class EGearType : uint8
 	SingleHandWeapon = 2 UMETA(DisplayName = "SingleHandWeapon"),
 	DoubleHandWeapon = 3 UMETA(DisplayName = "DoubleHandWeapon"),
 	CrossBow = 4 UMETA(DisplayName = "CrossBow"),
-	CrossBowBolt = 5 UMETA(DisplayName = "CrossBowBolt")
+	CrossBowBolt = 5 UMETA(DisplayName = "CrossBowBolt"),
+	TwinBlade = 6 UMETA(DisplayName = "TwinBlade")
 };
 
 UCLASS()
@@ -34,6 +35,8 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true", BlueprintProtected = "true"))
 		EGearType GearType;
+	UPROPERTY(BlueprintReadOnly)
+		class ATheLastBastionCharacter* GearOwner;
 
 private:
 
@@ -58,12 +61,29 @@ private:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 		float HpBonus;
 
+	// if stamina = -1, that means this character has infinite stamina
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 		float StaminaBonus;
 	
 public:
 
 	virtual void Equip(class USkeletalMeshComponent* const _skeletonMeshComponent);
+	
+	FORCEINLINE class ATheLastBastionCharacter* GetGearOwner() const { return GearOwner; }
+
+	FORCEINLINE float GetHpBonus() const { return HpBonus;}
+	FORCEINLINE float GetStaminaBonus() const { return StaminaBonus; }
+	FORCEINLINE float GetPhysicalDamage() const { return PhysicalDamage; }
+	FORCEINLINE float GetElementalDamage() const { return ElementalDamage; }
+	FORCEINLINE float GetMagicalDamage() const { return MagicalDamage; }
+	FORCEINLINE float GetPhysicalDefence() const { return PhysicalDefence; }
+	FORCEINLINE float GetElementalDefence() const { return ElementalDefence; }
+	FORCEINLINE float GetMagicalDefence() const { return MagicalDefence; }
+
+
+
+
+
 
 };
 

@@ -9,6 +9,7 @@
 #include "GameFramework/PlayerState.h"
 #include "UI/JoinMenu.h"
 #include "CustomType.h"
+#include "UI/InGameHUD.h"
 
 
 
@@ -22,6 +23,8 @@ UGI_TheLastBastion::UGI_TheLastBastion(const FObjectInitializer & ObjectInitiali
 	UCustomType::FindClass<UUserWidget>(HostMenu_Class, TEXT("/Game/UI/MenuSystem/WBP_HostMenu"));
 	UCustomType::FindClass<UUserWidget>(JoinMenu_Class, TEXT("/Game/UI/MenuSystem/WBP_JoinMenu"));
 	UCustomType::FindClass<UUserWidget>(LoadingScreen_Class, TEXT("/Game/UI/MenuSystem/WBP_LoadingScreen"));
+	UCustomType::FindClass<UUserWidget>(InGameHUD_Class, TEXT("/Game/UI/In-Game/WBP_InGameHUD"));
+
 
 	playerSettingsSave = FString(TEXT("playerSettingsSave"));
 
@@ -90,7 +93,13 @@ void UGI_TheLastBastion::DisplayLoadingScreen()
 	ShowMenu(mLoadingScreen_Widget, LoadingScreen_Class);
 }
 
-void UGI_TheLastBastion::ShowMenu(UUserWidget* & _widget, const TSubclassOf<class UUserWidget>& _class)
+void UGI_TheLastBastion::ShowInGameHUD()
+{
+	ShowMenu(mInGameHUD_Widget, InGameHUD_Class, false);
+}
+
+
+void UGI_TheLastBastion::ShowMenu(UUserWidget* & _widget, const TSubclassOf<class UUserWidget>& _class, bool _showMouseCursor)
 {
 
 	APlayerController* const controller = GetWorld()->GetFirstPlayerController();
@@ -112,8 +121,7 @@ void UGI_TheLastBastion::ShowMenu(UUserWidget* & _widget, const TSubclassOf<clas
 			UE_LOG(LogTemp, Warning, TEXT("Widget Class not Set - Game Instance"));
 	}
 
-	if (controller->bShowMouseCursor == false)
-		controller->bShowMouseCursor = true;
+	controller->bShowMouseCursor = _showMouseCursor;
 }
 
 
@@ -208,7 +216,6 @@ void UGI_TheLastBastion::FindLobby()
 			mSessionSearch->bIsLanQuery = bIsLan;
 			mSessionSearch->MaxSearchResults = 50;
 			mSessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
-
 			mSessionInterface ->FindSessions(*userId, mSessionSearch.ToSharedRef());
 		}
 		else
@@ -219,38 +226,6 @@ void UGI_TheLastBastion::FindLobby()
 		UE_LOG(LogTemp, Warning, TEXT("OnlineSubSystemCheck is failed during Host session"));
 		OnSessionFindComplete(false);
 	}
-
-	//ULocalPlayer* const Lp = GetFirstGamePlayer();
-	//TSharedPtr<const FUniqueNetId> userId = Lp->GetPreferredUniqueNetId();
-	//IOnlineSubsystem* const OnlineSub = IOnlineSubsystem::Get();
-	//if (OnlineSub == nullptr)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("OnlineSub is null during FindLobby"));
-	//	OnSessionFindComplete(false);
-	//	return;
-	//}
-	//else
-	//{
-	//	IOnlineSessionPtr sessionInterface = OnlineSub->GetSessionInterface();
-	//	if (sessionInterface.IsValid() && userId.IsValid())
-	//	{
-	//		mOnFindSessionssCompleteDelegateHandle = sessionInterface->AddOnFindSessionsCompleteDelegate_Handle(mOnFindSessionsCompleteDelegate);
-	//		UE_LOG(LogTemp, Warning, TEXT("Search for a LAN? %d"), bIsLan);
-	//		mSessionSearch->bIsLanQuery = bIsLan;
-	//		mSessionSearch->MaxSearchResults = 50;
-	//		mSessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
-	//		sessionInterface->FindSessions(*userId, mSessionSearch.ToSharedRef());
-	//	}
-	//	else
-	//	{
-	//		if (userId.IsValid())
-	//		{
-	//			UE_LOG(LogTemp, Warning, TEXT("sessionInterface is not valid during FindLobby"));
-	//		}
-	//		else
-	//			UE_LOG(LogTemp, Warning, TEXT("_userId is not valid during FindLobby"));
-	//	}
-	//}
 }
 
 bool UGI_TheLastBastion::DestroySession(bool _recreate)
@@ -430,4 +405,9 @@ void UGI_TheLastBastion::SaveGameCheck()
 void UGI_TheLastBastion::SetIsLan(bool _val)
 {
 	bIsLan = _val;
+}
+
+UInGameHUD * UGI_TheLastBastion::GetInGameHUDRef() const
+{
+	return Cast<UInGameHUD>(mInGameHUD_Widget);
 }

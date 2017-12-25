@@ -3,6 +3,9 @@
 #include "HeroStatsComponent.h"
 //#include "TheLastBastionCharacter.h"
 #include "TheLastBastionHeroCharacter.h"
+#include "GI_TheLastBastion.h"
+#include "UI/InGameHUD.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "GameFramework/Character.h"
 #include "Components/SphereComponent.h"
@@ -19,35 +22,28 @@
 
 
 
-UHeroStatsComponent::UHeroStatsComponent() : Super()
+UHeroStatsComponent::UHeroStatsComponent()
 {
 	if (mCharacter)
 	{
-		if (mCharacter != nullptr)
+		mHeroCharacter = Cast<ATheLastBastionHeroCharacter>(mCharacter);
+		if (mHeroCharacter != nullptr)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("PawnStatsComponent is owned by TheLastBastion Character"));
+			UE_LOG(LogTemp, Warning, TEXT("UHeroStatsComponent is owned by ATheLastBastionHeroCharacter"));
 
 			// Just some init armor for our melee hero
 			UCustomType::FindClass<AWeapon>(LeftHandWeapon_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_Shield"));
 			UCustomType::FindClass<AWeapon>(RightHandWeapon_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_SHSword"));
 			UCustomType::FindClass<AArmor>(Armor_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_Armor"));
 
+			TargetDetector = mHeroCharacter->GetTargetDetector();
+			SetDamageDetectorsCollsionProfile(TEXT("HeroBody"));
 		}
 		else
-			UE_LOG(LogTemp, Warning, TEXT("PawnStatsComponent owner must be a TheLastBastion Character"));
-
-		SetDamageDetectorsCollsionProfile(TEXT("HeroBody"));
-
-		MeleeTargetDetector = CreateDefaultSubobject<USphereComponent>(TEXT("MeleeTargetDetector"));
-		MeleeTargetDetector->SetupAttachment(mCharacter->GetMesh(), TEXT("Root"));
-		MeleeTargetDetector->InitSphereRadius(1200);
-		MeleeTargetDetector->SetCanEverAffectNavigation(false);
-		MeleeTargetDetector->bGenerateOverlapEvents = true;
-		MeleeTargetDetector->bHiddenInGame = false;
-		MeleeTargetDetector->SetCollisionProfileName("EnemyDetector");
+			UE_LOG(LogTemp, Warning, TEXT("UHeroStatsComponent is NOT owned by a TheLastBastion Character"));
 
 		mCurrentTarget = nullptr;
-		mNextThreat = nullptr;
+		mNextThreat = nullptr;		
 	}
 }
 
@@ -55,15 +51,15 @@ void UHeroStatsComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	mHeroCharacter = Cast<ATheLastBastionHeroCharacter>(mCharacter);
-
 	if (!mHeroCharacter)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("HeroStatsComponent is not owned by TheLastBastionHero Character"));
 	}
 
-	MeleeTargetDetector->OnComponentBeginOverlap.AddDynamic(this, &UHeroStatsComponent::OnEnemyEnter);
-	MeleeTargetDetector->OnComponentEndOverlap.AddDynamic(this, &UHeroStatsComponent::OnEnemyLeave);
+	TargetDetector->OnComponentBeginOverlap.AddDynamic(this, &UHeroStatsComponent::OnEnemyEnter);
+	TargetDetector->OnComponentEndOverlap.AddDynamic(this, &UHeroStatsComponent::OnEnemyLeave);
+
+	Born();
 }
 
 void UHeroStatsComponent::OnFocus()
@@ -130,6 +126,7 @@ void UHeroStatsComponent::OnEnemyLeave(UPrimitiveComponent * _overlappedComponen
 
 }
 
+
 void UHeroStatsComponent::MeleeFocus()
 {
 	mCurrentTarget = nullptr;
@@ -170,4 +167,51 @@ void UHeroStatsComponent::MeleeFocus()
 	}
 	else
 		UE_LOG(LogTemp, Warning, TEXT("No Availble Target"));
+}
+
+void UHeroStatsComponent::OnBodyHit(UPrimitiveComponent * _overlappedComponent, AActor * _otherActor, UPrimitiveComponent * _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult & _SweepResult)
+{
+
+	// calculate damage
+	float damagePercentage = CalculateHealth(_otherActor);
+
+	// play animation
+	mHeroCharacter->GetAnimInstanceRef()->OnBeingHit(_otherActor, damagePercentage);
+
+	UWorld* world = GetWorld();
+	if (world == nullptr)
+		return;
+
+	UGI_TheLastBastion* const gi = Cast<UGI_TheLastBastion>(world->GetGameInstance());
+	UInGameHUD* const hud = gi->GetInGameHUDRef();
+	if (hud == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("hud is not a UInGameHUD - UHeroStatsComponent::OnBodyHit "));
+		return;
+	}
+	hud->SetHpStats(HpCurrent, HpMax);
+
+}
+
+void UHeroStatsComponent::OnHeadHit(UPrimitiveComponent * _overlappedComponent, AActor * _otherActor, UPrimitiveComponent * _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult & _SweepResult)
+{
+	// calculate damage
+	float remainHpPercent = CalculateHealth(_otherActor);
+
+	// play animation
+	mHeroCharacter->GetAnimInstanceRef()->OnBeingHit(_otherActor, true);
+
+	UWorld* world = GetWorld();
+	if (world == nullptr)
+		return;
+
+	UGI_TheLastBastion* const gi = Cast<UGI_TheLastBastion>(world->GetGameInstance());
+	UInGameHUD* const hud = gi->GetInGameHUDRef();
+	if (hud == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("hud is not a UInGameHUD - UHeroStatsComponent::OnBodyHit "));
+		return;
+	}
+	hud->SetHpStats(HpCurrent, HpMax);
+
 }

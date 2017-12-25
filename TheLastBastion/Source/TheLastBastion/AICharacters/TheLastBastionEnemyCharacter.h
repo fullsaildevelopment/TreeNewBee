@@ -23,5 +23,28 @@ public:
 
 protected:
 
+	UPROPERTY(EditDefaultsOnly, Category = Behavior)
+		class UBehaviorTree* BehaviorTree;
+
+private:
+
+	class UAIBase_AnimInstance* mAnimInstanceRef;
+
+protected:
+
 	virtual void BeginPlay();	
+
+
+public:
+
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE class UPawnStatsComponent* GetEnemyStatsComponent() const { return EnemyStats; }
+
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE class UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
+
+
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE class UAIBase_AnimInstance* GetAnimInstanceRef() const { return mAnimInstanceRef; }
+
 };
