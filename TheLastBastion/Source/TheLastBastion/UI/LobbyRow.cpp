@@ -24,7 +24,7 @@ bool ULobbyRow::Initialize()
 	else
 		return false;
 
-	bool bAllWidgetsAreGood = Ping && Players && ServerName && Lobby;
+	bool bAllWidgetsAreGood = Ping && Players && LobbyName && Lobby && HostName;
 	if (bAllWidgetsAreGood == false)
 		return false;
 
@@ -38,9 +38,10 @@ void ULobbyRow::MakeThisAHeader()
 	Lobby->SetIsEnabled(false);
 }
 
-void ULobbyRow::SetRowProperty(const FText & _ServerName, const FText & _Players, const FText & _ping, int _index)
+void ULobbyRow::SetRowProperty(const FText & _ServerName, const FText& _HostName, const FText & _Players, const FText & _ping, int _index)
 {
-	ServerName->SetText(_ServerName);
+	LobbyName->SetText(_ServerName);
+	HostName->SetText(_HostName);
 	Players->SetText(_Players);
 	Ping->SetText(_ping);
 	index = _index;
@@ -48,7 +49,8 @@ void ULobbyRow::SetRowProperty(const FText & _ServerName, const FText & _Players
 
 void ULobbyRow::OnLobbyClick()
 {
-	UE_LOG(LogTemp, Warning, TEXT("%d, Lobby Row Pick"), index);
+	// UE_LOG(LogTemp, Warning, TEXT("%d, Lobby Row Pick"), index);
+	mGameInstanceRef->DisplayLoadingScreen();
 	mGameInstanceRef->JoinServer(index);
 }
 

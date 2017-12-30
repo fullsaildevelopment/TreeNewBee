@@ -22,6 +22,8 @@ UHero_AnimInstance::UHero_AnimInstance(const FObjectInitializer& _objectInitaliz
 	bRotationRateOverrideByAnim = false;
 	bVelocityOverrideByAnim = false;
 	FocusDodgeDirection = EFocusDodgeDirection::None;
+
+	
 }
 
 void UHero_AnimInstance::OnBeginPlay()

@@ -28,6 +28,7 @@ protected:
 	virtual void BeginPlay();
 
 public:
+
 	ATheLastBastionCharacter();
 
 protected:
@@ -68,8 +69,6 @@ protected:
 
 #pragma endregion
 
-
-
 #pragma region Stats Components
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Combat)
@@ -79,10 +78,6 @@ protected:
 		class UBoxComponent*           Body;
 
 #pragma endregion
-
-
-
-
 
 private:
 

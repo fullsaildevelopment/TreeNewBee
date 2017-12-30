@@ -19,11 +19,14 @@ protected:
 
 	virtual bool Initialize();
 
-	UPROPERTY(meta = (BindWidget))
-		class UProgressBar* HealthBar;
 
 	UPROPERTY(meta = (BindWidget))
-		class UProgressBar* StaminaBar;
+		class UInGamePlayerRow* PlayerRow;
+
+	UPROPERTY(meta = (BindWidget))
+		class UVerticalBox* TeamWindow;
+
+
 
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* GoldValue;
@@ -36,14 +39,6 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* RockValue;
-
-
-	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* HpStats;
-
-	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* SpStats;
-
 
 private:
 

@@ -19,7 +19,10 @@ class THELASTBASTION_API ULobbyRow : public UUserWidget
 private:
 
 	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* ServerName;
+		class UTextBlock* LobbyName;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* HostName;
 
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* Players;
@@ -41,7 +44,7 @@ public:
 	void MakeThisAHeader();
 
 	UFUNCTION()
-		void SetRowProperty(const FText& _ServerName, const FText& _Players, const FText& _ping, int _index);
+		void SetRowProperty(const FText & _ServerName, const FText& _HostName, const FText & _Players, const FText & _ping, int _index);
 
 	UFUNCTION()
 		void OnLobbyClick();

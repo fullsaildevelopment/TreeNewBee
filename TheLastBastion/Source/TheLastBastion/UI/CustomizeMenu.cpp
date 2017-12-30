@@ -80,7 +80,7 @@ void UCustomizeMenu::OnAcceptClick()
 	{
 		mSaveGame->SetPlayerProfile(playerProfileSave);
 		
-		UGameplayStatics::SaveGameToSlot(mSaveGame, mGameInstanceRef->GetPlayerSettingsSave(), 0);
+		UGameplayStatics::SaveGameToSlot(mSaveGame, mGameInstanceRef->GetPlayerSettingsSaveFString(), 0);
 		WelcomeMessage->SetVisibility(ESlateVisibility::Hidden);
 		this->RemoveFromParent();
 		mGameInstanceRef->ShowMainMenu();
@@ -116,14 +116,14 @@ void UCustomizeMenu::OnPlayerNameChange(const FText& _text)
 
 void UCustomizeMenu::PlayerProfileSaveCheck()
 {
-	bool bThereIsASavedProfile = UGameplayStatics::DoesSaveGameExist(mGameInstanceRef->GetPlayerSettingsSave(), 0);
+	bool bThereIsASavedProfile = UGameplayStatics::DoesSaveGameExist(mGameInstanceRef->GetPlayerSettingsSaveFString(), 0);
 
 	mCurrentAvatarSelectionIndex = 0;
 
 	if (bThereIsASavedProfile)
 	{
 		// Load profile
-		mSaveGame = Cast<USaveGame_TheLastBastion>(UGameplayStatics::LoadGameFromSlot(mGameInstanceRef->GetPlayerSettingsSave(), 0));
+		mSaveGame = mGameInstanceRef->GetSaveGame();
 		if (mSaveGame == nullptr)
 			return;
 

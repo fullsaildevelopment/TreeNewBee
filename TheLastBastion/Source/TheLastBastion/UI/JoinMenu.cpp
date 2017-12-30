@@ -11,12 +11,6 @@
 
 #include "LobbyRow.h"
 
-
-UJoinMenu::UJoinMenu(const FObjectInitializer & _objectInitailizer) : Super(_objectInitailizer)
-{
-	UCustomType::FindClass<UUserWidget>(LobbyRow_Class, TEXT("/Game/UI/MenuSystem/WBP_LobbyRow"));
-}
-
 bool UJoinMenu::Initialize()
 {
 	if (Super::Initialize() == false)
@@ -78,8 +72,7 @@ void UJoinMenu::PopLobbyList(const TSharedRef<class FOnlineSessionSearch>& _sear
 		for (int i = 0; i < _searchSettings->SearchResults.Num(); i++)
 		{
 			// create lobby row
-			lobbyRow = CreateWidget<ULobbyRow>(GetOwningPlayer(), LobbyRow_Class);
-			
+			lobbyRow = CreateWidget<ULobbyRow>(GetOwningPlayer(), mGameInstanceRef->GetLobbyRow_Class());
 			// fill lobby row info
 			TArray<FStringFormatArg> formatArray;
 			lobbyPlayers = _searchSettings->SearchResults[i].Session.SessionSettings.NumPublicConnections;
@@ -89,11 +82,30 @@ void UJoinMenu::PopLobbyList(const TSharedRef<class FOnlineSessionSearch>& _sear
 
 			FString players = FString::Format(TEXT("{0} / {1}"), formatArray);
 
+			FString data;
+			FString LobbyName;
+			FString HostName;
+
+			if (_searchSettings->SearchResults[i].Session.SessionSettings.Get(TEXT("LobbyName"), data))
+				LobbyName = data;
+			else
+				LobbyName = TEXT("NewLobby");
+
+			data.Empty();
+
+			if (_searchSettings->SearchResults[i].Session.SessionSettings.Get(TEXT("UserName"), data))
+				HostName = data;
+			else
+				HostName = TEXT("NewPlayer");
+
+
 			lobbyRow->SetRowProperty(
-				FText::FromString(_searchSettings->SearchResults[i].GetSessionIdStr()),
+				FText::FromString(LobbyName),
+				FText::FromString(HostName),
 				FText::FromString(players),
 				FText::AsNumber(_searchSettings->SearchResults[i].PingInMs), i
 			);
+
 			// Add row to list
 			LobbyList->AddChild(lobbyRow);
 		}

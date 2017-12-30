@@ -17,7 +17,7 @@ class THELASTBASTION_API UJoinMenu : public UUserWidget
 		enum ListToSwitch {ShowLobby = 0, NoLobby = 1, Searching = 2};
 
 public:
-	UJoinMenu(const FObjectInitializer& _objectInitailizer);
+
     virtual bool Initialize();
 
 private:
@@ -33,8 +33,7 @@ private:
 
 	UPROPERTY()
 		class UGI_TheLastBastion* mGameInstanceRef;
-	UPROPERTY()
-		TSubclassOf<class UUserWidget> LobbyRow_Class;
+
 	UPROPERTY()
 		TArray<class UUserWidget*> Lobbies;
 

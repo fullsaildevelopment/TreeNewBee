@@ -18,6 +18,7 @@
 
 ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter() : Super()
 {
+	
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
@@ -66,9 +67,9 @@ void ATheLastBastionHeroCharacter::BeginPlay()
 	UWorld* world = GetWorld();
 	if (world == nullptr)
 		return;
-	UGI_TheLastBastion* const gi = Cast<UGI_TheLastBastion>(world->GetGameInstance());
-	if (gi)
-		gi->ShowInGameHUD();
+	//UGI_TheLastBastion* const gi = Cast<UGI_TheLastBastion>(world->GetGameInstance());
+	//if (gi)
+	//	gi->ShowInGameHUD();
 }
 
 void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)

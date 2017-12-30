@@ -183,13 +183,13 @@ void UHeroStatsComponent::OnBodyHit(UPrimitiveComponent * _overlappedComponent, 
 		return;
 
 	UGI_TheLastBastion* const gi = Cast<UGI_TheLastBastion>(world->GetGameInstance());
-	UInGameHUD* const hud = gi->GetInGameHUDRef();
-	if (hud == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("hud is not a UInGameHUD - UHeroStatsComponent::OnBodyHit "));
-		return;
-	}
-	hud->SetHpStats(HpCurrent, HpMax);
+	//UInGameHUD* const hud = gi->GetInGameHUDRef();
+	//if (hud == nullptr)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("hud is not a UInGameHUD - UHeroStatsComponent::OnBodyHit "));
+	//	return;
+	//}
+	//hud->SetHpStats(HpCurrent, HpMax);
 
 }
 
@@ -205,13 +205,13 @@ void UHeroStatsComponent::OnHeadHit(UPrimitiveComponent * _overlappedComponent, 
 	if (world == nullptr)
 		return;
 
-	UGI_TheLastBastion* const gi = Cast<UGI_TheLastBastion>(world->GetGameInstance());
-	UInGameHUD* const hud = gi->GetInGameHUDRef();
-	if (hud == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("hud is not a UInGameHUD - UHeroStatsComponent::OnBodyHit "));
-		return;
-	}
-	hud->SetHpStats(HpCurrent, HpMax);
+	//UGI_TheLastBastion* const gi = Cast<UGI_TheLastBastion>(world->GetGameInstance());
+	//UInGameHUD* const hud = gi->GetInGameHUDRef();
+	//if (hud == nullptr)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("hud is not a UInGameHUD - UHeroStatsComponent::OnBodyHit "));
+	//	return;
+	//}
+	//hud->SetHpStats(HpCurrent, HpMax);
 
 }

@@ -16,11 +16,14 @@ class THELASTBASTION_API USaveGame_TheLastBastion : public USaveGame
 {
 	GENERATED_BODY()
 
+
 	UPROPERTY()
 		FPlayerProfile mPlayerProfile;
 
 
 public:
+
+	//USaveGame_TheLastBastion(const FObjectInitializer& _objectInit);
 
 	const FPlayerProfile* GetPlayerProfile() const;
 

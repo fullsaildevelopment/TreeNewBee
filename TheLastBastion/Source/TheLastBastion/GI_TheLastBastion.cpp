@@ -2,8 +2,9 @@
 
 #include "GI_TheLastBastion.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "SaveGame/SaveGame_TheLastBastion.h"
 #include "OnlineSubsystem.h"
+#include "TheLastBastionCharacter.h"
 #include "OnlineSessionSettings.h"
 #include "Blueprint/UserWidget.h"
 #include "GameFramework/PlayerState.h"
@@ -18,12 +19,8 @@ static FName SESSION_NAME = TEXT("GAME");
 UGI_TheLastBastion::UGI_TheLastBastion(const FObjectInitializer & ObjectInitializer) : Super(ObjectInitializer)
 {
 
-	UCustomType::FindClass<UUserWidget>(StartMenu_Class, TEXT("/Game/UI/MenuSystem/WBP_StartMenu"));
-	UCustomType::FindClass<UUserWidget>(CustomizeMenu_Class, TEXT("/Game/UI/MenuSystem/WBP_CustomizeMenu"));
-	UCustomType::FindClass<UUserWidget>(HostMenu_Class, TEXT("/Game/UI/MenuSystem/WBP_HostMenu"));
-	UCustomType::FindClass<UUserWidget>(JoinMenu_Class, TEXT("/Game/UI/MenuSystem/WBP_JoinMenu"));
-	UCustomType::FindClass<UUserWidget>(LoadingScreen_Class, TEXT("/Game/UI/MenuSystem/WBP_LoadingScreen"));
-	UCustomType::FindClass<UUserWidget>(InGameHUD_Class, TEXT("/Game/UI/In-Game/WBP_InGameHUD"));
+	LocateAllWidgetClass();
+	LocateAllCharacterClass();
 
 
 	playerSettingsSave = FString(TEXT("playerSettingsSave"));
@@ -34,7 +31,36 @@ UGI_TheLastBastion::UGI_TheLastBastion(const FObjectInitializer & ObjectInitiali
 	mOnFindSessionsCompleteDelegate = FOnFindSessionsCompleteDelegate::CreateUObject(this, &UGI_TheLastBastion::OnSessionFindComplete);
 	mOnJoinSessionCompleteDelegate = FOnJoinSessionCompleteDelegate::CreateUObject(this, &UGI_TheLastBastion::OnSessionJoinComplete);
 
+	mLobbyName = TEXT("NewLobby");
 	LobbyMap = TEXT("Lobby");
+	mNumOfConnection = 4;
+
+}
+
+void UGI_TheLastBastion::LocateAllWidgetClass()
+{
+	// Find Class for MainMenus
+	UCustomType::FindClass<UUserWidget>(StartMenu_Class, TEXT("/Game/UI/MenuSystem/WBP_StartMenu"));
+	UCustomType::FindClass<UUserWidget>(CustomizeMenu_Class, TEXT("/Game/UI/MenuSystem/WBP_CustomizeMenu"));
+	UCustomType::FindClass<UUserWidget>(HostMenu_Class, TEXT("/Game/UI/MenuSystem/WBP_HostMenu"));
+	UCustomType::FindClass<UUserWidget>(JoinMenu_Class, TEXT("/Game/UI/MenuSystem/WBP_JoinMenu"));
+	UCustomType::FindClass<UUserWidget>(LoadingScreen_Class, TEXT("/Game/UI/MenuSystem/WBP_LoadingScreen"));
+	UCustomType::FindClass<UUserWidget>(LobbyRow_Class, TEXT("/Game/UI/MenuSystem/WBP_LobbyRow"));
+
+	// Find Class for Lobby Map
+	UCustomType::FindClass<UUserWidget>(LobbyMenu_Class, TEXT("/Game/UI/Lobby/WBP_LobbyMenu"));
+	UCustomType::FindClass<UUserWidget>(LobbyPlayerRow_Class, TEXT("/Game/UI/Lobby/WBP_LobbyPlayerRow"));
+
+	// Find Class for Game Map
+	UCustomType::FindClass<UUserWidget>(InGameHUD_Class, TEXT("/Game/UI/In-Game/WBP_InGameHUD"));
+	UCustomType::FindClass<UUserWidget>(InGamePlayerRow_Class, TEXT("/Game/UI/In-Game/WBP_InGamePlayerRow"));
+	UCustomType::FindClass<UUserWidget>(InGameTeamRow_Class, TEXT("/Game/UI/In-Game/WBP_InGameTeamRow"));
+
+}
+
+void UGI_TheLastBastion::LocateAllCharacterClass()
+{
+	UCustomType::FindClass<ACharacter>(Ranger_Class, TEXT("/Game/Blueprints/Heros/Ranger_Bp"));
 }
 
 void UGI_TheLastBastion::Init()
@@ -58,12 +84,8 @@ void UGI_TheLastBastion::Init()
 	}
 }
 
-FString UGI_TheLastBastion::GetPlayerSettingsSave() const
-{
-	return playerSettingsSave;
-}
-
 #pragma region Menus
+
 void UGI_TheLastBastion::ShowMainMenu()
 {
 	ShowMenu(mStartMenu_Widget, StartMenu_Class);
@@ -93,12 +115,6 @@ void UGI_TheLastBastion::DisplayLoadingScreen()
 	ShowMenu(mLoadingScreen_Widget, LoadingScreen_Class);
 }
 
-void UGI_TheLastBastion::ShowInGameHUD()
-{
-	ShowMenu(mInGameHUD_Widget, InGameHUD_Class, false);
-}
-
-
 void UGI_TheLastBastion::ShowMenu(UUserWidget* & _widget, const TSubclassOf<class UUserWidget>& _class, bool _showMouseCursor)
 {
 
@@ -124,10 +140,7 @@ void UGI_TheLastBastion::ShowMenu(UUserWidget* & _widget, const TSubclassOf<clas
 	controller->bShowMouseCursor = _showMouseCursor;
 }
 
-
-
 #pragma endregion
-
 
 #pragma region Create && Join && Find Lobby
 
@@ -144,22 +157,23 @@ bool UGI_TheLastBastion::OnlineSubSystemCheck()
 	}
 	else return false;
 }
+
 const TSharedPtr<const FUniqueNetId> UGI_TheLastBastion::GetUserId()
 {
 	return this->GetFirstLocalPlayerController()->PlayerState->UniqueId.GetUniqueNetId();
 }
 
-
-void UGI_TheLastBastion::LaunchLobby(int _numOfConnections)
+void UGI_TheLastBastion::LaunchLobby(int _numOfConnections, const FString& _lobbyName)
 {
 	mNumOfConnection = _numOfConnections;
+	mLobbyName = _lobbyName;
 	if (DestroySession(true) == false)
 	{
-		HostSession(bIsLan, mNumOfConnection);
+		HostSession(bIsLan, mNumOfConnection, mLobbyName);
 	}
 }
 
-bool UGI_TheLastBastion::HostSession(bool _bIsLan, int _numOfConnections)
+bool UGI_TheLastBastion::HostSession(bool _bIsLan, int _numOfConnections, const FString& _lobbyName)
 {
 	if (OnlineSubSystemCheck())
 	{
@@ -178,6 +192,19 @@ bool UGI_TheLastBastion::HostSession(bool _bIsLan, int _numOfConnections)
 			sessionSettings.bAllowJoinInProgress = true;
 			sessionSettings.bUsesPresence = true;
 			sessionSettings.bAllowJoinViaPresence = true;
+
+
+			USaveGame_TheLastBastion* sg = this->GetSaveGame();
+			FString UserName; 
+
+			if (sg)
+				UserName = this->GetSaveGame()->GetPlayerProfile()->mPlayerName.ToString();
+			else
+				UserName = TEXT("NewPlayer");
+
+			sessionSettings.Set(TEXT("UserName"), UserName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+			sessionSettings.Set(TEXT("LobbyName"), _lobbyName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+			//sessionSettings.Set()
 			//sessionSettings.NumPrivateConnections = 0;
 			//sessionSettings.bAllowInvites = false;
 			//sessionSettings.bAllowJoinInProgress = true;
@@ -315,7 +342,7 @@ void UGI_TheLastBastion::OnSessionDestroyComplete(FName _sessionName, bool _succ
 	{
 		if (bRecreateSession)
 		{
-			HostSession(bIsLan, mNumOfConnection);
+			HostSession(bIsLan, mNumOfConnection, mLobbyName);
 		}
 	}
 	bRecreateSession = false;
@@ -371,14 +398,11 @@ void UGI_TheLastBastion::BackToMainMenu()
 	if (session != nullptr)
 		DestroySession(false);
 
-
 	ShowMainMenu();
 	UWorld* world = GetWorld();
 	UGameplayStatics::OpenLevel(world, TEXT("StartMenu_Map"), true);
 }
-
 #pragma endregion
-
 
 // Check If there exsits a player profile save
 void UGI_TheLastBastion::SaveGameCheck()
@@ -407,7 +431,7 @@ void UGI_TheLastBastion::SetIsLan(bool _val)
 	bIsLan = _val;
 }
 
-UInGameHUD * UGI_TheLastBastion::GetInGameHUDRef() const
+USaveGame_TheLastBastion * UGI_TheLastBastion::GetSaveGame() const
 {
-	return Cast<UInGameHUD>(mInGameHUD_Widget);
+	return Cast<USaveGame_TheLastBastion>(UGameplayStatics::LoadGameFromSlot(playerSettingsSave, 0));
 }
