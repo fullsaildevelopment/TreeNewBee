@@ -28,7 +28,7 @@ bool UJoinMenu::Initialize()
 		return false;
 
 	// Bind Delegate for each widget components
-	bool bWidgetComponents =  Back  && LobbyList && ListSwitcher; //Refresh;
+	bool bWidgetComponents = Back && LobbyList && ListSwitcher; //Refresh;
 
 	if (bWidgetComponents == false)
 		return false;
@@ -76,7 +76,7 @@ void UJoinMenu::PopLobbyList(const TSharedRef<class FOnlineSessionSearch>& _sear
 			// fill lobby row info
 			TArray<FStringFormatArg> formatArray;
 			lobbyPlayers = _searchSettings->SearchResults[i].Session.SessionSettings.NumPublicConnections;
-			currentPlayer = lobbyPlayers  - _searchSettings->SearchResults[i].Session.NumOpenPublicConnections;
+			currentPlayer = lobbyPlayers - _searchSettings->SearchResults[i].Session.NumOpenPublicConnections;
 			formatArray.Add(currentPlayer);
 			formatArray.Add(lobbyPlayers);
 

@@ -42,6 +42,7 @@ public:
 
 	template <typename Type>
 	static bool FindClass(TSubclassOf<Type>& _class, const TCHAR* _classToFind);
+	
 };
 
 template<typename Type>
@@ -53,5 +54,4 @@ inline bool UCustomType::FindClass(TSubclassOf<Type>& _class, const TCHAR * _cla
 
 	return classFinder.Succeeded();
 }
-
 

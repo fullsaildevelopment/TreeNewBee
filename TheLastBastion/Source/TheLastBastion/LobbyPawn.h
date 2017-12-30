@@ -19,7 +19,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -35,15 +35,15 @@ private:
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FollowCamera;
-	
+
 protected:
 
 	/** Follow camera */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Position, meta = (MakeEditWidget = "true"))
-	FVector RangerAvatarPosition;
+		FVector RangerAvatarPosition;
 
 	/** Follow camera */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Position, meta = (MakeEditWidget = "true"))
-	FVector BuilderAvatarPosition;
+		FVector BuilderAvatarPosition;
 
 };

@@ -7,13 +7,13 @@
 #include "InGameTeamRow.generated.h"
 
 /**
- * 
- */
+*
+*/
 UCLASS()
 class THELASTBASTION_API UInGameTeamRow : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
 protected:
 
 	bool Initialize() override;

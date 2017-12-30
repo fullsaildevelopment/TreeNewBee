@@ -10,13 +10,13 @@
 #include "GI_TheLastBastion.generated.h"
 
 /**
- * 
- */
+*
+*/
 UCLASS()
 class THELASTBASTION_API UGI_TheLastBastion : public UGameInstance
 {
 	GENERATED_BODY()
-	UGI_TheLastBastion(const FObjectInitializer & ObjectInitializer);
+		UGI_TheLastBastion(const FObjectInitializer & ObjectInitializer);
 
 public:
 	virtual void Init();
@@ -100,7 +100,7 @@ private:
 	IOnlineSessionPtr mSessionInterface;
 	TSharedPtr<class FOnlineSessionSearch> mSessionSearch;
 
-	FOnCreateSessionCompleteDelegate mOnCreateSessionCompleteDelegate; 
+	FOnCreateSessionCompleteDelegate mOnCreateSessionCompleteDelegate;
 	FDelegateHandle                  mOnCreateSessionCompleteDelegateHandle;
 	FOnStartSessionCompleteDelegate  mOnStartSessionCompleteDelegate;
 	FDelegateHandle                  mOnStartSessionCompleteDelegateHandle;
@@ -134,7 +134,7 @@ public:
 		FORCEINLINE int GetMaxConnection() const { return mNumOfConnection; }
 
 	UFUNCTION(BlueprintPure)
-		FORCEINLINE FString GetPlayerSettingsSaveFString() const {return playerSettingsSave;}
+		FORCEINLINE FString GetPlayerSettingsSaveFString() const { return playerSettingsSave; }
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE TSubclassOf<UUserWidget> GetLobbyRow_Class() const { return LobbyRow_Class; }
@@ -214,7 +214,7 @@ private:
 
 	/* return true, if there was a session with same name exist*/
 	bool DestroySession(bool _recreate);
-	bool HostSession(bool _bIsLan, int _numOfConnections, const FString& _lobbyName);		
+	bool HostSession(bool _bIsLan, int _numOfConnections, const FString& _lobbyName);
 	void OnStartOnlineGameComplete(FName _sessionName, bool _success);
 	void OnSessionCreateComplete(FName _sessionName, bool _success);
 	void OnSessionDestroyComplete(FName _sessionName, bool _success);
@@ -225,4 +225,5 @@ private:
 	void LocateAllCharacterClass();
 
 };
+
 

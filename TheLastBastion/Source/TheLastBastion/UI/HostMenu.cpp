@@ -56,7 +56,6 @@ void UHostMenu::OnBackClick()
 
 void UHostMenu::OnAcceptClick()
 {
-	mGameInstanceRef->DisplayLoadingScreen();
 	mGameInstanceRef->LaunchLobby(numOfPlayers, LobbyName->GetText().ToString());
 }
 

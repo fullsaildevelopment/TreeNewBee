@@ -27,7 +27,6 @@ private:
 		UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 		UStaticMeshComponent* Mesh;
 
-
 public:
 	FORCEINLINE class UStaticMeshComponent* GetWeaponMeshRef() const { return Mesh; }
 

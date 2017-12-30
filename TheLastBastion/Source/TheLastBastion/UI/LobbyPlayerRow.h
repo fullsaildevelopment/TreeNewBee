@@ -7,13 +7,13 @@
 #include "LobbyPlayerRow.generated.h"
 
 /**
- * 
- */
+*
+*/
 UCLASS()
 class THELASTBASTION_API ULobbyPlayerRow : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
 
 protected:
 

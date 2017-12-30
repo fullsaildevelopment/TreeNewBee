@@ -69,17 +69,18 @@ void UCustomizeMenu::OnBackClick()
 
 void UCustomizeMenu::OnAcceptClick()
 {
-	FPlayerProfile playerProfileSave;
-	playerProfileSave.mAvatarImage = mCurrentAvatar;
-	playerProfileSave.mPlayerName = PlayerName->GetText();
-	UE_LOG(LogTemp, Warning, TEXT("accept"));
+	//FPlayerProfile playerProfileSave;
+	//playerProfileSave.mAvatarImage = mCurrentAvatar;
+	//playerProfileSave.mPlayerName = PlayerName->GetText();
+	//UE_LOG(LogTemp, Warning, TEXT("accept"));
+
 	if (mSaveGame == nullptr)
 		mSaveGame = Cast<USaveGame_TheLastBastion>(UGameplayStatics::CreateSaveGameObject(USaveGame_TheLastBastion::StaticClass()));
 
 	if (mSaveGame)
 	{
-		mSaveGame->SetPlayerProfile(playerProfileSave);
-		
+		mSaveGame->mPlayerProfile.mAvatarImage = mCurrentAvatar;
+		mSaveGame->mPlayerProfile.mPlayerName = PlayerName->GetText();
 		UGameplayStatics::SaveGameToSlot(mSaveGame, mGameInstanceRef->GetPlayerSettingsSaveFString(), 0);
 		WelcomeMessage->SetVisibility(ESlateVisibility::Hidden);
 		this->RemoveFromParent();
@@ -123,7 +124,7 @@ void UCustomizeMenu::PlayerProfileSaveCheck()
 	if (bThereIsASavedProfile)
 	{
 		// Load profile
-		mSaveGame = mGameInstanceRef->GetSaveGame();
+		mSaveGame = Cast<USaveGame_TheLastBastion>(UGameplayStatics::LoadGameFromSlot(mGameInstanceRef->GetPlayerSettingsSaveFString(), 0));
 		if (mSaveGame == nullptr)
 			return;
 

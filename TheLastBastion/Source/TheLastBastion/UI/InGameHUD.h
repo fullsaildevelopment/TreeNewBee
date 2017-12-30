@@ -7,14 +7,14 @@
 #include "InGameHUD.generated.h"
 
 /**
- * 
- */
+*
+*/
 UCLASS()
 class THELASTBASTION_API UInGameHUD : public UUserWidget
 {
 	GENERATED_BODY()
-	
-	
+
+
 protected:
 
 	virtual bool Initialize();
@@ -51,8 +51,5 @@ private:
 
 public:
 
-	void SetHpStats(float current, float max);
 
-	void SetSpStats(float current, float max);
-	
 };

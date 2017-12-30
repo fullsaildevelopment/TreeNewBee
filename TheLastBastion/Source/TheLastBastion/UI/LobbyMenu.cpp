@@ -2,7 +2,7 @@
 
 #include "LobbyMenu.h"
 #include "Engine.h"
-#include "LobbyPC.h"
+#include "PCs/LobbyPC.h"
 #include "Engine/World.h"
 #include "GameMode/LobbyGM.h"
 #include "GI_TheLastBastion.h"
@@ -69,7 +69,7 @@ void ULobbyMenu::OnLeaveClicked()
 		}
 		TArray<APlayerController*> allPCs = gm->GetAllPlayerControllers();
 		for (int iPc = 0; iPc < allPCs.Num(); iPc++)
-		{		
+		{
 			Cast<ALobbyPC>(allPCs[iPc])->CLIENT_OnQuitLobby();
 		}
 	}
@@ -92,7 +92,7 @@ void ULobbyMenu::OnLeaveClicked()
 
 void ULobbyMenu::OnStartReadyClicked()
 {
-	if(UKismetSystemLibrary::IsServer(this))
+	if (UKismetSystemLibrary::IsServer(this))
 	{
 		// if this is a server, we can start the match if the everyone is ready	
 		ALobbyGM* gm = Cast<ALobbyGM>(UGameplayStatics::GetGameMode(this));
@@ -147,7 +147,7 @@ void ULobbyMenu::AddPlayerToPlayerList(const TArray<struct FPlayerProfile>& _con
 	ULobbyPlayerRow* newRow = nullptr;
 	for (int iPlayer = 0; iPlayer < _connectedPlayers.Num(); iPlayer++)
 	{
-		newRow 
+		newRow
 			= Cast<ULobbyPlayerRow>(CreateWidget<UUserWidget>(GetOwningPlayer(), gi->GetLobbyPlayerRow_Class()));
 		newRow->FillLobbyPlayerRow(_connectedPlayers[iPlayer]);
 		PlayerWindow->AddChild(newRow);

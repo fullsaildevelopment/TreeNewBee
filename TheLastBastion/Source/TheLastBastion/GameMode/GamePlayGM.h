@@ -7,14 +7,14 @@
 #include "GamePlayGM.generated.h"
 
 /**
- * 
- */
+*
+*/
 UCLASS()
 class THELASTBASTION_API AGamePlayGM : public AGameModeBase
 {
 	GENERATED_BODY()
-	
-	
+
+
 public:
 
 	AGamePlayGM(const FObjectInitializer & _objectInitilizer);

@@ -26,7 +26,7 @@ void AGamePC::CLIENT_Login_Implementation()
 
 void AGamePC::SERVER_UploadProfileAndRequestCharacter_Implementation()
 {
-	
+
 }
 
 bool AGamePC::SERVER_UploadProfileAndRequestCharacter_Validate()

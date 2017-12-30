@@ -7,14 +7,14 @@
 #include "LobbyRow.generated.h"
 
 /**
- * 
- */
+*
+*/
 UCLASS()
 class THELASTBASTION_API ULobbyRow : public UUserWidget
 {
 	GENERATED_BODY()
-	
-    virtual bool Initialize();
+
+		virtual bool Initialize();
 
 private:
 
@@ -48,5 +48,5 @@ public:
 
 	UFUNCTION()
 		void OnLobbyClick();
-	
+
 };

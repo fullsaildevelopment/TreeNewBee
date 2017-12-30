@@ -17,9 +17,6 @@
 //////////////////////////////////////////////////////////////////////////
 // ATheLastBastionCharacter
 
-
-
-
 ATheLastBastionCharacter::ATheLastBastionCharacter()
 {	
 	CharacterType = ECharacterType::None;

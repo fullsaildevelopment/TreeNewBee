@@ -38,7 +38,7 @@ bool UInGameHUD::Initialize()
 
 	// Bind Delegetes to Widget components
 	bool bAllWidgetAreGood =
-		PlayerRow != nullptr && TeamWindow != nullptr 
+		PlayerRow != nullptr && TeamWindow != nullptr
 		&& GoldValue != nullptr && WoodValue != nullptr && MetalValue != nullptr && RockValue != nullptr;
 
 	if (!bAllWidgetAreGood)

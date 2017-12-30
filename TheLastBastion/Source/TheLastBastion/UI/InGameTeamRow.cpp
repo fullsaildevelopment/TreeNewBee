@@ -10,7 +10,7 @@ bool UInGameTeamRow::Initialize()
 	// Bind Delegetes to Widget components
 	bool bAllWidgetAreGood =
 		Name != nullptr && Level != nullptr &&
-	    Class!= nullptr && HpBar != nullptr && Hp != nullptr;
+		Class != nullptr && HpBar != nullptr && Hp != nullptr;
 
 	if (!bAllWidgetAreGood)
 	{

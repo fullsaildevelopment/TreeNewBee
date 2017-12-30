@@ -182,7 +182,7 @@ void UHeroStatsComponent::OnBodyHit(UPrimitiveComponent * _overlappedComponent, 
 	if (world == nullptr)
 		return;
 
-	UGI_TheLastBastion* const gi = Cast<UGI_TheLastBastion>(world->GetGameInstance());
+	//UGI_TheLastBastion* const gi = Cast<UGI_TheLastBastion>(world->GetGameInstance());
 	//UInGameHUD* const hud = gi->GetInGameHUDRef();
 	//if (hud == nullptr)
 	//{
@@ -201,9 +201,9 @@ void UHeroStatsComponent::OnHeadHit(UPrimitiveComponent * _overlappedComponent, 
 	// play animation
 	mHeroCharacter->GetAnimInstanceRef()->OnBeingHit(_otherActor, true);
 
-	UWorld* world = GetWorld();
-	if (world == nullptr)
-		return;
+	//UWorld* world = GetWorld();
+	//if (world == nullptr)
+	//	return;
 
 	//UGI_TheLastBastion* const gi = Cast<UGI_TheLastBastion>(world->GetGameInstance());
 	//UInGameHUD* const hud = gi->GetInGameHUDRef();

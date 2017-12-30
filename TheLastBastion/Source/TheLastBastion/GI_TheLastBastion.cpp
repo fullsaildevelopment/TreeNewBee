@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GI_TheLastBastion.h"
+
 #include "Kismet/GameplayStatics.h"
 #include "SaveGame/SaveGame_TheLastBastion.h"
 #include "OnlineSubsystem.h"
@@ -69,13 +70,13 @@ void UGI_TheLastBastion::Init()
 	if (mOnlineSubSystem)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Find online system %s"), *mOnlineSubSystem->GetSubsystemName().ToString())
-		mSessionInterface = mOnlineSubSystem->GetSessionInterface();
+			mSessionInterface = mOnlineSubSystem->GetSessionInterface();
 		if (!mSessionInterface.IsValid())
-			UE_LOG(LogTemp, Warning, TEXT("Can not Get Session Interface"));		
+			UE_LOG(LogTemp, Warning, TEXT("Can not Get Session Interface"));
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Can not find online subsystem during initialization"));		
+		UE_LOG(LogTemp, Warning, TEXT("Can not find online subsystem during initialization"));
 	}
 
 	if (mOnlineSubSystem && mSessionInterface.IsValid())
@@ -127,7 +128,7 @@ void UGI_TheLastBastion::ShowMenu(UUserWidget* & _widget, const TSubclassOf<clas
 	{
 		if (_class)
 		{
-			_widget =  CreateWidget <UUserWidget>(this, _class);
+			_widget = CreateWidget <UUserWidget>(this, _class);
 			if (_widget != nullptr)
 			{
 				_widget->AddToViewport();
@@ -181,7 +182,7 @@ bool UGI_TheLastBastion::HostSession(bool _bIsLan, int _numOfConnections, const 
 		UE_LOG(LogTemp, Warning, TEXT("Host lobby Userid: %s"), *userId->ToString());
 		if (userId.IsValid())
 		{
-			mOnCreateSessionCompleteDelegateHandle 
+			mOnCreateSessionCompleteDelegateHandle
 				= mSessionInterface->AddOnCreateSessionCompleteDelegate_Handle(mOnCreateSessionCompleteDelegate);
 
 			UE_LOG(LogTemp, Warning, TEXT("Host for a LAN? %d, connectionNum? %d"), _bIsLan, _numOfConnections);
@@ -195,7 +196,7 @@ bool UGI_TheLastBastion::HostSession(bool _bIsLan, int _numOfConnections, const 
 
 
 			USaveGame_TheLastBastion* sg = this->GetSaveGame();
-			FString UserName; 
+			FString UserName;
 
 			if (sg)
 				UserName = this->GetSaveGame()->GetPlayerProfile()->mPlayerName.ToString();
@@ -236,14 +237,14 @@ void UGI_TheLastBastion::FindLobby()
 		if (userId.IsValid())
 		{
 
-			mOnFindSessionssCompleteDelegateHandle 
-				= mSessionInterface ->AddOnFindSessionsCompleteDelegate_Handle(mOnFindSessionsCompleteDelegate);
+			mOnFindSessionssCompleteDelegateHandle
+				= mSessionInterface->AddOnFindSessionsCompleteDelegate_Handle(mOnFindSessionsCompleteDelegate);
 
 			UE_LOG(LogTemp, Warning, TEXT("Search for a LAN? %d"), bIsLan);
 			mSessionSearch->bIsLanQuery = bIsLan;
 			mSessionSearch->MaxSearchResults = 50;
 			mSessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
-			mSessionInterface ->FindSessions(*userId, mSessionSearch.ToSharedRef());
+			mSessionInterface->FindSessions(*userId, mSessionSearch.ToSharedRef());
 		}
 		else
 			UE_LOG(LogTemp, Warning, TEXT("userId is not valid during Find Lobby"));

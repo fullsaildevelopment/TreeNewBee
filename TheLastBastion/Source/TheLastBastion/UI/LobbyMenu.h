@@ -7,13 +7,13 @@
 #include "LobbyMenu.generated.h"
 
 /**
- * 
- */
+*
+*/
 UCLASS()
 class THELASTBASTION_API ULobbyMenu : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
 
 private:
 
@@ -48,7 +48,7 @@ private:
 		class UButton* Leave;
 	UPROPERTY(meta = (BindWidget))
 		class UButton* Back;
-	
+
 	UPROPERTY(meta = (BindWidget))
 		class UWidgetSwitcher* MenuSwitch;
 	UPROPERTY(meta = (BindWidget))
@@ -81,7 +81,7 @@ public:
 	void SetLobbyName(const FText& _lobbyName);
 
 	void SetCurrentPlayersNumber(int _currentNumOfPlayer, int _maxNumOfPlayers);
-	
+
 	void AddPlayerToPlayerList(const TArray<struct FPlayerProfile>& _connectedPlayers);
 
 	void SetStartMatchButtonEnabled(bool _val);

@@ -15,11 +15,5 @@
 				"AIModule"
 			]
 		}
-	],
-	"Plugins": [
-		{
-			"Name": "OnlineSubsystemSteam",
-			"Enabled": true
-		}
 	]
 }

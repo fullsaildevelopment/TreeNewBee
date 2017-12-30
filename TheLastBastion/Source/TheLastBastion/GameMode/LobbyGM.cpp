@@ -3,7 +3,7 @@
 #include "LobbyGM.h"
 #include "CustomType.h"
 #include "GI_TheLastBastion.h"
-#include "LobbyPC.h"
+#include "PCs/LobbyPC.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h "
@@ -47,7 +47,7 @@ void ALobbyGM::PostLogin(APlayerController * NewPlayer)
 		}
 
 		MaxNumOfPlayers = game_gi->GetMaxConnection();
-		LobbyName       = game_gi->GetLobbyName();
+		LobbyName = game_gi->GetLobbyName();
 		// UE_LOG(LogTemp, Warning, TEXT("%s"), *LobbyName.ToString());
 
 		// Update client
@@ -72,7 +72,7 @@ void ALobbyGM::UpdateAllConnectedPlayers()
 		AllConnectedPlayers.Empty();
 		ALobbyPC* lobbyPC = nullptr;
 
-	
+
 		for (int iCtrl = 0; iCtrl < CurrentNumOfPlayers; iCtrl++)
 		{
 			// gather player profiles from controller
@@ -120,14 +120,14 @@ void ALobbyGM::SpawnPlayer(APlayerController * _pc)
 	}
 
 	TArray<AActor*> playerStarts;
-	 
+
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), playerStarts);
 
 
 	if (playerStarts.Num() == 0)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Please put a playerStart in Lobby map,  ALobbyGM::SpawnPlayer"))
-		return;
+			return;
 	}
 	pawn = GetWorld()->SpawnActor<APawn>(DefaultPawnClass, playerStarts[0]->GetTransform());
 	_pc->Possess(pawn);

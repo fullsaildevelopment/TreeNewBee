@@ -7,18 +7,18 @@
 #include "JoinMenu.generated.h"
 
 /**
- * 
- */
+*
+*/
 UCLASS()
 class THELASTBASTION_API UJoinMenu : public UUserWidget
 {
 	GENERATED_BODY()
 
-		enum ListToSwitch {ShowLobby = 0, NoLobby = 1, Searching = 2};
+		enum ListToSwitch { ShowLobby = 0, NoLobby = 1, Searching = 2 };
 
 public:
 
-    virtual bool Initialize();
+	virtual bool Initialize();
 
 private:
 
@@ -47,7 +47,7 @@ private:
 		void OnRefreshClick();
 
 public:
-	
+
 	void PopLobbyList(const TSharedRef<class FOnlineSessionSearch>& _searchSettings);
 
-}; 
+};

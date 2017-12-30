@@ -52,7 +52,6 @@ bool UStartMenu::Initialize()
 	// Init Button
 	ListSwitcher->SetActiveWidgetIndex(0);
 	BackButton->SetVisibility(ESlateVisibility::Hidden);
-	SteamButton->SetIsEnabled(false);
 	return true;
 }
 

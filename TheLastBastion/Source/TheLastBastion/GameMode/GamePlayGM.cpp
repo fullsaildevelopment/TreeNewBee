@@ -45,7 +45,7 @@ void AGamePlayGM::PostLogin(APlayerController * NewPlayer)
 
 		NumOfPlayers = game_gi->GetMaxConnection();
 
-		
+
 		newPC->CLIENT_Login();
 	}
 }
