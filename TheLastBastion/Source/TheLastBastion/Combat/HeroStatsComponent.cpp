@@ -24,42 +24,47 @@
 
 UHeroStatsComponent::UHeroStatsComponent()
 {
-	if (mCharacter)
-	{
-		mHeroCharacter = Cast<ATheLastBastionHeroCharacter>(mCharacter);
-		if (mHeroCharacter != nullptr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("UHeroStatsComponent is owned by ATheLastBastionHeroCharacter"));
-
-			// Just some init armor for our melee hero
-			UCustomType::FindClass<AWeapon>(LeftHandWeapon_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_Shield"));
-			UCustomType::FindClass<AWeapon>(RightHandWeapon_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_SHSword"));
-			UCustomType::FindClass<AArmor>(Armor_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_Armor"));
-
-			TargetDetector = mHeroCharacter->GetTargetDetector();
-			SetDamageDetectorsCollsionProfile(TEXT("HeroBody"));
-		}
-		else
-			UE_LOG(LogTemp, Warning, TEXT("UHeroStatsComponent is NOT owned by a TheLastBastion Character"));
-
-		mCurrentTarget = nullptr;
-		mNextThreat = nullptr;		
-	}
+	// Just some init armor for our melee hero
+	UCustomType::FindClass<AWeapon>(LeftHandWeapon_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_Shield"));
+	UCustomType::FindClass<AWeapon>(RightHandWeapon_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_SHSword"));
+	UCustomType::FindClass<AArmor>(Armor_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_Armor"));
 }
 
 void UHeroStatsComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (!mHeroCharacter)
+	if (mCharacter)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("HeroStatsComponent is not owned by TheLastBastionHero Character"));
+		mHeroCharacter = Cast<ATheLastBastionHeroCharacter>(mCharacter);
+		if (mHeroCharacter != nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("UHeroStatsComponent is owned by ATheLastBastionHeroCharacter"));
+			TargetDetector = mHeroCharacter->GetTargetDetector();
+		}
+		else
+			UE_LOG(LogTemp, Error, TEXT("UHeroStatsComponent is NOT owned by a ATheLastBastionHeroCharacter"));
+
+		mCurrentTarget = nullptr;
+		mNextThreat = nullptr;
+		if (TargetDetector)
+		{
+			TargetDetector->OnComponentBeginOverlap.AddDynamic(this, &UHeroStatsComponent::OnEnemyEnter);
+			TargetDetector->OnComponentEndOverlap.AddDynamic(this, &UHeroStatsComponent::OnEnemyLeave);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("TargetDetector is NULL UHeroStatsComponent::BeginPlay"));
+			return;
+		}
+		Born();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("mCharacter is NULL - UHeroStatsComponent::BeginPlay"));
 	}
 
-	TargetDetector->OnComponentBeginOverlap.AddDynamic(this, &UHeroStatsComponent::OnEnemyEnter);
-	TargetDetector->OnComponentEndOverlap.AddDynamic(this, &UHeroStatsComponent::OnEnemyLeave);
 
-	Born();
 }
 
 void UHeroStatsComponent::OnFocus()
@@ -169,49 +174,3 @@ void UHeroStatsComponent::MeleeFocus()
 		UE_LOG(LogTemp, Warning, TEXT("No Availble Target"));
 }
 
-void UHeroStatsComponent::OnBodyHit(UPrimitiveComponent * _overlappedComponent, AActor * _otherActor, UPrimitiveComponent * _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult & _SweepResult)
-{
-
-	// calculate damage
-	float damagePercentage = CalculateHealth(_otherActor);
-
-	// play animation
-	mHeroCharacter->GetAnimInstanceRef()->OnBeingHit(_otherActor, damagePercentage);
-
-	UWorld* world = GetWorld();
-	if (world == nullptr)
-		return;
-
-	//UGI_TheLastBastion* const gi = Cast<UGI_TheLastBastion>(world->GetGameInstance());
-	//UInGameHUD* const hud = gi->GetInGameHUDRef();
-	//if (hud == nullptr)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("hud is not a UInGameHUD - UHeroStatsComponent::OnBodyHit "));
-	//	return;
-	//}
-	//hud->SetHpStats(HpCurrent, HpMax);
-
-}
-
-void UHeroStatsComponent::OnHeadHit(UPrimitiveComponent * _overlappedComponent, AActor * _otherActor, UPrimitiveComponent * _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult & _SweepResult)
-{
-	// calculate damage
-	float remainHpPercent = CalculateHealth(_otherActor);
-
-	// play animation
-	mHeroCharacter->GetAnimInstanceRef()->OnBeingHit(_otherActor, true);
-
-	//UWorld* world = GetWorld();
-	//if (world == nullptr)
-	//	return;
-
-	//UGI_TheLastBastion* const gi = Cast<UGI_TheLastBastion>(world->GetGameInstance());
-	//UInGameHUD* const hud = gi->GetInGameHUDRef();
-	//if (hud == nullptr)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("hud is not a UInGameHUD - UHeroStatsComponent::OnBodyHit "));
-	//	return;
-	//}
-	//hud->SetHpStats(HpCurrent, HpMax);
-
-}

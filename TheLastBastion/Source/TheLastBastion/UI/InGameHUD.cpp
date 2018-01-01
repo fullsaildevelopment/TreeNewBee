@@ -2,16 +2,12 @@
 
 #include "InGameHUD.h"
 
+#include "CustomType.h"
+#include "PCs/GamePC.h"
 
-
-
+#include "UI/InGamePlayerRow.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
-#include "Components/ProgressBar.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "GI_TheLastBastion.h"
-#include "TheLastBastionHeroCharacter.h"
-#include "Combat/HeroStatsComponent.h"
 
 
 bool UInGameHUD::Initialize()
@@ -20,18 +16,12 @@ bool UInGameHUD::Initialize()
 	if (Super::Initialize() == false)
 		return false;
 
+
 	// Get Ref from Game Instance
 	APlayerController* const pc = GetOwningPlayer();
 	if (pc)
 	{
 		mGameInstanceRef = Cast<UGI_TheLastBastion>(pc->GetGameInstance());
-		mHeroCharacter = Cast<ATheLastBastionHeroCharacter>(pc->GetCharacter());
-		if (mGameInstanceRef == nullptr || mHeroCharacter == nullptr)
-		{
-
-			UE_LOG(LogTemp, Error, TEXT("Cast to ATheLastBastionHeroCharacter Failed - UInGameHUD"));
-			return false;
-		}
 	}
 	else
 		return false;
@@ -48,14 +38,6 @@ bool UInGameHUD::Initialize()
 	}
 	else
 		return false;
-
-	//UE_LOG(LogTemp, Warning, TEXT("Fill Hp Bar"));
-	//SetHpStats(mHeroCharacter->GetHeroStatsComp()->GetHpCurrent(),
-	//	mHeroCharacter->GetHeroStatsComp()->GetHpMax());
-	//SetSpStats(mHeroCharacter->GetHeroStatsComp()->GetStaminaCurrent(), 
-	//	mHeroCharacter->GetHeroStatsComp()->GetStaminaMax());
-	//UE_LOG(LogTemp, Warning, TEXT("Fill Hp Bar Done"));
-
 	return true;
 }
 
@@ -85,3 +67,22 @@ bool UInGameHUD::Initialize()
 //	ratio = FMath::Clamp(ratio, 0.0f, 1.0f);
 //	StaminaBar->SetPercent(ratio);
 //}
+
+void UInGameHUD::AddPlayerToPlayerList(const TArray<FPlayerProfile>& _allConnectedPlayers,
+	const TArray<AGamePC*>& _allControllers)
+{
+
+	APlayerController* thisPC = GetOwningPlayer();
+
+	//for (int iPC = 0; i < length; i++)
+	//{
+
+	//}
+}
+
+void UInGameHUD::InitPlayerRow(const FPlayerProfile & _profile)
+{
+	PlayerRow->InitRowHeader(_profile);
+}
+
+

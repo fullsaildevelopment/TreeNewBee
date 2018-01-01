@@ -7,36 +7,31 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
+#include "GI_TheLastBastion.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "Combat/Weapon.h"
 #include "Combat/Armor.h"
 #include "CustomType.h"
 #include "TheLastBastionCharacter.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 
 const float RangerInitHp = 230.0f;
 const float BuilderInitHp = 180.0f;
 
-
 // Sets default values for this component's properties
 UPawnStatsComponent::UPawnStatsComponent()
-{
-	
-	mCharacter = Cast<ATheLastBastionCharacter>(this->GetOwner());
-
-	Level = 1;
-
-	if (mCharacter)
-	{
-		Head = mCharacter->GetHeadComp();
-		Body = mCharacter->GetBodyComp();
-	}
-
+{	
 }
 
 // Called when the game starts
 void UPawnStatsComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	mCharacter = Cast<ATheLastBastionCharacter>(this->GetOwner());
+
+	Level = 1;
 
 	UWorld* world = GetWorld();
 
@@ -65,20 +60,6 @@ void UPawnStatsComponent::BeginPlay()
 		}
 	}
 
-	if (Head && Body) 
-	{
-		Head->OnComponentBeginOverlap.AddDynamic(this, &UPawnStatsComponent::OnHeadHit);
-		Body->OnComponentBeginOverlap.AddDynamic(this, &UPawnStatsComponent::OnBodyHit);
-	}
-
-	if (LeftHandWeapon)
-		LeftHandWeapon->GetWeaponMeshRef()
-			->OnComponentBeginOverlap.AddDynamic(this, &UPawnStatsComponent::OnLeftHandWeaponHit);
-
-	if (RightHandWeapon)
-		RightHandWeapon->GetWeaponMeshRef()
-		->OnComponentBeginOverlap.AddDynamic(this, &UPawnStatsComponent::OnRightHandWeaponHit);
-
 	GenerateRawStatsByLevel(1);
 }
 
@@ -93,45 +74,46 @@ void UPawnStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 void UPawnStatsComponent::EnableWeapon(bool _bIsRightHand, bool _bIsAll)
 {
 
-	//UE_LOG(LogTemp, Warning, TEXT("enable Weapon"));
-	if (_bIsAll)
-	{
-		LeftHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		RightHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	}
-	else
-	{
-		if (_bIsRightHand)
-			RightHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		else
-			LeftHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	}
-
+	//if (_bIsAll)
+	//{
+	//	LeftHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	//	RightHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	//}
+	//else
+	//{
+	//	if (_bIsRightHand)
+	//		RightHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	//	else
+	//		LeftHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	//}
+	UE_LOG(LogTemp, Warning, TEXT("Enable Weapon"));
+	RightHandWeapon->SetDamageIsEnabled(true);
 }
 
 void UPawnStatsComponent::DisableWeapon(bool _bIsRightHand, bool _bIsAll)
 {
+	RightHandWeapon->SetDamageIsEnabled(false);
+
 	//UE_LOG(LogTemp, Warning, TEXT("disable Weapon"));
 
-	if (_bIsAll)
-	{
-		LeftHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		RightHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
-	else
-	{
-		if (_bIsRightHand)
-			RightHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		else
-			LeftHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
+	//if (_bIsAll)
+	//{
+	//	LeftHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//	RightHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//}
+	//else
+	//{
+	//	if (_bIsRightHand)
+	//		RightHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//	else
+	//		LeftHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//}
 
 }
 
 void UPawnStatsComponent::OnEquipWeapon()
 {
 	RightHandWeapon->Arm(mCharacter->GetMesh());
-
 }
 
 void UPawnStatsComponent::OnSheathWeapon()
@@ -140,12 +122,6 @@ void UPawnStatsComponent::OnSheathWeapon()
 
 	//RightHandWeapon->AttachToComponent(mCharacter->GetMesh(),
 	//	FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("SHSwordEquip"));
-}
-
-void UPawnStatsComponent::SetDamageDetectorsCollsionProfile(FName _profileName)
-{
-	Head->SetCollisionProfileName(_profileName);
-	Body->SetCollisionProfileName(_profileName);
 }
 
 
@@ -232,6 +208,7 @@ void UPawnStatsComponent::Born()
 
 
 #pragma region  Damage Calculation
+
 float UPawnStatsComponent::CalculateHealth(AActor * _otherActor)
 {
 
@@ -242,47 +219,88 @@ float UPawnStatsComponent::CalculateHealth(AActor * _otherActor)
 		return 0.0f;
 	}
 	UPawnStatsComponent* const AttackerStats = AttackerWeapon->GetGearOwner()->GetPawnStatsComp();
-	float damage = AttackerStats->GetDamage();;
+	float damage = 0.0f;
 	HpCurrent = HpCurrent - damage;
 	
 	float damagePercentage = damage * DivByHpMax;
 	return damagePercentage;
 }
-float UPawnStatsComponent::GetDamage()
+
+float UPawnStatsComponent::CalculateDamage(const FDamageInfo & _hit)
 {
+
+	if (_hit.hitResult.BoneName.Compare(TEXT("neck_01")) == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Head Hit"));
+	}
+	else if (_hit.hitResult.BoneName.Compare(TEXT("spine_03")) == 0 || _hit.hitResult.BoneName.Compare(TEXT("spine_01")) == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Chest Hit"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Common Hit"));
+	}
+
 	return 	FMath::RandRange(50, 100);
+}
+
+void UPawnStatsComponent::ApplyDamage(const FDamageInfo & _damageInfo)
+{
+	// calculate the damage based on Gears
+	float damage = CalculateDamage(_damageInfo);
+
+	// apply damage type based on weapon 
+	switch (_damageInfo.applyDamageType)
+	{
+		case EApplyDamageType::Common:
+		default:
+		{
+			UGameplayStatics::ApplyDamage(
+				_damageInfo.hitResult.GetActor(), damage,
+				mCharacter->GetInstigatorController(), mCharacter, _damageInfo.damageType);
+			break;
+		}
+		case EApplyDamageType::Point:
+		{
+			break;
+		}
+		case EApplyDamageType::Radius:
+		{
+			break;
+		}
+		case EApplyDamageType::RadiusFallOf:
+		{
+			break;
+		}
+
+	}
+
+	// apply VFX based on surface
+	UParticleSystem* vfxSelected = nullptr;
+
+	UGI_TheLastBastion* gi = Cast<UGI_TheLastBastion>(UGameplayStatics::GetGameInstance(GetWorld()));
+	EPhysicalSurface surefaceType = UPhysicalMaterial::DetermineSurfaceType(_damageInfo.hitResult.PhysMaterial.Get());
+	switch (surefaceType)
+	{
+	case SURFACE_FLESH:
+		vfxSelected = gi->GetVFX_BloodImpact();
+		break;
+	case SURFACE_METAL:
+		break;
+	default:
+		break;
+	}
+
+	if (vfxSelected)
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), vfxSelected, _damageInfo.hitResult.Location);
 
 }
+
+
 
 #pragma endregion
 
-
-#pragma region hit Event
-void UPawnStatsComponent::OnBodyHit(UPrimitiveComponent * _overlappedComponent, AActor * _otherActor, UPrimitiveComponent * _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult & _SweepResult)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Body hit by %s"), *_otherActor->GetName());
-
-}
-
-void UPawnStatsComponent::OnHeadHit(UPrimitiveComponent * _overlappedComponent, AActor * _otherActor, UPrimitiveComponent * _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult & _SweepResult)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Head hit by %s"), *_otherActor->GetName());
-
-}
-
-void UPawnStatsComponent::OnRightHandWeaponHit(UPrimitiveComponent * _overlappedComponent, AActor * _otherActor, UPrimitiveComponent * _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult & _SweepResult)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Right Hand Weapon hit %s"), *_otherActor->GetName());
-
-}
-
-void UPawnStatsComponent::OnLeftHandWeaponHit(UPrimitiveComponent * _overlappedComponent, AActor * _otherActor, UPrimitiveComponent * _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult & _SweepResult)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Left Hand Weapon hit %s"), *_otherActor->GetName());
-
-}
-
-#pragma endregion
 
 
 

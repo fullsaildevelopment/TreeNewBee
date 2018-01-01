@@ -1,13 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InGamePlayerRow.h"
-
-
+#include "CustomType.h"
+#include "Components/TextBlock.h"
 
 bool UInGamePlayerRow::Initialize()
 {
 	if (Super::Initialize() == false)
 		return false;
+
 
 	// Bind Delegetes to Widget components
 	bool bAllWidgetAreGood =
@@ -23,3 +24,11 @@ bool UInGamePlayerRow::Initialize()
 	return true;
 }
 
+void UInGamePlayerRow::InitRowHeader(const FPlayerProfile& _profile)
+{
+	HeroAvatarImage = _profile.mCharacterImage;
+	Name->SetText(_profile.mPlayerName);
+	
+	
+
+}

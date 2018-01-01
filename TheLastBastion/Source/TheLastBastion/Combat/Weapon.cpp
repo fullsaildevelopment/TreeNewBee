@@ -3,8 +3,11 @@
 #include "Weapon.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "TheLastBastionCharacter.h"
+#include "Combat/PawnStatsComponent.h"
 
 
+#define ECC_EnemyBody ECollisionChannel::ECC_GameTraceChannel3
 
 AWeapon::AWeapon() 
 {
@@ -12,9 +15,13 @@ AWeapon::AWeapon()
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Appearence"));
 	Mesh->SetCollisionProfileName("EnemyWeapon");
 	RootComponent = Mesh;
-
-
+	DamageEdgeOffset_start = 95.0f;
+	DamageEdgeOffset_end = 15.0f;
+	DamageVolumnExtend = FVector(3.0f, 3.0f, 0.0f);
+	PrimaryActorTick.bCanEverTick = true;
+	bDamageIsEnable = false;
 }
+
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
@@ -22,6 +29,12 @@ void AWeapon::BeginPlay()
 
 void AWeapon::Arm(USkeletalMeshComponent * const _skeletonMeshComponent)
 {
+	if (GearOwner == nullptr)
+	{
+		GearOwner = Cast<ATheLastBastionCharacter>(_skeletonMeshComponent->GetOwner());
+		SetOwner(GearOwner);
+	}
+
 	FName SlotName;
 
 	switch (GearType)
@@ -51,6 +64,86 @@ void AWeapon::Arm(USkeletalMeshComponent * const _skeletonMeshComponent)
 
 	}
 	this->AttachToComponent(_skeletonMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, SlotName);
+}
+
+void AWeapon::SetDamageIsEnabled(bool _val)
+{
+	bDamageIsEnable = _val;
+	if (!bDamageIsEnable)
+	{
+		// clear the ignore list for next attack
+		IgnoredActors.Empty();
+	}
+}
+
+void AWeapon::Tick(float _deltaTime)
+{
+
+	if (bDamageIsEnable)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Damage Enabled !!!!!!!!!!!!"));
+
+		// Get Start End Position
+		FVector startPosition, endPosition;
+		switch (GearType)
+		{
+		case EGearType::SingleHandWeapon:
+		case EGearType::DoubleHandWeapon:
+		default:
+		{
+			startPosition = GetActorLocation() + GetActorUpVector() * DamageEdgeOffset_start;
+			endPosition   = GetActorLocation() + GetActorUpVector() * DamageEdgeOffset_end;
+			break;
+		}
+
+		case EGearType::TwinBlade:
+		{
+			startPosition = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_start;
+			endPosition   = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_end;
+			break;
+
+		}
+		}
+
+
+		// Box Trace
+		static const FName BoxTraceSingleName(TEXT("BoxTraceSingleForObjects"));
+
+		FCollisionQueryParams Params;
+
+		if (IgnoredActors.Num() > 0)
+			Params.AddIgnoredActors(IgnoredActors);
+
+		Params.bReturnPhysicalMaterial = true;
+		Params.bTraceComplex = true;
+
+		FCollisionObjectQueryParams ObjectParams;
+		ObjectParams.AddObjectTypesToQuery(ECC_EnemyBody);
+		
+		if (ObjectParams.IsValid() == false)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Invalid object types"));
+			return;
+		}
+
+		FDamageInfo DamageInfo;
+		DamageInfo.applyDamageType = EApplyDamageType::Common;
+		DamageInfo.damageType = DamageType;
+
+		UWorld* world = GetWorld();
+		bool IsHit = world->SweepSingleByObjectType(DamageInfo.hitResult, startPosition, endPosition, FRotator::ZeroRotator.Quaternion(), ObjectParams,
+			FCollisionShape::MakeBox(DamageVolumnExtend), Params);
+		if (IsHit)
+		{
+			IgnoredActors.Add(DamageInfo.hitResult.GetActor());
+
+			UPawnStatsComponent* pSC = GearOwner->GetPawnStatsComp();
+			if (pSC != nullptr)
+				pSC->ApplyDamage(DamageInfo);
+			else
+				UE_LOG(LogTemp, Error, TEXT("UPawnStatsComponent is NuLL -- AWeapon::Tick "));
+		}
+	}
 
 }
 

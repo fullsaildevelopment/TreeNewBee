@@ -8,9 +8,7 @@
 // Sets default values
 AGear::AGear()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	
-	
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.	
 }
 
 // Called when the game starts or when spawned
@@ -21,9 +19,9 @@ void AGear::BeginPlay()
 
 void AGear::Equip(class USkeletalMeshComponent* const _skeletonMeshComponent)
 {
-
-
 	GearOwner = Cast<ATheLastBastionCharacter>(_skeletonMeshComponent->GetOwner());
+	SetOwner(GearOwner);
+
 	if (GearOwner == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("GearOwner is not a ATheLastBastionCharacter - AGear::Equip "));

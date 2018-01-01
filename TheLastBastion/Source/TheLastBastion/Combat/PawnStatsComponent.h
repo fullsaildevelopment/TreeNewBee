@@ -7,6 +7,42 @@
 #include "PawnStatsComponent.generated.h"
 
 
+#define SURFACE_FLESH EPhysicalSurface::SurfaceType1
+#define SURFACE_METAL EPhysicalSurface::SurfaceType2
+
+UENUM(BlueprintType)
+enum class EApplyDamageType : uint8
+{
+	None         = 0 UMETA(DisplayName = "None"),
+	Common       = 1 UMETA(DisplayName = "Common"),
+	Point        = 2 UMETA(DisplayName = "Point"),
+	Radius       = 3 UMETA(DisplayName = "Radius"),
+	RadiusFallOf = 4 UMETA(DisplayName = "RadiusFallOf")
+};
+
+
+USTRUCT()
+struct FDamageInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+		FHitResult hitResult;
+
+	UPROPERTY()
+		/** For shooting mechanim */
+		FVector hitDirection;
+
+	UPROPERTY()
+		/** Is it a point, or radius or just common damage ?*/
+		EApplyDamageType applyDamageType;
+
+	UPROPERTY()
+		/** Damage class depends on weapon */
+		TSubclassOf<class UDamageType> damageType;
+};
+
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class THELASTBASTION_API UPawnStatsComponent : public UActorComponent
 {
@@ -31,11 +67,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combat)
 		TSubclassOf <class AArmor> Armor_ClassBp;
 	class AArmor *    Armor;
-
-
-	class USphereComponent*        Head;
-	class UBoxComponent*           Body;
-
 	
 #pragma region Character Stats
 
@@ -46,8 +77,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = CharactorStats)
 		// Init stamina
 		float StaminaRaw;
-
-
 
 	float
 		HpMax,
@@ -86,8 +115,6 @@ public:
 
 public:
 
-	void SetDamageDetectorsCollsionProfile(FName _profileName);
-
 	FORCEINLINE float GetHpRaw() const { return HpRaw; }
 	FORCEINLINE float GetStamina() const { return StaminaRaw; }
 	FORCEINLINE float GetHpCurrent() const { return HpCurrent; }
@@ -96,9 +123,7 @@ public:
 	FORCEINLINE float GetStaminaMax() const { return StaminaMax; }
 
 	// Calculate the damage that this character cause as the attacker
-	virtual float GetDamage();
-
-
+	virtual float CalculateDamage(const FDamageInfo & _damageResult);
 
 	// Called after a character is spawned, generate the raw stats according to its level
 	void GenerateRawStatsByLevel(int Level);
@@ -112,42 +137,16 @@ public:
 	// Called 
 	void Born();
 
+	UFUNCTION()
+		void ApplyDamage( const FDamageInfo& _hit);
 
 
 
 
 protected:
 
-	// Called When Body Is overlapped by weapon
-	UFUNCTION()
-		virtual void OnBodyHit(UPrimitiveComponent* _overlappedComponent, AActor* _otherActor
-			, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex,
-			bool _bFromSweep, const FHitResult& _SweepResult);
-
-	// Called When Head Is overlapped by weapon
-	UFUNCTION()
-		virtual void OnHeadHit(UPrimitiveComponent* _overlappedComponent, AActor* _otherActor
-			, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex,
-			bool _bFromSweep, const FHitResult& _SweepResult);
-
-	// Called When Body Is overlapped by weapon
-	UFUNCTION()
-		virtual void OnRightHandWeaponHit(UPrimitiveComponent* _overlappedComponent, AActor* _otherActor
-			, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex,
-			bool _bFromSweep, const FHitResult& _SweepResult);
-
-
-	// Called When Body Is overlapped by weapon
-	UFUNCTION()
-		virtual void OnLeftHandWeaponHit(UPrimitiveComponent* _overlappedComponent, AActor* _otherActor
-			, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex,
-			bool _bFromSweep, const FHitResult& _SweepResult);
-
-
 	// Calculate the health that this character left after being attacked
 	virtual float CalculateHealth(AActor* _otherActor);
-
-
 
 
 };

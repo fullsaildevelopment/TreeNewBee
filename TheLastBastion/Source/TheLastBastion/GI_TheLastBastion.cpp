@@ -19,10 +19,9 @@ static FName SESSION_NAME = TEXT("GAME");
 
 UGI_TheLastBastion::UGI_TheLastBastion(const FObjectInitializer & ObjectInitializer) : Super(ObjectInitializer)
 {
-
+	LocateAllVFX();
 	LocateAllWidgetClass();
 	LocateAllCharacterClass();
-
 
 	playerSettingsSave = FString(TEXT("playerSettingsSave"));
 
@@ -63,6 +62,16 @@ void UGI_TheLastBastion::LocateAllCharacterClass()
 {
 	UCustomType::FindClass<ACharacter>(Ranger_Class, TEXT("/Game/Blueprints/Heros/Ranger_Bp"));
 }
+
+void UGI_TheLastBastion::LocateAllVFX()
+{
+	ConstructorHelpers::FObjectFinder<UParticleSystem> bloodImpactFind (TEXT("/Game/Assets/Partical/WeaponEffects/BloodImpact/P_blood_splash_02"));
+	if (bloodImpactFind.Succeeded())
+		BloodImpact_vfx = bloodImpactFind.Object;
+	else
+		UE_LOG(LogTemp, Error, TEXT("Can not find BloodImpact_vfx"));
+}
+
 
 void UGI_TheLastBastion::Init()
 {
@@ -195,23 +204,17 @@ bool UGI_TheLastBastion::HostSession(bool _bIsLan, int _numOfConnections, const 
 			sessionSettings.bAllowJoinViaPresence = true;
 
 
-			USaveGame_TheLastBastion* sg = this->GetSaveGame();
+			USaveGame_TheLastBastion* sg = this->LoadSaveGame();
 			FString UserName;
 
 			if (sg)
-				UserName = this->GetSaveGame()->GetPlayerProfile()->mPlayerName.ToString();
+				UserName = sg->mPlayerProfile.mPlayerName.ToString();
 			else
 				UserName = TEXT("NewPlayer");
 
 			sessionSettings.Set(TEXT("UserName"), UserName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 			sessionSettings.Set(TEXT("LobbyName"), _lobbyName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
-			//sessionSettings.Set()
-			//sessionSettings.NumPrivateConnections = 0;
-			//sessionSettings.bAllowInvites = false;
-			//sessionSettings.bAllowJoinInProgress = true;
-			//sessionSettings.bAllowJoinViaPresence = true;
-			//sessionSettings.bAllowJoinViaPresenceFriendsOnly = false
-			//sessionSettings.Set(SETTING_MAPNAME, FString("Lobby"), EOnlineDataAdvertisementType::ViaOnlineService);			
+
 			UE_LOG(LogTemp, Warning, TEXT("Creating Session, %s"), *SESSION_NAME.ToString());
 			return mSessionInterface->CreateSession(*userId, SESSION_NAME, sessionSettings);
 		}
@@ -432,7 +435,22 @@ void UGI_TheLastBastion::SetIsLan(bool _val)
 	bIsLan = _val;
 }
 
-USaveGame_TheLastBastion * UGI_TheLastBastion::GetSaveGame() const
+USaveGame_TheLastBastion* UGI_TheLastBastion::LoadSaveGame() const
 {
-	return Cast<USaveGame_TheLastBastion>(UGameplayStatics::LoadGameFromSlot(playerSettingsSave, 0));
+	bool bThereIsASavedProfile = UGameplayStatics::DoesSaveGameExist(playerSettingsSave, 0);
+
+	if (bThereIsASavedProfile)
+	{
+		// Load profile
+		USaveGame_TheLastBastion* saveGame = Cast<USaveGame_TheLastBastion>(UGameplayStatics::LoadGameFromSlot(playerSettingsSave, 0));
+		if (saveGame == nullptr)
+			return nullptr;
+		else
+			return saveGame;
+	}
+	else
+		return nullptr;
 }
+
+
+

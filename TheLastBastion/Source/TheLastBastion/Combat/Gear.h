@@ -18,6 +18,9 @@ enum class EGearType : uint8
 	TwinBlade = 6 UMETA(DisplayName = "TwinBlade")
 };
 
+
+
+
 UCLASS()
 class THELASTBASTION_API AGear : public AActor
 {

@@ -83,15 +83,21 @@ protected:
 #pragma endregion
 
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Vfx)
+		UParticleSystem* BloodImpact_vfx;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Map)
 		FName LobbyMap;
+
+	UPROPERTY(EditDefaultsOnly, Category = LobbySettings)
+		int  mNumOfConnection;
 
 	UPROPERTY(BlueprintReadWrite)
 		FPlayerProfile playerProflie;
 
 	UPROPERTY()
 		FString playerSettingsSave;
-
 private:
 
 #pragma region Session Settings
@@ -117,15 +123,15 @@ private:
 	/** The lobby name given by player during host menu*/
 	FString mLobbyName;
 
-	int  mNumOfConnection;
-
-
 	bool bIsLan;
+
 	bool bRecreateSession;
 
 #pragma endregion
 
 public:
+
+#pragma region  Lobby Getter
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE FText GetLobbyName() const { return FText::FromString(mLobbyName); }
@@ -135,6 +141,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE FString GetPlayerSettingsSaveFString() const { return playerSettingsSave; }
+#pragma endregion
+
+#pragma region UI class Getter
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE TSubclassOf<UUserWidget> GetLobbyRow_Class() const { return LobbyRow_Class; }
@@ -154,8 +163,24 @@ public:
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE TSubclassOf<UUserWidget> GetInGameTeamRow_Class() const { return InGameTeamRow_Class; }
 
+
+#pragma endregion
+
+#pragma region Character Class Getter
+
 	UFUNCTION(BlueprintPure)
-		class USaveGame_TheLastBastion* GetSaveGame() const;
+		FORCEINLINE TSubclassOf<ACharacter> GetRanger_Class() const { return Ranger_Class; }
+
+#pragma endregion
+
+#pragma region Vfx Getter
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE class UParticleSystem* GetVFX_BloodImpact() const { return BloodImpact_vfx; }
+
+#pragma endregion
+
+
+
 
 	void SetIsLan(bool _val);
 
@@ -164,6 +189,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void SaveGameCheck();
+
+	UFUNCTION(BlueprintPure)
+		/** Read the player profile from local*/
+		class USaveGame_TheLastBastion* LoadSaveGame() const;
+
 
 #pragma region Show Menu Func
 
@@ -223,7 +253,7 @@ private:
 
 	void LocateAllWidgetClass();
 	void LocateAllCharacterClass();
-
+	void LocateAllVFX();
 };
 
 

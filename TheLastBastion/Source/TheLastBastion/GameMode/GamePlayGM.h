@@ -9,6 +9,27 @@
 /**
 *
 */
+
+
+
+USTRUCT()
+struct FMatchPlayer
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY()
+		class AGamePC* controller;
+	UPROPERTY()
+		class ATheLastBastionHeroCharacter* character;
+	UPROPERTY()
+		struct FPlayerProfile profile;
+	UPROPERTY()
+		int index = -1;
+};
+
+
 UCLASS()
 class THELASTBASTION_API AGamePlayGM : public AGameModeBase
 {
@@ -25,20 +46,27 @@ public:
 private:
 
 	UPROPERTY()
-		TArray<class AGamePC*> AllPlayerControllers;
-
-	UPROPERTY()
-		TArray<struct FPlayerProfile> AllConnectedPlayers;
+		TArray<FMatchPlayer> AllPlayers;
 
 	UPROPERTY()
 		int NumOfPlayers;
+
+	//UPROPERTY()
+	//	TArray<class AGamePC*> AllPlayerControllers;
+	//UPROPERTY()
+	//	TArray<struct FPlayerProfile> AllConnectedPlayers;
 
 
 public:
 
 	UFUNCTION()
-		/** Called after a new client logged in, and ask server to update his info to all connected clients*/
-		void SpawnPlayer(APlayerController* _pc);
+		void GrabProfileAndSpawnPlayer(const FPlayerProfile& _profile, int _index);
 
-	FORCEINLINE TArray<class AGamePC*> GetAllPlayerControllers() const { return AllPlayerControllers; }
+
+	UFUNCTION()
+		void UpdateAllConnectedPlayers(int _index);
+
+public:
+
+	//FORCEINLINE TArray<class AGamePC*> GetAllPlayerControllers() const { return AllPlayerControllers; }
 };

@@ -12,11 +12,11 @@ ATheLastBastionEnemyCharacter::ATheLastBastionEnemyCharacter() : Super()
 
 	GetCapsuleComponent()->SetCollisionProfileName("Enemy");
 
+	GetMesh()->SetCollisionProfileName("EnemyBody");
 
 	EnemyStats = CreateDefaultSubobject<UPawnStatsComponent>(TEXT("Stats"));
-	EnemyStats->SetDamageDetectorsCollsionProfile(TEXT("EnemyBody"));
-	PawnStats = EnemyStats;
 
+	PawnStats = EnemyStats;
 }
 
 void ATheLastBastionEnemyCharacter::BeginPlay()

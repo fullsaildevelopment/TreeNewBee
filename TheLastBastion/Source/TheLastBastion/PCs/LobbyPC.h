@@ -38,7 +38,8 @@ public:
 		void CLIENT_UpdateNumOfPlayer(int _currentNumOfPlayers, int _maxNumOfPlayers);
 
 	UFUNCTION(Client, Reliable)
-		void CLIENT_RemoveLobbyUI();
+		/** Remove lobby UI and Save profile*/
+		void CLIENT_CleanAndSave();
 
 	UFUNCTION(Client, Reliable)
 		/** Tell client UI to populate all player rows for all connected players*/

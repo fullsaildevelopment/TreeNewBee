@@ -60,7 +60,6 @@ bool UCustomizeMenu::Initialize()
 
 }
 
-
 void UCustomizeMenu::OnBackClick()
 {
 	this->RemoveFromParent();
@@ -69,11 +68,6 @@ void UCustomizeMenu::OnBackClick()
 
 void UCustomizeMenu::OnAcceptClick()
 {
-	//FPlayerProfile playerProfileSave;
-	//playerProfileSave.mAvatarImage = mCurrentAvatar;
-	//playerProfileSave.mPlayerName = PlayerName->GetText();
-	//UE_LOG(LogTemp, Warning, TEXT("accept"));
-
 	if (mSaveGame == nullptr)
 		mSaveGame = Cast<USaveGame_TheLastBastion>(UGameplayStatics::CreateSaveGameObject(USaveGame_TheLastBastion::StaticClass()));
 
@@ -83,6 +77,7 @@ void UCustomizeMenu::OnAcceptClick()
 		mSaveGame->mPlayerProfile.mPlayerName = PlayerName->GetText();
 		UGameplayStatics::SaveGameToSlot(mSaveGame, mGameInstanceRef->GetPlayerSettingsSaveFString(), 0);
 		WelcomeMessage->SetVisibility(ESlateVisibility::Hidden);
+		Back->SetVisibility(ESlateVisibility::Visible);
 		this->RemoveFromParent();
 		mGameInstanceRef->ShowMainMenu();
 	}
@@ -117,21 +112,13 @@ void UCustomizeMenu::OnPlayerNameChange(const FText& _text)
 
 void UCustomizeMenu::PlayerProfileSaveCheck()
 {
-	bool bThereIsASavedProfile = UGameplayStatics::DoesSaveGameExist(mGameInstanceRef->GetPlayerSettingsSaveFString(), 0);
-
+	mSaveGame = mGameInstanceRef->LoadSaveGame();
 	mCurrentAvatarSelectionIndex = 0;
-
-	if (bThereIsASavedProfile)
+	if (mSaveGame)
 	{
-		// Load profile
-		mSaveGame = Cast<USaveGame_TheLastBastion>(UGameplayStatics::LoadGameFromSlot(mGameInstanceRef->GetPlayerSettingsSaveFString(), 0));
-		if (mSaveGame == nullptr)
-			return;
-
-		const FPlayerProfile* pf = mSaveGame->GetPlayerProfile();
-
-		PlayerName->SetText(pf->mPlayerName);
-		mCurrentAvatar = pf->mAvatarImage;
+		UE_LOG(LogTemp, Warning, TEXT("Find Save Game, Load Save Game"));
+		PlayerName->SetText(mSaveGame->mPlayerProfile.mPlayerName);
+		mCurrentAvatar = mSaveGame->mPlayerProfile.mAvatarImage;
 
 		WelcomeMessage->SetVisibility(ESlateVisibility::Hidden);
 		Accept->SetIsEnabled(true);
@@ -141,6 +128,7 @@ void UCustomizeMenu::PlayerProfileSaveCheck()
 	{
 		// Set instruction message to visible, and hide back button 
 		// force player to finish complete player profile
+		UE_LOG(LogTemp, Warning, TEXT("Did not find save game"));
 		mCurrentAvatar = allAvatars[mCurrentAvatarSelectionIndex];
 		WelcomeMessage->SetVisibility(ESlateVisibility::Visible);
 		Back->SetVisibility(ESlateVisibility::Hidden);

@@ -34,7 +34,6 @@ protected:
 
 	virtual void BeginPlay();	
 
-
 public:
 
 	UFUNCTION(BlueprintPure)
@@ -42,7 +41,6 @@ public:
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE class UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
-
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE class UAIBase_AnimInstance* GetAnimInstanceRef() const { return mAnimInstanceRef; }

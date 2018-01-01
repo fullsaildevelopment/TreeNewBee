@@ -38,7 +38,6 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter() : Super()
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
 
-
 	TargetDetector = CreateDefaultSubobject<USphereComponent>(TEXT("MeleeTargetDetector"));
 	TargetDetector->SetupAttachment(GetMesh(), TEXT("Root"));
 	TargetDetector->InitSphereRadius(1200);
@@ -46,6 +45,8 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter() : Super()
 	TargetDetector->bGenerateOverlapEvents = true;
 	TargetDetector->bHiddenInGame = false;
 	TargetDetector->SetCollisionProfileName("EnemyDetector");
+
+	GetMesh()->SetCollisionProfileName("HeroBody");
 
 	HeroStats = CreateDefaultSubobject<UHeroStatsComponent>(TEXT("Stats"));
 	PawnStats = HeroStats;	
@@ -63,12 +64,6 @@ void ATheLastBastionHeroCharacter::BeginPlay()
 
 	UE_LOG(LogTemp, Warning, TEXT("Try Get GameInstance"));
 
-	//UWorld* world = GetWorld();
-	//if (world == nullptr)
-	//	return;
-	//UGI_TheLastBastion* const gi = Cast<UGI_TheLastBastion>(world->GetGameInstance());
-	//if (gi)
-	//	gi->ShowInGameHUD();
 }
 
 void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)

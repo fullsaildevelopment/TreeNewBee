@@ -12,7 +12,7 @@ struct FPlayerProfile
 {
 	GENERATED_BODY()
 
-		UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FText mPlayerName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

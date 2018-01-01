@@ -21,7 +21,7 @@ protected:
 protected:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BlueprintProtected))
-		class UTexture2D* HeroAvatarImage;
+		class UTexture2D* HeroAvatarImage;	
 
 	UPROPERTY(BlueprintReadOnly)
 		class UTextBlock* Name;
@@ -43,4 +43,9 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 		class UProgressBar* SpBar;
+
+
+public:
+	
+	void InitRowHeader(const struct FPlayerProfile& _profile);
 };

@@ -2,10 +2,10 @@
 
 #pragma once
 
-
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
 #include "CustomType.h"
+
 #include "SaveGame_TheLastBastion.generated.h"
 
 /**
@@ -18,19 +18,16 @@ class THELASTBASTION_API USaveGame_TheLastBastion : public USaveGame
 
 
 
+
+		
 public:
 
-	USaveGame_TheLastBastion(const FObjectInitializer& _objInit);
-		
+	USaveGame_TheLastBastion(const FObjectInitializer& _init);
+
+
+	UPROPERTY()
 	FPlayerProfile mPlayerProfile;
 
 
-public:
-
-	const FPlayerProfile* GetPlayerProfile() const;
-
-
-	void SetPlayerProfile(const FPlayerProfile& _in);
-	//void SetPlayerName();
 	
 };

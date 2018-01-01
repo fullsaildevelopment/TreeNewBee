@@ -26,8 +26,6 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UVerticalBox* TeamWindow;
 
-
-
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* GoldValue;
 
@@ -45,11 +43,15 @@ private:
 	UPROPERTY()
 		class UGI_TheLastBastion* mGameInstanceRef;
 
-	UPROPERTY()
-		class ATheLastBastionHeroCharacter* mHeroCharacter;
-
 
 public:
+
+	void AddPlayerToPlayerList(const TArray<struct FPlayerProfile>& _allConnectedPlayers
+		, const TArray<class AGamePC*>& _allControllers);
+
+	void InitPlayerRow(const FPlayerProfile& _profile);
+
+
 
 
 };

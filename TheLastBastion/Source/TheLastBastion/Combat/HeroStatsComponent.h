@@ -26,8 +26,8 @@ protected:
 
 
 protected:
-
-	class ATheLastBastionHeroCharacter* mHeroCharacter;
+	UPROPERTY()
+		class ATheLastBastionHeroCharacter* mHeroCharacter;
 
 
 private:
@@ -35,8 +35,10 @@ private:
 	const class ATheLastBastionEnemyCharacter* mCurrentTarget;
 	const class ATheLastBastionEnemyCharacter* mNextThreat;
 
-	class USphereComponent*    TargetDetector;
+	UPROPERTY()
+		class USphereComponent*    TargetDetector;
 
+	UPROPERTY()
 	TArray<const class ATheLastBastionEnemyCharacter*> mPotentialTargets;
 
 public:
@@ -48,31 +50,17 @@ public:
 
 
 private:
-
-	UFUNCTION()
-		virtual void OnEnemyEnter(UPrimitiveComponent* _overlappedComponent, AActor* _otherActor
-			, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex,
-			bool _bFromSweep, const FHitResult& _SweepResult);
-
-	UFUNCTION()
-		virtual void OnEnemyLeave(UPrimitiveComponent* _overlappedComponent, AActor* _otherActor
-			, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex);
-
-
-	// Called When Body Is overlapped by weapon
-	UFUNCTION()
-		virtual void OnBodyHit(UPrimitiveComponent* _overlappedComponent, AActor* _otherActor
-			, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex,
-			bool _bFromSweep, const FHitResult& _SweepResult) override;
-
-	// Called When Head Is overlapped by weapon
-	UFUNCTION()
-		virtual void OnHeadHit(UPrimitiveComponent* _overlappedComponent, AActor* _otherActor
-			, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex,
-			bool _bFromSweep, const FHitResult& _SweepResult) override;
-
-
 	
+	/** Called when an enemy enter the detection sphere*/
+	UFUNCTION()
+	void OnEnemyEnter(UPrimitiveComponent * _overlappedComponent, 
+		AActor * _otherActor, UPrimitiveComponent * _otherComp, int32 _otherBodyIndex,
+		bool _bFromSweep, const FHitResult & _SweepResult);
+	
+	UFUNCTION()
+	void OnEnemyLeave(UPrimitiveComponent * _overlappedComponent, 
+		AActor * _otherActor, UPrimitiveComponent * _otherComp, int32 _otherBodyIndex);
+
 	void MeleeFocus();
 
 };

@@ -59,7 +59,9 @@ void ALobbyGM::PostLogin(APlayerController * NewPlayer)
 		}
 
 		SpawnPlayer(lobbyPC);
+
 		lobbyPC->CLIENT_OnGameModeLogIn();
+
 		lobbyPC->CLIENT_InitLobbyUI(LobbyName);
 	}
 }
@@ -103,7 +105,7 @@ void ALobbyGM::StartGame()
 	GetWorld()->ServerTravel(GAME_MAP);
 	for (int iPc = 0; iPc < AllPlayerControllers.Num(); iPc++)
 	{
-		Cast<ALobbyPC>(AllPlayerControllers[iPc])->CLIENT_RemoveLobbyUI();
+		Cast<ALobbyPC>(AllPlayerControllers[iPc])->CLIENT_CleanAndSave();
 	}
 }
 

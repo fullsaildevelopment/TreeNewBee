@@ -27,9 +27,11 @@ void AGamePlayGM::PostLogin(APlayerController * NewPlayer)
 			return;
 		}
 
-		AllPlayerControllers.Add(newPC);
+		FMatchPlayer newMatchPlayer;
+		newMatchPlayer.controller = newPC;
+		AllPlayers.Add(newMatchPlayer);
 
-
+		//AllPlayerControllers.Add(newPC);
 		UGameInstance* gi = GetGameInstance();
 		if (gi == nullptr)
 		{
@@ -45,37 +47,60 @@ void AGamePlayGM::PostLogin(APlayerController * NewPlayer)
 
 		NumOfPlayers = game_gi->GetMaxConnection();
 
-
-		newPC->CLIENT_Login();
+		// pass the which controller this is in the array
+		newPC->CLIENT_Login(AllPlayers.Num() - 1);
 	}
 }
 
-void AGamePlayGM::SpawnPlayer(APlayerController * _pc)
+void AGamePlayGM::GrabProfileAndSpawnPlayer(const FPlayerProfile & _profile, int _index)
 {
-	APawn* pawn = _pc->GetPawn();
+	// Upload the profile
+	AllPlayers[_index].profile = _profile;
+
+	// ask server to spawn a hero class depend on player's previous choice, and ask this server version pc to poccess
+	APawn* pawn = AllPlayers[_index].controller->GetPawn();
 	if (pawn)
 		pawn->Destroy();
 
 	pawn = nullptr;
 
-
-	// Get Class from client
-	if (DefaultPawnClass == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("DefaultPawnClass is NULL,  ALobbyGM::SpawnPlayer"))
-	}
-
 	TArray<AActor*> playerStarts;
-
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), playerStarts);
 
-
-	if (playerStarts.Num() == 0)
+	if (playerStarts.Num() != 4)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Please put a playerStart in Lobby map,  ALobbyGM::SpawnPlayer"))
+		UE_LOG(LogTemp, Error, TEXT("Please put 4 playerStart in GamePlay map,  AGamePlayGM::SpawnPlayer"))
 			return;
 	}
-	pawn = GetWorld()->SpawnActor<APawn>(DefaultPawnClass, playerStarts[0]->GetTransform());
-	_pc->Possess(pawn);
 
+	pawn = GetWorld()->SpawnActor<APawn>(_profile.mCharacterClass, playerStarts[_index]->GetTransform());
+
+	AllPlayers[_index].controller->Possess(pawn);
+
+	AllPlayers[_index].character = Cast<ATheLastBastionHeroCharacter>(pawn);
+
+
+}
+
+void AGamePlayGM::UpdateAllConnectedPlayers(int _index)
+{
+
+	//// clear out all Profile
+	//AllConnectedPlayers.Empty();
+
+	//AGamePC* gamePC = nullptr;
+	//for (int iCtrl = 0; iCtrl < AllPlayerControllers.Num(); iCtrl++)
+	//{
+	//	// gather player profiles from controller
+	//	gamePC = AllPlayerControllers[iCtrl];
+
+	//	AllConnectedPlayers.Add(gamePC->GetPlayerProfile());
+	//}
+
+	//// then put all connect clients' info on each clients UI
+	//for (int iCtrl = 0; iCtrl < AllPlayerControllers.Num(); iCtrl++)
+	//{
+	//	gamePC = AllPlayerControllers[iCtrl];
+	//	gamePC ->CLIENT_AddPlayerToPlayerList(AllConnectedPlayers, _index);
+	//}
 }

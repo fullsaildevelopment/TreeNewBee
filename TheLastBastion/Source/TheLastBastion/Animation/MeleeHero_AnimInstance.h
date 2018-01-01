@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Animation/AnimInstance.h"
 #include "Animation/Hero_AnimInstance.h"
 #include "MeleeHero_AnimInstance.generated.h"
 
@@ -94,6 +93,7 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 		/** which section I am going play next in Attack_Montage*/
 	     int CurrentComboIndex;
+
 private:
 
 

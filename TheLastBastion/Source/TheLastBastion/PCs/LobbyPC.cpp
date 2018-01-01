@@ -45,6 +45,7 @@ void ALobbyPC::CLIENT_OnGameModeLogIn_Implementation()
 	// Setup Lobby Menu;
 	CreateLobbyUI();
 
+
 	SERVER_UpdateAllConnectedPlayer(playerProfile);
 }
 
@@ -108,11 +109,14 @@ void ALobbyPC::SERVER_OnClientReadyButtonClicked_Implementation()
 			break;
 		}
 	}
-
-	// Enable Start Match Button if all players are ready
-	lobbyPC = Cast<ALobbyPC>(allPC[0]);
-	lobbyPC->mLobbyMenuRef->SetStartMatchButtonEnabled(allPlayersAreReady);
+	// Update all clients about this change
 	lobbyGM->UpdateAllConnectedPlayers();
+	if (allPC.Num() == lobbyGM->GetMaxNumOfPlayers())
+	{
+		// Enable Start Match Button if all players are ready and has enough players
+		lobbyPC = Cast<ALobbyPC>(allPC[0]);
+		lobbyPC->mLobbyMenuRef->SetStartMatchButtonEnabled(allPlayersAreReady);
+	}
 }
 
 bool ALobbyPC::SERVER_OnClientReadyButtonClicked_Validate()
@@ -146,27 +150,17 @@ bool ALobbyPC::SERVER_LeaveLobbyAndUpdateConnectedPlayer_Validate()
 void ALobbyPC::SaveGameCheck()
 {
 
-	USaveGame_TheLastBastion* saveGame = mGameInstanceRef->GetSaveGame();
+	USaveGame_TheLastBastion* saveGame = mGameInstanceRef->LoadSaveGame();
 
 	// check again if we have a save game
 	if (saveGame == nullptr)
 	{
 		// if we dont have a save game create a new one
 		saveGame = Cast<USaveGame_TheLastBastion>(UGameplayStatics::CreateSaveGameObject(USaveGame_TheLastBastion::StaticClass()));
-		FPlayerProfile newProfile;
-
-		newProfile.mPlayerName = FText::FromString(TEXT("NewPlayer"));
-		//ConstructorHelpers::FObjectFinder<UTexture2D> objectFinder(TEXT("/Game/Assets/Animation/UE4_Mannequin/Textures/UE4_LOGO_CARD"));
-		//if (objectFinder.Succeeded())
-		//	newProfile.mAvatarImage = objectFinder.Object;
-		//else
-		//	UE_LOG(LogTemp, Error, TEXT("Can not find default avatar"));
-
-		saveGame->SetPlayerProfile(newProfile);
 		UGameplayStatics::SaveGameToSlot(saveGame, mGameInstanceRef->GetPlayerSettingsSaveFString(), 0);
 	}
 
-	playerProfile = *(saveGame->GetPlayerProfile());
+	playerProfile = saveGame->mPlayerProfile;
 
 	if (HasAuthority())
 		playerProfile.mPlayerStatus = FText::FromString(TEXT("Host"));
@@ -196,7 +190,18 @@ void ALobbyPC::CLIENT_OnQuitLobby_Implementation()
 	gi->BackToMainMenu();
 }
 
-void ALobbyPC::CLIENT_RemoveLobbyUI_Implementation()
+void ALobbyPC::CLIENT_CleanAndSave_Implementation()
 {
 	mLobbyMenuRef->RemoveFromParent();
+	USaveGame_TheLastBastion* saveGame = mGameInstanceRef->LoadSaveGame();
+
+	// check again if we have a save game
+	if (saveGame == nullptr)
+	{
+		// if we dont have a save game create a new one
+		saveGame = Cast<USaveGame_TheLastBastion>(UGameplayStatics::CreateSaveGameObject(USaveGame_TheLastBastion::StaticClass()));
+		UGameplayStatics::SaveGameToSlot(saveGame, mGameInstanceRef->GetPlayerSettingsSaveFString(), 0);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Client profile is saved"));
+	}
+
 }
