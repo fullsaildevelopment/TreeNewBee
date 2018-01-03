@@ -25,7 +25,10 @@ USaveGame_TheLastBastion::USaveGame_TheLastBastion(const FObjectInitializer& _in
 		UE_LOG(LogTemp, Error, TEXT("Can not find default avatar"));
 }
 
+void USaveGame_TheLastBastion::LogOutProfile()
+{
+	UE_LOG(LogTemp, Warning, TEXT("USaveGame_TheLastBastion::LogOutProfile"));
+	UE_LOG(LogTemp, Warning, TEXT("Player Name: %s"), *mPlayerProfile.mPlayerName.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Character Class Name: %s"), *mPlayerProfile.mCharacterClass->GetName());
 
-
-
-
+}

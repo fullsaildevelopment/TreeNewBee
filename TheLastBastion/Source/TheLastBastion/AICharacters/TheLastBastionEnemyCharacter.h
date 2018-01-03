@@ -23,8 +23,23 @@ public:
 
 protected:
 
+	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
+		FText AiName;
+
+	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
+		int AILevel;
+
+	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
+		int AITier;
+
 	UPROPERTY(EditDefaultsOnly, Category = Behavior)
 		class UBehaviorTree* BehaviorTree;
+
+	UPROPERTY(VisibleAnywhere, Category = AiHud)
+		class UWidgetComponent* InfoHUD;
+
+	UPROPERTY(VisibleAnywhere, Category = AiHud)
+		bool  bAIHUDisEnabledForLockedOn;
 
 private:
 
@@ -32,7 +47,15 @@ private:
 
 protected:
 
-	virtual void BeginPlay();	
+	void BeginPlay() override;	
+
+ 	UFUNCTION()
+		void OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType) override;
+
+public:
+
+	/** Toggle the AI hud to screen*/
+	void ToggleAIHUD(bool _val);
 
 public:
 

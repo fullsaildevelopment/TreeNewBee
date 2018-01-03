@@ -43,6 +43,10 @@ public:
 	/** Called when a server or a client enter this level*/
 	void PostLogin(APlayerController* NewPlayer) override;
 
+protected:
+
+	void BeginPlay() override;
+
 private:
 
 	UPROPERTY()
@@ -50,11 +54,6 @@ private:
 
 	UPROPERTY()
 		int NumOfPlayers;
-
-	//UPROPERTY()
-	//	TArray<class AGamePC*> AllPlayerControllers;
-	//UPROPERTY()
-	//	TArray<struct FPlayerProfile> AllConnectedPlayers;
 
 
 public:
@@ -68,5 +67,5 @@ public:
 
 public:
 
-	//FORCEINLINE TArray<class AGamePC*> GetAllPlayerControllers() const { return AllPlayerControllers; }
+	FORCEINLINE const TArray<FMatchPlayer>& GetAllPlayers() const { return AllPlayers; }
 };

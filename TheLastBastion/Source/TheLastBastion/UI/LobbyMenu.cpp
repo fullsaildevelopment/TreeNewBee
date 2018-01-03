@@ -44,7 +44,13 @@ bool ULobbyMenu::Initialize()
 	if (UKismetSystemLibrary::IsServer(this))
 	{
 		StartMatch_Text->SetText(FText::FromString(TEXT("Start Match")));
-		StartReady->SetIsEnabled(false);
+		
+		ALobbyGM* gm = Cast<ALobbyGM>(UGameplayStatics::GetGameMode(this));
+		if (gm)
+		{
+			if (gm->GetMaxNumOfPlayers() > 1)
+				StartReady->SetIsEnabled(false);
+		}
 	}
 	else
 		StartMatch_Text->SetText(FText::FromString(TEXT("Ready")));

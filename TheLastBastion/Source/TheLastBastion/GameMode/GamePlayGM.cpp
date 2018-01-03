@@ -7,6 +7,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerStart.h "
+#include "UI/InGameHUD.h"
+#include "TheLastBastionHeroCharacter.h"
 
 
 AGamePlayGM::AGamePlayGM(const FObjectInitializer & _objectInitilizer) : Super(_objectInitilizer)
@@ -48,8 +50,13 @@ void AGamePlayGM::PostLogin(APlayerController * NewPlayer)
 		NumOfPlayers = game_gi->GetMaxConnection();
 
 		// pass the which controller this is in the array
-		newPC->CLIENT_Login(AllPlayers.Num() - 1);
+		newPC->CLIENT_Login(AllPlayers.Num() - 1);	
 	}
+}
+
+void AGamePlayGM::BeginPlay()
+{
+
 }
 
 void AGamePlayGM::GrabProfileAndSpawnPlayer(const FPlayerProfile & _profile, int _index)
@@ -73,13 +80,13 @@ void AGamePlayGM::GrabProfileAndSpawnPlayer(const FPlayerProfile & _profile, int
 			return;
 	}
 
-	pawn = GetWorld()->SpawnActor<APawn>(_profile.mCharacterClass, playerStarts[_index]->GetTransform());
+	//pawn = GetWorld()->SpawnActor<APawn>(_profile.mCharacterClass, playerStarts[_index]->GetTransform());
+	ATheLastBastionHeroCharacter* hero
+	 = GetWorld()->SpawnActor<ATheLastBastionHeroCharacter>(_profile.mCharacterClass, playerStarts[_index]->GetTransform());
+	
+	AllPlayers[_index].controller->Possess(hero);
 
-	AllPlayers[_index].controller->Possess(pawn);
-
-	AllPlayers[_index].character = Cast<ATheLastBastionHeroCharacter>(pawn);
-
-
+	AllPlayers[_index].character = hero;
 }
 
 void AGamePlayGM::UpdateAllConnectedPlayers(int _index)

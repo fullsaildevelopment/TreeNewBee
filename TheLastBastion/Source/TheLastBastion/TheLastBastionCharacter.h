@@ -34,7 +34,7 @@ protected:
 
 	class UPawnStatsComponent* PawnStats;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterType)
 		ECharacterType CharacterType;
 
 #pragma region Movement Stats
@@ -70,29 +70,12 @@ protected:
 
 
 
-#pragma region Stats Components
+protected:
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Combat)
-		class USphereComponent*        Head;
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Combat)
-		class UBoxComponent*           Body;
-
-#pragma endregion
-
-
-
-
-
-private:
-
-	void CreateStatsComponents();
+	UFUNCTION()
+		virtual void OnHealthChangedHandle(const class UPawnStatsComponent * _pawnStatsComp, float _damage, const class UDamageType * _damageType);
 
 public:
-
-	FORCEINLINE class USphereComponent*  GetHeadComp() const { return Head; }
-	FORCEINLINE class UBoxComponent*     GetBodyComp() const { return Body; }
-
 
 	FORCEINLINE float GetMaxTurnRateForTravel() const { return  maxTurnRate_Travel; }
 	FORCEINLINE float GetMaxTurnRateForCombat() const { return  maxTurnRate_Combat; }
@@ -106,5 +89,7 @@ public:
 	FORCEINLINE ECharacterType GetCharacterType() const { return CharacterType; }
 	FORCEINLINE class UPawnStatsComponent*  GetPawnStatsComp() const { return PawnStats; }
 
+
+	FORCEINLINE void SetCharacterType(ECharacterType _val) { CharacterType = _val; }
 };
 

@@ -32,14 +32,14 @@ protected:
 
 private:
 
-	const class ATheLastBastionEnemyCharacter* mCurrentTarget;
-	const class ATheLastBastionEnemyCharacter* mNextThreat;
+	class ATheLastBastionEnemyCharacter* mCurrentTarget;
+	class ATheLastBastionEnemyCharacter* mNextThreat;
 
 	UPROPERTY()
 		class USphereComponent*    TargetDetector;
 
 	UPROPERTY()
-	TArray<const class ATheLastBastionEnemyCharacter*> mPotentialTargets;
+	TArray<class ATheLastBastionEnemyCharacter*> mPotentialTargets;
 
 public:
 	// Called when player press Focus button

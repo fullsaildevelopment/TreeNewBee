@@ -17,7 +17,7 @@ class THELASTBASTION_API AGamePC : public APlayerController
 
 public:
 
-	//AGamePC(const FObjectInitializer & _objInit);
+	AGamePC(const FObjectInitializer & _objInit);
 
 	UFUNCTION(Client, Reliable)
 		/** The first function to be called after get into the game world
@@ -31,6 +31,11 @@ public:
 		void CLIENT_AddPlayerToPlayerList(const TArray<FPlayerProfile>& _allConnectedPlayers,
 			int _index);
 
+	UFUNCTION(Client, Reliable)
+		void CLIENT_InitUI(const class UHeroStatsComponent* _heroStats);
+
+	UFUNCTION()
+		void CreateInGameHUD();
 
 private:
 
@@ -40,10 +45,6 @@ private:
 		void SERVER_UploadProfileAndRequestCharacter
 		(const FPlayerProfile& _profile, int _index);
 			
-
-	UFUNCTION()
-		void CreateInGameHUD();
-
 	/** Copy the player profile from local to client version of player controller*/
 	void SaveGameCheck();
 
@@ -51,10 +52,14 @@ private:
 
 
 	struct FPlayerProfile              playerProfile;
+
 	UPROPERTY()
 	class UInGameHUD*                  mInGameHUD;
-	UPROPERTY()
-	class UGI_TheLastBastion*          mGameInstanceRef;
+
+
+protected:
+
+	void BeginPlay() override;
 
 public:
 

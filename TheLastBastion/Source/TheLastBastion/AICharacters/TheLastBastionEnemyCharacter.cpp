@@ -2,21 +2,39 @@
 
 #include "TheLastBastionEnemyCharacter.h"
 #include "Combat/PawnStatsComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Animation/AIBase_AnimInstance.h"
+#include "CustomType.h"
+#include "UI/InGameAIHUD.h"
 
 
 
-ATheLastBastionEnemyCharacter::ATheLastBastionEnemyCharacter() : Super()
+ATheLastBastionEnemyCharacter::ATheLastBastionEnemyCharacter()
 {
 
 	GetCapsuleComponent()->SetCollisionProfileName("Enemy");
 
 	GetMesh()->SetCollisionProfileName("EnemyBody");
 
-	EnemyStats = CreateDefaultSubobject<UPawnStatsComponent>(TEXT("Stats"));
+	TSubclassOf<UUserWidget> aiHUD_Class;
+	UCustomType::FindClass<UUserWidget>(aiHUD_Class, TEXT("/Game/UI/In-Game/WBP_AIHealthHUD"));
+	InfoHUD = CreateDefaultSubobject<UWidgetComponent>(TEXT("AIHUD"));
+	InfoHUD->SetupAttachment(GetMesh(), TEXT("head"));
+	InfoHUD->SetWidgetClass(aiHUD_Class);
+	InfoHUD->SetWidgetSpace(EWidgetSpace::Screen);
+	FVector2D size = FVector2D(120.0f, 30.0f);
+	InfoHUD->SetDrawSize(size);
+	InfoHUD->AddLocalOffset(FVector(30, 0, 0));
+	InfoHUD->bGenerateOverlapEvents = false;
+	InfoHUD->SetCollisionProfileName("HUD");
 
+
+	EnemyStats = CreateDefaultSubobject<UPawnStatsComponent>(TEXT("Stats"));
 	PawnStats = EnemyStats;
+
+	AiName = FText::FromString(TEXT("Base AI"));
+	AILevel = 1;
 }
 
 void ATheLastBastionEnemyCharacter::BeginPlay()
@@ -25,8 +43,76 @@ void ATheLastBastionEnemyCharacter::BeginPlay()
 	mAnimInstanceRef = Cast<UAIBase_AnimInstance>(this->GetMesh()->GetAnimInstance());
 	if (mAnimInstanceRef == nullptr) 
 	{ 
-		UE_LOG(LogTemp, Warning, TEXT("ATheLastBastionEnemyCharacter can not take other AnimInstance other than AIBase_AnimInstance, - ATheLastBastionCharacter")); 
+		UE_LOG(LogTemp, Error,
+			TEXT("ATheLastBastionEnemyCharacter can not take other AnimInstance other than AIBase_AnimInstance, - ATheLastBastionEnemyCharacter")); 
 		return; 
 	}
 
+	if (PawnStats == nullptr)
+	{
+		UE_LOG(LogTemp, Error,
+			TEXT("PawnStats is NULL, - ATheLastBastionEnemyCharacter"));
+		return;
+	}
+
+	PawnStats->OnHealthChanged.AddDynamic(this, &ATheLastBastionEnemyCharacter::OnHealthChangedHandle);
+
+
+	// Init HUD
+	if (InfoHUD == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("HUD is null - ATheLastBastionEnemyCharacter"));
+		return;
+	}	
+	UInGameAIHUD* aiHUD = Cast<UInGameAIHUD>(InfoHUD->GetUserWidgetObject());
+	if (aiHUD == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("aiHUD must be a UInGameAIHUD - ATheLastBastionEnemyCharacter"));
+		return;
+	}
+	
+	FAIHUDInitializer initializer; 
+	initializer.AIName = AiName;
+	initializer.AILevel = AILevel;
+	
+	aiHUD->InitRowHeader(initializer);
+	aiHUD->SetVisibility(ESlateVisibility::Hidden);
 }
+
+void ATheLastBastionEnemyCharacter::OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage,const UDamageType * _damageType)
+{
+
+	UInGameAIHUD* aiHUD = Cast<UInGameAIHUD>(InfoHUD->GetUserWidgetObject());
+
+	aiHUD->UpdateHealthBar(_pawnStatsComp);
+
+	// if this enemy is not being locked on, 
+	// we will display UI temporary with a opacity animation
+	if (!bAIHUDisEnabledForLockedOn)
+		aiHUD->ToggleUI(true, true);
+
+
+
+
+	//UE_LOG(LogTemp, Warning, TEXT("%f"), _damage);
+}
+
+void ATheLastBastionEnemyCharacter::ToggleAIHUD(bool _val)
+{
+	bAIHUDisEnabledForLockedOn = _val;
+	UInGameAIHUD* aiHUD = Cast<UInGameAIHUD>(InfoHUD->GetUserWidgetObject());
+
+	if (aiHUD)
+	{
+		if (bAIHUDisEnabledForLockedOn)
+			aiHUD->ToggleUI(true, false);
+		else
+			aiHUD->ToggleUI(false, false);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT(" aiHUD is NULL - ATheLastBastionEnemyCharacter::ToggleAIHUD"));
+	}
+}
+
+

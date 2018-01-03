@@ -9,34 +9,27 @@
 #include "SaveGame/SaveGame_TheLastBastion.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/InGameHUD.h"
+#include "CustomType.h"
 
 
-//AGamePC::AGamePC(const FObjectInitializer & _objInit) : Super(_objInit)
-//{
-//	bReplicates = true;
-//}
+static TSubclassOf<UUserWidget> InGameHuD_WBPClass;
+
+AGamePC::AGamePC(const FObjectInitializer & _objInit) : Super(_objInit)
+{
+	if (!InGameHuD_WBPClass)
+	{
+		UCustomType::FindClass<UUserWidget>(InGameHuD_WBPClass, TEXT("/Game/UI/In-Game/WBP_InGameHUD"));
+	}
+}
 //void AGamePC::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
 //{
 //	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 //
 //	DOREPLIFETIME(AGamePC, mGameInstanceRef);
 //}
+
 void AGamePC::CLIENT_Login_Implementation(int _index)
 {
-	// Get Game Instance Ref
-	UGameInstance* gi = GetGameInstance();
-	if (gi == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("can get game instance  ---  ALobbyGM::PostLogin"));
-		return;
-	}
-	mGameInstanceRef = Cast<UGI_TheLastBastion>(gi);
-	if (mGameInstanceRef == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("game instance needs to be UGI_TheLastBastion ---  ALobbyGM::PostLogin"));
-		return;
-	}
-
 	SaveGameCheck();
 
 	SERVER_UploadProfileAndRequestCharacter(playerProfile, _index);
@@ -65,24 +58,52 @@ void AGamePC::CLIENT_AddPlayerToPlayerList_Implementation(const TArray<FPlayerPr
 	//mInGameHUD->AddPlayerToPlayerList(_allConnectedPlayers, _allControllers);
 }
 
+void AGamePC::CLIENT_InitUI_Implementation(const class UHeroStatsComponent* _heroStats)
+{
+	if (mInGameHUD)
+	{
+		mInGameHUD->InitStats(_heroStats);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("mInGameHUD is NULL - AGamePC::CLIENT_InitUI_Implementation"));
+	}
+}
+
 void AGamePC::CreateInGameHUD()
 {
-	mInGameHUD = Cast<UInGameHUD>(CreateWidget<UUserWidget>(this, mGameInstanceRef->GetInGameHUD_Class()));
-	mInGameHUD -> AddToViewport();
-	mInGameHUD->InitPlayerRow(playerProfile);
+	mInGameHUD = Cast<UInGameHUD>(CreateWidget<UUserWidget>(this, InGameHuD_WBPClass));
+	mInGameHUD->SetPlayerName(playerProfile);
+	mInGameHUD->AddToViewport();
 }
 
 void AGamePC::SaveGameCheck()
 {
-	USaveGame_TheLastBastion* saveGame = mGameInstanceRef->LoadSaveGame();
+	// Get Game Instance Ref
+
+	UGI_TheLastBastion* game_gi = Cast<UGI_TheLastBastion>(GetGameInstance());
+	if (game_gi == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("game instance needs to be UGI_TheLastBastion ---  ALobbyGM::PostLogin"));
+		return;
+	}
+
+	USaveGame_TheLastBastion* saveGame = game_gi->LoadSaveGame();
 
 	// check again if we have a save game
 	if (saveGame == nullptr)
 	{
 		// if we dont have a save game create a new one
 		saveGame = Cast<USaveGame_TheLastBastion>(UGameplayStatics::CreateSaveGameObject(USaveGame_TheLastBastion::StaticClass()));
-		UGameplayStatics::SaveGameToSlot(saveGame, mGameInstanceRef->GetPlayerSettingsSaveFString(), 0);
+		UGameplayStatics::SaveGameToSlot(saveGame, game_gi->GetPlayerSettingsSaveFString(), 0);
 	}
+
 	playerProfile = saveGame->mPlayerProfile;
+	saveGame->LogOutProfile();
+}
+
+void AGamePC::BeginPlay()
+{
+
 }
 

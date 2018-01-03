@@ -5,6 +5,7 @@
 #include "TheLastBastionHeroCharacter.h"
 #include "GI_TheLastBastion.h"
 #include "UI/InGameHUD.h"
+#include "PCs/GamePC.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "GameFramework/Character.h"
@@ -24,6 +25,7 @@
 
 UHeroStatsComponent::UHeroStatsComponent()
 {
+	
 	// Just some init armor for our melee hero
 	UCustomType::FindClass<AWeapon>(LeftHandWeapon_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_Shield"));
 	UCustomType::FindClass<AWeapon>(RightHandWeapon_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_SHSword"));
@@ -57,14 +59,18 @@ void UHeroStatsComponent::BeginPlay()
 			UE_LOG(LogTemp, Error, TEXT("TargetDetector is NULL UHeroStatsComponent::BeginPlay"));
 			return;
 		}
-		Born();
+
+		// Let Our UI to pop our stats on our screen
+		AGamePC* gamePC = Cast<AGamePC>( mHeroCharacter->GetController());
+		if (gamePC)
+		{
+			gamePC->CLIENT_InitUI(this);
+		}
 	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("mCharacter is NULL - UHeroStatsComponent::BeginPlay"));
 	}
-
-
 }
 
 void UHeroStatsComponent::OnFocus()
@@ -77,7 +83,11 @@ void UHeroStatsComponent::OnFocus()
 			mHeroCharacter->GetAnimInstanceRef()->GetFocusPendingExit();
 		if (setTargetToNull)
 		{
-			mCurrentTarget = nullptr;
+			if (mCurrentTarget)
+			{
+				mCurrentTarget->ToggleAIHUD(false);
+				mCurrentTarget = nullptr;
+			}
 			UE_LOG(LogTemp, Warning, TEXT("Quit Focus !!!"));
 		}
 		else
@@ -98,7 +108,7 @@ void UHeroStatsComponent::OnFocus()
 
 void UHeroStatsComponent::OnEnemyEnter(UPrimitiveComponent * _overlappedComponent, AActor * _otherActor, UPrimitiveComponent * _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult & _SweepResult)
 {
-	const ATheLastBastionEnemyCharacter* newPotentialTarget = Cast<ATheLastBastionEnemyCharacter>(_otherActor);
+	ATheLastBastionEnemyCharacter* newPotentialTarget = Cast<ATheLastBastionEnemyCharacter>(_otherActor);
 	if (newPotentialTarget)
 	{
 		mPotentialTargets.Add(newPotentialTarget);
@@ -111,7 +121,7 @@ void UHeroStatsComponent::OnEnemyEnter(UPrimitiveComponent * _overlappedComponen
 
 void UHeroStatsComponent::OnEnemyLeave(UPrimitiveComponent * _overlappedComponent, AActor * _otherActor, UPrimitiveComponent * _otherComp, int32 _otherBodyIndex)
 {
-	const ATheLastBastionEnemyCharacter* leave = Cast<ATheLastBastionEnemyCharacter>(_otherActor);
+	ATheLastBastionEnemyCharacter* leave = Cast<ATheLastBastionEnemyCharacter>(_otherActor);
 	if (leave)
 	{
 		mPotentialTargets.Remove(leave);
@@ -120,6 +130,8 @@ void UHeroStatsComponent::OnEnemyLeave(UPrimitiveComponent * _overlappedComponen
 		//	*_otherActor->GetName(), mPotentialTargets.Num());
 		if (leave == mCurrentTarget)
 		{
+			mCurrentTarget->ToggleAIHUD(false);
+			mCurrentTarget = nullptr;
 			// if our current target is leaving the detector, quit Focus
 			// Stay away from enemy will leave focus mode
 			if (mHeroCharacter->GetAnimInstanceRef()->GetIsFocus())
@@ -130,7 +142,6 @@ void UHeroStatsComponent::OnEnemyLeave(UPrimitiveComponent * _overlappedComponen
 	}
 
 }
-
 
 void UHeroStatsComponent::MeleeFocus()
 {
@@ -147,8 +158,8 @@ void UHeroStatsComponent::MeleeFocus()
 		// if this guy was not in our frustum recently, skip it
 		if (!mPotentialTargets[i]->WasRecentlyRendered())
 		{
-			UE_LOG(LogTemp, Warning, 
-				TEXT("%s, is not recently rendered"), *mPotentialTargets[i]->GetName());
+			//UE_LOG(LogTemp, Warning, 
+			//	TEXT("%s, is not recently rendered"), *mPotentialTargets[i]->GetName());
 			continue;
 		}
 
@@ -165,8 +176,8 @@ void UHeroStatsComponent::MeleeFocus()
 	}
 	if (mCurrentTarget)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Current Target is %s,"), *mCurrentTarget->GetName());
-
+		//UE_LOG(LogTemp, Warning, TEXT("Current Target is %s,"), *mCurrentTarget->GetName());
+		mCurrentTarget->ToggleAIHUD(true);
 		//mHeroCharacter->GetFollowCamera()->
 
 	}

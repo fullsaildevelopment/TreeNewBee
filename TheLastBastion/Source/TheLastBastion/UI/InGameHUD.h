@@ -17,7 +17,7 @@ class THELASTBASTION_API UInGameHUD : public UUserWidget
 
 protected:
 
-	virtual bool Initialize();
+	bool Initialize() override;
 
 
 	UPROPERTY(meta = (BindWidget))
@@ -38,20 +38,12 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* RockValue;
 
-private:
-
-	UPROPERTY()
-		class UGI_TheLastBastion* mGameInstanceRef;
-
-
 public:
 
 	void AddPlayerToPlayerList(const TArray<struct FPlayerProfile>& _allConnectedPlayers
 		, const TArray<class AGamePC*>& _allControllers);
 
-	void InitPlayerRow(const FPlayerProfile& _profile);
+	void SetPlayerName(const FPlayerProfile& _profile);
 
-
-
-
+	void InitStats(const class UHeroStatsComponent* _heroStats);
 };

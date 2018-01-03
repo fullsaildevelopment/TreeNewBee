@@ -16,6 +16,18 @@ bool UInGamePlayerRow::Initialize()
 		Class != nullptr && HpBar != nullptr && Hp != nullptr &&
 		SpBar != nullptr && Sp != nullptr;
 
+
+	//APlayerController* pc = GetOwningPlayer();
+	//if (pc != nullptr)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("pc is: %s"), *pc->GetName());
+	//}
+	//else
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("pc is null"));
+
+	//}
+
 	if (!bAllWidgetAreGood)
 	{
 		UE_LOG(LogTemp, Error, TEXT("bAllWidgetAreGood is not true -- UInGamePlayerRow::Initialize"));
@@ -24,11 +36,28 @@ bool UInGamePlayerRow::Initialize()
 	return true;
 }
 
-void UInGamePlayerRow::InitRowHeader(const FPlayerProfile& _profile)
+void UInGamePlayerRow::SetPlayerName(const FPlayerProfile& _profile)
 {
 	HeroAvatarImage = _profile.mCharacterImage;
 	Name->SetText(_profile.mPlayerName);
-	
-	
 
+}
+
+void UInGamePlayerRow::SetHpValue(float _currentHp, float _maxHp)
+{
+	FString HpStatsText = FString::Printf(TEXT("%d / %d"), (int) _currentHp, (int) _maxHp);
+	Hp->SetText(FText::FromString(HpStatsText));
+}
+
+void UInGamePlayerRow::SetSpValue(float _currentSp, float _maxSp)
+{
+	FString SpStatsText = FString::Printf(TEXT("%d / %d"), (int)_currentSp, (int)_maxSp);
+	Sp->SetText(FText::FromString(SpStatsText));
+
+}
+
+void UInGamePlayerRow::SetLevel(int _Level)
+{
+	FString LevelText = FString::Printf(TEXT("Lv. %d"), _Level);
+	Level->SetText(FText::FromString(LevelText));
 }

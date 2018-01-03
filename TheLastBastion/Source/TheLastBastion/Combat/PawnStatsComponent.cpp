@@ -9,19 +9,31 @@
 #include "Components/BoxComponent.h"
 #include "GI_TheLastBastion.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #include "Combat/Weapon.h"
 #include "Combat/Armor.h"
 #include "CustomType.h"
 #include "TheLastBastionCharacter.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
+#include "UI/InGameFloatingText.h"
 
 const float RangerInitHp = 230.0f;
 const float BuilderInitHp = 180.0f;
 
+
+
+static TSubclassOf<class UUserWidget> FloatingText_WBP;
+
 // Sets default values for this component's properties
 UPawnStatsComponent::UPawnStatsComponent()
 {	
+	PrimaryComponentTick.bCanEverTick = false;
+	bGenerateStatsAtBeginPlay = true;
+
+	if (!FloatingText_WBP)
+		UCustomType::FindClass<UUserWidget>(FloatingText_WBP, TEXT("/Game/UI/In-Game/WBP_FloatingNumber"));
+
 }
 
 // Called when the game starts
@@ -31,36 +43,16 @@ void UPawnStatsComponent::BeginPlay()
 
 	mCharacter = Cast<ATheLastBastionCharacter>(this->GetOwner());
 
-	Level = 1;
-
-	UWorld* world = GetWorld();
-
-	// Equip the owner character
-	if (world)
+	if (mCharacter == nullptr)
 	{
-		if (LeftHandWeapon_ClassBp)
-		{
-			LeftHandWeapon = world->SpawnActor<AWeapon>(LeftHandWeapon_ClassBp);
-			LeftHandWeapon->Equip(mCharacter->GetMesh());
-			//LeftHandWeapon->AttachToComponent(mCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("Shield"));
-		}
-
-		if (RightHandWeapon_ClassBp)
-		{
-			RightHandWeapon = world->SpawnActor<AWeapon>(RightHandWeapon_ClassBp);
-			RightHandWeapon->Equip(mCharacter->GetMesh());
-			//RightHandWeapon->AttachToComponent(mCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("SHSwordEquip"));
-		}
-
-		if (Armor_ClassBp)
-		{
-			Armor = world->SpawnActor<AArmor>(Armor_ClassBp);
-			//Armor->AttachToComponent(mCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("Root"));
-			Armor->Equip(mCharacter->GetMesh());
-		}
+		UE_LOG(LogTemp, Error,
+			TEXT("mCharacter must be a ATheLastBastionCharacter - UPawnStatsComponent::BeginPlay"));
+		return;
 	}
+	mCharacter->OnTakeAnyDamage.AddDynamic(this, &UPawnStatsComponent::OnTakeAnyDamageHandle);
+	mCharacter->OnTakePointDamage.AddDynamic(this, &UPawnStatsComponent::OnTakePointDamageHandle);
 
-	GenerateRawStatsByLevel(1);
+	GenerateStatsAtBeginPlay();
 }
 
 // Called every frame
@@ -124,42 +116,47 @@ void UPawnStatsComponent::OnSheathWeapon()
 	//	FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("SHSwordEquip"));
 }
 
-
-
-
 #pragma region Stats Generatrion
-void UPawnStatsComponent::GenerateRawStatsByLevel(int Level)
+void UPawnStatsComponent::GenerateRawStatsByLevel(int _level)
 {
-
-	Level--;
+	Level = _level;
+	_level--;
 	// Just Avoid negative
-	if (Level < 0) Level = 0;
+	if (_level < 0) Level = 0;
 
 	StaminaRaw = -1;
+	if (mCharacter)
+	{
+		switch (mCharacter->GetCharacterType())
+		{
+		case ECharacterType::None:
+		default:
+		{
+			HpRaw = 500.0f + _level * 15;
+		}
+		break;
+		case ECharacterType::Ranger:
+		{
+			HpRaw = 230.0f + _level * 15;
+			StaminaRaw = 100.0f;
+			break;
+		}
+		case ECharacterType::Builder:
+		{
+			HpRaw = 180.0f + _level * 11.5f;
+			StaminaRaw = 100.0f;
+			break;
+		}
+		}
+	}
+	else
+		UE_LOG(LogTemp, Error, TEXT("mCharacter is Null - UPawnStatsComponent::GenerateRawStatsByLevel"));
 
-	switch (mCharacter->GetCharacterType())
-	{
-	case ECharacterType::None:
-	default:
-		break;
-	case ECharacterType::Ranger:
-	{
-		HpRaw = 230.0f + Level * 15;
-		StaminaRaw = 100.0f;
-		break;
-	}
-	case ECharacterType::Builder:
-	{
-		HpRaw = 180.0f + Level * 11.5f;
-		StaminaRaw = 100.0f;
-		break;
-	}
-	}
 
-	GenerateMaxStats();
 }
 
-void UPawnStatsComponent::GenerateMaxStats()
+/** Generater Max stats after the gear is loaded, set current to max*/
+void UPawnStatsComponent::GenerateMaxStats(bool _setCurrentToMax)
 {
 	float
 		factorHp = 1,
@@ -185,6 +182,11 @@ void UPawnStatsComponent::GenerateMaxStats()
 
 	HpMax = factorHp * HpRaw;
 	StaminaMax = factorStamina * StaminaRaw;
+	if (_setCurrentToMax)
+	{
+		HpCurrent = HpMax;
+		StaminaCurrent = StaminaMax;
+	}
 	DivByHpMax = 1 / HpMax;
 	DivByStaminaMax = 1 / StaminaMax;
 }
@@ -204,8 +206,8 @@ void UPawnStatsComponent::Born()
 	HpCurrent = HpMax;
 	StaminaCurrent = StaminaMax;
 }
-#pragma endregion
 
+#pragma endregion
 
 #pragma region  Damage Calculation
 
@@ -226,29 +228,94 @@ float UPawnStatsComponent::CalculateHealth(AActor * _otherActor)
 	return damagePercentage;
 }
 
-float UPawnStatsComponent::CalculateDamage(const FDamageInfo & _hit)
+float UPawnStatsComponent::CalculateDamage()
 {
 
-	if (_hit.hitResult.BoneName.Compare(TEXT("neck_01")) == 0)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Head Hit"));
-	}
-	else if (_hit.hitResult.BoneName.Compare(TEXT("spine_03")) == 0 || _hit.hitResult.BoneName.Compare(TEXT("spine_01")) == 0)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Chest Hit"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Common Hit"));
-	}
-
+	//if (_hit.hitResult.BoneName.Compare(TEXT("neck_01")) == 0)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("Head Hit"));
+	//}
+	//else if (_hit.hitResult.BoneName.Compare(TEXT("spine_03")) == 0 || _hit.hitResult.BoneName.Compare(TEXT("spine_01")) == 0)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("Chest Hit"));
+	//}
+	//else
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("Common Hit"));
+	//}
 	return 	FMath::RandRange(50, 100);
 }
 
-void UPawnStatsComponent::ApplyDamage(const FDamageInfo & _damageInfo)
+float UPawnStatsComponent::GetBaseDamage()
+{
+	return 5.0f;
+}
+
+
+/** Generate Raw Stats, equip geat, and Add Gear buff on raw stats*/
+void UPawnStatsComponent::GenerateStatsAtBeginPlay()
+{
+	if (bGenerateStatsAtBeginPlay)
+	{
+		GenerateRawStatsByLevel(Level);
+	}
+
+	UWorld* world = GetWorld();
+	// Equip the owner character
+	if (world)
+	{
+		if (LeftHandWeapon_ClassBp)
+		{
+			LeftHandWeapon = world->SpawnActor<AWeapon>(LeftHandWeapon_ClassBp);
+			LeftHandWeapon->Equip(mCharacter->GetMesh());
+			//LeftHandWeapon->AttachToComponent(mCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("Shield"));
+		}
+
+		if (RightHandWeapon_ClassBp)
+		{
+			RightHandWeapon = world->SpawnActor<AWeapon>(RightHandWeapon_ClassBp);
+			RightHandWeapon->Equip(mCharacter->GetMesh());
+			//RightHandWeapon->AttachToComponent(mCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("SHSwordEquip"));
+		}
+
+		if (Armor_ClassBp)
+		{
+			Armor = world->SpawnActor<AArmor>(Armor_ClassBp);
+			//Armor->AttachToComponent(mCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("Root"));
+			Armor->Equip(mCharacter->GetMesh());
+		}
+
+		GenerateMaxStats();
+	}
+}
+
+UInGameFloatingText* UPawnStatsComponent::GenerateFloatingText(const FVector& _worldPos)
+{
+	FVector2D screenPos;
+	UGameplayStatics::ProjectWorldToScreen(
+		UGameplayStatics::GetPlayerController(this, 0),
+		_worldPos, screenPos);
+
+	UInGameFloatingText* out = nullptr;
+	UWorld* world = GetWorld();
+
+	if (world)
+		out = Cast<UInGameFloatingText>(CreateWidget<UUserWidget>(world, FloatingText_WBP));
+
+	if (out == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Create Floating Text Failed"));
+		return out;
+	}
+
+	out->SetRenderTranslation(screenPos);
+	return out;
+}
+
+void UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 {
 	// calculate the damage based on Gears
-	float damage = CalculateDamage(_damageInfo);
+	float damage = GetBaseDamage();
 
 	// apply damage type based on weapon 
 	switch (_damageInfo.applyDamageType)
@@ -263,6 +330,9 @@ void UPawnStatsComponent::ApplyDamage(const FDamageInfo & _damageInfo)
 		}
 		case EApplyDamageType::Point:
 		{
+			UGameplayStatics::ApplyPointDamage(
+				_damageInfo.hitResult.GetActor(), damage, _damageInfo.hitDirection, _damageInfo.hitResult,
+				mCharacter->GetInstigatorController(), mCharacter, _damageInfo.damageType);
 			break;
 		}
 		case EApplyDamageType::Radius:
@@ -294,10 +364,30 @@ void UPawnStatsComponent::ApplyDamage(const FDamageInfo & _damageInfo)
 
 	if (vfxSelected)
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), vfxSelected, _damageInfo.hitResult.Location);
+}
+
+void UPawnStatsComponent::OnTakeAnyDamageHandle(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
+{
 
 }
 
+void UPawnStatsComponent::OnTakePointDamageHandle(AActor * DamagedActor, float Damage, AController * InstigatedBy, FVector HitLocation, UPrimitiveComponent * FHitComponent, FName BoneName, FVector ShotFromDirection, const UDamageType * DamageType, AActor * DamageCauser)
+{
+	float totalDamage = Damage + CalculateDamage();
 
+	HpCurrent = HpCurrent - totalDamage;
+	HpCurrent = FMath::Clamp(HpCurrent, 0.0f, HpMax);
+	// Let Character class to handle Updating the HUD display
+	OnHealthChanged.Broadcast(this, totalDamage, DamageType);
+
+	// Create Floating damage point
+	UInGameFloatingText* floatingDamage = GenerateFloatingText(HitLocation);
+	if (floatingDamage)
+	{
+		floatingDamage->SetInGameFTProperty(FText::AsNumber((int)totalDamage));
+		floatingDamage->AddToViewport();
+	}
+}
 
 #pragma endregion
 

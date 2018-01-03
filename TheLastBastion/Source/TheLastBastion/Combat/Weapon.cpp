@@ -127,7 +127,7 @@ void AWeapon::Tick(float _deltaTime)
 		}
 
 		FDamageInfo DamageInfo;
-		DamageInfo.applyDamageType = EApplyDamageType::Common;
+		DamageInfo.applyDamageType = EApplyDamageType::Point;
 		DamageInfo.damageType = DamageType;
 
 		UWorld* world = GetWorld();
@@ -137,6 +137,8 @@ void AWeapon::Tick(float _deltaTime)
 		{
 			IgnoredActors.Add(DamageInfo.hitResult.GetActor());
 
+			// although this is a point damage, i dont need to provide shot from direction, 
+			// the shot from direction will be recalculate during recevice damage
 			UPawnStatsComponent* pSC = GearOwner->GetPawnStatsComp();
 			if (pSC != nullptr)
 				pSC->ApplyDamage(DamageInfo);

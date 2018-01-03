@@ -24,6 +24,9 @@ public:
 
 	USaveGame_TheLastBastion(const FObjectInitializer& _init);
 
+public: 
+
+	void LogOutProfile();
 
 	UPROPERTY()
 	FPlayerProfile mPlayerProfile;

@@ -20,7 +20,6 @@
 ATheLastBastionCharacter::ATheLastBastionCharacter()
 {	
 	bReplicates = true;
-	CharacterType = ECharacterType::None;
 
 	SprintSpeed = 850.0f;
 	JogSpeed = 595.0f;
@@ -45,10 +44,11 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 
 	// Init capsule size of each situations
 	CapHalfSize = 90.0f;
-	CapRadius = 34.0f;
+	CapRadius = 50.0f;
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(CapRadius, CapHalfSize);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetCapsuleComponent()->bGenerateOverlapEvents = true;
 
 	GetMesh()->RelativeLocation = FVector(0, 0, -CapHalfSize);
@@ -57,28 +57,12 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	GetMesh()->bGenerateOverlapEvents = true;
 
 
-	CreateStatsComponents();
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
 
-void ATheLastBastionCharacter::CreateStatsComponents()
+void ATheLastBastionCharacter::OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType)
 {
-
-	//Head = CreateDefaultSubobject<USphereComponent>(TEXT("Head"));
-	//Head->SetupAttachment(GetMesh(), TEXT("head"));
-	//Head->InitSphereRadius(12);
-	//Head->RelativeLocation = FVector(5, 2.5f, 0);
-	//Head->bGenerateOverlapEvents = true;
-	//Head->SetCanEverAffectNavigation(false);
-
-	//Body = CreateDefaultSubobject<UBoxComponent>(TEXT("Body"));
-	//Body->SetupAttachment(GetMesh(), TEXT("spine_02"));
-	//Body->InitBoxExtent(FVector(40, 15, 25));
-	//Body->RelativeLocation = FVector(-10, 0, 0);
-	//Body->bGenerateOverlapEvents = true;
-	//Body->SetCanEverAffectNavigation(false);
-
 }
 
 void ATheLastBastionCharacter::BeginPlay()

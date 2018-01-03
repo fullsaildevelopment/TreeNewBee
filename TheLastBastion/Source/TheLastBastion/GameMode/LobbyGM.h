@@ -18,8 +18,9 @@ public:
 
 	ALobbyGM();
 	/** Called when a server or a client enter this level*/
-	virtual void PostLogin(APlayerController* NewPlayer) override;
-
+	void PostLogin(APlayerController* NewPlayer) override;
+	
+	void PostSeamlessTravel() override;
 private:
 
 	UPROPERTY()

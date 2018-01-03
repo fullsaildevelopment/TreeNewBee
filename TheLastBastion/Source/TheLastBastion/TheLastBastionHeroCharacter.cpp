@@ -12,6 +12,7 @@
 #include "Combat/Armor.h"
 #include "Combat/HeroStatsComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/CapsuleComponent.h"
 
 #include "GI_TheLastBastion.h"
 #include "UI/InGameHUD.h"
@@ -47,6 +48,13 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter() : Super()
 	TargetDetector->SetCollisionProfileName("EnemyDetector");
 
 	GetMesh()->SetCollisionProfileName("HeroBody");
+
+	CapHalfSize = 90.0f;
+	CapRadius = 34.0f;
+
+	// Set size for collision capsule
+	GetCapsuleComponent()->InitCapsuleSize(CapRadius, CapHalfSize);
+
 
 	HeroStats = CreateDefaultSubobject<UHeroStatsComponent>(TEXT("Stats"));
 	PawnStats = HeroStats;	

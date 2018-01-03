@@ -47,5 +47,11 @@ protected:
 
 public:
 	
-	void InitRowHeader(const struct FPlayerProfile& _profile);
-};
+	void SetPlayerName(const struct FPlayerProfile& _profile);
+
+	void SetHpValue(float _currentHp, float _maxHp);
+
+	void SetSpValue(float _currentSp, float _maxSp);
+
+	void SetLevel(int _Level);
+}; 

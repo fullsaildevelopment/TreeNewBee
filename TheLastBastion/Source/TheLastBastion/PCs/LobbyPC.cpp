@@ -124,13 +124,6 @@ bool ALobbyPC::SERVER_OnClientReadyButtonClicked_Validate()
 	return true;
 }
 
-
-//void ALobbyPC::Client_SetStartMatchButtonIsEnabled_Implementation(bool _val)
-//{
-//	mLobbyMenuRef->SetStartMatchButtonEnabled(_val);
-//
-//}
-
 void ALobbyPC::SERVER_LeaveLobbyAndUpdateConnectedPlayer_Implementation()
 {
 	UWorld* world = GetWorld();
