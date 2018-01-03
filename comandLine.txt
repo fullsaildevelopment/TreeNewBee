@@ -1,4 +1,4 @@
-"D:\GameDev\UE4\UE_4.17\Engine\Binaries\Win64\UE4Editor.exe" "D:\GameDev\TreeNewBee\TheLastBastion\TheLastBastion.uproject" -game -log -WINDOWED
+"E:\Unreal4\GameEng\UE_4.17\Engine\Binaries\Win64\UE4Editor.exe" "E:\Unreal4\UnrealProject\TreeNewBee\TheLastBastion\TheLastBastion.uproject" -game -log -WINDOWED
 
 Steam Log
 

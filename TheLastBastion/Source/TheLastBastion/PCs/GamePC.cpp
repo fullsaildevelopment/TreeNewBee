@@ -30,6 +30,9 @@ AGamePC::AGamePC(const FObjectInitializer & _objInit) : Super(_objInit)
 
 void AGamePC::CLIENT_Login_Implementation(int _index)
 {
+	FInputModeGameOnly inputMode;
+	SetInputMode(inputMode);
+
 	SaveGameCheck();
 
 	SERVER_UploadProfileAndRequestCharacter(playerProfile, _index);

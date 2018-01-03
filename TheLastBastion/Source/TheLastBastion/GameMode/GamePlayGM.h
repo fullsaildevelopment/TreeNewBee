@@ -40,8 +40,13 @@ public:
 
 	AGamePlayGM(const FObjectInitializer & _objectInitilizer);
 
-	/** Called when a server or a client enter this level*/
+	/** FOR PIE client login */
 	void PostLogin(APlayerController* NewPlayer) override;
+
+	/** FOR seamless travel login */
+	void HandleSeamlessTravelPlayer(AController*& C) override;
+
+	void PostSeamlessTravel() override;
 
 protected:
 

@@ -16,7 +16,7 @@ ALobbyGM::ALobbyGM()
 {
 	UCustomType::FindClass<APawn>(DefaultPawnClass, TEXT("/Game/Blueprints/Heros/LobbyPawn_Bp"));
 	PlayerControllerClass = ALobbyPC::StaticClass();
-	//bUseSeamlessTravel = true;
+	bUseSeamlessTravel = true;
 }
 
 void ALobbyGM::PostLogin(APlayerController * NewPlayer)

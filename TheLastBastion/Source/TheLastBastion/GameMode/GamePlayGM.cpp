@@ -2,6 +2,7 @@
 
 #include "GamePlayGM.h"
 #include "CustomType.h"
+#include "PCs/LobbyPC.h"
 #include "PCs/GamePC.h"
 #include "GI_TheLastBastion.h"
 #include "Kismet/GameplayStatics.h"
@@ -52,6 +53,92 @@ void AGamePlayGM::PostLogin(APlayerController * NewPlayer)
 		// pass the which controller this is in the array
 		newPC->CLIENT_Login(AllPlayers.Num() - 1);	
 	}
+}
+
+void AGamePlayGM::HandleSeamlessTravelPlayer(AController *& C)
+{
+	// Default behavior is to spawn new controllers and copy data
+	APlayerController* PC = Cast<APlayerController>(C);
+	if (PC && PC->Player)
+	{
+		// We need to spawn a new PlayerController to replace the old one
+		APlayerController* NewPC = SpawnPlayerController(PC->IsLocalPlayerController() ? ROLE_SimulatedProxy : ROLE_AutonomousProxy, PC->GetFocalLocation(), PC->GetControlRotation());
+
+		if (NewPC)
+		{
+			PC->SeamlessTravelTo(NewPC);
+			NewPC->SeamlessTravelFrom(PC);
+			SwapPlayerControllers(PC, NewPC);
+			PC = NewPC;
+			C = NewPC;
+		}
+		else
+		{
+			UE_LOG(LogGameMode, Warning, TEXT("HandleSeamlessTravelPlayer: Failed to spawn new PlayerController for %s (old class %s)"), *PC->GetHumanReadableName(), *PC->GetClass()->GetName());
+			PC->Destroy();
+			return;
+		}
+	}
+
+	InitSeamlessTravelPlayer(C);
+
+	// Initialize hud and other player details, shared with PostLogin
+	GenericPlayerInitialization(C);
+
+	if (PC)
+	{
+		// This may spawn the player pawn if the game is in progress
+		AGamePC* gamePC = Cast<AGamePC>(PC);
+		if (gamePC)
+		{
+			FMatchPlayer newMatchPlayer;
+			newMatchPlayer.controller = gamePC;
+			AllPlayers.Add(newMatchPlayer);
+			gamePC->CLIENT_Login(AllPlayers.Num() - 1);
+		}
+	}
+
+}
+
+void AGamePlayGM::PostSeamlessTravel()
+{
+	Super::PostSeamlessTravel();
+	UE_LOG(LogTemp, Warning,
+		TEXT("PostSeamlessTravel"));
+
+
+	UGameInstance* gi = GetGameInstance();
+	if (gi == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("can get game instance  ---  ALobbyGM::PostLogin"));
+		return;
+	}
+	UGI_TheLastBastion* game_gi = Cast<UGI_TheLastBastion>(gi);
+	if (game_gi == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("game instance needs to be UGI_TheLastBastion ---  ALobbyGM::PostLogin"));
+		return;
+	}
+
+	NumOfPlayers = game_gi->GetMaxConnection();
+
+	//for (TActorIterator<APlayerController> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	//{
+	//	APlayerController* pc = Cast<APlayerController>(*ActorItr);
+	//	ALobbyPC* lobbyPC = Cast<ALobbyPC>(pc);
+	//	if (lobbyPC)
+	//	{
+	//		UE_LOG(LogTemp, Warning, TEXT("Not a GamePC, but a Lobby PC"));
+	//	}
+	//	AGamePC* gamePC = Cast<AGamePC>(pc);
+	//	if (gamePC)
+	//	{
+	//		FMatchPlayer newMatchPlayer;
+	//		newMatchPlayer.controller = gamePC;
+	//		AllPlayers.Add(newMatchPlayer);
+	//		gamePC->CLIENT_Login(AllPlayers.Num() - 1);
+	//	}
+	//}
 }
 
 void AGamePlayGM::BeginPlay()

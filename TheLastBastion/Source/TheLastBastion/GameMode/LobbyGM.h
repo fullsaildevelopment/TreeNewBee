@@ -20,7 +20,6 @@ public:
 	/** Called when a server or a client enter this level*/
 	void PostLogin(APlayerController* NewPlayer) override;
 	
-	void PostSeamlessTravel() override;
 private:
 
 	UPROPERTY()
