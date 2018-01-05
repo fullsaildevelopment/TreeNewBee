@@ -5,3 +5,7 @@
 
 
 
+UTLBDamageType::UTLBDamageType(const FObjectInitializer& _objInit)
+{
+
+}
