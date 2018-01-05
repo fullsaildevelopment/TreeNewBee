@@ -46,4 +46,6 @@ public:
 	void SetPlayerName(const FPlayerProfile& _profile);
 
 	void InitStats(const class UHeroStatsComponent* _heroStats);
+
+	void SetHpOnHealthChange(const UPawnStatsComponent * _pawnStats);
 };

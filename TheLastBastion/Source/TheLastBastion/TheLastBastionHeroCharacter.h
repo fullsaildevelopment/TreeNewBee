@@ -23,7 +23,6 @@ protected:
 	virtual void BeginPlay();
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-
 protected:
 
 #pragma region KeyBindings Event
@@ -122,6 +121,11 @@ private:
 		class UCameraComponent* FollowCamera;
 
 #pragma endregion
+
+	private:
+
+		UFUNCTION()
+			void OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType, FName _boneNmame, FVector _shotFromDirection);
 
 public:
 	

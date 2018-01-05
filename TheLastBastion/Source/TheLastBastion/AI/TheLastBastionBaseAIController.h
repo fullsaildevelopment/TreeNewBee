@@ -23,7 +23,11 @@ public:
 private:
 
 	/** Reference to our enemy blueprint */
-	class ATheLastBastionEnemyCharacter* mCharacter;
+	UPROPERTY()
+	     class ATheLastBastionEnemyCharacter* mCharacter;
+
+	UPROPERTY()
+		class UAIBase_AnimInstance* mAnimInstanceRef;
 
 	UPROPERTY(transient)
 		class UBehaviorTreeComponent* mBTComp;
@@ -35,11 +39,16 @@ private:
 		targetActor_KeyID,
 		ToTargetActorDistanceSqr_KeyId;
 
-
 public:
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE ATheLastBastionEnemyCharacter* GetBaseEnemyCharacter() const { return mCharacter; }
+
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE class UAIBase_AnimInstance* GetAnimInstance() const { return mAnimInstanceRef; }
+
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE class UBehaviorTreeComponent* GetBTComp() const { return mBTComp; }
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE uint8 GetKeyID_TargetActor() const { return targetActor_KeyID; }

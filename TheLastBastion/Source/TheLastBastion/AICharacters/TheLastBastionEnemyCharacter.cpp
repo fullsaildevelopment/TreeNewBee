@@ -20,12 +20,10 @@ ATheLastBastionEnemyCharacter::ATheLastBastionEnemyCharacter()
 	TSubclassOf<UUserWidget> aiHUD_Class;
 	UCustomType::FindClass<UUserWidget>(aiHUD_Class, TEXT("/Game/UI/In-Game/WBP_AIHealthHUD"));
 	InfoHUD = CreateDefaultSubobject<UWidgetComponent>(TEXT("AIHUD"));
-	InfoHUD->SetupAttachment(GetMesh(), TEXT("head"));
 	InfoHUD->SetWidgetClass(aiHUD_Class);
 	InfoHUD->SetWidgetSpace(EWidgetSpace::Screen);
 	FVector2D size = FVector2D(120.0f, 30.0f);
 	InfoHUD->SetDrawSize(size);
-	InfoHUD->AddLocalOffset(FVector(30, 0, 0));
 	InfoHUD->bGenerateOverlapEvents = false;
 	InfoHUD->SetCollisionProfileName("HUD");
 
@@ -48,15 +46,14 @@ void ATheLastBastionEnemyCharacter::BeginPlay()
 		return; 
 	}
 
-	if (PawnStats == nullptr)
+	if (EnemyStats == nullptr)
 	{
 		UE_LOG(LogTemp, Error,
 			TEXT("PawnStats is NULL, - ATheLastBastionEnemyCharacter"));
 		return;
 	}
 
-	PawnStats->OnHealthChanged.AddDynamic(this, &ATheLastBastionEnemyCharacter::OnHealthChangedHandle);
-
+	//EnemyStats->OnHealthChanged.AddDynamic(this, &ATheLastBastionEnemyCharacter::OnHealthChangedHandle);
 
 	// Init HUD
 	if (InfoHUD == nullptr)
@@ -64,6 +61,10 @@ void ATheLastBastionEnemyCharacter::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("HUD is null - ATheLastBastionEnemyCharacter"));
 		return;
 	}	
+
+	InfoHUD->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("head"));
+	InfoHUD->AddLocalOffset(FVector(30, 0, 0));
+
 	UInGameAIHUD* aiHUD = Cast<UInGameAIHUD>(InfoHUD->GetUserWidgetObject());
 	if (aiHUD == nullptr)
 	{
@@ -79,7 +80,7 @@ void ATheLastBastionEnemyCharacter::BeginPlay()
 	aiHUD->SetVisibility(ESlateVisibility::Hidden);
 }
 
-void ATheLastBastionEnemyCharacter::OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage,const UDamageType * _damageType)
+void ATheLastBastionEnemyCharacter::OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage,const UDamageType * _damageType, FName _boneNmame, FVector _shotFromDirection)
 {
 
 	UInGameAIHUD* aiHUD = Cast<UInGameAIHUD>(InfoHUD->GetUserWidgetObject());
@@ -91,10 +92,7 @@ void ATheLastBastionEnemyCharacter::OnHealthChangedHandle(const UPawnStatsCompon
 	if (!bAIHUDisEnabledForLockedOn)
 		aiHUD->ToggleUI(true, true);
 
-
-
-
-	//UE_LOG(LogTemp, Warning, TEXT("%f"), _damage);
+	// Animation Call
 }
 
 void ATheLastBastionEnemyCharacter::ToggleAIHUD(bool _val)

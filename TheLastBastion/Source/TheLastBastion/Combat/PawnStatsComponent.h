@@ -30,7 +30,7 @@ struct FDamageInfo
 		FHitResult hitResult;
 
 	UPROPERTY()
-		/** For shooting mechanim */
+		/** For shooting mechanim, unNormalized */
 		FVector hitDirection;
 
 	UPROPERTY()
@@ -42,7 +42,7 @@ struct FDamageInfo
 		TSubclassOf<class UDamageType> damageType;
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHealthChangedSignature, const UPawnStatsComponent*, pawnStatsComp, float, damage, const class UDamageType*, _damageType);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams(FOnHealthChangedSignature, const UPawnStatsComponent*, pawnStatsComp, float, damage, const class UDamageType*, _damageType, FName, _boneNmame, FVector, _shotFromDirection);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class THELASTBASTION_API UPawnStatsComponent : public UActorComponent
@@ -143,9 +143,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void EnableWeapon(bool _bIsRightHand = true, bool _bIsAll = false);
-
-	void DisableWeapon(bool _bIsRightHand = true, bool _bIsAll = false);
+	void SetEnableWeapon(bool _bIsEnabled, bool _bIsRightHand = true, bool _bIsAll = false);
 
 	/** Attach the current weapon to the weapon slot*/
 	void OnEquipWeapon();

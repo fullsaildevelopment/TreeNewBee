@@ -73,6 +73,12 @@ void AGamePC::CLIENT_InitUI_Implementation(const class UHeroStatsComponent* _her
 	}
 }
 
+void AGamePC::CLIENT_UpdateHpOnHealthChanged_Implementation(const UPawnStatsComponent * _pawnStats)
+{
+	if (mInGameHUD)
+		mInGameHUD->SetHpOnHealthChange(_pawnStats);
+}
+
 void AGamePC::CreateInGameHUD()
 {
 	mInGameHUD = Cast<UInGameHUD>(CreateWidget<UUserWidget>(this, InGameHuD_WBPClass));

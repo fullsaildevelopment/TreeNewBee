@@ -3,15 +3,15 @@
 #include "Weapon.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "TheLastBastionCharacter.h"
+#include "AICharacters/TheLastBastionEnemyCharacter.h"
 #include "Combat/PawnStatsComponent.h"
 
 
 #define ECC_EnemyBody ECollisionChannel::ECC_GameTraceChannel3
+#define ECC_HeroBody  ECollisionChannel::ECC_GameTraceChannel1
 
 AWeapon::AWeapon() 
 {
-
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Appearence"));
 	Mesh->SetCollisionProfileName("EnemyWeapon");
 	RootComponent = Mesh;
@@ -20,6 +20,7 @@ AWeapon::AWeapon()
 	DamageVolumnExtend = FVector(3.0f, 3.0f, 0.0f);
 	PrimaryActorTick.bCanEverTick = true;
 	bDamageIsEnable = false;
+	bDisableCutOpenDamage = true;
 }
 
 void AWeapon::BeginPlay()
@@ -111,14 +112,17 @@ void AWeapon::Tick(float _deltaTime)
 
 		FCollisionQueryParams Params;
 
-		if (IgnoredActors.Num() > 0)
+		
+		if (IgnoredActors.Num() > 0 && bDisableCutOpenDamage)
 			Params.AddIgnoredActors(IgnoredActors);
 
 		Params.bReturnPhysicalMaterial = true;
 		Params.bTraceComplex = true;
 
+		bool isEnemyCharacter = (Cast<ATheLastBastionEnemyCharacter>(GearOwner) != nullptr);
+
 		FCollisionObjectQueryParams ObjectParams;
-		ObjectParams.AddObjectTypesToQuery(ECC_EnemyBody);
+		ObjectParams.AddObjectTypesToQuery((isEnemyCharacter)? ECC_HeroBody : ECC_EnemyBody);
 		
 		if (ObjectParams.IsValid() == false)
 		{
@@ -135,10 +139,10 @@ void AWeapon::Tick(float _deltaTime)
 			FCollisionShape::MakeBox(DamageVolumnExtend), Params);
 		if (IsHit)
 		{
-			IgnoredActors.Add(DamageInfo.hitResult.GetActor());
-
-			// although this is a point damage, i dont need to provide shot from direction, 
-			// the shot from direction will be recalculate during recevice damage
+			if (bDisableCutOpenDamage)
+				IgnoredActors.Add(DamageInfo.hitResult.GetActor());
+		
+			DamageInfo.hitDirection = DamageInfo.hitResult.Location - DamageInfo.hitResult.GetActor()->GetActorLocation();
 			UPawnStatsComponent* pSC = GearOwner->GetPawnStatsComp();
 			if (pSC != nullptr)
 				pSC->ApplyDamage(DamageInfo);

@@ -16,6 +16,7 @@
 
 #include "GI_TheLastBastion.h"
 #include "UI/InGameHUD.h"
+#include "PCs/GamePC.h"
 
 ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter() : Super()
 {
@@ -72,6 +73,7 @@ void ATheLastBastionHeroCharacter::BeginPlay()
 
 	UE_LOG(LogTemp, Warning, TEXT("Try Get GameInstance"));
 
+
 }
 
 void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -105,6 +107,7 @@ void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputCompone
 
 }
 
+#pragma region On Player Input
 void ATheLastBastionHeroCharacter::TurnAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
@@ -117,6 +120,45 @@ void ATheLastBastionHeroCharacter::LookUpAtRate(float Rate)
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
+
+
+
+
+
+void ATheLastBastionHeroCharacter::MoveForward(float Value)
+{
+	if ((Controller != NULL) && (Value != 0.0f))
+	{
+		// find out which way is forward
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+		// get forward vector
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		AddMovementInput(Direction, Value);
+	}
+	MoveForwardAxis = Value;
+
+}
+
+void ATheLastBastionHeroCharacter::MoveRight(float Value)
+{
+	if ((Controller != NULL) && (Value != 0.0f))
+	{
+		// find out which way is right
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+		// get right vector 
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		// add movement in that direction
+		AddMovementInput(Direction, Value);
+	}
+	MoveRightAxis = Value;
+
+}
+
+
 
 void ATheLastBastionHeroCharacter::OnSprintPressed()
 {
@@ -170,35 +212,20 @@ void ATheLastBastionHeroCharacter::AddControllerYaw(float _yaw)
 		this->AddControllerYawInput(_yaw);
 }
 
-void ATheLastBastionHeroCharacter::MoveForward(float Value)
-{
-	if ((Controller != NULL) && (Value != 0.0f))
-	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
+#pragma endregion
 
-		// get forward vector
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
+void ATheLastBastionHeroCharacter::OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType, FName _boneName, FVector _shotFromDirection)
+{
+	// UI
+
+	AGamePC* gamePC = Cast<AGamePC>(GetController());
+	if (gamePC)
+	{
+		gamePC->CLIENT_UpdateHpOnHealthChanged(_pawnStatsComp);
 	}
-	MoveForwardAxis = Value;
+
+	// Animation
+	mAnimInstanceRef->OnBeingHit(_damage, _boneName, _shotFromDirection, _pawnStatsComp);
 
 }
 
-void ATheLastBastionHeroCharacter::MoveRight(float Value)
-{
-	if ((Controller != NULL) && (Value != 0.0f))
-	{
-		// find out which way is right
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get right vector 
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		// add movement in that direction
-		AddMovementInput(Direction, Value);
-	}
-	MoveRightAxis = Value;
-
-}

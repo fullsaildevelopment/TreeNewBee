@@ -59,5 +59,13 @@ void UInGameHUD::InitStats(const UHeroStatsComponent * _heroStats)
 	PlayerRow->SetLevel(_heroStats->GetLevel());
 }
 
+void UInGameHUD::SetHpOnHealthChange(const UPawnStatsComponent * _pawnStats)
+{
+	float currentHp = FMath::Clamp(_pawnStats->GetHpCurrent(), 0.0f, MAX_FLT);
+
+	PlayerRow->SetHpValue(currentHp, _pawnStats->GetHpMax());
+	PlayerRow->SetHpPercentage(currentHp, _pawnStats->GetDivByHpMax());
+}
+
 
 

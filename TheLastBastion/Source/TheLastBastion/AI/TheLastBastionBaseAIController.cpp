@@ -2,6 +2,8 @@
 
 #include "TheLastBastionBaseAIController.h"
 #include "AICharacters/TheLastBastionEnemyCharacter.h"
+#include "Animation/AIBase_AnimInstance.h"
+#include "Components/SkeletalMeshComponent.h"
 
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
@@ -66,8 +68,19 @@ void ATheLastBastionBaseAIController::Possess(APawn* _possPawn)
 void ATheLastBastionBaseAIController::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	// Temporality lock on player
-	mBBComp->SetValue<UBlackboardKeyType_Object>(targetActor_KeyID, UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
+
+	// Temporality lock on player
+	mBBComp->SetValue<UBlackboardKeyType_Object>(targetActor_KeyID, 
+		UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if (mCharacter)
+	{
+		mAnimInstanceRef = Cast<UAIBase_AnimInstance>(mCharacter->GetMesh()->GetAnimInstance());
+		if (mAnimInstanceRef == nullptr)
+		{
+			UE_LOG(LogTemp, Error, 
+				TEXT("mAnimInstanceRef is NUll -- ATheLastBastionBaseAIController::BeginPlay"));
+			return;
+		}
+	}
 }

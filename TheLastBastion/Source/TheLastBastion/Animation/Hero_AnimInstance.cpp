@@ -198,12 +198,12 @@ bool UHero_AnimInstance::OnAttack()
 void UHero_AnimInstance::OnEnableWeapon(bool _bIsright, bool _bIsAll)
 {
 	AttackState = EAttackState::Attacking;
-	mCharacter->GetHeroStatsComp()->EnableWeapon(_bIsright, _bIsAll);
+	mCharacter->GetHeroStatsComp()->SetEnableWeapon(true, _bIsright, _bIsAll);
 }
 
 void UHero_AnimInstance::OnDisableWeapon(bool _bIsright, bool _bIsAll)
 {
-	mCharacter->GetHeroStatsComp()->DisableWeapon(_bIsright, _bIsAll);
+	mCharacter->GetHeroStatsComp()->SetEnableWeapon(false, _bIsright, _bIsAll);
 }
 
 void UHero_AnimInstance::OnNextAttack()
@@ -298,7 +298,8 @@ bool UHero_AnimInstance::OnEquip()
 				bIsSprinting = false;
 			}
 			DisableJump();
-
+			bVelocityOverrideByAnim = false;
+			bRotationRateOverrideByAnim = false;
 		}
 		// UnEquip
 		else
@@ -347,6 +348,8 @@ void UHero_AnimInstance::SkipEquip()
 		mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
 		bIsSprinting = false;
 	}
+	bVelocityOverrideByAnim = false;
+	bRotationRateOverrideByAnim = false;
 	DisableJump();
 
 }
@@ -383,28 +386,17 @@ void UHero_AnimInstance::OnJumpStop()
 	mCharacter->StopJumping();
 }
 
-#pragma endregion
-
-
-
-
-
-void UHero_AnimInstance::OnBeingHit(const class AActor* const _attacker, float _damagePercentage, bool _IsHeadShot)
+void UHero_AnimInstance::OnBeingHit(float _damage, FName boneName, const FVector & _shotFromDirection,const UPawnStatsComponent * _pawnStats)
 {
 	// reset the attack state and movement override, cuz we are being attack
 	OnActionInterrupt();
-
-
-	FVector forward = mCharacter->GetActorForwardVector();
-	FVector right = mCharacter->GetActorRightVector();
-	FVector away = _attacker->GetActorLocation() - mCharacter->GetActorLocation();
-	away = away.GetUnsafeNormal();
-	float vert = FVector::DotProduct(forward, away);
+	FVector away = _shotFromDirection.GetSafeNormal();
+	float vert = FVector::DotProduct(mCharacter->GetActorForwardVector(), away);
 
 	FName sectionName;
 	if (vert >= 0.7f)
 	{
-		if (_IsHeadShot)
+		if (boneName.Compare("head") == 0)
 			sectionName = TEXT("HitHead");
 		else
 			sectionName = TEXT("HitCenter");
@@ -414,7 +406,7 @@ void UHero_AnimInstance::OnBeingHit(const class AActor* const _attacker, float _
 		sectionName = TEXT("HitBack");
 	else
 	{
-		float hor = FVector::DotProduct(right, away);
+		float hor = FVector::DotProduct(mCharacter->GetActorRightVector(), away);
 		if (hor > 0)
 			sectionName = TEXT("HitRight");
 		else
@@ -428,14 +420,15 @@ void UHero_AnimInstance::OnBeingHit(const class AActor* const _attacker, float _
 
 }
 
+#pragma endregion
+
+
 void UHero_AnimInstance::OnActionInterrupt()
 {
 	bVelocityOverrideByAnim = false;
 	bRotationRateOverrideByAnim = false;
 	AttackState = EAttackState::None;
 	NextAction = EActionType::None;
-
-
 }
 
 void UHero_AnimInstance::SetTryToSprint(bool _val)

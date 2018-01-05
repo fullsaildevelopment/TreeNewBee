@@ -43,14 +43,15 @@ protected:
 
 private:
 
-	class UAIBase_AnimInstance* mAnimInstanceRef;
+	UPROPERTY()
+		class UAIBase_AnimInstance* mAnimInstanceRef;
 
 protected:
 
 	void BeginPlay() override;	
 
  	UFUNCTION()
-		void OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType) override;
+		void OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType, FName _boneNmame, FVector _shotFromDirection) override;
 
 public:
 

@@ -80,6 +80,9 @@ void UMeleeHero_AnimInstance::OnUpdate(float _deltaTime)
 		else
 			HeadTrackAlpha -= 0.05f;
 		HeadTrackAlpha = FMath::Clamp(HeadTrackAlpha, 0.0f, 1.0f);
+		spineAngleOverrideAlpha
+			= FMath::Clamp(1 - HeadTrackAlpha, 0.0f, 0.8f);
+		spineAngleRotator = FRotator(0, 0, -15.f - HeadTrackPitch);
 	}
 
 }
@@ -88,7 +91,6 @@ void UMeleeHero_AnimInstance::OnPostEvaluate()
 {
 
 }
-
 
 bool UMeleeHero_AnimInstance::OnEquip()
 {	
@@ -133,7 +135,7 @@ bool UMeleeHero_AnimInstance::OnEquip()
 void UMeleeHero_AnimInstance::OnActionInterrupt()
 {
 
-	UE_LOG(LogTemp, Error, TEXT("OnActionInterrupt UMeleeHero_AnimInstance"));
+	//UE_LOG(LogTemp, Error, TEXT("OnActionInterrupt UMeleeHero_AnimInstance"));
 
 	Super::OnActionInterrupt();
 	CurrentComboIndex = 0;

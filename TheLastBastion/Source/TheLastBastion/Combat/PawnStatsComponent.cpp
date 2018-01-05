@@ -63,45 +63,22 @@ void UPawnStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	// ...
 }
 
-void UPawnStatsComponent::EnableWeapon(bool _bIsRightHand, bool _bIsAll)
+void UPawnStatsComponent::SetEnableWeapon(bool _bIsEnabled, bool _bIsRightHand, bool _bIsAll)
 {
-
-	//if (_bIsAll)
-	//{
-	//	LeftHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	//	RightHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	//}
-	//else
-	//{
-	//	if (_bIsRightHand)
-	//		RightHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	//	else
-	//		LeftHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	//}
-	UE_LOG(LogTemp, Warning, TEXT("Enable Weapon"));
-	RightHandWeapon->SetDamageIsEnabled(true);
+	if (_bIsAll)
+	{
+		RightHandWeapon->SetDamageIsEnabled(_bIsEnabled);
+		LeftHandWeapon->SetDamageIsEnabled(_bIsEnabled);
+	}
+	else
+	{
+		if (_bIsRightHand)
+			RightHandWeapon->SetDamageIsEnabled(_bIsEnabled);
+		else
+			LeftHandWeapon->SetDamageIsEnabled(_bIsEnabled);
+	}
 }
 
-void UPawnStatsComponent::DisableWeapon(bool _bIsRightHand, bool _bIsAll)
-{
-	RightHandWeapon->SetDamageIsEnabled(false);
-
-	//UE_LOG(LogTemp, Warning, TEXT("disable Weapon"));
-
-	//if (_bIsAll)
-	//{
-	//	LeftHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//	RightHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//}
-	//else
-	//{
-	//	if (_bIsRightHand)
-	//		RightHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//	else
-	//		LeftHandWeapon->GetWeaponMeshRef()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//}
-
-}
 
 void UPawnStatsComponent::OnEquipWeapon()
 {
@@ -230,20 +207,7 @@ float UPawnStatsComponent::CalculateHealth(AActor * _otherActor)
 
 float UPawnStatsComponent::CalculateDamage()
 {
-
-	//if (_hit.hitResult.BoneName.Compare(TEXT("neck_01")) == 0)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("Head Hit"));
-	//}
-	//else if (_hit.hitResult.BoneName.Compare(TEXT("spine_03")) == 0 || _hit.hitResult.BoneName.Compare(TEXT("spine_01")) == 0)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("Chest Hit"));
-	//}
-	//else
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("Common Hit"));
-	//}
-	return 	FMath::RandRange(50, 100);
+	return 	FMath::RandRange(10, 100);
 }
 
 float UPawnStatsComponent::GetBaseDamage()
@@ -378,7 +342,7 @@ void UPawnStatsComponent::OnTakePointDamageHandle(AActor * DamagedActor, float D
 	HpCurrent = HpCurrent - totalDamage;
 	HpCurrent = FMath::Clamp(HpCurrent, 0.0f, HpMax);
 	// Let Character class to handle Updating the HUD display
-	OnHealthChanged.Broadcast(this, totalDamage, DamageType);
+	OnHealthChanged.Broadcast(this, totalDamage, DamageType, BoneName, ShotFromDirection);
 
 	// Create Floating damage point
 	UInGameFloatingText* floatingDamage = GenerateFloatingText(HitLocation);

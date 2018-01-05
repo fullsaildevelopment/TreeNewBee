@@ -32,6 +32,8 @@ private:
 
 protected:
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = DamageCollision)
+		bool bDisableCutOpenDamage;
 	UPROPERTY(BlueprintReadOnly, Category = DamageCollsion)
 		bool bDamageIsEnable;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = DamageCollsion)

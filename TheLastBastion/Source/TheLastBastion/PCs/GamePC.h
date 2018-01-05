@@ -34,6 +34,9 @@ public:
 	UFUNCTION(Client, Reliable)
 		void CLIENT_InitUI(const class UHeroStatsComponent* _heroStats);
 
+	UFUNCTION(Client, Reliable)
+		void CLIENT_UpdateHpOnHealthChanged(const class UPawnStatsComponent* _pawnStats);
+
 	UFUNCTION()
 		void CreateInGameHUD();
 

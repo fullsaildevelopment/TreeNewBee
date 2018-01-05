@@ -2,6 +2,7 @@
 
 #include "TheLastBastionCharacter.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
+#include "Combat/PawnStatsComponent.h"
 
 #include "Components/CapsuleComponent.h"
 
@@ -61,13 +62,19 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
 
-void ATheLastBastionCharacter::OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType)
+void ATheLastBastionCharacter::OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType, FName _boneNmame, FVector _shotFromDirection)
 {
+
 }
 
 void ATheLastBastionCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (PawnStats)
+	{
+		PawnStats->OnHealthChanged.AddDynamic(this, &ATheLastBastionCharacter::OnHealthChangedHandle);
+	}
 
 }
 

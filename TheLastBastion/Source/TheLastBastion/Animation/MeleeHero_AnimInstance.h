@@ -94,6 +94,18 @@ private:
 		/** which section I am going play next in Attack_Montage*/
 	     int CurrentComboIndex;
 
+protected:
+
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+		/** spine angle to blend */
+		FRotator spineAngleRotator;
+
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+		/** spine angle to blend alpha*/
+		float spineAngleOverrideAlpha;
+
+
+
 private:
 
 

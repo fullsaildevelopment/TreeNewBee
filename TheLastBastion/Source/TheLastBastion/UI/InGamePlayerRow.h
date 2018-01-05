@@ -51,7 +51,11 @@ public:
 
 	void SetHpValue(float _currentHp, float _maxHp);
 
+	void SetHpPercentage(float _currentHp, float _divByMax);
+
 	void SetSpValue(float _currentSp, float _maxSp);
+
+	void SetSpPercentage(float _currentSp, float _divByMax);
 
 	void SetLevel(int _Level);
 }; 

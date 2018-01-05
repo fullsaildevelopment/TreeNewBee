@@ -3,13 +3,16 @@
 #include "AIBase_AnimInstance.h"
 #include "AICharacters/TheLastBastionEnemyCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "AI/TheLastBastionBaseAIController.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
+
 #include "Kismet/KismetMathLibrary.h"
 #include "Combat/PawnStatsComponent.h"
 
 
 UAIBase_AnimInstance::UAIBase_AnimInstance(const FObjectInitializer& _objectInitalizer) :Super(_objectInitalizer)
 {
-	AttackState = EAIAttackState::None;
+	CurrentActionState = EAIActionState::None;
 }
 
 void UAIBase_AnimInstance::OnBeginPlay()
@@ -42,12 +45,6 @@ void UAIBase_AnimInstance::OnUpdate(float _deltaTime)
 
 	turn = FVector::DotProduct(mCharacter->GetActorForwardVector(), mAccelerationDirection);
 
-	// the more of the angle between forward vector and acceleration, the more rotation speed
-	//movementComp->RotationRate.Yaw
-	//	= UKismetMathLibrary::MapRangeClamped(turn, 1.0f, -1.0f,
-	//		mCharacter->GetMinTurnRateForTravel(),
-	//		mCharacter->GetMaxTurnRateForTravel());
-
 }
 
 void UAIBase_AnimInstance::OnPostEvaluate()
@@ -56,21 +53,34 @@ void UAIBase_AnimInstance::OnPostEvaluate()
 
 void UAIBase_AnimInstance::OnEnableWeapon(bool bIsright, bool bIsAll)
 {
-	mCharacter->GetEnemyStatsComponent()->EnableWeapon(bIsright, bIsAll);
+	mCharacter->GetEnemyStatsComponent()->SetEnableWeapon(true, bIsright, bIsAll);
 }
 
 void UAIBase_AnimInstance::OnDisableWeapon(bool bIsright, bool bIsAll)
 {
-	mCharacter->GetEnemyStatsComponent()->DisableWeapon(bIsright, bIsAll);
-
+	mCharacter->GetEnemyStatsComponent()->SetEnableWeapon(false, bIsright, bIsAll);
 }
 
-void UAIBase_AnimInstance::OnAttack()
+void UAIBase_AnimInstance::Attack()
 {
-	AttackState = EAIAttackState::Attack;
+	CurrentActionState = EAIActionState::Attack;
 }
 
 void UAIBase_AnimInstance::FinishAttack()
 {
-	AttackState = EAIAttackState::None;
+	CurrentActionState = EAIActionState::None;
+	// Tell BT that this attack is done
+	if (mCharacter)
+	{
+		ATheLastBastionBaseAIController* enemyC = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
+		if (enemyC)
+		{
+			UBehaviorTreeComponent* btc = enemyC->GetBTComp();
+			if (btc)
+			{
+				OnFinishAttackDelegate.ExecuteIfBound(btc);
+				OnFinishAttackDelegate.Unbind();
+			}
+		}
+	}
 }

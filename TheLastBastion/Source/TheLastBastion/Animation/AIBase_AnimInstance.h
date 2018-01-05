@@ -9,7 +9,7 @@
 
 
 UENUM(BlueprintType)
-enum class EAIAttackState : uint8
+enum class EAIActionState : uint8
 {
 	None = 0 UMETA(DisplayName = "None"),
 	Attack = 1 UMETA(DisplayName = "Attack"),
@@ -19,6 +19,10 @@ enum class EAIAttackState : uint8
 /**
  * 
  */
+
+DECLARE_DELEGATE_OneParam(FOnFinishAttackSignature, class UBehaviorTreeComponent*);
+
+
 UCLASS()
 class THELASTBASTION_API UAIBase_AnimInstance : public UAnimInstance
 {
@@ -42,8 +46,11 @@ protected:
 	    FVector mAccelerationDirection;
 
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
-		EAIAttackState AttackState;
+		EAIActionState CurrentActionState;
 
+public:
+
+	FOnFinishAttackSignature OnFinishAttackDelegate;
 
 protected:
 
@@ -59,7 +66,6 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	virtual void OnPostEvaluate();
 
-
 #pragma region Anim Notification
 
 	UFUNCTION(BlueprintCallable)
@@ -71,18 +77,16 @@ protected:
 
 #pragma endregion
 
-
 public:
 
-	// Called On Attack from BT
+	// Called when an enemy BT decide to attack
 	UFUNCTION(BlueprintCallable)
-	void OnAttack();
+	void Attack();
 
 	// Called When Attack Sequence is done by the end of animation sequence
 	UFUNCTION(BlueprintCallable)
 	void FinishAttack();
 
-
 	UFUNCTION(BlueprintPure)
-		FORCEINLINE EAIAttackState GetAttackState() const {return AttackState;}
+		FORCEINLINE EAIActionState GetCurrentActionState() const {return CurrentActionState;}
 };

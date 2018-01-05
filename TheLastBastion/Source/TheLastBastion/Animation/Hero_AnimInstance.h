@@ -287,7 +287,8 @@ public:
 	/** Called when Jump button is released*/
 	virtual void OnJumpStop();
 
-	virtual void OnBeingHit( const class AActor* const _attacker, float _damagePercentage, bool _IsHeadShot = false);
+	virtual void OnBeingHit
+	( float _damage, FName boneName, const FVector& _shotFromDirection, const class UPawnStatsComponent* _pawnStats);
 
 	virtual void OnActionInterrupt();
 

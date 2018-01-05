@@ -3,6 +3,7 @@
 #include "InGamePlayerRow.h"
 #include "CustomType.h"
 #include "Components/TextBlock.h"
+#include "Components/ProgressBar.h"
 
 bool UInGamePlayerRow::Initialize()
 {
@@ -49,10 +50,21 @@ void UInGamePlayerRow::SetHpValue(float _currentHp, float _maxHp)
 	Hp->SetText(FText::FromString(HpStatsText));
 }
 
+void UInGamePlayerRow::SetHpPercentage(float _currentHp, float _divByMax)
+{
+	HpBar->SetPercent(_currentHp * _divByMax);
+}
+
 void UInGamePlayerRow::SetSpValue(float _currentSp, float _maxSp)
 {
 	FString SpStatsText = FString::Printf(TEXT("%d / %d"), (int)_currentSp, (int)_maxSp);
 	Sp->SetText(FText::FromString(SpStatsText));
+
+}
+
+void UInGamePlayerRow::SetSpPercentage(float _currentSp, float _divByMax)
+{
+	HpBar->SetPercent(_currentSp * _divByMax);
 
 }
 
