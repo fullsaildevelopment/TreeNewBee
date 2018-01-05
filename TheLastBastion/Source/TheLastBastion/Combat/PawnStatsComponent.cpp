@@ -30,6 +30,7 @@ UPawnStatsComponent::UPawnStatsComponent()
 {	
 	PrimaryComponentTick.bCanEverTick = false;
 	bGenerateStatsAtBeginPlay = true;
+	bArmedFromBeginPlay = false;
 
 	if (!FloatingText_WBP)
 		UCustomType::FindClass<UUserWidget>(FloatingText_WBP, TEXT("/Game/UI/In-Game/WBP_FloatingNumber"));
@@ -232,20 +233,20 @@ void UPawnStatsComponent::GenerateStatsAtBeginPlay()
 		{
 			LeftHandWeapon = world->SpawnActor<AWeapon>(LeftHandWeapon_ClassBp);
 			LeftHandWeapon->Equip(mCharacter->GetMesh());
-			//LeftHandWeapon->AttachToComponent(mCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("Shield"));
 		}
 
 		if (RightHandWeapon_ClassBp)
 		{
 			RightHandWeapon = world->SpawnActor<AWeapon>(RightHandWeapon_ClassBp);
-			RightHandWeapon->Equip(mCharacter->GetMesh());
-			//RightHandWeapon->AttachToComponent(mCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("SHSwordEquip"));
+			if (bArmedFromBeginPlay)
+				RightHandWeapon->Arm(mCharacter->GetMesh());
+			else
+				RightHandWeapon->Equip(mCharacter->GetMesh());
 		}
 
 		if (Armor_ClassBp)
 		{
 			Armor = world->SpawnActor<AArmor>(Armor_ClassBp);
-			//Armor->AttachToComponent(mCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("Root"));
 			Armor->Equip(mCharacter->GetMesh());
 		}
 
