@@ -34,7 +34,11 @@ public:
 
 protected:
 
-		class ATheLastBastionEnemyCharacter* mCharacter;
+	UPROPERTY()
+	    class ATheLastBastionEnemyCharacter* mCharacter;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = LongRange)
+		class UAnimMontage* CrossBowFireMontage;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
 		float currentSpeed;
@@ -42,11 +46,22 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
 		float turn;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
+		float GoForword;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
+		float GoRight;
+	
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	    FVector mAccelerationDirection;
 
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 		EAIActionState CurrentActionState;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat)
+		/** raise the weapon to eye*/
+		bool bAim;
+
 
 public:
 

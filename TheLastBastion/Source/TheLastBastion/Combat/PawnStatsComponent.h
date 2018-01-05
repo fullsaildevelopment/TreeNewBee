@@ -61,8 +61,10 @@ public:
 
 protected:
 
-
 	bool bGenerateStatsAtBeginPlay;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
+	    bool bArmedFromBeginPlay;
 
 	UPROPERTY()
 	class ATheLastBastionCharacter* mCharacter;
@@ -78,6 +80,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combat)
 		TSubclassOf <class AArmor> Armor_ClassBp;
 	class AArmor *    Armor;
+
+
 	
 #pragma region Character Stats
 
