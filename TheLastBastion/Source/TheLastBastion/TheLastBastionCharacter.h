@@ -40,36 +40,37 @@ protected:
 
 #pragma region Movement Stats
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
+		bool bIsWalking;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
 		float CapHalfSize;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
 		float CapRadius;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
 		float SprintSpeed = 850.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
 		float JogSpeed = 595.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
 		float walkSpeed = 255.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
 		float minTurnRate_Travel = 180.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
 		float maxTurnRate_Travel = 630.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
 		float minTurnRate_Combat = 360.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
 		float maxTurnRate_Combat = 1440.0f;
 
 #pragma endregion
-
-
 
 protected:
 	/** Config character based on character type during beginplay*/
@@ -91,8 +92,6 @@ public:
 
 	FORCEINLINE ECharacterType GetCharacterType() const { return CharacterType; }
 	FORCEINLINE class UPawnStatsComponent*  GetPawnStatsComp() const { return PawnStats; }
-
-
 	FORCEINLINE void SetCharacterType(ECharacterType _val) { CharacterType = _val; }
 };
 

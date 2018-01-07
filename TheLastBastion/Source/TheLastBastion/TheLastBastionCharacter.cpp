@@ -77,6 +77,8 @@ void ATheLastBastionCharacter::BeginPlay()
 		PawnStats->OnHealthChanged.AddDynamic(this, &ATheLastBastionCharacter::OnHealthChangedHandle);
 	}
 
+
+
 	CharacterCustomInit();
 
 }

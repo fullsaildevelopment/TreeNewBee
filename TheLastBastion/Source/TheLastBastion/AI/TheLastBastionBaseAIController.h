@@ -39,6 +39,7 @@ private:
 		targetActor_KeyID,
 		ToTargetActorDistanceSqr_KeyId;
 
+
 public:
 
 	UFUNCTION(BlueprintPure)

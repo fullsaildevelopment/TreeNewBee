@@ -17,6 +17,7 @@ ATheLastBastionBaseAIController::ATheLastBastionBaseAIController(const FObjectIn
 {
 	mBTComp = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviorTreeComp"));
 	mBBComp = CreateDefaultSubobject<UBlackboardComponent>(TEXT("BlackBoardComp"));
+	
 }
 
 
@@ -54,9 +55,8 @@ void ATheLastBastionBaseAIController::Possess(APawn* _possPawn)
 	targetActor_KeyID = mBBComp->GetKeyID("targetActor");
 	ToTargetActorDistanceSqr_KeyId = mBBComp->GetKeyID("ToTargetActorDistanceSqr");
 
-	// Init BlackBoard Value, set player is my target for now
-	mBBComp->SetValue<UBlackboardKeyType_Float>(ToTargetActorDistanceSqr_KeyId, initDistance);
-	
+	mBBComp->SetValue<UBlackboardKeyType_Float>(ToTargetActorDistanceSqr_KeyId, MAX_FLT);
+
 	UE_LOG(LogTemp, Warning, TEXT("Possess, %s"), *_possPawn->GetName());
 
 	// Launch behavior Tree
@@ -70,9 +70,11 @@ void ATheLastBastionBaseAIController::BeginPlay()
 	Super::BeginPlay();
 
 
-	// Temporality lock on player
-	mBBComp->SetValue<UBlackboardKeyType_Object>(targetActor_KeyID, 
-		UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	// Init BlackBoard Value, set player is my target for now
+	// if (bSetInitTargetToHost)
+	//	mBBComp->SetValue<UBlackboardKeyType_Object>(targetActor_KeyID,
+	//		UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
 	if (mCharacter)
 	{
 		mAnimInstanceRef = Cast<UAIBase_AnimInstance>(mCharacter->GetMesh()->GetAnimInstance());

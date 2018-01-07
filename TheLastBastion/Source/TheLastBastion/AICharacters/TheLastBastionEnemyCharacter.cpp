@@ -7,7 +7,7 @@
 #include "Animation/AIBase_AnimInstance.h"
 #include "CustomType.h"
 #include "UI/InGameAIHUD.h"
-
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 ATheLastBastionEnemyCharacter::ATheLastBastionEnemyCharacter()
@@ -78,6 +78,11 @@ void ATheLastBastionEnemyCharacter::BeginPlay()
 	
 	aiHUD->InitRowHeader(initializer);
 	aiHUD->SetVisibility(ESlateVisibility::Hidden);
+
+	if (bIsWalking)
+		GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
+	else
+		GetCharacterMovement()->MaxWalkSpeed = JogSpeed;
 }
 
 void ATheLastBastionEnemyCharacter::OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage,const UDamageType * _damageType, FName _boneNmame, FVector _shotFromDirection)
@@ -89,7 +94,7 @@ void ATheLastBastionEnemyCharacter::OnHealthChangedHandle(const UPawnStatsCompon
 
 	// if this enemy is not being locked on, 
 	// we will display UI temporary with a opacity animation
-	if (!bAIHUDisEnabledForLockedOn)
+	if (!bAIHUDisDisplayedForLockedOn)
 		aiHUD->ToggleUI(true, true);
 
 	// Animation Call
@@ -97,12 +102,12 @@ void ATheLastBastionEnemyCharacter::OnHealthChangedHandle(const UPawnStatsCompon
 
 void ATheLastBastionEnemyCharacter::ToggleAIHUD(bool _val)
 {
-	bAIHUDisEnabledForLockedOn = _val;
+	bAIHUDisDisplayedForLockedOn = _val;
 	UInGameAIHUD* aiHUD = Cast<UInGameAIHUD>(InfoHUD->GetUserWidgetObject());
 
 	if (aiHUD)
 	{
-		if (bAIHUDisEnabledForLockedOn)
+		if (bAIHUDisDisplayedForLockedOn)
 			aiHUD->ToggleUI(true, false);
 		else
 			aiHUD->ToggleUI(false, false);

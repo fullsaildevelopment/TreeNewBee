@@ -56,7 +56,7 @@ EBTNodeResult::Type UBTTask_NKAttack::ExecuteTask(UBehaviorTreeComponent & Owner
 		UE_LOG(LogTemp, Log, TEXT("Is too far too attack, failed this task, and move to next task"));
 		return NodeResult;
 	}
-	else if (animRef->GetCurrentActionState() == EAIActionState::Attack)
+	else if (animRef->GetCurrentActionState() == EAIActionState::MeleeAttack)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Is Attacking, failed this task, and move to next task"));
 		return NodeResult;

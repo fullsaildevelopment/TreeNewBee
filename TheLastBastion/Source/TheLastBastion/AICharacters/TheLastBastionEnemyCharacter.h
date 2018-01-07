@@ -23,6 +23,10 @@ public:
 
 protected:
 
+	UPROPERTY(VisibleAnywhere, Category = AiHud)
+		bool  bAIHUDisDisplayedForLockedOn;
+
+
 	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
 		FText AiName;
 
@@ -37,9 +41,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = AiHud)
 		class UWidgetComponent* InfoHUD;
-
-	UPROPERTY(VisibleAnywhere, Category = AiHud)
-		bool  bAIHUDisEnabledForLockedOn;
 
 private:
 
