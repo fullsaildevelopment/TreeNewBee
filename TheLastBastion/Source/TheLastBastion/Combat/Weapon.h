@@ -50,6 +50,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = DamageCalculation)
 		TSubclassOf <class UDamageType> DamageType;
 
+
 public:
 
 	FORCEINLINE class UStaticMeshComponent* GetWeaponMeshRef() const { return Mesh; }
@@ -59,6 +60,5 @@ public:
 
 	void SetDamageIsEnabled(bool _val);
 
-	void Tick(float _deltaTime) override;
-	
+	void Tick(float _deltaTime) override;	
 };

@@ -28,6 +28,10 @@ void AWeapon::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AWeapon::CharacterCustomInit()
+{
+}
+
 void AWeapon::Arm(USkeletalMeshComponent * const _skeletonMeshComponent)
 {
 	if (GearOwner == nullptr)

@@ -62,6 +62,7 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
 
+
 void ATheLastBastionCharacter::OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType, FName _boneNmame, FVector _shotFromDirection)
 {
 
@@ -76,5 +77,22 @@ void ATheLastBastionCharacter::BeginPlay()
 		PawnStats->OnHealthChanged.AddDynamic(this, &ATheLastBastionCharacter::OnHealthChangedHandle);
 	}
 
+	CharacterCustomInit();
+
 }
+
+void ATheLastBastionCharacter::CharacterCustomInit()
+{
+
+	switch (CharacterType)
+	{
+	case ECharacterType::LanTrooper_T0:
+		GetCharacterMovement()->bUseControllerDesiredRotation = true;
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+		break;
+	default:
+		break;
+	}
+}
+
 

@@ -14,8 +14,8 @@ enum class ECharacterType : uint8
 	None = 0              UMETA(DisplayName = "None"),
 	Ranger = 1            UMETA(DisplayName = "Ranger"),
 	Builder = 2           UMETA(DisplayName = "Builder"),
-	SouthArcher = 3 	  UMETA(DisplayName = "SouthArcher")
-               
+	LanTrooper_T0 = 3 	  UMETA(DisplayName = "Lannester Trooper New Recruit")
+             
 };
 
 
@@ -32,7 +32,8 @@ public:
 
 protected:
 
-	class UPawnStatsComponent* PawnStats;
+	UPROPERTY()
+	    class UPawnStatsComponent* PawnStats;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterType)
 		ECharacterType CharacterType;
@@ -71,6 +72,8 @@ protected:
 
 
 protected:
+	/** Config character based on character type during beginplay*/
+	void CharacterCustomInit();
 
 	UFUNCTION()
 		virtual void OnHealthChangedHandle(const class UPawnStatsComponent * _pawnStatsComp, float _damage, const class UDamageType * _damageType, FName _boneNmame, FVector _shotFromDirection);
