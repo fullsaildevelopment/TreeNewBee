@@ -15,6 +15,9 @@ class THELASTBASTION_API UAIMelee_AnimInstance : public UAIBase_AnimInstance
 	GENERATED_BODY()
 	
 	
+
+
+
 protected:
 
 	UFUNCTION(BlueprintCallable)
@@ -38,20 +41,34 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		/** Disable Damage Collision for melee weapon*/
 		void OnDisableWeapon(bool bIsright = true, bool bIsAll = false);
+	
+	UFUNCTION(BlueprintCallable)
+		/** Called at the end of attack frame, and let BT know attack is finished*/
+		void FinishAttack() override;
+
+	UFUNCTION(BlueprintCallable)
+		/** Called at the end of attack frame, and let BT know attack is finished*/
+		void InitAttack();
+
 
 #pragma endregion
 
 public:
 
 	UFUNCTION(BlueprintCallable)
-		void Attack() override;
+		void Attack(EAIMeleeAttackType _attackType) override;
 
-
-	UFUNCTION(BlueprintCallable)
-		void FinishAttack() override;
 
 private:
 
 	void SyncMotionForMeleeAttack();
+
+
+protected:
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = MeleeAttackChoice)
+		EAIMeleeAttackType attackChoice;
+
+
 
 };

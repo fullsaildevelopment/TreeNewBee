@@ -290,7 +290,6 @@ void UMeleeHero_AnimInstance::OnResetCombo()
 	mCharacter->GetMovementComponent()->Velocity = mAccelerationDirection;
 }
 
-
 #pragma endregion
 
 

@@ -154,6 +154,8 @@ public:
 
 	void OnSheathWeapon();
 
+	void OnKill();
+
 
 public:
 

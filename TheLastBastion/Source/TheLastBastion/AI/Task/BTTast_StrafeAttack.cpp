@@ -4,7 +4,7 @@
 #include "AI/TheLastBastionBaseAIController.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
 
-#include "Animation/AIBase_AnimInstance.h"
+#include "Animation/AIMelee_AnimInstance.h"
 
 UBTTast_StrafeAttack::UBTTast_StrafeAttack(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -43,6 +43,11 @@ EBTNodeResult::Type UBTTast_StrafeAttack::ExecuteTask(UBehaviorTreeComponent & O
 	}
 
 	const APawn* const me = enemyC->GetPawn();
+	if (me == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("enemyC->GetPawn() is NULL - UBTTast_StrafeAttack::ExecuteTask"));
+		return NodeResult;
+	}
 
 	// check attack distance
 	float distanceSqr = (me->GetActorLocation() - targetActor->GetActorLocation()).SizeSquared();
@@ -62,7 +67,16 @@ EBTNodeResult::Type UBTTast_StrafeAttack::ExecuteTask(UBehaviorTreeComponent & O
 	{
 		NodeResult = EBTNodeResult::InProgress;
 		animRef->OnFinishAttackDelegate.BindUObject(this, &UBTTast_StrafeAttack::OnFinishAttackHandle);
-		animRef->Attack();
+
+		EAIMeleeAttackType attackType = EAIMeleeAttackType::None;
+		if (distanceSqr < dashedAttackDistanceSqr)
+			attackType = EAIMeleeAttackType::InPlace;
+		else
+			attackType = (FMath::RandBool()) ? EAIMeleeAttackType::Move : (EAIMeleeAttackType::Move_InPlace);
+
+
+		animRef->Attack(attackType);
+
 		return NodeResult;
 	}
 }

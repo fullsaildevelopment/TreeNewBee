@@ -21,6 +21,8 @@
 ATheLastBastionCharacter::ATheLastBastionCharacter()
 {	
 	bReplicates = true;
+	bIsDead = false;
+
 
 	SprintSpeed = 850.0f;
 	JogSpeed = 595.0f;

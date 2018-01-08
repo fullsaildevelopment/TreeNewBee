@@ -50,8 +50,6 @@ protected:
 
 	int AITier;
 
-	FTimerHandle timer;
-
 public:
 
 	void InitRowHeader(const FAIHUDInitializer& _init);

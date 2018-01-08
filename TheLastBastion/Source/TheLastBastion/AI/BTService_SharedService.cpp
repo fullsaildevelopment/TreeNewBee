@@ -50,6 +50,14 @@ void UBTService_SharedService::UpdateSqrDistanceToTarget(UBehaviorTreeComponent 
 	}
 
 	const APawn* const me = enemyC->GetPawn();
+
+	if (me == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("enemyC->GetPawn() is NULL - UBTService_SharedService::UpdateSqrDistanceToTarget"));
+		return;
+	}
+
+
 	float distanceToTargetSqr = (me->GetActorLocation() - targetActor->GetActorLocation()).SizeSquared();
 
 

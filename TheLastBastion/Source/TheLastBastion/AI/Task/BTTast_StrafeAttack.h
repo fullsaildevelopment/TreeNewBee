@@ -23,8 +23,15 @@ class THELASTBASTION_API UBTTast_StrafeAttack : public UBTTaskNode
 protected:
 
 	UPROPERTY(EditInstanceOnly, Category = CombatStrategy)
-		/** sqr distance to start a melee combo*/
+		/** sqr distance to start a melee attack*/
 		float meleeComboAttackDistanceSqr;
+
+	UPROPERTY(EditInstanceOnly, Category = CombatStrategy)
+		/** minimum sqr distance to start a dashed attack*/
+		float dashedAttackDistanceSqr;
+
+
+
 
 protected:
 

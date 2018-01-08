@@ -7,6 +7,8 @@
 #include "Animation/AIBase_AnimInstance.h"
 #include "CustomType.h"
 #include "UI/InGameAIHUD.h"
+#include "TimerManager.h"
+#include "AI/TheLastBastionBaseAIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 
@@ -94,10 +96,22 @@ void ATheLastBastionEnemyCharacter::OnHealthChangedHandle(const UPawnStatsCompon
 
 	// if this enemy is not being locked on, 
 	// we will display UI temporary with a opacity animation
+
+	if (_pawnStatsComp->GetHpCurrent() <= 0)
+	{
+		OnDead();
+		return;
+	}
+
 	if (!bAIHUDisDisplayedForLockedOn)
 		aiHUD->ToggleUI(true, true);
 
 	// Animation Call
+	if (mAnimInstanceRef)
+	{
+		mAnimInstanceRef->OnBeingHit(_damage, _boneNmame, _shotFromDirection, _pawnStatsComp);
+	}
+
 }
 
 void ATheLastBastionEnemyCharacter::ToggleAIHUD(bool _val)
@@ -116,6 +130,29 @@ void ATheLastBastionEnemyCharacter::ToggleAIHUD(bool _val)
 	{
 		UE_LOG(LogTemp, Error, TEXT(" aiHUD is NULL - ATheLastBastionEnemyCharacter::ToggleAIHUD"));
 	}
+}
+
+void ATheLastBastionEnemyCharacter::OnDead()
+{
+	bIsDead = true;
+	UInGameAIHUD* aiHUD = Cast<UInGameAIHUD>(InfoHUD->GetUserWidgetObject());
+	aiHUD->ToggleUI(false, false);
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	ATheLastBastionBaseAIController* enemyC = Cast<ATheLastBastionBaseAIController>(GetController());
+	enemyC->UnPossess();
+	enemyC->Destroy();
+	
+	GetWorldTimerManager().SetTimer(mKillTimer, this, &ATheLastBastionEnemyCharacter::Kill, 1.0f, false, 10.0f);
+}
+
+void ATheLastBastionEnemyCharacter::Kill()
+{
+	Destroy();
+	PawnStats->OnKill();
 }
 
 

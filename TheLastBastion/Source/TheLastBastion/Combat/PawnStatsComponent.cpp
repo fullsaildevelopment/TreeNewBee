@@ -94,6 +94,16 @@ void UPawnStatsComponent::OnSheathWeapon()
 	//	FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("SHSwordEquip"));
 }
 
+void UPawnStatsComponent::OnKill()
+{
+	if (RightHandWeapon)
+		RightHandWeapon->Destroy();
+	if (LeftHandWeapon)
+		LeftHandWeapon->Destroy();
+	if (Armor)
+		Armor->Destroy();
+}
+
 #pragma region Stats Generatrion
 void UPawnStatsComponent::GenerateRawStatsByLevel(int _level)
 {
@@ -338,6 +348,12 @@ void UPawnStatsComponent::OnTakeAnyDamageHandle(AActor * DamagedActor, float Dam
 
 void UPawnStatsComponent::OnTakePointDamageHandle(AActor * DamagedActor, float Damage, AController * InstigatedBy, FVector HitLocation, UPrimitiveComponent * FHitComponent, FName BoneName, FVector ShotFromDirection, const UDamageType * DamageType, AActor * DamageCauser)
 {
+
+	if (mCharacter->GetIsDead())
+	{
+		return;
+	}
+
 	float totalDamage = Damage + CalculateDamage();
 
 	HpCurrent = HpCurrent - totalDamage;

@@ -65,7 +65,7 @@ EBTNodeResult::Type UBTTask_NKAttack::ExecuteTask(UBehaviorTreeComponent & Owner
 	{
 		NodeResult = EBTNodeResult::InProgress;
 		animRef->OnFinishAttackDelegate.BindUObject(this, &UBTTask_NKAttack::OnFinishAttackHandle);
-		animRef->Attack();
+		animRef->Attack(EAIMeleeAttackType::None);
 		return NodeResult;
 	}
 	

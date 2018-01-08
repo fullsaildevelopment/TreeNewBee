@@ -72,6 +72,9 @@ protected:
 
 #pragma endregion
 
+	bool bIsDead;
+
+
 protected:
 	/** Config character based on character type during beginplay*/
 	void CharacterCustomInit();
@@ -93,5 +96,7 @@ public:
 	FORCEINLINE ECharacterType GetCharacterType() const { return CharacterType; }
 	FORCEINLINE class UPawnStatsComponent*  GetPawnStatsComp() const { return PawnStats; }
 	FORCEINLINE void SetCharacterType(ECharacterType _val) { CharacterType = _val; }
+	FORCEINLINE bool GetIsDead() const { return bIsDead; }
+
 };
 

@@ -26,7 +26,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = AiHud)
 		bool  bAIHUDisDisplayedForLockedOn;
 
-
 	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
 		FText AiName;
 
@@ -41,6 +40,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = AiHud)
 		class UWidgetComponent* InfoHUD;
+
+	UPROPERTY()
+		FTimerHandle mKillTimer;
 
 private:
 
@@ -69,5 +71,11 @@ public:
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE class UAIBase_AnimInstance* GetAnimInstanceRef() const { return mAnimInstanceRef; }
+
+
+private:
+
+	void OnDead();
+	void Kill();
 
 };

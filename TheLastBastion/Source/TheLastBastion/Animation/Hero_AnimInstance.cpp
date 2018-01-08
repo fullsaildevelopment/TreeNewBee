@@ -157,22 +157,6 @@ void UHero_AnimInstance::StopOverrideSpeed()
 }
 
 
-float UHero_AnimInstance::PlayMontage(UAnimMontage * _animMontage, float _rate, FName _startSectionName)
-{
-	if (_animMontage)
-	{
-		float const duration = this->Montage_Play(_animMontage, _rate);
-		if (duration > 0.f)
-		{
-			if (_startSectionName != NAME_None)
-			{
-				this->Montage_JumpToSection(_startSectionName, _animMontage);
-			}
-		}
-		return duration;
-	}
-	return 0.f;
-}
 
 #pragma region Attack && Combo
 bool UHero_AnimInstance::OnAttack()
@@ -396,7 +380,7 @@ void UHero_AnimInstance::OnBeingHit(float _damage, FName boneName, const FVector
 	FName sectionName;
 	if (vert >= 0.7f)
 	{
-		if (boneName.Compare("head") == 0)
+		if (boneName.Compare("neck_01") == 0)
 			sectionName = TEXT("HitHead");
 		else
 			sectionName = TEXT("HitCenter");

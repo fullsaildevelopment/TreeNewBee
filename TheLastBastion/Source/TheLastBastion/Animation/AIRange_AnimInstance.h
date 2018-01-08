@@ -33,8 +33,6 @@ protected:
 
 protected:
 
-		UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = LongRange)
-		class UAnimMontage* CrossBowFireMontage;
 
 		UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
 			float GoForword;

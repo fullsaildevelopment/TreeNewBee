@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Animation/AnimInstance.h"
+#include "Animation/Base_AnimInstance.h"
 #include "Hero_AnimInstance.generated.h"
 
 /**
@@ -59,10 +59,8 @@ enum class EFocusDodgeDirection :uint8
 	Left45 = 8    UMETA(DisplayName = "Left45")
 };
 
-
-
 UCLASS()
-class THELASTBASTION_API UHero_AnimInstance : public UAnimInstance
+class THELASTBASTION_API UHero_AnimInstance : public UBase_AnimInstance
 {
 	GENERATED_BODY()
 
@@ -79,9 +77,6 @@ protected:
 
 #pragma region Movement
 
-
-	/** if true, the player controller can change the value of bRotationRateOverrideByAnim */
-	bool bIsAnimationRotationPrior;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
 		/** If true, the velocity of character is controlled by animation
@@ -112,20 +107,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
 		bool bTryToSprint;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
-		float currentSpeed;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
-		float turn;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
-		float MoveForwardAxis;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
-		float MoveRightAxis;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
-		FVector Acceleration_bodySpace;
+	FVector Acceleration_bodySpace;
 
 	FVector mAccelerationDirection;
 
@@ -135,6 +119,7 @@ protected:
 
 
 #pragma region HeadTrack
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = HeadTrack)
 		float HeadTrackRate;
 
@@ -146,6 +131,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = HeadTrack)
 		float HeadTrackAlpha;
+
 #pragma endregion
 
 
@@ -190,37 +176,25 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 		EAttackState AttackState;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
-		class UAnimMontage* Equip_Montage;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
-		class UAnimMontage* Hit_Montage;
-
-	/** Basic Attack */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
-		class UAnimMontage* Attack_Montage;							
-						
-
+					
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 		/** Must be assigned for before focused dodge*/
 		EFocusDodgeDirection FocusDodgeDirection;
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
-		class UAnimMontage* Dodge_Montage;
+
 
 #pragma endregion
 
 	
 protected:
 
-		virtual void OnBeginPlay();
+		virtual void OnBeginPlay() override;
 
-		virtual void OnInit();
+		virtual void OnInit() override;
 
-		virtual void OnUpdate(float _deltaTime);
+		virtual void OnUpdate(float _deltaTime) override;
 
-		virtual void OnPostEvaluate();	
+		virtual void OnPostEvaluate() override;
 
-		float PlayMontage(class UAnimMontage* _animMontage, float _rate, FName _startSectionName = NAME_None);
 
 		/** Called when decide to make a dodge*/
 		virtual void LaunchDodge();
@@ -288,7 +262,7 @@ public:
 	virtual void OnJumpStop();
 
 	virtual void OnBeingHit
-	( float _damage, FName boneName, const FVector& _shotFromDirection, const class UPawnStatsComponent* _pawnStats);
+	( float _damage, FName boneName, const FVector& _shotFromDirection, const class UPawnStatsComponent* _pawnStats) override;
 
 	virtual void OnActionInterrupt();
 
@@ -308,7 +282,6 @@ public:
 	FORCEINLINE EEquipType GetActivatedEquipmentType() const { return ActivatedEquipment;  }
 	FORCEINLINE bool GetFocusPendingEnter() const { return bIsFocusEnterPending; }
 	FORCEINLINE bool GetFocusPendingExit() const { return bIsFocusExitPending; }
-
 
 protected:
 

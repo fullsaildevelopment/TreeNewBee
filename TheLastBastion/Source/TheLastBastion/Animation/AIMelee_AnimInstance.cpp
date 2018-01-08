@@ -17,6 +17,7 @@ void UAIMelee_AnimInstance::OnBeginPlay()
 void UAIMelee_AnimInstance::OnInit()
 {
 	Super::OnInit();
+	attackChoice = EAIMeleeAttackType::None;
 }
 
 void UAIMelee_AnimInstance::OnUpdate(float _deltaTime)
@@ -40,8 +41,6 @@ void UAIMelee_AnimInstance::OnPostEvaluate()
 	Super::OnPostEvaluate();
 }
 
-
-
 void UAIMelee_AnimInstance::OnEnableWeapon(bool bIsright, bool bIsAll)
 {
 	if (mCharacter)
@@ -59,10 +58,11 @@ void UAIMelee_AnimInstance::OnDisableWeapon(bool bIsright, bool bIsAll)
 
 }
 
-
-void UAIMelee_AnimInstance::Attack()
+void UAIMelee_AnimInstance::Attack(EAIMeleeAttackType _attackType)
 {
-	CurrentActionState = EAIActionState::MeleeAttack;
+	NextAction = EAIActionState::MeleeAttack;
+	CurrentActionState = NextAction;
+	attackChoice = _attackType;
 }
 
 void UAIMelee_AnimInstance::FinishAttack()
@@ -84,6 +84,11 @@ void UAIMelee_AnimInstance::FinishAttack()
 			}
 		}
 	}
+}
+
+void UAIMelee_AnimInstance::InitAttack()
+{
+	NextAction = EAIActionState::None;
 }
 
 void UAIMelee_AnimInstance::SyncMotionForMeleeAttack()
