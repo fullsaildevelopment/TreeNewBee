@@ -7,11 +7,22 @@
 #include "TheLastBastionHeroCharacter.h"
 #include "Combat/HeroStatsComponent.h"
 #include "UI/InGamePlayerRow.h"
+#include "UI/InGameTeamRow.h"
+
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
-#include "Kismet/GameplayStatics.h"
-#include "GameMode/GamePlayGM.h"
+#include "Components/VerticalBox.h"
 
+
+static TSubclassOf<UUserWidget> InGameTeamRow_WBPClass;
+
+UInGameHUD::UInGameHUD(const FObjectInitializer& objInit) : Super(objInit)
+{
+	if (!InGameTeamRow_WBPClass)
+	{
+		UCustomType::FindClass<UUserWidget>(InGameTeamRow_WBPClass, TEXT("/Game/UI/In-Game/WBP_InGameTeamRow"));
+	}
+}
 
 bool UInGameHUD::Initialize()
 {
@@ -38,18 +49,24 @@ bool UInGameHUD::Initialize()
 	return true;
 }
 
-void UInGameHUD::AddPlayerToPlayerList(const TArray<FPlayerProfile>& _allConnectedPlayers,
-	const TArray<AGamePC*>& _allControllers)
+void UInGameHUD::AddTeamMember(const FPlayerProfile & _newTeamMember)
 {
-
-	APlayerController* thisPC = GetOwningPlayer();
-
+	if (!InGameTeamRow_WBPClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("InGameTeamRow_WBPClass is NULL -  UInGameHUD::AddTeamMember"));
+		return;
+	}
+	UInGameTeamRow* newTeamRow = Cast<UInGameTeamRow>(CreateWidget<UUserWidget>(GetOwningPlayer(), InGameTeamRow_WBPClass));	
+	if (newTeamRow)
+	{
+		newTeamRow->InitHeader(_newTeamMember);
+		TeamWindow->AddChild(newTeamRow);
+	}
 }
 
 void UInGameHUD::SetPlayerName(const FPlayerProfile & _profile)
 {
 	PlayerRow->SetPlayerName(_profile);
-
 }
 
 void UInGameHUD::InitStats(const UHeroStatsComponent * _heroStats)

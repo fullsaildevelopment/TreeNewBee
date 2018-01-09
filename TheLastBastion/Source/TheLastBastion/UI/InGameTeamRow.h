@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "CustomType.h"
 #include "InGameTeamRow.generated.h"
 
 /**
@@ -27,12 +28,18 @@ protected:
 		class UTextBlock* Level;
 
 	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* Class;
+		class UTextBlock* HeroClass;
 
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* Hp;
 
 	UPROPERTY(meta = (BindWidget))
 		class UProgressBar* HpBar;
+
+
+public:
+
+	void InitHeader(const FPlayerProfile& _memberProfile);
+
 
 };

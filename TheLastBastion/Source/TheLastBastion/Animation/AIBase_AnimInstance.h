@@ -94,13 +94,8 @@ public:
 		FORCEINLINE EAIActionState GetCurrentActionState() const {return CurrentActionState;}
 
 
-	void OnBeingHit(float _damage, FName boneName, 
-		const FVector& _shotFromDirection, const class UPawnStatsComponent* _pawnStats) override;
 
 
-private:
-
-	FName HitReaction_SHSword(FName boneName, const FVector & _shotFromDirection);
 
 
 };

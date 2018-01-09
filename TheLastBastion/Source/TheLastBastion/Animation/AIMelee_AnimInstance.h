@@ -58,10 +58,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void Attack(EAIMeleeAttackType _attackType) override;
 
+	void OnBeingHit(float _damage, FName boneName,
+		const FVector& _shotFromDirection, const class UPawnStatsComponent* _pawnStats) override;
 
 private:
 
 	void SyncMotionForMeleeAttack();
+
+	FName HitReaction_SHSword(FName boneName, const FVector & _shotFromDirection);
 
 
 protected:

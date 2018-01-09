@@ -15,6 +15,9 @@ class THELASTBASTION_API UInGameHUD : public UUserWidget
 	GENERATED_BODY()
 
 
+public:
+	UInGameHUD(const FObjectInitializer& objInit);
+
 protected:
 
 	bool Initialize() override;
@@ -40,8 +43,7 @@ protected:
 
 public:
 
-	void AddPlayerToPlayerList(const TArray<struct FPlayerProfile>& _allConnectedPlayers
-		, const TArray<class AGamePC*>& _allControllers);
+	void AddTeamMember(const FPlayerProfile& _newTeamMember);
 
 	void SetPlayerName(const FPlayerProfile& _profile);
 

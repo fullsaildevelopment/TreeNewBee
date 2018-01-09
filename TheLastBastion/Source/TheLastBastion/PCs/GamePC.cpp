@@ -17,9 +17,7 @@ static TSubclassOf<UUserWidget> InGameHuD_WBPClass;
 AGamePC::AGamePC(const FObjectInitializer & _objInit) : Super(_objInit)
 {
 	if (!InGameHuD_WBPClass)
-	{
 		UCustomType::FindClass<UUserWidget>(InGameHuD_WBPClass, TEXT("/Game/UI/In-Game/WBP_InGameHUD"));
-	}
 }
 //void AGamePC::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
 //{
@@ -31,6 +29,7 @@ AGamePC::AGamePC(const FObjectInitializer & _objInit) : Super(_objInit)
 void AGamePC::CLIENT_Login_Implementation(int _index)
 {
 	FInputModeGameOnly inputMode;
+
 	SetInputMode(inputMode);
 
 	SaveGameCheck();
@@ -38,15 +37,29 @@ void AGamePC::CLIENT_Login_Implementation(int _index)
 	SERVER_UploadProfileAndRequestCharacter(playerProfile, _index);
 
 	CreateInGameHUD();
+
+	//SERVER_UpdatePlayerList();
 }
 
 void AGamePC::SERVER_UploadProfileAndRequestCharacter_Implementation
 (const FPlayerProfile& _profile, int _index)
 {
-	UWorld* world = GetWorld();
-	AGamePlayGM* gamePlayGM = Cast<AGamePlayGM>(UGameplayStatics::GetGameMode(world));
 
-	gamePlayGM->GrabProfileAndSpawnPlayer(_profile, _index);
+	UWorld* world = GetWorld();
+	if (world)
+	{
+		AGamePlayGM* gamePlayGM = Cast<AGamePlayGM>(UGameplayStatics::GetGameMode(world));
+
+		if (gamePlayGM)
+			gamePlayGM->GrabProfileAndSpawnPlayer(_profile, _index);
+		else
+			UE_LOG(LogTemp, Error, 
+				TEXT("gamePlayGM is NULL - AGamePC::SERVER_UploadProfileAndRequestCharacter_Implementation"));
+	}
+	else
+		UE_LOG(LogTemp, Error, 
+			TEXT("world is NULL - AGamePC::SERVER_UploadProfileAndRequestCharacter_Implementation"));
+
 }
 
 bool AGamePC::SERVER_UploadProfileAndRequestCharacter_Validate
@@ -55,10 +68,21 @@ bool AGamePC::SERVER_UploadProfileAndRequestCharacter_Validate
 	return true;
 }
 
-void AGamePC::CLIENT_AddPlayerToPlayerList_Implementation(const TArray<FPlayerProfile>& _allConnectedPlayers
+void AGamePC::CLIENT_AddPlayerToPlayerList_Implementation(const TArray<FMatchPlayer>& _allConnectedPlayers
 	, int _index)
 {
-	//mInGameHUD->AddPlayerToPlayerList(_allConnectedPlayers, _allControllers);
+
+	for (int iPlayer = 0; iPlayer < _allConnectedPlayers.Num(); iPlayer++)
+	{
+		// if this client is our self, skip it
+		if (iPlayer == _index)
+			continue;
+		else
+		{
+			mInGameHUD->AddTeamMember(_allConnectedPlayers[iPlayer].profile);
+		}
+	}
+
 }
 
 void AGamePC::CLIENT_InitUI_Implementation(const class UHeroStatsComponent* _heroStats)
@@ -84,6 +108,29 @@ void AGamePC::CreateInGameHUD()
 	mInGameHUD = Cast<UInGameHUD>(CreateWidget<UUserWidget>(this, InGameHuD_WBPClass));
 	mInGameHUD->SetPlayerName(playerProfile);
 	mInGameHUD->AddToViewport();
+}
+
+void AGamePC::SERVER_UpdatePlayerList_Implementation()
+{
+	UWorld* world = GetWorld();
+	if (world)
+	{
+		AGamePlayGM* gamePlayGM = Cast<AGamePlayGM>(UGameplayStatics::GetGameMode(world));
+		if (gamePlayGM)
+			gamePlayGM->UpdatePlayerList();
+		else
+			UE_LOG(LogTemp, Error,
+				TEXT("gamePlayGM is NULL - AGamePC::SERVER_UpdatePlayerList_Implementation"));
+	}
+	else
+		UE_LOG(LogTemp, Error,
+			TEXT("world is NULL - AGamePC::SERVER_UpdatePlayerList_Implementation"));
+
+}
+
+bool AGamePC::SERVER_UpdatePlayerList_Validate()
+{
+	return true;
 }
 
 void AGamePC::SaveGameCheck()
@@ -113,6 +160,9 @@ void AGamePC::SaveGameCheck()
 
 void AGamePC::BeginPlay()
 {
-
+	if (!HasAuthority())
+	{
+		SERVER_UpdatePlayerList();
+	}
 }
 

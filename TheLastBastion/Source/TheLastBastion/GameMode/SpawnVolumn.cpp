@@ -46,8 +46,13 @@ void ASpawnVolumn::Spawn()
 		if (world)
 		{
 			FVector spawnLocation = GetRandomPointVolumn();
-			spawnLocation.Z = 0;
-			world->SpawnActor<ATheLastBastionCharacter>(TrooperTier0, spawnLocation, FRotator::ZeroRotator);
+			FActorSpawnParameters spawnParam;
+			spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+			ATheLastBastionCharacter* aiPawn = world->SpawnActor<ATheLastBastionCharacter>(TrooperTier0, spawnLocation, FRotator::ZeroRotator, spawnParam);
+			if (aiPawn)
+				aiPawn->SpawnDefaultController();
+			else
+				UE_LOG(LogTemp, Warning, TEXT("SomeHow spawner cant spawn .... - ASpawnVolumn::Spawn"));
 		}
 
 	}

@@ -84,7 +84,7 @@ EBTNodeResult::Type UBTTast_StrafeAttack::ExecuteTask(UBehaviorTreeComponent & O
 EBTNodeResult::Type UBTTast_StrafeAttack::AbortTask(UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory)
 {
 	// empty in base class
-	UE_LOG(LogTemp, Warning, TEXT("UBTTask_NKAttack - AbortTask"));
+	//UE_LOG(LogTemp, Warning, TEXT("UBTTask_NKAttack - AbortTask"));
 	return EBTNodeResult::Aborted;
 }
 
@@ -96,7 +96,7 @@ void UBTTast_StrafeAttack::TickTask(UBehaviorTreeComponent & OwnerComp, uint8 * 
 void UBTTast_StrafeAttack::OnTaskFinished(UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory, EBTNodeResult::Type TaskResult)
 {
 	// empty in base class
-	UE_LOG(LogTemp, Warning, TEXT("UBTTask_NKAttack - OnTaskFinished"));
+	//UE_LOG(LogTemp, Warning, TEXT("UBTTask_NKAttack - OnTaskFinished"));
 
 }
 

@@ -42,7 +42,7 @@ public:
 		void CLIENT_CleanAndSave();
 
 	UFUNCTION(Client, Reliable)
-		/** Tell client UI to populate all player rows for all connected players*/
+		/** Tell client UI to populate all player rows for all connected players */
 		void CLIENT_AddPlayerToPlayerList(const TArray<FPlayerProfile>& _connectedPlayers);
 
 	UFUNCTION(Server, Reliable, WithValidation)

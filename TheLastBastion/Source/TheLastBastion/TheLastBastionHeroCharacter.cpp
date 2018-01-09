@@ -208,8 +208,10 @@ void ATheLastBastionHeroCharacter::OnDodgePressed()
 
 void ATheLastBastionHeroCharacter::AddControllerYaw(float _yaw)
 {
-	if (!mAnimInstanceRef->GetIsFocus())
+	if (mAnimInstanceRef && !mAnimInstanceRef->GetIsFocus())
+	{
 		this->AddControllerYawInput(_yaw);
+	}
 }
 
 #pragma endregion

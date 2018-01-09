@@ -25,8 +25,8 @@ public:
 		class ATheLastBastionHeroCharacter* character;
 	UPROPERTY()
 		struct FPlayerProfile profile;
-	UPROPERTY()
-		int index = -1;
+	//UPROPERTY()
+	//	int index = -1;
 };
 
 
@@ -58,7 +58,14 @@ private:
 		TArray<FMatchPlayer> AllPlayers;
 
 	UPROPERTY()
-		int NumOfPlayers;
+		/** Max number of player that set in the lobby*/
+		int MaxNumOfPlayers;
+
+	UPROPERTY()
+		/** Number of player are already begin play*/
+		int CurrentNumOfPlayersInGame;
+
+
 
 
 public:
@@ -66,9 +73,9 @@ public:
 	UFUNCTION()
 		void GrabProfileAndSpawnPlayer(const FPlayerProfile& _profile, int _index);
 
-
 	UFUNCTION()
-		void UpdateAllConnectedPlayers(int _index);
+		/** Tell all connected clients to update their player list*/
+		void UpdatePlayerList();
 
 public:
 

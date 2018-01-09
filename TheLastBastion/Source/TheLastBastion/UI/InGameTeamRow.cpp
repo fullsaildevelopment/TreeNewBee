@@ -1,6 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InGameTeamRow.h"
+#include "Components/TextBlock.h"
+#include "Components/ProgressBar.h"
+#include "GI_TheLastBastion.h"
+
 
 bool UInGameTeamRow::Initialize()
 {
@@ -10,7 +14,7 @@ bool UInGameTeamRow::Initialize()
 	// Bind Delegetes to Widget components
 	bool bAllWidgetAreGood =
 		Name != nullptr && Level != nullptr &&
-		Class != nullptr && HpBar != nullptr && Hp != nullptr;
+		HeroClass != nullptr && HpBar != nullptr && Hp != nullptr;
 
 	if (!bAllWidgetAreGood)
 	{
@@ -20,3 +24,8 @@ bool UInGameTeamRow::Initialize()
 	return true;
 }
 
+void UInGameTeamRow::InitHeader(const FPlayerProfile & _memberProfile)
+{	
+	Name->SetText(_memberProfile.mPlayerName);
+	HeroClass->SetText((_memberProfile.bIsRangerClass) ? FText::FromString(TEXT("Ranger")) : FText::FromString(TEXT("Builder")));
+}

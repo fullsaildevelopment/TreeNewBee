@@ -15,6 +15,8 @@
 AGamePlayGM::AGamePlayGM(const FObjectInitializer & _objectInitilizer) : Super(_objectInitilizer)
 {
 	PlayerControllerClass = AGamePC::StaticClass();
+	MaxNumOfPlayers = 0;
+	CurrentNumOfPlayersInGame = 1;
 }
 
 void AGamePlayGM::PostLogin(APlayerController * NewPlayer)
@@ -48,10 +50,16 @@ void AGamePlayGM::PostLogin(APlayerController * NewPlayer)
 			return;
 		}
 
-		NumOfPlayers = game_gi->GetMaxConnection();
+		MaxNumOfPlayers = game_gi->GetMaxConnection();
 
 		// pass the which controller this is in the array
 		newPC->CLIENT_Login(AllPlayers.Num() - 1);	
+
+
+		//if (AllPlayers.Num() == MaxNumOfPlayers)
+		//{
+		//	UpdatePlayerList();
+		//}
 	}
 }
 
@@ -95,6 +103,11 @@ void AGamePlayGM::HandleSeamlessTravelPlayer(AController *& C)
 			newMatchPlayer.controller = gamePC;
 			AllPlayers.Add(newMatchPlayer);
 			gamePC->CLIENT_Login(AllPlayers.Num() - 1);
+
+			//if (AllPlayers.Num() == MaxNumOfPlayers)
+			//{
+			//	UpdatePlayerList();
+			//}
 		}
 	}
 
@@ -120,25 +133,7 @@ void AGamePlayGM::PostSeamlessTravel()
 		return;
 	}
 
-	NumOfPlayers = game_gi->GetMaxConnection();
-
-	//for (TActorIterator<APlayerController> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-	//{
-	//	APlayerController* pc = Cast<APlayerController>(*ActorItr);
-	//	ALobbyPC* lobbyPC = Cast<ALobbyPC>(pc);
-	//	if (lobbyPC)
-	//	{
-	//		UE_LOG(LogTemp, Warning, TEXT("Not a GamePC, but a Lobby PC"));
-	//	}
-	//	AGamePC* gamePC = Cast<AGamePC>(pc);
-	//	if (gamePC)
-	//	{
-	//		FMatchPlayer newMatchPlayer;
-	//		newMatchPlayer.controller = gamePC;
-	//		AllPlayers.Add(newMatchPlayer);
-	//		gamePC->CLIENT_Login(AllPlayers.Num() - 1);
-	//	}
-	//}
+	MaxNumOfPlayers = game_gi->GetMaxConnection();
 }
 
 void AGamePlayGM::BeginPlay()
@@ -176,25 +171,22 @@ void AGamePlayGM::GrabProfileAndSpawnPlayer(const FPlayerProfile & _profile, int
 	AllPlayers[_index].character = hero;
 }
 
-void AGamePlayGM::UpdateAllConnectedPlayers(int _index)
+void AGamePlayGM::UpdatePlayerList()
 {
 
-	//// clear out all Profile
-	//AllConnectedPlayers.Empty();
-
-	//AGamePC* gamePC = nullptr;
-	//for (int iCtrl = 0; iCtrl < AllPlayerControllers.Num(); iCtrl++)
+	//for (int iClients = 0; iClients < AllPlayers.Num(); iClients++)
 	//{
-	//	// gather player profiles from controller
-	//	gamePC = AllPlayerControllers[iCtrl];
-
-	//	AllConnectedPlayers.Add(gamePC->GetPlayerProfile());
+	//	UE_LOG(LogTemp, Log, TEXT("%d"), iClients);
+	//	AllPlayers[iClients].controller->CLIENT_AddPlayerToPlayerList(AllPlayers, iClients);
 	//}
 
-	//// then put all connect clients' info on each clients UI
-	//for (int iCtrl = 0; iCtrl < AllPlayerControllers.Num(); iCtrl++)
-	//{
-	//	gamePC = AllPlayerControllers[iCtrl];
-	//	gamePC ->CLIENT_AddPlayerToPlayerList(AllConnectedPlayers, _index);
-	//}
+	CurrentNumOfPlayersInGame++;
+	if (CurrentNumOfPlayersInGame == AllPlayers.Num())
+	{
+		for (int iClients = 0; iClients < AllPlayers.Num(); iClients++)
+		{
+			AllPlayers[iClients].controller->CLIENT_AddPlayerToPlayerList(AllPlayers, iClients);
+		}
+	}
+
 }

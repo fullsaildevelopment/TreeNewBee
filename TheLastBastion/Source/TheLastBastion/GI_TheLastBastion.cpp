@@ -72,7 +72,6 @@ void UGI_TheLastBastion::LocateAllVFX()
 		UE_LOG(LogTemp, Error, TEXT("Can not find BloodImpact_vfx"));
 }
 
-
 void UGI_TheLastBastion::Init()
 {
 	mOnlineSubSystem = IOnlineSubsystem::Get();

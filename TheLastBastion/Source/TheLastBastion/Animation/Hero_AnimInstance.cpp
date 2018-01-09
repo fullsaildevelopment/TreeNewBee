@@ -349,7 +349,7 @@ void UHero_AnimInstance::EnableJump()
 void UHero_AnimInstance::DisableJump()
 {
 	bEnableJump = false;
-	UE_LOG(LogTemp, Warning, TEXT("DisableJump"));
+	//UE_LOG(LogTemp, Warning, TEXT("DisableJump"));
 }
 
 void UHero_AnimInstance::OnJumpStart()

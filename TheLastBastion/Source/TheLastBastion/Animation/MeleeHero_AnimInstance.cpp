@@ -139,6 +139,7 @@ void UMeleeHero_AnimInstance::OnActionInterrupt()
 
 	Super::OnActionInterrupt();
 	CurrentComboIndex = 0;
+	OnDisableWeapon(false, true);
 }
 
 void UMeleeHero_AnimInstance::OnFocus()

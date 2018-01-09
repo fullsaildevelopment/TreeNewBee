@@ -34,6 +34,15 @@ void ATheLastBastionBaseAIController::Possess(APawn* _possPawn)
 		return;
 	}
 
+	mAnimInstanceRef = Cast<UAIBase_AnimInstance>(mCharacter->GetMesh()->GetAnimInstance());
+	if (mAnimInstanceRef == nullptr)
+	{
+		UE_LOG(LogTemp, Error,
+			TEXT("mAnimInstanceRef is NUll -- ATheLastBastionBaseAIController::BeginPlay"));
+		return;
+	}
+
+
 	UBehaviorTree* const bt = mCharacter->GetBehaviorTree();
 	if (bt == nullptr)
 	{
@@ -75,14 +84,14 @@ void ATheLastBastionBaseAIController::BeginPlay()
 	//	mBBComp->SetValue<UBlackboardKeyType_Object>(targetActor_KeyID,
 	//		UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
-	if (mCharacter)
-	{
-		mAnimInstanceRef = Cast<UAIBase_AnimInstance>(mCharacter->GetMesh()->GetAnimInstance());
-		if (mAnimInstanceRef == nullptr)
-		{
-			UE_LOG(LogTemp, Error, 
-				TEXT("mAnimInstanceRef is NUll -- ATheLastBastionBaseAIController::BeginPlay"));
-			return;
-		}
-	}
+	//if (mCharacter)
+	//{
+	//	mAnimInstanceRef = Cast<UAIBase_AnimInstance>(mCharacter->GetMesh()->GetAnimInstance());
+	//	if (mAnimInstanceRef == nullptr)
+	//	{
+	//		UE_LOG(LogTemp, Error, 
+	//			TEXT("mAnimInstanceRef is NUll -- ATheLastBastionBaseAIController::BeginPlay"));
+	//		return;
+	//	}
+	//}
 }

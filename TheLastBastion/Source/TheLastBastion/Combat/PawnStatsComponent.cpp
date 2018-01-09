@@ -68,14 +68,16 @@ void UPawnStatsComponent::SetEnableWeapon(bool _bIsEnabled, bool _bIsRightHand, 
 {
 	if (_bIsAll)
 	{
-		RightHandWeapon->SetDamageIsEnabled(_bIsEnabled);
-		LeftHandWeapon->SetDamageIsEnabled(_bIsEnabled);
+		if (RightHandWeapon)
+			RightHandWeapon->SetDamageIsEnabled(_bIsEnabled);
+		if (LeftHandWeapon)
+			LeftHandWeapon->SetDamageIsEnabled(_bIsEnabled);
 	}
 	else
 	{
-		if (_bIsRightHand)
+		if (_bIsRightHand && RightHandWeapon)
 			RightHandWeapon->SetDamageIsEnabled(_bIsEnabled);
-		else
+		else if (LeftHandWeapon)
 			LeftHandWeapon->SetDamageIsEnabled(_bIsEnabled);
 	}
 }

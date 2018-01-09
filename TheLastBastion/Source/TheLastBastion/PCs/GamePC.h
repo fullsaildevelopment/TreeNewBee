@@ -28,7 +28,9 @@ public:
 
 
 	UFUNCTION(Client, Reliable)
-		void CLIENT_AddPlayerToPlayerList(const TArray<FPlayerProfile>& _allConnectedPlayers,
+		/** Tell client UI to populate all player rows for all connected players 
+		* _index tells which player is this client itself and skip that player */
+		void CLIENT_AddPlayerToPlayerList(const TArray<FMatchPlayer>& _allConnectedPlayers,
 			int _index);
 
 	UFUNCTION(Client, Reliable)
@@ -45,8 +47,11 @@ private:
 	UFUNCTION(Server, Reliable, WithValidation)
 		/** Called during login, update the profile to server
 		and ask server to spawn a character */
-		void SERVER_UploadProfileAndRequestCharacter
-		(const FPlayerProfile& _profile, int _index);
+		void SERVER_UploadProfileAndRequestCharacter(const FPlayerProfile& _profile, int _index);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		/** Called after a new clients join, client ask server to tell all other clients to update the player list*/
+		void SERVER_UpdatePlayerList();
 			
 	/** Copy the player profile from local to client version of player controller*/
 	void SaveGameCheck();

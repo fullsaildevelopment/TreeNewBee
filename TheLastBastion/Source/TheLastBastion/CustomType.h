@@ -27,6 +27,8 @@ struct FPlayerProfile
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TSubclassOf<class ACharacter> mCharacterClass;
 
+	UPROPERTY()
+		bool bIsRangerClass = true;
 };
 
 
