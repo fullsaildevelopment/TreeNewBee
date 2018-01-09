@@ -176,7 +176,6 @@ bool UHero_AnimInstance::OnAttack()
 		UE_LOG(LogTemp, Warning, TEXT("Attack ignore - UHero_AnimInstance"));
 	}
 	return !ignore;
-
 }
 
 void UHero_AnimInstance::OnEnableWeapon(bool _bIsright, bool _bIsAll)

@@ -168,6 +168,7 @@ public:
 	FORCEINLINE float GetDivByHpMax() const { return DivByHpMax; }
 	FORCEINLINE float GetDivBySpMax() const { return DivByStaminaMax; }
 	FORCEINLINE int GetLevel() const { return Level; }
+	FORCEINLINE AWeapon* GetRightHandWeapon() const { return RightHandWeapon; }
 
 	// Called after a character is spawned, generate the raw stats according to its level
 	void GenerateRawStatsByLevel(int Level);

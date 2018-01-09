@@ -30,4 +30,11 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		void OnPostEvaluate() override;
 
+
+
+public:
+
+	bool OnAttack() override;
+
+
 };
