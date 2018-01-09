@@ -14,8 +14,6 @@ class THELASTBASTION_API UAIMelee_AnimInstance : public UAIBase_AnimInstance
 {
 	GENERATED_BODY()
 	
-	
-
 
 
 protected:
@@ -63,10 +61,18 @@ public:
 
 private:
 
+	UFUNCTION()
+		void OnMontageStartHandle(class UAnimMontage* _animMontage);
+
+	UFUNCTION()
+	    void OnMontageBlendOutStartHandle(class UAnimMontage* _animMontage, bool _bInterruptted);
+
 	void SyncMotionForMeleeAttack();
 
 	FName HitReaction_SHSword(FName boneName, const FVector & _shotFromDirection);
 
+
+	
 
 protected:
 

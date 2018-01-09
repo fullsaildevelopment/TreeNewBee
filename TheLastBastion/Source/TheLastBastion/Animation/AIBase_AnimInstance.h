@@ -15,7 +15,8 @@ enum class EAIActionState : uint8
 	MeleeAttack = 1 UMETA(DisplayName = "Melee Attack"),
 	Fire = 2 UMETA(DisplayName = "Fire"),
 	Dodge = 3 UMETA(DisplayName = "Dodge"),
-	Defend = 4 UMETA(DisplayName = "Defend")
+	Defend = 4 UMETA(DisplayName = "Defend"),
+	GettingHurt = 5 UMETA(DisplayName = "GettingHurt")
 };
 
 UENUM(BlueprintType)
@@ -28,8 +29,9 @@ enum class EAIMeleeAttackType : uint8
 };
 
 
-
 DECLARE_DELEGATE_OneParam(FOnFinishAttackSignature, class UBehaviorTreeComponent*);
+DECLARE_DELEGATE_OneParam(FOnRecoverFromHitSignature, class UBehaviorTreeComponent*);
+
 
 UCLASS()
 class THELASTBASTION_API UAIBase_AnimInstance : public UBase_AnimInstance
@@ -64,6 +66,7 @@ protected:
 public:
 
 	FOnFinishAttackSignature OnFinishAttackDelegate;
+	FOnRecoverFromHitSignature OnRecoverFromHitSignature;
 
 protected:
 
@@ -92,10 +95,6 @@ public:
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE EAIActionState GetCurrentActionState() const {return CurrentActionState;}
-
-
-
-
 
 
 };

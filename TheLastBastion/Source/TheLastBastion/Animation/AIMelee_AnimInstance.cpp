@@ -19,12 +19,17 @@
 void UAIMelee_AnimInstance::OnBeginPlay()
 {
 	Super::OnBeginPlay();
+	attackChoice = EAIMeleeAttackType::None;
+	UE_LOG(LogTemp, Log, TEXT("UAIMelee_AnimInstance::OnBeginPlay is Called"));
+
+	OnMontageStarted.AddDynamic(this, &UAIMelee_AnimInstance::OnMontageStartHandle);
+	OnMontageBlendingOut.AddDynamic(this, &UAIMelee_AnimInstance::OnMontageBlendOutStartHandle);
+
 }
 
 void UAIMelee_AnimInstance::OnInit()
 {
 	Super::OnInit();
-	attackChoice = EAIMeleeAttackType::None;
 }
 
 void UAIMelee_AnimInstance::OnUpdate(float _deltaTime)
@@ -52,7 +57,7 @@ void UAIMelee_AnimInstance::OnEnableWeapon(bool bIsright, bool bIsAll)
 {
 	if (mCharacter)
 	{
-		UE_LOG(LogTemp, Log, TEXT("enable weapon"));
+		//UE_LOG(LogTemp, Log, TEXT("enable weapon"));
 		mCharacter->GetEnemyStatsComponent()->SetEnableWeapon(true, bIsright, bIsAll);
 	}
 }
@@ -88,7 +93,7 @@ void UAIMelee_AnimInstance::FinishAttack()
 			if (btc)
 			{
 				OnFinishAttackDelegate.ExecuteIfBound(btc);
-				OnFinishAttackDelegate.Unbind();
+				//OnFinishAttackDelegate.Unbind();
 			}
 		}
 	}
@@ -97,6 +102,39 @@ void UAIMelee_AnimInstance::FinishAttack()
 void UAIMelee_AnimInstance::InitAttack()
 {
 	NextAction = EAIActionState::None;
+}
+
+void UAIMelee_AnimInstance::OnMontageStartHandle(UAnimMontage * _animMontage)
+{
+	if (_animMontage == Hit_Montage)
+	{
+		UE_LOG(LogTemp, Log, TEXT("I am being hit - OnMontageStartHandle"));
+	}
+}
+
+void UAIMelee_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontage, bool _bInterruptted)
+{
+	if (_animMontage == Hit_Montage && !_bInterruptted)
+	{
+		UE_LOG(LogTemp, Log, TEXT("I am recover from being hit - OnMontageBlendOutStartHandle"));
+		CurrentActionState = EAIActionState::None;
+		// Tell BT that this attack is done
+		if (mCharacter)
+		{
+			ATheLastBastionBaseAIController* enemyC = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
+			// recover the rotation rate from melee attack motion sync
+			mCharacter->GetCharacterMovement()->RotationRate.Yaw = 540.0f;
+			if (enemyC)
+			{
+				UBehaviorTreeComponent* btc = enemyC->GetBTComp();
+				if (btc)
+				{
+					OnRecoverFromHitSignature.ExecuteIfBound(btc);
+					//OnRecoverFromHitSignature.Unbind();
+				}
+			}
+		}
+	}
 }
 
 void UAIMelee_AnimInstance::SyncMotionForMeleeAttack()
@@ -122,9 +160,13 @@ void UAIMelee_AnimInstance::SyncMotionForMeleeAttack()
 
 void UAIMelee_AnimInstance::OnBeingHit(float _damage, FName boneName, const FVector & _shotFromDirection, const UPawnStatsComponent * _pawnStats)
 {
-
+	
 	FinishAttack();
-	UE_LOG(LogTemp, Log, TEXT("disable weapon on hit"));
+	CurrentActionState = EAIActionState::GettingHurt;
+
+
+
+	//UE_LOG(LogTemp, Log, TEXT("disable weapon on hit"));
 	OnDisableWeapon(false, true);
 	if (Hit_Montage == nullptr)
 	{
@@ -150,7 +192,7 @@ FName UAIMelee_AnimInstance::HitReaction_SHSword(FName boneName, const FVector &
 {
 	FName sectionName;
 	FVector away = _shotFromDirection.GetSafeNormal();
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *boneName.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("%s"), *boneName.ToString());
 
 	float vert = FVector::DotProduct(mCharacter->GetActorForwardVector(), away);
 	if (boneName.Compare(HEADBONE) == 0)

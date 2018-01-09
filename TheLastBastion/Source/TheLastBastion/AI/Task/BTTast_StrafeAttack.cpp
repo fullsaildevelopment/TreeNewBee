@@ -49,35 +49,39 @@ EBTNodeResult::Type UBTTast_StrafeAttack::ExecuteTask(UBehaviorTreeComponent & O
 		return NodeResult;
 	}
 
-	// check attack distance
-	float distanceSqr = (me->GetActorLocation() - targetActor->GetActorLocation()).SizeSquared();
-	bbc->SetValue<UBlackboardKeyType_Float>(enemyC->GetKeyID_ToTargetActorDistanceSqr(), distanceSqr);
-
-	if (distanceSqr > meleeComboAttackDistanceSqr)
-	{
-		UE_LOG(LogTemp, Log, TEXT("Is too far too attack, failed this task, and move to next task"));
-		return NodeResult;
-	}
-	else if (animRef->GetCurrentActionState() == EAIActionState::MeleeAttack)
+	if (animRef->GetCurrentActionState() != EAIActionState::None)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Is Attacking, failed this task, and move to next task"));
 		return NodeResult;
 	}
 	else
 	{
-		NodeResult = EBTNodeResult::InProgress;
-		animRef->OnFinishAttackDelegate.BindUObject(this, &UBTTast_StrafeAttack::OnFinishAttackHandle);
+		// check attack distance
+		float distanceSqr = (me->GetActorLocation() - targetActor->GetActorLocation()).SizeSquared();
+		bbc->SetValue<UBlackboardKeyType_Float>(enemyC->GetKeyID_ToTargetActorDistanceSqr(), distanceSqr);
 
-		EAIMeleeAttackType attackType = EAIMeleeAttackType::None;
-		if (distanceSqr < dashedAttackDistanceSqr)
-			attackType = EAIMeleeAttackType::InPlace;
+		if (distanceSqr > meleeComboAttackDistanceSqr)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Is too far too attack, failed this task, and move to next task"));
+			return NodeResult;
+		}
 		else
-			attackType = (FMath::RandBool()) ? EAIMeleeAttackType::Move : (EAIMeleeAttackType::Move_InPlace);
+		{
+			NodeResult = EBTNodeResult::InProgress;
+			animRef->OnFinishAttackDelegate.BindUObject(this, &UBTTast_StrafeAttack::OnFinishAttackHandle);
+
+			EAIMeleeAttackType attackType = EAIMeleeAttackType::None;
+			if (distanceSqr < dashedAttackDistanceSqr)
+				attackType = EAIMeleeAttackType::InPlace;
+			else
+				attackType = (FMath::RandBool()) ? EAIMeleeAttackType::Move : (EAIMeleeAttackType::Move_InPlace);
 
 
-		animRef->Attack(attackType);
+			animRef->Attack(attackType);
 
-		return NodeResult;
+			return NodeResult;
+		}
+
 	}
 }
 
