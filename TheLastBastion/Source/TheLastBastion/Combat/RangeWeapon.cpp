@@ -50,27 +50,35 @@ void ARangeWeapon::Fire()
 		QueryParams.AddIgnoredActor(GearOwner);
 		QueryParams.AddIgnoredActor(this);
 		QueryParams.bTraceComplex = true;
-		QueryParams.bReturnPhysicalMaterial = true;
+		QueryParams.bReturnPhysicalMaterial = false;
 		FHitResult Hit;
 
-		bool isEnemyCharacter = (Cast<ATheLastBastionEnemyCharacter>(GearOwner) != nullptr);
-
-		FCollisionObjectQueryParams ObjectParams;
-		ObjectParams.AddObjectTypesToQuery((isEnemyCharacter) ? ECC_HeroBody : ECC_EnemyBody);
-
-		if (ObjectParams.IsValid() == false)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Invalid object types"));
-			return;
-		}
-
-		if (GetWorld()->LineTraceSingleByObjectType(Hit, EyesLocation, TraceEnd, ObjectParams, QueryParams))
+		if (GetWorld()->LineTraceSingleByChannel(Hit, EyesLocation, TraceEnd, ECollisionChannel::ECC_Visibility))
 		{
 			// Override TracerEndPoint when bullet get blocked
 			TraceEnd = Hit.ImpactPoint;
 		}
 
+
 		// Draw a bebug line when linetrace hits something
 		DrawDebugLine(GetWorld(), EyesLocation, TraceEnd, FColor::Red, false, 2.0f, 0, 1.0f);
+
+		// Correctly Spawn the projectile
+		FVector MuzzleLocation = MeshComp->GetSocketLocation(MuzzleSocketName);
+		FRotator MuzzleRotation = MeshComp->GetSocketRotation(MuzzleSocketName);
+
+		// Create and Initialize the spawn parameters for the projectile
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+
+		AProjectile* CrossbowProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClassBP, MuzzleLocation, EyesRotation, SpawnParams);
+
+		// Calculate the velocity for the projectile
+		FVector FlyDir = (TraceEnd - MuzzleLocation).GetSafeNormal();
+		CrossbowProjectile->GetProjectileMovementComp()->Velocity = FlyDir * BulletSpeed;
+
+		// Draw a bebug line from weapon to impact position
+		DrawDebugLine(GetWorld(), MuzzleLocation, TraceEnd, FColor::Green, false, 2.0f, 0, 1.0f);
 	}
 }

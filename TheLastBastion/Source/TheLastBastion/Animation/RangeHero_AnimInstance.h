@@ -24,17 +24,17 @@ public:
 protected:
 
 	UFUNCTION(BlueprintCallable)
-		void OnBeginPlay() override;
+	void OnBeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
-		void OnInit() override;
+	void OnInit() override;
 
 	UFUNCTION(BlueprintCallable)
-		/** Animation Update tick, run every frame*/
-		void OnUpdate(float _deltaTime) override;
+	/** Animation Update tick, run every frame*/
+	void OnUpdate(float _deltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
-		void OnPostEvaluate() override;
+	void OnPostEvaluate() override;
 
 public:
 
@@ -43,17 +43,33 @@ public:
 	/** Called when equip button is pressed  */
 	bool OnEquip() override;
 
+	void OnRightMouseButtonPressed() override;
 
+	void OnRightMouseButtonReleased() override;
 
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
-		/** FOV blend rate zoom in and zoom out*/
-		float cameraZoomInRate;
+	bool bTryToZoomIn;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
-		/** Camera blend rate between travel mode and crossbow mode*/
-		float cameraShiftRate;
+	float ZoomedFOV;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
+	float DefalutFOV;
+
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
+	/** FOV blend rate zoom in and zoom out*/
+	float CameraZoomInRate;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
+	/** Camera blend rate between travel mode and crossbow mode*/
+	float CameraShiftRate;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
+	FVector CameraRelativeLocation; 
+
 
 
 private:
@@ -62,8 +78,6 @@ private:
 
 	//void LerpCameraToTravelPosition();
 
-	void ZoomIn();
-
-	void ZoomOut();
+	void ZoomInCamera(float DeltaTime);
 
 };

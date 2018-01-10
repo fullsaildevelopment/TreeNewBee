@@ -81,6 +81,14 @@ void UHero_AnimInstance::OnCorLAltPressed()
 {
 }
 
+void UHero_AnimInstance::OnRightMouseButtonPressed()
+{
+}
+
+void UHero_AnimInstance::OnRightMouseButtonReleased()
+{
+}
+
 void UHero_AnimInstance::OnSprintPressed()
 {
 	bTryToSprint = true;

@@ -227,6 +227,14 @@ public:
 	/** Called when C or LAlt (Crouch / Dodge) is pressed*/
 	virtual void OnCorLAltPressed();
 
+	/** Called when RMB is pressed*/
+	virtual void OnRightMouseButtonPressed();
+
+	/** Called when RMB is released*/
+	virtual void OnRightMouseButtonReleased();
+
+
+
 #pragma endregion
 
 	virtual void OnBeingHit

@@ -69,6 +69,13 @@ protected:
 	void OnCorLAltPressed();
 
 
+	/** Called when RMB is pressed*/
+	void OnRightMouseButtonPressed();
+
+	/** Called when RMB is released*/
+	void OnRightMouseButtonReleased();
+
+
 	/** Preserve the Yaw input from Pawn interface, and capatable with camera Lock - on*/
 	void AddControllerYaw(float _yaw);
 
@@ -100,6 +107,7 @@ private:
 		class UHero_AnimInstance*  mAnimInstanceRef;
 
 	float MoveForwardAxis;
+
 	float MoveRightAxis;
 
 #pragma region  Camera
@@ -127,7 +135,12 @@ private:
 		UFUNCTION()
 			void OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType, FName _boneNmame, FVector _shotFromDirection);
 
+
 public:
+
+	// Override A Parent class function
+	FVector GetPawnViewLocation() const override;
+
 	
 	FORCEINLINE class USphereComponent* GetTargetDetector() const { return TargetDetector; }
 

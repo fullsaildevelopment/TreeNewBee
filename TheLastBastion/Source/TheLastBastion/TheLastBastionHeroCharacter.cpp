@@ -106,6 +106,11 @@ void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputCompone
 	PlayerInputComponent->BindAction("Focus", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnMiddleMouseButtonPressed);
 	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnCorLAltPressed);
 
+	PlayerInputComponent->BindAction("RMB", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnRightMouseButtonPressed);
+	PlayerInputComponent->BindAction("RMB", IE_Released, this, &ATheLastBastionHeroCharacter::OnRightMouseButtonReleased);
+
+
+
 }
 
 #pragma region On Player Input
@@ -205,6 +210,16 @@ void ATheLastBastionHeroCharacter::OnCorLAltPressed()
 	mAnimInstanceRef->OnCorLAltPressed();
 }
 
+void ATheLastBastionHeroCharacter::OnRightMouseButtonPressed()
+{
+	mAnimInstanceRef->OnRightMouseButtonPressed();
+}
+
+void ATheLastBastionHeroCharacter::OnRightMouseButtonReleased()
+{
+	mAnimInstanceRef->OnRightMouseButtonReleased();
+}
+
 void ATheLastBastionHeroCharacter::AddControllerYaw(float _yaw)
 {
 	//if (CharacterType == ECharacterType::Ranger)
@@ -236,6 +251,17 @@ void ATheLastBastionHeroCharacter::OnHealthChangedHandle(const UPawnStatsCompone
 
 	// Animation
 	mAnimInstanceRef->OnBeingHit(_damage, _boneName, _shotFromDirection, _pawnStatsComp);
+
+}
+
+FVector ATheLastBastionHeroCharacter::GetPawnViewLocation() const
+{
+	if (FollowCamera != nullptr)
+	{
+		return FollowCamera->GetComponentLocation();
+	}
+
+	return Super::GetPawnViewLocation();
 
 }
 
