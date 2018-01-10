@@ -15,7 +15,7 @@ enum class EEquipType : uint8
 	Travel = 0 	    UMETA(DisplayName = "Travel"),
 	ShieldSword 	UMETA(DisplayName = "ShieldSword"),
 	TwoHandSword	UMETA(DisplayName = "TwoHandSword"),
-	Bow             UMETA(DisplayName = "Bow")
+	CrossBow        UMETA(DisplayName = "CrossBow")
 };
 
 UENUM(BlueprintType)
@@ -143,28 +143,6 @@ protected:
 		None if there isnt one */
 		EActionType NextAction;
 
-
-	UPROPERTY(BlueprintReadOnly, Category = Combat)
-		/** Flag to check if our character is in strafe mode,
-		*  Set by Focus Button, Reset by Equip button and focus button
-		*  if player is in travel mode, focus button will automatically implement equip*/
-		bool bIsFocused;
-
-	/** Due to I dont want to mess up my dodge movement property,
-	*   if someone try to enter focus mode  during dodge, toggle this boolean to true, and wait
-	*   until the dodge finish, enter the focus mode, reset this boolean*/
-	bool bIsFocusEnterPending;
-
-	/** Due to I dont want to mess up my dodge movement property,
-	*   if someone try to exit focus mode during dodge, toggle this boolean to true, and wait
-	*   until the dodge finish, exit the focus mode, reset this boolean */
-	bool bIsFocusExitPending;
-
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
-		/** Angle between Acceleration and Forward Direction must less than this angle to trigger dodge*/
-		float DodgeMinTurnThreshold;
-
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
 		/** Current activated equipment type */
 		EEquipType ActivatedEquipment;
@@ -176,12 +154,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 		EAttackState AttackState;
 
-					
-	UPROPERTY(BlueprintReadOnly, Category = Combat)
-		/** Must be assigned for before focused dodge*/
-		EFocusDodgeDirection FocusDodgeDirection;
-
-
+				
 #pragma endregion
 
 	
@@ -196,9 +169,6 @@ protected:
 		virtual void OnPostEvaluate() override;
 
 
-		/** Called when decide to make a dodge*/
-		virtual void LaunchDodge();
-
 #pragma region Anim Notification
 
 
@@ -209,7 +179,6 @@ protected:
 		UFUNCTION(BlueprintCallable)
 			void StopOverrideSpeed();
 
-
 		/** Called when enter idle state and loop state during travel mode*/
 		UFUNCTION(BlueprintCallable)
 			void EnableJump();
@@ -218,29 +187,13 @@ protected:
 		UFUNCTION(BlueprintCallable)
 			void DisableJump();
 
-		UFUNCTION(BlueprintCallable)
-			virtual void OnDodgePost();
-
-		UFUNCTION(BlueprintCallable)
-			virtual void OnDodgeFinish();
-
-		UFUNCTION(BlueprintCallable)
-			virtual void OnNextAttack();
-
-		UFUNCTION(BlueprintCallable)
-			virtual void OnResetCombo();
-
-
-		virtual void OnEnableWeapon(bool bIsright = true, bool bIsAll = false);
-
-		virtual void OnDisableWeapon(bool bIsright = true, bool bIsAll = false);
-
-
-		/** Called when Character draw his weapon during animation*/
+		/** Called when Character draw his weapon during animation,
+		toggle on use desired control rotation*/
 		UFUNCTION(BlueprintCallable)
 			virtual void OnEquipWeapon();
 
-		/** Called when Character collect his weapon during animation*/
+		/** Called when Character draw his weapon during animation,
+		toggle off use desired control rotation*/
 		UFUNCTION(BlueprintCallable)
 			virtual void OnSheathWeapon();
 
@@ -248,49 +201,58 @@ protected:
 
 public:
 
+#pragma region Action Mapping
+
+
 	/** Called when attack button is called*/
-	virtual bool OnAttack();
+	virtual void OnAttack();
 	/** Called when equip button is pressed*/
 	virtual bool OnEquip();
-	/** Called when Focus button is pressed*/
-	virtual void OnFocus();
-	/** Called when Focus button is pressed*/
-	virtual bool OnDodge();
 	/** Called when Jump button is pressed*/
 	virtual void OnJumpStart();
 	/** Called when Jump button is released*/
 	virtual void OnJumpStop();
+	/** Called when Sprint Button is pressed*/
+	void OnSprintPressed();
+	/** Called when Sprint Button is released*/
+	void OnSprintReleased();
+
+
+
+	///** Custom Binding based on Character type
+
+	/** Called when middle mouse button is pressed*/
+	virtual void OnMiddleMouseButtonPressed();
+
+	/** Called when C or LAlt (Crouch / Dodge) is pressed*/
+	virtual void OnCorLAltPressed();
+
+#pragma endregion
 
 	virtual void OnBeingHit
 	( float _damage, FName boneName, const FVector& _shotFromDirection, const class UPawnStatsComponent* _pawnStats) override;
 
 	virtual void OnActionInterrupt();
 
-	void SetTryToSprint(bool _val);
-
-	/** the Animation Instance react to Sprint Key Button*/ 
-	void OnSprintPressed();
-	void OnSprintReleased();
-
-	FORCEINLINE bool IsSpeedOverrideByAnim() const { return bVelocityOverrideByAnim; }
-	FORCEINLINE bool IsRotationRateOverrideByAnim() const { return bRotationRateOverrideByAnim; }
-	FORCEINLINE bool GetIsJumpEnable() const { return bEnableJump; }
-	FORCEINLINE bool GetIsFocus() const { return bIsFocused; }
-	FORCEINLINE void SetIsJump(bool _val) { bTryToJump = _val; }
-
-	FORCEINLINE EEquipType GetCurrentEquipmentType() const { return CurrentEquipment; }
-	FORCEINLINE EEquipType GetActivatedEquipmentType() const { return ActivatedEquipment;  }
-	FORCEINLINE bool GetFocusPendingEnter() const { return bIsFocusEnterPending; }
-	FORCEINLINE bool GetFocusPendingExit() const { return bIsFocusExitPending; }
 
 protected:
 
 
 	/** Called when player try to attack and dodge and use skill without equip at the first place
 	    Simply attach a weapon on the slot without play the animation, disable jump*/
-	void SkipEquip();
-	void HeadTrack();
-	void ToggleFocusMode(bool _IsOn);
 
-	FVector GetFocusDodgeDirection() const;
+	void SkipEquip();
+
+	void HeadTrack();
+
+
+public:
+
+		FORCEINLINE bool IsSpeedOverrideByAnim() const { return bVelocityOverrideByAnim; }
+		FORCEINLINE bool IsRotationRateOverrideByAnim() const { return bRotationRateOverrideByAnim; }
+		FORCEINLINE bool GetIsJumpEnable() const { return bEnableJump; }
+		FORCEINLINE void SetIsJump(bool _val) { bTryToJump = _val; }
+
+		FORCEINLINE EEquipType GetCurrentEquipmentType() const { return CurrentEquipment; }
+		FORCEINLINE EEquipType GetActivatedEquipmentType() const { return ActivatedEquipment; }
 };

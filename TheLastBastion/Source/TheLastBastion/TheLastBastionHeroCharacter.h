@@ -63,10 +63,10 @@ protected:
 	void OnEquipPressed();
 
 	/** Called when Focus Button is Pressed*/
-	void OnFocusPressed();
+	void OnMiddleMouseButtonPressed();
 
 	/** Called when Dodge Button is Pressed*/
-	void OnDodgePressed();
+	void OnCorLAltPressed();
 
 
 	/** Preserve the Yaw input from Pawn interface, and capatable with camera Lock - on*/

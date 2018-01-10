@@ -6,7 +6,7 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "Animation/Hero_AnimInstance.h"
+#include "Animation/MeleeHero_AnimInstance.h"
 #include "CustomType.h"
 #include "Combat/Weapon.h"
 #include "Combat/Armor.h"
@@ -26,6 +26,7 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter() : Super()
 	CameraBoom->TargetArmLength = 300.0f; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 	CameraBoom->bEnableCameraRotationLag = true;
+	CameraBoom->RelativeLocation = FVector(0, 0, 60);
 
 	LockOn_CamRotationLagging = 10.0f;
 	NonLockOn_CamRotationLagging = 50.0f;
@@ -102,8 +103,8 @@ void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputCompone
 
 	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnAttackPressed);
 	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnEquipPressed);
-	PlayerInputComponent->BindAction("Focus", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnFocusPressed);
-	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnDodgePressed);
+	PlayerInputComponent->BindAction("Focus", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnMiddleMouseButtonPressed);
+	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnCorLAltPressed);
 
 }
 
@@ -163,13 +164,13 @@ void ATheLastBastionHeroCharacter::MoveRight(float Value)
 void ATheLastBastionHeroCharacter::OnSprintPressed()
 {
 	mAnimInstanceRef->OnSprintPressed();
-	UE_LOG(LogTemp, Warning, TEXT("OnSprintPressed"));
+	//UE_LOG(LogTemp, Warning, TEXT("OnSprintPressed"));
 }
 
 void ATheLastBastionHeroCharacter::OnSprintReleased()
 {
 	mAnimInstanceRef->OnSprintReleased();
-	UE_LOG(LogTemp, Warning, TEXT("OnSprintReleased"));
+	//UE_LOG(LogTemp, Warning, TEXT("OnSprintReleased"));
 }
 
 void ATheLastBastionHeroCharacter::OnJumpPressed()
@@ -193,25 +194,32 @@ void ATheLastBastionHeroCharacter::OnEquipPressed()
 	mAnimInstanceRef->OnEquip();
 }
 
-void ATheLastBastionHeroCharacter::OnFocusPressed()
+void ATheLastBastionHeroCharacter::OnMiddleMouseButtonPressed()
 {
 	// figure out which target to focus
-	HeroStats->OnFocus();
-
-	mAnimInstanceRef->OnFocus();
+	mAnimInstanceRef->OnMiddleMouseButtonPressed();
 }
 
-void ATheLastBastionHeroCharacter::OnDodgePressed()
+void ATheLastBastionHeroCharacter::OnCorLAltPressed()
 {
-	mAnimInstanceRef->OnDodge();
+	mAnimInstanceRef->OnCorLAltPressed();
 }
 
 void ATheLastBastionHeroCharacter::AddControllerYaw(float _yaw)
 {
-	if (mAnimInstanceRef && !mAnimInstanceRef->GetIsFocus())
-	{
-		this->AddControllerYawInput(_yaw);
-	}
+	//if (CharacterType == ECharacterType::Ranger)
+	//{
+	//	UMeleeHero_AnimInstance* animRef = Cast<UMeleeHero_AnimInstance>(mAnimInstanceRef);
+	//	if (animRef && !animRef->GetIsFocus())
+	//	{
+	//		this->AddControllerYawInput(_yaw);
+	//	}
+	//}
+	//else
+	//{
+	//	this->AddControllerYawInput(_yaw);
+	//}
+	this->AddControllerYawInput(_yaw);
 }
 
 #pragma endregion

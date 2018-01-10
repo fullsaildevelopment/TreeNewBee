@@ -70,12 +70,12 @@ protected:
 	class ATheLastBastionCharacter* mCharacter;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combat)
-		TSubclassOf <class AWeapon> LeftHandWeapon_ClassBp;
-	class AWeapon*    LeftHandWeapon;
+		TSubclassOf <class AGear> LeftHandWeapon_ClassBp;
+	class AGear*    LeftHandWeapon;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combat)
-		TSubclassOf <class AWeapon> RightHandWeapon_ClassBp;
-	class AWeapon*    RightHandWeapon;
+		TSubclassOf <class AGear> RightHandWeapon_ClassBp;
+	class AGear*    RightHandWeapon;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combat)
 		TSubclassOf <class AArmor> Armor_ClassBp;
@@ -168,7 +168,7 @@ public:
 	FORCEINLINE float GetDivByHpMax() const { return DivByHpMax; }
 	FORCEINLINE float GetDivBySpMax() const { return DivByStaminaMax; }
 	FORCEINLINE int GetLevel() const { return Level; }
-	FORCEINLINE AWeapon* GetRightHandWeapon() const { return RightHandWeapon; }
+	FORCEINLINE AGear* GetRightHandWeapon() const { return RightHandWeapon; }
 
 	// Called after a character is spawned, generate the raw stats according to its level
 	void GenerateRawStatsByLevel(int Level);

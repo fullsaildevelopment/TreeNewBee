@@ -71,6 +71,8 @@ private:
 public:
 
 	virtual void Equip(class USkeletalMeshComponent* const _skeletonMeshComponent);
+
+	virtual void Arm(class USkeletalMeshComponent* const _skeletonMeshComponent);
 	
 	FORCEINLINE class ATheLastBastionCharacter* GetGearOwner() const { return GearOwner; }
 

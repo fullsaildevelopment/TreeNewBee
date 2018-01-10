@@ -19,18 +19,8 @@ public:
 	
 private:
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
-		class USkeletalMeshComponent* Mesh;	
-
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	    class USkeletalMesh* BodyMeshRef;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (AllowPrivateAccess = "true"))
-		class UMaterialInterface* BodyMaterialRef;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (AllowPrivateAccess = "true"))
-		class UMaterialInterface* BodyLogoMaterialRef;
-
 
 public:
 	

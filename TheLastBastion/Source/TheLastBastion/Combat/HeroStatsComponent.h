@@ -42,7 +42,8 @@ private:
 	TArray<class ATheLastBastionEnemyCharacter*> mPotentialTargets;
 
 public:
-	// Called when player press Focus button
+
+	// Called when Melee player enter Focus mode
 	void OnFocus();
 
 public:
@@ -60,6 +61,8 @@ private:
 	UFUNCTION()
 	void OnEnemyLeave(UPrimitiveComponent * _overlappedComponent, 
 		AActor * _otherActor, UPrimitiveComponent * _otherComp, int32 _otherBodyIndex);
+
+	void OnEnemyLeaveMelee(AActor * _otherActor);
 
 	void MeleeFocus();
 

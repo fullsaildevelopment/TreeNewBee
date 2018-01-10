@@ -3,25 +3,25 @@
 #include "Hero_AnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "TheLastBastionHeroCharacter.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "Combat/HeroStatsComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
+
 #include "Engine.h"
 
+#pragma region Class Base Interface
 
 UHero_AnimInstance::UHero_AnimInstance(const FObjectInitializer& _objectInitalizer) :Super(_objectInitalizer)
 {
 	HeadTrackRate = 3.0f;
-	DodgeMinTurnThreshold = 1.0f;
 	ActivatedEquipment = EEquipType::Travel;
 	AttackState = EAttackState::None;
 	bTryToSprint = false;
 	bTryToMove = false;
 	bIsSprinting = false;
-	bIsFocused = false;
 
 	bRotationRateOverrideByAnim = false;
 	bVelocityOverrideByAnim = false;
-	FocusDodgeDirection = EFocusDodgeDirection::None;
 }
 
 void UHero_AnimInstance::OnBeginPlay()
@@ -33,13 +33,11 @@ void UHero_AnimInstance::OnBeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("The MeleeHero can only assigned to ATheLastBastionCharacter - UMeleeHero_AnimInstance "));
 		return;
 	}
-	//UE_LOG(LogTemp, Warning, TEXT("UHero_AnimInstance Call OnBeginPlay"));
 
 }
 
 void UHero_AnimInstance::OnInit()
 {
-	//activatedEquipment = EEquipType::Travel;
 	//UE_LOG(LogTemp, Warning, TEXT("UHero_AnimInstance Call OnInit"));
 }
 
@@ -62,86 +60,55 @@ void UHero_AnimInstance::OnUpdate(float _deltaTime)
 
 		currentSpeed = movementComp->Velocity.Size();
 
-		mAccelerationDirection = movementComp->GetCurrentAcceleration();
-		mAccelerationDirection.Normalize();
-		Acceleration_bodySpace
-			= UKismetMathLibrary::InverseTransformDirection(mCharacter->GetTransform(), mAccelerationDirection);
-		
-		turn = FMath::RadiansToDegrees(FMath::Atan2(Acceleration_bodySpace.Y, Acceleration_bodySpace.X));
-
-		if (!bRotationRateOverrideByAnim)
-		{
-			// the more of the angle between forward vector and acceleration, the more rotation speed
-
-			if (ActivatedEquipment == EEquipType::Travel)
-				movementComp->RotationRate.Yaw
-				= UKismetMathLibrary::MapRangeClamped(FMath::Abs(turn), 0, 180.0f, 
-					mCharacter->GetMinTurnRateForTravel(),
-					mCharacter->GetMaxTurnRateForTravel());
-			else
-			{
-				if (AttackState == EAttackState::PreWinding)
-					movementComp->RotationRate.Yaw = mCharacter->GetMaxTurnRateForCombat();
-				else
-					movementComp->RotationRate.Yaw
-					= UKismetMathLibrary::MapRangeClamped(FMath::Abs(turn), 0, 180.0f,
-						mCharacter->GetMinTurnRateForCombat(),
-						mCharacter->GetMaxTurnRateForCombat());
-
-
-			}
-		}
-
-		if (bVelocityOverrideByAnim)
-		{
-			float Z = movementComp->Velocity.Z;
-			FVector overrideVelocity;
-
-			switch (AttackState)
-			{
-			case EAttackState::None:
-			case EAttackState::PreWinding:
-			case EAttackState::Attacking:
-			case EAttackState::ReadyForNext:
-			default:
-				overrideVelocity = mCharacter->GetActorForwardVector() * GetCurveValue("Speed");
-				movementComp->Velocity = FVector(overrideVelocity.X, overrideVelocity.Y, Z);
-				break;
-			case EAttackState::Dodging:
-			case EAttackState::PostDodging:
-			{
-				if (bIsFocused)
-					overrideVelocity = GetFocusDodgeDirection() * GetCurveValue("Speed");
-				else
-					overrideVelocity = mSpeedOverrideDirection * GetCurveValue("Speed");
-				//UE_LOG(LogTemp, Warning, TEXT("Dodge Direction x: %f, y: %f, z: %f"),
-				//	mSpeedOverrideDirection.X, mSpeedOverrideDirection.Y, mSpeedOverrideDirection.Z);
-				movementComp->Velocity = FVector(overrideVelocity.X, overrideVelocity.Y, Z);
-				break;
-			}
-			}
-		}
-	
 		// Head Track
 		HeadTrack();
 	}
-	else
-	{
-	}	
 }
 
 void UHero_AnimInstance::OnPostEvaluate()
 {
 }
 
-void UHero_AnimInstance::OnFocus()
+#pragma endregion
+
+
+void UHero_AnimInstance::OnMiddleMouseButtonPressed()
 {
-	//Do nothing and leave to derived class to handle
+	// Handled by child class
 }
+
+void UHero_AnimInstance::OnCorLAltPressed()
+{
+}
+
+void UHero_AnimInstance::OnSprintPressed()
+{
+	bTryToSprint = true;
+
+	//bool ableToSprint = !bSpeedOverrideByAnim && ActivatedEquipment == EEquipType::Travel;
+	bool ableToSprint = ActivatedEquipment == EEquipType::Travel && !bIsInAir;
+
+	if (ableToSprint)
+	{
+		mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetSprintSpeed();
+		bIsSprinting = true;
+	}
+}
+
+void UHero_AnimInstance::OnSprintReleased()
+{
+	bTryToSprint = false;
+
+	mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
+	bIsSprinting = false;
+}
+
+
 
 void UHero_AnimInstance::StartOverrideSpeed()
 {
-	bVelocityOverrideByAnim = true;
+	if (ActivatedEquipment == EEquipType::Travel && !Montage_IsPlaying(Equip_Montage))
+		bVelocityOverrideByAnim = true;
 }
 
 void UHero_AnimInstance::StopOverrideSpeed()
@@ -157,104 +124,12 @@ void UHero_AnimInstance::StopOverrideSpeed()
 }
 
 
-
-#pragma region Attack && Combo
-bool UHero_AnimInstance::OnAttack()
-{
-	bool ignore = Montage_IsPlaying(Hit_Montage) || Attack_Montage == nullptr || bIsInAir;
-
-	// Apply Input Filter
-	if (!ignore)
-	{
-		// UE_LOG(LogTemp, Warning, TEXT("Attack ! - UHero_AnimInstance"));
-		// when attack during travel mode
-		if (ActivatedEquipment == EEquipType::Travel)
-			SkipEquip();
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Attack ignore - UHero_AnimInstance"));
-	}
-	return !ignore;
-}
-
-void UHero_AnimInstance::OnEnableWeapon(bool _bIsright, bool _bIsAll)
-{
-	AttackState = EAttackState::Attacking;
-	mCharacter->GetHeroStatsComp()->SetEnableWeapon(true, _bIsright, _bIsAll);
-}
-
-void UHero_AnimInstance::OnDisableWeapon(bool _bIsright, bool _bIsAll)
-{
-	mCharacter->GetHeroStatsComp()->SetEnableWeapon(false, _bIsright, _bIsAll);
-}
-
-void UHero_AnimInstance::OnNextAttack()
-{
-	// Let derived Class to handle
-	// AttackState = EAttackState::ReadyForNext;
-}
-
-void UHero_AnimInstance::OnResetCombo()
-{
-	AttackState = EAttackState::None;
-	NextAction = EActionType::None;
-
-}
-
-#pragma endregion
-
-#pragma region Dodge Event Start, Init, Combination, Finish
-bool UHero_AnimInstance::OnDodge()
-{
-	// Apply Input Filter
-	bool ignore
-		= Montage_IsPlaying(Hit_Montage) ||
-		(FMath::Abs(turn) > DodgeMinTurnThreshold && !bIsFocused) ||
-		bIsInAir || Dodge_Montage  == nullptr;
-
-	if (!ignore)
-	{
-		if (ActivatedEquipment == EEquipType::Travel)
-			SkipEquip();
-		return true;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning,
-			TEXT("Dodge is ignored due to inAir or Montage Null"), turn);
-		return false;
-	}
-}
-
-void UHero_AnimInstance::LaunchDodge()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Dodge"));
-
-	// Update State
-	AttackState = EAttackState::Dodging;
-	// Clear Next Action Marker
-	NextAction = EActionType::None;
-
-	bVelocityOverrideByAnim = true;
-}
-
-void UHero_AnimInstance::OnDodgePost()
-{
-	// let derived class to handle
-}
-
-void UHero_AnimInstance::OnDodgeFinish()
-{
-	bVelocityOverrideByAnim = false;
-
-	bRotationRateOverrideByAnim = false;
-	AttackState = EAttackState::None;
-}
-
-#pragma endregion
-
 #pragma region Equip && Unequip
+
+void UHero_AnimInstance::OnAttack()
+{
+	// Let child class handle
+}
 
 bool UHero_AnimInstance::OnEquip()
 {
@@ -271,32 +146,6 @@ bool UHero_AnimInstance::OnEquip()
 	}
 	else
 	{
-		// Equip
-		if (ActivatedEquipment != CurrentEquipment)
-		{
-			// if we are sprinting then stop
-			if (bIsSprinting)
-			{
-				mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
-				bIsSprinting = false;
-			}
-			DisableJump();
-			bVelocityOverrideByAnim = false;
-			bRotationRateOverrideByAnim = false;
-		}
-		// UnEquip
-		else
-		{
-			/** No need to be in focus mode, if we already sheath our weapon*/
-			if (bIsFocused)
-			{
-				OnFocus();
-				UE_LOG(LogTemp, Warning, TEXT("Unequip during focus, unfocus is implemented automatically"));
-			}
-
-		}
-
-		// let derived class to handle animation
 		return true;
 	}
 
@@ -306,6 +155,9 @@ void UHero_AnimInstance::OnEquipWeapon()
 {
 	ActivatedEquipment = CurrentEquipment;
 	mCharacter->GetHeroStatsComp()->OnEquipWeapon();
+	mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	mCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
+
 }
 
 void UHero_AnimInstance::OnSheathWeapon()
@@ -319,6 +171,9 @@ void UHero_AnimInstance::OnSheathWeapon()
 		mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetSprintSpeed();
 		bIsSprinting = true;
 	}
+	mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	mCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
+
 }
 
 void UHero_AnimInstance::SkipEquip()
@@ -369,7 +224,11 @@ void UHero_AnimInstance::OnJumpStop()
 	mCharacter->StopJumping();
 }
 
-void UHero_AnimInstance::OnBeingHit(float _damage, FName boneName, const FVector & _shotFromDirection,const UPawnStatsComponent * _pawnStats)
+
+#pragma endregion
+
+
+void UHero_AnimInstance::OnBeingHit(float _damage, FName boneName, const FVector & _shotFromDirection, const UPawnStatsComponent * _pawnStats)
 {
 	// reset the attack state and movement override, cuz we are being attack
 	OnActionInterrupt();
@@ -403,42 +262,12 @@ void UHero_AnimInstance::OnBeingHit(float _damage, FName boneName, const FVector
 
 }
 
-#pragma endregion
-
-
 void UHero_AnimInstance::OnActionInterrupt()
 {
 	bVelocityOverrideByAnim = false;
 	bRotationRateOverrideByAnim = false;
 	AttackState = EAttackState::None;
 	NextAction = EActionType::None;
-}
-
-void UHero_AnimInstance::SetTryToSprint(bool _val)
-{
-	bTryToSprint = _val;
-}
-
-void UHero_AnimInstance::OnSprintPressed()
-{
-	bTryToSprint = true;
-
-	//bool ableToSprint = !bSpeedOverrideByAnim && ActivatedEquipment == EEquipType::Travel;
-	bool ableToSprint = ActivatedEquipment == EEquipType::Travel && !bIsInAir;
-
-	if (ableToSprint)
-	{
-		mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetSprintSpeed();
-		bIsSprinting = true;
-	}
-}
-
-void UHero_AnimInstance::OnSprintReleased()
-{
-	bTryToSprint = false;
-
-	mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
-	bIsSprinting = false;
 }
 
 
@@ -475,50 +304,3 @@ void UHero_AnimInstance::HeadTrack()
 
 }
 
-void UHero_AnimInstance::ToggleFocusMode(bool _IsOn)
-{
-	bIsFocused = _IsOn;
-	if (bIsFocused)
-		mCharacter->GetCameraBoom()->CameraRotationLagSpeed = 5.0f;
-	mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = _IsOn;
-	mCharacter->GetCharacterMovement()->bOrientRotationToMovement = !_IsOn;
-	bIsFocusEnterPending = false;
-	bIsFocusExitPending = false;
-}
-
-FVector UHero_AnimInstance::GetFocusDodgeDirection() const
-{
-	switch (FocusDodgeDirection)
-	{
-	case EFocusDodgeDirection::Forward:
-		return mCharacter->GetActorForwardVector();
-
-	case EFocusDodgeDirection::Right45:
-		return (.5 * mCharacter->GetActorForwardVector() +  mCharacter->GetActorRightVector()).GetUnsafeNormal();
-
-	case EFocusDodgeDirection::Left45:
-		return (.5f *  mCharacter->GetActorForwardVector() -  mCharacter->GetActorRightVector()).GetUnsafeNormal();
-
-	case EFocusDodgeDirection::Right135:
-		return (-.5f * mCharacter->GetActorForwardVector() + mCharacter->GetActorRightVector()).GetUnsafeNormal();
-
-	case EFocusDodgeDirection::Left135:
-		return (-.5f * mCharacter->GetActorForwardVector() - mCharacter->GetActorRightVector()).GetUnsafeNormal();
-
-	case EFocusDodgeDirection::Right90:
-		return mCharacter->GetActorRightVector();
-	case EFocusDodgeDirection::Back:
-	default:
-	{
-		FVector back = mCharacter->GetActorForwardVector();
-		back = FVector(-back.X, -back.Y, -back.Z);
-		return back;
-	}
-	case EFocusDodgeDirection::Left90:
-	{
-		FVector left = mCharacter->GetActorRightVector();
-		left = FVector(-left.X, -left.Y, -left.Z);
-		return left;
-	}
-	}
-}

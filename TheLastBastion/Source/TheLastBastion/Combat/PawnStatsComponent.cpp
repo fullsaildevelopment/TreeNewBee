@@ -69,19 +69,35 @@ void UPawnStatsComponent::SetEnableWeapon(bool _bIsEnabled, bool _bIsRightHand, 
 	if (_bIsAll)
 	{
 		if (RightHandWeapon)
-			RightHandWeapon->SetDamageIsEnabled(_bIsEnabled);
+		{
+			AWeapon* rightWeapon = Cast<AWeapon>(RightHandWeapon);
+			if (rightWeapon)
+				rightWeapon->SetDamageIsEnabled(_bIsEnabled);
+		}
+
 		if (LeftHandWeapon)
-			LeftHandWeapon->SetDamageIsEnabled(_bIsEnabled);
+		{
+			AWeapon* leftWeapon = Cast<AWeapon>(LeftHandWeapon);
+			if (leftWeapon)
+				leftWeapon->SetDamageIsEnabled(_bIsEnabled);
+		}
 	}
 	else
 	{
 		if (_bIsRightHand && RightHandWeapon)
-			RightHandWeapon->SetDamageIsEnabled(_bIsEnabled);
+		{
+			AWeapon* rightWeapon = Cast<AWeapon>(RightHandWeapon);
+			if (rightWeapon)
+				rightWeapon->SetDamageIsEnabled(_bIsEnabled);
+		}
 		else if (LeftHandWeapon)
-			LeftHandWeapon->SetDamageIsEnabled(_bIsEnabled);
+		{
+			AWeapon* leftWeapon = Cast<AWeapon>(LeftHandWeapon);
+			if (leftWeapon)
+				leftWeapon->SetDamageIsEnabled(_bIsEnabled);
+		}
 	}
 }
-
 
 void UPawnStatsComponent::OnEquipWeapon()
 {
@@ -227,6 +243,7 @@ float UPawnStatsComponent::GetBaseDamage()
 {
 	return 5.0f;
 }
+#pragma endregion
 
 
 /** Generate Raw Stats, equip geat, and Add Gear buff on raw stats*/
@@ -243,13 +260,13 @@ void UPawnStatsComponent::GenerateStatsAtBeginPlay()
 	{
 		if (LeftHandWeapon_ClassBp)
 		{
-			LeftHandWeapon = world->SpawnActor<AWeapon>(LeftHandWeapon_ClassBp);
+			LeftHandWeapon = world->SpawnActor<AGear>(LeftHandWeapon_ClassBp);
 			LeftHandWeapon->Equip(mCharacter->GetMesh());
 		}
 
 		if (RightHandWeapon_ClassBp)
 		{
-			RightHandWeapon = world->SpawnActor<AWeapon>(RightHandWeapon_ClassBp);
+			RightHandWeapon = world->SpawnActor<AGear>(RightHandWeapon_ClassBp);
 			if (bArmedFromBeginPlay)
 				RightHandWeapon->Arm(mCharacter->GetMesh());
 			else
@@ -372,7 +389,6 @@ void UPawnStatsComponent::OnTakePointDamageHandle(AActor * DamagedActor, float D
 	}
 }
 
-#pragma endregion
 
 
 

@@ -8,23 +8,18 @@
 
 AArmor::AArmor() 
 {
-	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Appearence"));
-	RootComponent = Mesh;
-	Mesh->SetCollisionProfileName("NoCollsion");
 }
 
 void AArmor::Equip(USkeletalMeshComponent * const _skeletonMeshComponent)
 {
 	Super::Equip(_skeletonMeshComponent);
+
 	if (BodyMeshRef)
 		_skeletonMeshComponent->SetSkeletalMesh(BodyMeshRef);
 
-	if (BodyMaterialRef && BodyLogoMaterialRef)
+	for (int i = 0; i < BodyMeshRef->Materials.Num(); i++)
 	{
-		_skeletonMeshComponent->SetMaterial(0, BodyMaterialRef);
-		_skeletonMeshComponent->SetMaterial(1, BodyLogoMaterialRef);
+		_skeletonMeshComponent->SetMaterial(i, BodyMeshRef->Materials[i].MaterialInterface);
 	}
-
-	Mesh->SetMasterPoseComponent(_skeletonMeshComponent);
 
 }

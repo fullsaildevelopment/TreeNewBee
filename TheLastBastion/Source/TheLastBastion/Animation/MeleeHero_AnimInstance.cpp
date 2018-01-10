@@ -21,6 +21,9 @@ UMeleeHero_AnimInstance ::UMeleeHero_AnimInstance(const FObjectInitializer& _obj
 {
 	CurrentComboIndex = 0;
 	CurrentEquipment = EEquipType::ShieldSword;
+	DodgeMinTurnThreshold = 1.0f;
+	FocusDodgeDirection = EFocusDodgeDirection::None;
+	bIsFocused = false;
 }
 
 void UMeleeHero_AnimInstance::OnBeginPlay()
@@ -42,6 +45,65 @@ void UMeleeHero_AnimInstance::OnUpdate(float _deltaTime)
 
 	if (mCharacter)
 	{
+		UCharacterMovementComponent* movementComp = mCharacter->GetCharacterMovement();
+
+		mAccelerationDirection = movementComp->GetCurrentAcceleration();
+		mAccelerationDirection.Normalize();
+		Acceleration_bodySpace
+			= UKismetMathLibrary::InverseTransformDirection(mCharacter->GetTransform(), mAccelerationDirection);
+
+		turn = FMath::RadiansToDegrees(FMath::Atan2(Acceleration_bodySpace.Y, Acceleration_bodySpace.X));
+
+		if (!bRotationRateOverrideByAnim)
+		{
+			// the more of the angle between forward vector and acceleration, the more rotation speed
+			if (ActivatedEquipment == EEquipType::Travel)
+				movementComp->RotationRate.Yaw
+				= UKismetMathLibrary::MapRangeClamped(FMath::Abs(turn), 0, 180.0f,
+					mCharacter->GetMinTurnRateForTravel(),
+					mCharacter->GetMaxTurnRateForTravel());
+			else
+			{
+				if (AttackState == EAttackState::PreWinding)
+					movementComp->RotationRate.Yaw = mCharacter->GetMaxTurnRateForCombat();
+				else
+					movementComp->RotationRate.Yaw
+					= UKismetMathLibrary::MapRangeClamped(FMath::Abs(turn), 0, 180.0f,
+						mCharacter->GetMinTurnRateForCombat(),
+						mCharacter->GetMaxTurnRateForCombat());
+			}
+		}
+
+		if (bVelocityOverrideByAnim)
+		{
+			float Z = movementComp->Velocity.Z;
+			FVector overrideVelocity;
+
+			switch (AttackState)
+			{
+			case EAttackState::None:
+			case EAttackState::PreWinding:
+			case EAttackState::Attacking:
+			case EAttackState::ReadyForNext:
+			default:
+				overrideVelocity = mCharacter->GetActorForwardVector() * GetCurveValue("Speed");
+				movementComp->Velocity = FVector(overrideVelocity.X, overrideVelocity.Y, Z);
+				break;
+			case EAttackState::Dodging:
+			case EAttackState::PostDodging:
+			{
+				if (bIsFocused)
+					overrideVelocity = GetFocusDodgeDirection() * GetCurveValue("Speed");
+				else
+					overrideVelocity = mSpeedOverrideDirection * GetCurveValue("Speed");
+				//UE_LOG(LogTemp, Warning, TEXT("Dodge Direction x: %f, y: %f, z: %f"),
+				//	mSpeedOverrideDirection.X, mSpeedOverrideDirection.Y, mSpeedOverrideDirection.Z);
+				movementComp->Velocity = FVector(overrideVelocity.X, overrideVelocity.Y, Z);
+				break;
+			}
+			}
+		}
+
 		if (bIsFocused)
 		{
 			mCharacter->GetCameraBoom()->CameraRotationLagSpeed = mCharacter->GetLockOnCameraRotationLag();
@@ -70,15 +132,14 @@ void UMeleeHero_AnimInstance::OnUpdate(float _deltaTime)
 					0, 90.0f,
 					mCharacter->GetLockOnCameraRotationLag(),
 					mCharacter->GetNonLockOnCameraRotationLag());
-
-				
-				mCharacter->GetLockOnCameraRotationLag();
 		}
+
 		// disable head track during slash someone
 		if (AttackState == EAttackState::None)
 			HeadTrackAlpha += 0.05f;
 		else
 			HeadTrackAlpha -= 0.05f;
+
 		HeadTrackAlpha = FMath::Clamp(HeadTrackAlpha, 0.0f, 1.0f);
 		spineAngleOverrideAlpha
 			= FMath::Clamp(1 - HeadTrackAlpha, 0.0f, 0.8f);
@@ -96,7 +157,32 @@ bool UMeleeHero_AnimInstance::OnEquip()
 {	
 	if (Super::OnEquip())
 	{
-		/** if we pass the input filter, and we are going to do animation ?*/
+		// Equip
+		if (ActivatedEquipment != CurrentEquipment)
+		{
+			// if we are sprinting then stop
+			if (bIsSprinting)
+			{
+				mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
+				bIsSprinting = false;
+			}
+			DisableJump();
+			bVelocityOverrideByAnim = false;
+			bRotationRateOverrideByAnim = false;
+		}
+		// UnEquip
+		else
+		{
+			/** No need to be in focus mode, if we already sheath our weapon*/
+			if (bIsFocused)
+			{
+				OnFocus();
+				UE_LOG(LogTemp, Warning, TEXT("Unequip during focus, unfocus is implemented automatically"));
+			}
+
+		}
+
+		/** play animation montage based on CurrentEquipment */
 		switch (CurrentEquipment)
 		{
 		case EEquipType::ShieldSword:
@@ -139,7 +225,29 @@ void UMeleeHero_AnimInstance::OnActionInterrupt()
 
 	Super::OnActionInterrupt();
 	CurrentComboIndex = 0;
-	OnDisableWeapon(false, true);
+	OnDisableDamage(false, true);
+}
+
+
+#pragma region  Focus Mode
+
+
+void UMeleeHero_AnimInstance::OnMiddleMouseButtonPressed()
+{
+	if (mCharacter)
+	{
+		UHeroStatsComponent* heroStats = mCharacter->GetHeroStatsComp();
+
+		if (heroStats)
+		{
+			heroStats->OnFocus();
+			OnFocus();
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("heroStats is Null - UMeleeHero_AnimInstance::OnMiddleMouseButtonPressed "));
+		}
+	}
 }
 
 void UMeleeHero_AnimInstance::OnFocus()
@@ -185,42 +293,75 @@ void UMeleeHero_AnimInstance::OnFocus()
 
 }
 
-#pragma region  Combo Attack
-bool UMeleeHero_AnimInstance::OnAttack()
+void UMeleeHero_AnimInstance::OnCorLAltPressed()
 {
-	if (Super::OnAttack())
+	OnDodge();
+}
+
+void UMeleeHero_AnimInstance::ToggleFocusMode(bool _IsOn)
+{
+	bIsFocused = _IsOn;
+	if (bIsFocused)
+		mCharacter->GetCameraBoom()->CameraRotationLagSpeed = 5.0f;
+	//mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = _IsOn;
+	//mCharacter->GetCharacterMovement()->bOrientRotationToMovement = !_IsOn;
+	bIsFocusEnterPending = false;
+	bIsFocusExitPending = false;
+}
+
+
+#pragma endregion
+
+
+#pragma region  Combo Attack
+
+void UMeleeHero_AnimInstance::OnAttack()
+{
+
+	bool ignore = Montage_IsPlaying(Hit_Montage) || Attack_Montage == nullptr || bIsInAir;
+
+
+	// Apply Input Filter
+	if (ignore)
 	{
-		switch (AttackState)
-		{
-		case EAttackState::None:
-		case EAttackState::ReadyForNext:
-		case EAttackState::PostDodging:
-		{
-			// trigger the attack immediately, clear the next action marker
-			UE_LOG(LogTemp, Warning, TEXT("trigger the attack immediately, clear the next action marker"));
-			LaunchCombo();
-			return true;
-		}
-
-		case EAttackState::Attacking:
-		case EAttackState::Dodging:
-		{
-			// catch attack action, update next action marker, 
-			// and wait if not being updated by later input
-			UE_LOG(LogTemp, Warning, TEXT("catch attack action, update next action marker"));
-			NextAction = EActionType::Attack;
-			//NextComboRotation = mAccelerationDirection;
-			return true;
-		}
-
-		case EAttackState::PreWinding:
-		default:
-			UE_LOG(LogTemp, Warning, TEXT("current attack state ignore attack action"));
-			return false;
-		}
+		UE_LOG(LogTemp, Error, TEXT("Attack ignore - UMeleeHero_AnimInstance::OnAttack"));
+		return;
 	}
-	else
-		return false;
+
+	// equip weapon to weapon socket if we havent
+	if (ActivatedEquipment == EEquipType::Travel)
+		SkipEquip();
+
+	switch (AttackState)
+	{
+	case EAttackState::None:
+	case EAttackState::ReadyForNext:
+	case EAttackState::PostDodging:
+	{
+		// trigger the attack immediately, clear the next action marker
+		//UE_LOG(LogTemp, Warning, TEXT("trigger the attack immediately, clear the next action marker"));
+		LaunchCombo();
+		return;
+	}
+
+	case EAttackState::Attacking:
+	case EAttackState::Dodging:
+	{
+		// catch attack action, update next action marker, 
+		// and wait if not being updated by later input
+		//UE_LOG(LogTemp, Warning, TEXT("catch attack action, update next action marker"));
+		NextAction = EActionType::Attack;
+		//NextComboRotation = mAccelerationDirection;
+		return;
+	}
+
+	case EAttackState::PreWinding:
+	default:
+		//UE_LOG(LogTemp, Warning, TEXT("current attack state ignore attack action"));
+		return;
+	}
+
+
 }
 
 void UMeleeHero_AnimInstance::LaunchCombo()
@@ -228,7 +369,7 @@ void UMeleeHero_AnimInstance::LaunchCombo()
 	if (CurrentComboIndex >= Attack_Montage_SectionNames.Num())
 	{
 		// start over
-		UE_LOG(LogTemp, Warning, TEXT("mCurrentComboIndex: %d, reach max Combo Index, reset "), CurrentComboIndex);
+		//UE_LOG(LogTemp, Warning, TEXT("mCurrentComboIndex: %d, reach max Combo Index, reset "), CurrentComboIndex);
 		CurrentComboIndex = 0;
 	}
 
@@ -242,7 +383,10 @@ void UMeleeHero_AnimInstance::LaunchCombo()
 
 void UMeleeHero_AnimInstance::OnEnableDamage(bool bIsright, bool bIsAll)
 {
-	Super::OnEnableWeapon(bIsright, bIsAll);
+	//Super::OnEnableWeapon(bIsright, bIsAll);
+
+	AttackState = EAttackState::Attacking;
+	mCharacter->GetHeroStatsComp()->SetEnableWeapon(true, bIsright, bIsAll);
 
 	//Lock the character rotation during attacking if it is not in focus mode
 	if (!bIsFocused)
@@ -254,7 +398,9 @@ void UMeleeHero_AnimInstance::OnEnableDamage(bool bIsright, bool bIsAll)
 
 void UMeleeHero_AnimInstance::OnDisableDamage(bool bIsright, bool bIsAll)
 {
-	Super::OnDisableWeapon(bIsright, bIsAll);
+	//Super::OnDisableWeapon(bIsright, bIsAll);
+	mCharacter->GetHeroStatsComp()->SetEnableWeapon(false, bIsright, bIsAll);
+
 }
 
 void UMeleeHero_AnimInstance::OnNextAttack()
@@ -282,7 +428,11 @@ void UMeleeHero_AnimInstance::OnNextAttack()
 
 void UMeleeHero_AnimInstance::OnResetCombo()
 {
-	Super::OnResetCombo();
+	//Super::OnResetCombo();
+
+	AttackState = EAttackState::None;
+	NextAction = EActionType::None;
+
 	if (AttackState == EAttackState::Dodging)
 		return;
 	CurrentComboIndex = 0;
@@ -295,75 +445,66 @@ void UMeleeHero_AnimInstance::OnResetCombo()
 
 
 #pragma region Dodge
-bool UMeleeHero_AnimInstance::OnDodge()
+void UMeleeHero_AnimInstance::OnDodge()
 {
-	if (Super::OnDodge())
+
+	bool ignore
+		= Montage_IsPlaying(Hit_Montage) ||
+		(FMath::Abs(turn) > DodgeMinTurnThreshold && !bIsFocused) ||
+		bIsInAir || Dodge_Montage == nullptr;
+
+	if (ignore)
 	{
-		switch (AttackState)
-		{
-		case EAttackState::None:
-		case EAttackState::PreWinding:
-		case EAttackState::ReadyForNext:
-		{
-			// Trigger the action immeditately, clear the next action marker
-			LaunchDodge();
-			return true;
-		}
 
-		case EAttackState::Attacking:
-		case EAttackState::PostDodging:
-		{
-			// Update the next action marker,
-			// waiting until the current action is finished, 
-			// if it is not be update by later input 
-			UE_LOG(LogTemp, Warning, TEXT("Catch continuous Dodge"));
-			NextAction = EActionType::Dodge;
-			return true;
-		}
-		case EAttackState::Dodging:
-		default:
-		{
-			// Ignore
-			return false;
-		}
-		}
-	}
-	else return false;
-}
-
-void UMeleeHero_AnimInstance::OnDodgePost()
-{
-	Super::OnDodgePost();
-
-	if (FocusDodgeDirection != EFocusDodgeDirection::None)
-	{
-		mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = true;
-		mCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
+		UE_LOG(LogTemp, Error,
+			TEXT("Dodge is ignored due to inAir or Montage Null"), turn);
+		return;
 	}
 
-	// Check Next Action Mark
-	switch (NextAction)
+	// if we havnt equip our weapon, skip animation and attach weapon to weapon socket
+	if (ActivatedEquipment == EEquipType::Travel)
+		SkipEquip();
+
+	switch (AttackState)
 	{
-	case EActionType::None:
-	case EActionType::Dodge:
+	case EAttackState::None:
+	case EAttackState::PreWinding:
+	case EAttackState::ReadyForNext:
+	{
+		// Trigger the action immeditately, clear the next action marker
+		LaunchDodge();
+		return;
+	}
+
+	case EAttackState::Attacking:
+	case EAttackState::PostDodging:
+	{
+		// Update the next action marker,
+		// waiting until the current action is finished, 
+		// if it is not be update by later input 
+		UE_LOG(LogTemp, Warning, TEXT("Catch continuous Dodge"));
+		NextAction = EActionType::Dodge;
+		return;
+	}
+	case EAttackState::Dodging:
 	default:
-		// We did not catch any action, we put ourself to wait
-		// speed and rotation still being locked up
-		AttackState = EAttackState::PostDodging;
-		break;
-	case EActionType::Attack:
-		LaunchCombo();
-		break;
-	case EActionType::Skill:
-		break;
+	{
+		// Ignore
+		return;
 	}
-
-
+	}
 }
 
 void UMeleeHero_AnimInstance::LaunchDodge()
 {
-	Super::LaunchDodge();
+	//Super::LaunchDodge();
+
+	// Update State
+	AttackState = EAttackState::Dodging;
+	// Clear Next Action Marker
+	NextAction = EActionType::None;
+
+	bVelocityOverrideByAnim = true;
 
 	CurrentComboIndex = 0;
 
@@ -451,9 +592,45 @@ void UMeleeHero_AnimInstance::LaunchDodge()
 
 }
 
+void UMeleeHero_AnimInstance::OnDodgePost()
+{
+	//Super::OnDodgePost();
+
+	if (FocusDodgeDirection != EFocusDodgeDirection::None)
+	{
+		mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = true;
+		mCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
+	}
+
+	// Check Next Action Mark
+	switch (NextAction)
+	{
+	case EActionType::None:
+	case EActionType::Dodge:
+	default:
+		// We did not catch any action, we put ourself to wait
+		// speed and rotation still being locked up
+		AttackState = EAttackState::PostDodging;
+		break;
+	case EActionType::Attack:
+		LaunchCombo();
+		break;
+	case EActionType::Skill:
+		break;
+	}
+
+
+}
+
 void UMeleeHero_AnimInstance::OnDodgeFinish()
 {
-	Super::OnDodgeFinish();
+	//Super::OnDodgeFinish();
+
+	bVelocityOverrideByAnim = false;
+
+	bRotationRateOverrideByAnim = false;
+	AttackState = EAttackState::None;
+
 
 	// Focus Dodge is over, reset the direction flag
 	FocusDodgeDirection = EFocusDodgeDirection::None;
@@ -482,6 +659,43 @@ void UMeleeHero_AnimInstance::OnDodgeFinish()
 		break;
 	case EActionType::Skill:
 		break;
+	}
+}
+
+FVector UMeleeHero_AnimInstance::GetFocusDodgeDirection() const
+{
+	switch (FocusDodgeDirection)
+	{
+	case EFocusDodgeDirection::Forward:
+		return mCharacter->GetActorForwardVector();
+
+	case EFocusDodgeDirection::Right45:
+		return (.5 * mCharacter->GetActorForwardVector() + mCharacter->GetActorRightVector()).GetUnsafeNormal();
+
+	case EFocusDodgeDirection::Left45:
+		return (.5f *  mCharacter->GetActorForwardVector() - mCharacter->GetActorRightVector()).GetUnsafeNormal();
+
+	case EFocusDodgeDirection::Right135:
+		return (-.5f * mCharacter->GetActorForwardVector() + mCharacter->GetActorRightVector()).GetUnsafeNormal();
+
+	case EFocusDodgeDirection::Left135:
+		return (-.5f * mCharacter->GetActorForwardVector() - mCharacter->GetActorRightVector()).GetUnsafeNormal();
+
+	case EFocusDodgeDirection::Right90:
+		return mCharacter->GetActorRightVector();
+	case EFocusDodgeDirection::Back:
+	default:
+	{
+		FVector back = mCharacter->GetActorForwardVector();
+		back = FVector(-back.X, -back.Y, -back.Z);
+		return back;
+	}
+	case EFocusDodgeDirection::Left90:
+	{
+		FVector left = mCharacter->GetActorRightVector();
+		left = FVector(-left.X, -left.Y, -left.Z);
+		return left;
+	}
 	}
 }
 

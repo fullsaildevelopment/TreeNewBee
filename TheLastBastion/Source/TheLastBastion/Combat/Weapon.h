@@ -55,8 +55,8 @@ public:
 
 	FORCEINLINE class UStaticMeshComponent* GetWeaponMeshRef() const { return Mesh; }
 
-	/** Called when character try to attack without equip animation, or during equip animation*/
-	void Arm(USkeletalMeshComponent * const _skeletonMeshComponent);
+	///** Called when character try to attack without equip animation, or during equip animation*/
+	//void Arm(USkeletalMeshComponent * const _skeletonMeshComponent);
 
 	void SetDamageIsEnabled(bool _val);
 

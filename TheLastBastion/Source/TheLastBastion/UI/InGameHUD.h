@@ -41,6 +41,9 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* RockValue;
 
+	UPROPERTY(meta = (BindWidget))
+		class UWidget* CrossHair;
+
 public:
 
 	void AddTeamMember(const FPlayerProfile& _newTeamMember);

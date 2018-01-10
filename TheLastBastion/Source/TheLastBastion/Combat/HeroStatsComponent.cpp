@@ -18,7 +18,7 @@
 #include "Combat/Armor.h"
 #include "CustomType.h"
 #include "AICharacters/TheLastBastionEnemyCharacter.h"
-#include "Animation/Hero_AnimInstance.h"
+#include "Animation/MeleeHero_AnimInstance.h"
 
 
 
@@ -27,8 +27,8 @@ UHeroStatsComponent::UHeroStatsComponent()
 {
 	
 	// Just some init armor for our melee hero
-	UCustomType::FindClass<AWeapon>(LeftHandWeapon_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_Shield"));
-	UCustomType::FindClass<AWeapon>(RightHandWeapon_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_SHSword"));
+	UCustomType::FindClass<AGear>(LeftHandWeapon_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_Shield"));
+	UCustomType::FindClass<AGear>(RightHandWeapon_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_SHSword"));
 	UCustomType::FindClass<AArmor>(Armor_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_Armor"));
 }
 
@@ -75,34 +75,34 @@ void UHeroStatsComponent::BeginPlay()
 
 void UHeroStatsComponent::OnFocus()
 {
-	if (mHeroCharacter)
+	if (mHeroCharacter && mHeroCharacter->GetCharacterType() == ECharacterType::Ranger)
 	{
 		// if not focused, enter focus mode, else quit
-		bool setTargetToNull
-			= mHeroCharacter->GetAnimInstanceRef()->GetIsFocus() ||
-			mHeroCharacter->GetAnimInstanceRef()->GetFocusPendingExit();
-		if (setTargetToNull)
+
+		UMeleeHero_AnimInstance* animRef = Cast<UMeleeHero_AnimInstance>(mHeroCharacter->GetAnimInstanceRef());
+		if (animRef)
 		{
-			if (mCurrentTarget)
+			bool setTargetToNull
+				= animRef->GetIsFocus() || animRef->GetFocusPendingExit();
+			if (setTargetToNull)
 			{
-				mCurrentTarget->ToggleAIHUD(false);
-				mCurrentTarget = nullptr;
-			}
-			UE_LOG(LogTemp, Warning, TEXT("Quit Focus !!!"));
-		}
-		else
-		{
-			if (mCharacter->GetCharacterType() == ECharacterType::Ranger)
-			{
-				// Melee hero focus target determination
-				MeleeFocus();
+				if (mCurrentTarget)
+				{
+					mCurrentTarget->ToggleAIHUD(false);
+					mCurrentTarget = nullptr;
+				}
+				//UE_LOG(LogTemp, Warning, TEXT("Quit Focus !!!"));
 			}
 			else
 			{
-
+				MeleeFocus();
 			}
-
 		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("animRef is NULL - UHeroStatsComponent::OnFocus"));
+		}
+		
 	}
 }
 
@@ -121,6 +121,17 @@ void UHeroStatsComponent::OnEnemyEnter(UPrimitiveComponent * _overlappedComponen
 
 void UHeroStatsComponent::OnEnemyLeave(UPrimitiveComponent * _overlappedComponent, AActor * _otherActor, UPrimitiveComponent * _otherComp, int32 _otherBodyIndex)
 {
+	if (mHeroCharacter)
+	{
+		if (mHeroCharacter->GetCharacterType() == ECharacterType::Ranger)
+		{
+			OnEnemyLeaveMelee(_otherActor);
+		}
+	}
+}
+
+void UHeroStatsComponent::OnEnemyLeaveMelee(AActor * _otherActor)
+{
 	ATheLastBastionEnemyCharacter* leave = Cast<ATheLastBastionEnemyCharacter>(_otherActor);
 	if (leave)
 	{
@@ -134,9 +145,11 @@ void UHeroStatsComponent::OnEnemyLeave(UPrimitiveComponent * _overlappedComponen
 			mCurrentTarget = nullptr;
 			// if our current target is leaving the detector, quit Focus
 			// Stay away from enemy will leave focus mode
-			if (mHeroCharacter->GetAnimInstanceRef()->GetIsFocus())
+
+			UMeleeHero_AnimInstance* animInstanceRef = Cast<UMeleeHero_AnimInstance>(mHeroCharacter->GetAnimInstanceRef());
+			if (animInstanceRef && animInstanceRef->GetIsFocus())
 			{
-				mHeroCharacter->GetAnimInstanceRef()->OnFocus();
+				animInstanceRef->OnFocus();
 			}
 		}
 	}

@@ -36,7 +36,7 @@ bool UInGameHUD::Initialize()
 	// Bind Delegetes to Widget components
 	bool bAllWidgetAreGood =
 		PlayerRow != nullptr && TeamWindow != nullptr
-		&& GoldValue != nullptr && WoodValue != nullptr && MetalValue != nullptr && RockValue != nullptr;
+		&& GoldValue != nullptr && WoodValue != nullptr && MetalValue != nullptr && RockValue != nullptr && CrossHair != nullptr;
 
 	if (!bAllWidgetAreGood)
 	{
@@ -74,6 +74,10 @@ void UInGameHUD::InitStats(const UHeroStatsComponent * _heroStats)
 	PlayerRow->SetHpValue(_heroStats->GetHpCurrent(), _heroStats->GetHpMax());
 	PlayerRow->SetSpValue(_heroStats->GetStaminaCurrent(), _heroStats->GetStaminaMax());
 	PlayerRow->SetLevel(_heroStats->GetLevel());
+
+
+	CrossHair->SetVisibility(ESlateVisibility::Hidden);
+
 }
 
 void UInGameHUD::SetHpOnHealthChange(const UPawnStatsComponent * _pawnStats)

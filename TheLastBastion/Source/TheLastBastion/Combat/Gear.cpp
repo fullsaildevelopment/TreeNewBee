@@ -19,21 +19,15 @@ void AGear::BeginPlay()
 
 void AGear::Equip(class USkeletalMeshComponent* const _skeletonMeshComponent)
 {
-	GearOwner = Cast<ATheLastBastionCharacter>(_skeletonMeshComponent->GetOwner());
-	SetOwner(GearOwner);
-
 	if (GearOwner == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GearOwner is not a ATheLastBastionCharacter - AGear::Equip "));
-		return;
+		GearOwner = Cast<ATheLastBastionCharacter>(_skeletonMeshComponent->GetOwner());
+		SetOwner(GearOwner);
 	}
+
 	FName SlotName;
 	switch (GearType)
 	{
-	case EGearType::Armor:
-	default:
-		SlotName = TEXT("Root");
-		break;
 	case EGearType::Shield:
 		SlotName = TEXT("Shield");
 		break;
@@ -52,6 +46,50 @@ void AGear::Equip(class USkeletalMeshComponent* const _skeletonMeshComponent)
 	case EGearType::TwinBlade:
 		SlotName = TEXT("ik_hand_r");
 		break;
+	default:
+	case EGearType::Armor:
+		return;
+	}
+	this->AttachToComponent(_skeletonMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, SlotName);
+
+}
+
+void AGear::Arm(USkeletalMeshComponent * const _skeletonMeshComponent)
+{
+	if (GearOwner == nullptr)
+	{
+		GearOwner = Cast<ATheLastBastionCharacter>(_skeletonMeshComponent->GetOwner());
+		SetOwner(GearOwner);
+	}
+
+	FName SlotName;
+
+	switch (GearType)
+	{
+	case EGearType::Armor:
+		SlotName = TEXT("Root");
+		break;
+	case EGearType::Shield:
+		SlotName = TEXT("Shield");
+		break;
+	case EGearType::SingleHandWeapon:
+		SlotName = TEXT("SingleHandWeapon");
+		break;
+	case EGearType::DoubleHandWeapon:
+		SlotName = TEXT("DHSwordEquip");
+		break;
+	case EGearType::CrossBow:
+		SlotName = TEXT("CrossBow");
+		break;
+	case EGearType::CrossBowBolt:
+		SlotName = TEXT("BoltsEquip");
+		break;
+	case EGearType::TwinBlade:
+		SlotName = TEXT("ik_hand_r");
+		break;
+	default:
+		break;
+
 	}
 	this->AttachToComponent(_skeletonMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, SlotName);
 }

@@ -41,20 +41,24 @@ public:
 	/** Called When Attack button is pressed, 
 	depending on current attack state, it will decide to perform combo immediately, or catch 
 	it and implement at OnNextAttack Event, or ignore */
-	bool OnAttack() override;
-
+	void OnAttack() override;
 
 	/** Called when equip button is pressed, 
 	depending on current equipment, play different equip animation */
 	bool OnEquip() override;
 
+
+	/** Called when player try to enter focus mode*/
+	void OnMiddleMouseButtonPressed() override;
+
+	/** Called when player click middle mouse button, or disable the focus by heroComp*/
+	void OnFocus();
+
+	/** Called when melee player try to dodge*/
+	void OnCorLAltPressed() override;
+
 	/** Called when combat properties requires to be reset*/
 	void OnActionInterrupt() override;
-
-
-	void OnFocus() override;
-	bool OnDodge() override;
-
 
 
 protected:
@@ -63,8 +67,17 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		/** Called when before attack state enter the ReadyForNext Stage,
 		*   Trigger the catched action, if the next action is not None */
-		void OnNextAttack() override;
+		void OnNextAttack();
 
+
+	UFUNCTION(BlueprintCallable)
+		void OnResetCombo();
+
+	UFUNCTION(BlueprintCallable)
+		void OnEnableDamage(bool bIsright = true, bool bIsAll = false);
+
+	UFUNCTION(BlueprintCallable)
+		void OnDisableDamage(bool bIsright = true, bool bIsAll = false);
 
 	UFUNCTION(BlueprintCallable)
 		/** Called when before attack state enter the DodgePost Stage,
@@ -73,22 +86,12 @@ protected:
 
 
 	UFUNCTION(BlueprintCallable)
-		void OnResetCombo() override;
-
-	UFUNCTION(BlueprintCallable)
-		virtual void OnEnableDamage(bool bIsright = true, bool bIsAll = false);
-
-	UFUNCTION(BlueprintCallable)
-		virtual void OnDisableDamage(bool bIsright = true, bool bIsAll = false);
-
-
-	UFUNCTION(BlueprintCallable)
 		virtual void OnDodgeFinish();
 
 
+
+
 private:
-
-
 
 	UPROPERTY(BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 		/** which section I am going play next in Attack_Montage*/
@@ -96,13 +99,47 @@ private:
 
 protected:
 
+
+
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+		/** Flag to check if our character is in strafe mode,
+		*  Set by Focus Button, Reset by Equip button and focus button
+		*  if player is in travel mode, focus button will automatically implement equip*/
+		bool bIsFocused;
+
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+	/** Due to I dont want to mess up my dodge movement property,
+	*   if someone try to enter focus mode  during dodge, toggle this boolean to true, and wait
+	*   until the dodge finish, enter the focus mode, reset this boolean*/
+		bool bIsFocusEnterPending;
+
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+	/** Due to I dont want to mess up my dodge movement property,
+	*   if someone try to exit focus mode during dodge, toggle this boolean to true, and wait
+	*   until the dodge finish, exit the focus mode, reset this boolean */
+		bool bIsFocusExitPending;
+
+
+
+
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+		/** spine angle to blend alpha*/
+		float spineAngleOverrideAlpha;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
+		/** Angle between Acceleration and Forward Direction must less than this angle to trigger dodge*/
+		float DodgeMinTurnThreshold;
+
+
+
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 		/** spine angle to blend */
 		FRotator spineAngleRotator;
 
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
-		/** spine angle to blend alpha*/
-		float spineAngleOverrideAlpha;
+		/** Must be assigned for before focused dodge*/
+		EFocusDodgeDirection FocusDodgeDirection;
+
 
 
 
@@ -110,9 +147,26 @@ private:
 
 
 	void LaunchCombo();
-	void LaunchDodge() override;
 
 
+
+
+	/** Called when player press LAlt or C*/
+	void OnDodge();
+
+	void LaunchDodge();
+
+	FVector GetFocusDodgeDirection() const;
+
+	/** Toggle Focus mode on and off*/
+	void ToggleFocusMode(bool _IsOn);
+
+
+
+	public:
+		FORCEINLINE bool GetIsFocus() const { return bIsFocused; }
+		FORCEINLINE bool GetFocusPendingEnter() const { return bIsFocusEnterPending; }
+		FORCEINLINE bool GetFocusPendingExit() const { return bIsFocusExitPending; }
 
 
 };
