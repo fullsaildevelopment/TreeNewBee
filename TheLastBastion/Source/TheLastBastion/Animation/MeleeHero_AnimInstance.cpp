@@ -50,7 +50,7 @@ void UMeleeHero_AnimInstance::OnUpdate(float _deltaTime)
 
 		UCharacterMovementComponent* movementComp = mCharacter->GetCharacterMovement();
 
-		if (ActivatedEquipment == EEquipType::Travel)
+		if (ActivatedEquipment == EEquipType::Travel || AttackState == EAttackState::Dodging || AttackState == EAttackState::PostDodging)
 		{
 			mAccelerationDirection = movementComp->GetCurrentAcceleration().GetSafeNormal();
 		}
@@ -106,7 +106,12 @@ void UMeleeHero_AnimInstance::OnUpdate(float _deltaTime)
 				if (bIsFocused)
 					overrideVelocity = GetFocusDodgeDirection() * GetCurveValue("Speed");
 				else
-					overrideVelocity = mSpeedOverrideDirection * GetCurveValue("Speed");
+				{
+					overrideVelocity = mAccelerationDirection * GetCurveValue("Speed");
+
+				    //overrideVelocity = mSpeedOverrideDirection * GetCurveValue("Speed");
+					//overrideVelocity = mCharacter->GetActorForwardVector() * GetCurveValue("Speed");
+				}
 				//UE_LOG(LogTemp, Warning, TEXT("Dodge Direction x: %f, y: %f, z: %f"),
 				//	mSpeedOverrideDirection.X, mSpeedOverrideDirection.Y, mSpeedOverrideDirection.Z);
 				movementComp->Velocity = FVector(overrideVelocity.X, overrideVelocity.Y, Z);
@@ -114,6 +119,7 @@ void UMeleeHero_AnimInstance::OnUpdate(float _deltaTime)
 			}
 			}
 		}
+
 
 		if (bIsFocused)
 		{
@@ -151,9 +157,19 @@ void UMeleeHero_AnimInstance::OnUpdate(float _deltaTime)
 		else
 			HeadTrackAlpha -= 0.05f;
 
+		// disable spine track if we are not in attacking frame
+		bool isNotAttackFrame = AttackState == EAttackState::None || 
+			AttackState == EAttackState::Dodging || 
+			AttackState == EAttackState::PostDodging;
+
+		if (isNotAttackFrame)
+			spineAngleOverrideAlpha -= 0.05f;
+		else
+			spineAngleOverrideAlpha += 0.05f;
+
 		HeadTrackAlpha = FMath::Clamp(HeadTrackAlpha, 0.0f, 1.0f);
-		spineAngleOverrideAlpha
-			= FMath::Clamp(1 - HeadTrackAlpha, 0.0f, 0.8f);
+		spineAngleOverrideAlpha = FMath::Clamp(spineAngleOverrideAlpha, 0.0f, .8f);
+
 		spineAngleRotator = FRotator(0, 0, -15.f - HeadTrackPitch);
 	}
 
@@ -163,6 +179,68 @@ void UMeleeHero_AnimInstance::OnPostEvaluate()
 {
 
 }
+
+
+
+void UMeleeHero_AnimInstance::OnMontageStartHandle(UAnimMontage * _animMontage)
+{
+}
+
+void UMeleeHero_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontage, bool _bInterruptted)
+{
+	if (_animMontage == Attack_Montage && !_bInterruptted)
+	{
+		ResetCombo();
+	}
+	else if (_animMontage == Dodge_Montage)
+	{
+		// if not in focus mode, we will recover our rotation method
+		if (!bIsFocused)
+		{
+			mCharacter->bUsePreviousMovementAxis = false;
+			mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = true;
+			mCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
+		}
+
+		bVelocityOverrideByAnim = false;
+		bRotationRateOverrideByAnim = false;
+		AttackState = EAttackState::None;
+
+		// Focus Dodge is over, reset the direction flag
+		FocusDodgeDirection = EFocusDodgeDirection::None;
+		// Check Next Action Mark, 	this helps for dodge continuously
+
+		// if we have a pending focus, this is a time to do it
+		if (bIsFocusEnterPending)
+			ToggleFocusMode(true);
+		else if (bIsFocusExitPending)
+			ToggleFocusMode(false);
+
+		//switch (NextAction)
+		//{
+		//case EActionType::None:
+		//default:
+		//	break;
+		//	// We did not catch any action, we put ourself to wait
+		//	// speed and rotation still being locked up
+		//	AttackState = EAttackState::PostDodging;
+		//	break;
+		//case EActionType::Dodge:
+		//	LaunchDodge();
+		//	break;
+		//case EActionType::Attack:
+		//	LaunchCombo();
+		//	break;
+		//case EActionType::Skill:
+		//	break;
+		//}
+
+	}
+}
+
+
+
+
 
 bool UMeleeHero_AnimInstance::OnEquip()
 {	
@@ -418,7 +496,7 @@ void UMeleeHero_AnimInstance::OnEnableDamage(bool bIsright, bool bIsAll)
 	if (!bIsFocused)
 	{
 		bRotationRateOverrideByAnim = true;
-		mCharacter->GetCharacterMovement()->RotationRate.Yaw = 0;
+		//mCharacter->GetCharacterMovement()->RotationRate.Yaw = 0;
 	}
 }
 
@@ -464,8 +542,6 @@ void UMeleeHero_AnimInstance::OnDodge()
 		= Montage_IsPlaying(Hit_Montage) || 
 		bIsInAir || Dodge_Montage == nullptr;
 	//(FMath::Abs(turn) > DodgeMinTurnThreshold && !bIsFocused)
-
-
 
 	if (ignore)
 	{
@@ -519,27 +595,30 @@ void UMeleeHero_AnimInstance::LaunchDodge()
 	NextAction = EActionType::None;
 
 	bVelocityOverrideByAnim = true;
-
 	CurrentComboIndex = 0;
 
 	if (!bIsFocused)
 	{
-		// Lock the rotation rate if it is not focus mode
-		bRotationRateOverrideByAnim = true;
-		mCharacter->GetCharacterMovement()->RotationRate.Yaw = 0;
-		if (bTryToMove)
-		{
-			//mSpeedOverrideDirection = mAccelerationDirection;
-			mSpeedOverrideDirection = mCharacter->GetActorForwardVector();
+		mCharacter->bUsePreviousMovementAxis = true;
+		////Lock the rotation rate if it is not focus mode
+		//mCharacter->GetCharacterMovement()->RotationRate.Yaw = 0;
+		//if (bTryToMove)
+		//{
+		//	mSpeedOverrideDirection = mCharacter->GetActorForwardVector();
+		//	this->PlayMontage(Dodge_Montage, 1.0f, TEXT("Dodge_Fwd"));
+		//}
+		//else
+		//{
+		//	mSpeedOverrideDirection = mCharacter->GetActorForwardVector();
+		//	mSpeedOverrideDirection = FVector(-mSpeedOverrideDirection.X, -mSpeedOverrideDirection.Y, -mSpeedOverrideDirection.Z);
+		//	this->PlayMontage(Dodge_Montage, 1.0f, TEXT("Dodge_Bwd"));
+		//}
 
-			this->PlayMontage(Dodge_Montage, 1.0f, TEXT("Dodge_Fwd"));
-		}
-		else
-		{
-			mSpeedOverrideDirection = mCharacter->GetActorForwardVector();
-			mSpeedOverrideDirection = FVector(-mSpeedOverrideDirection.X, -mSpeedOverrideDirection.Y, -mSpeedOverrideDirection.Z);
-			this->PlayMontage(Dodge_Montage, 1.0f, TEXT("Dodge_Bwd"));
-		}
+
+		mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = false;
+		mCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
+
+		this->PlayMontage(Dodge_Montage, 1.0f, TEXT("Dodge_Fwd"));
 	}
 	else
 	{
@@ -642,52 +721,40 @@ void UMeleeHero_AnimInstance::OnDodgeFinish()
 {
 	//Super::OnDodgeFinish();
 
-	bVelocityOverrideByAnim = false;
+	//bVelocityOverrideByAnim = false;
 
-	bRotationRateOverrideByAnim = false;
-	AttackState = EAttackState::None;
+	//bRotationRateOverrideByAnim = false;
+	//AttackState = EAttackState::None;
 
 
-	// Focus Dodge is over, reset the direction flag
-	FocusDodgeDirection = EFocusDodgeDirection::None;
-	// Check Next Action Mark, 	this helps for dodge continuously
+	//// Focus Dodge is over, reset the direction flag
+	//FocusDodgeDirection = EFocusDodgeDirection::None;
+	//// Check Next Action Mark, 	this helps for dodge continuously
 
-	// if we have a pending focus, this is a time to do it
-	if (bIsFocusEnterPending)
-		ToggleFocusMode(true);
-	else if (bIsFocusExitPending)
-		ToggleFocusMode(false);
+	//// if we have a pending focus, this is a time to do it
+	//if (bIsFocusEnterPending)
+	//	ToggleFocusMode(true);
+	//else if (bIsFocusExitPending)
+	//	ToggleFocusMode(false);
 
-	switch (NextAction)
-	{
-	case EActionType::None:
-	default:
-		break;
-		// We did not catch any action, we put ourself to wait
-		// speed and rotation still being locked up
-		AttackState = EAttackState::PostDodging;
-		break;
-	case EActionType::Dodge:
-		LaunchDodge();
-		break;
-	case EActionType::Attack:
-		LaunchCombo();
-		break;
-	case EActionType::Skill:
-		break;
-	}
-}
-
-void UMeleeHero_AnimInstance::OnMontageStartHandle(UAnimMontage * _animMontage)
-{
-}
-
-void UMeleeHero_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontage, bool _bInterruptted)
-{
-	if (_animMontage == Attack_Montage && !_bInterruptted)
-	{
-		ResetCombo();
-	}
+	//switch (NextAction)
+	//{
+	//case EActionType::None:
+	//default:
+	//	break;
+	//	// We did not catch any action, we put ourself to wait
+	//	// speed and rotation still being locked up
+	//	AttackState = EAttackState::PostDodging;
+	//	break;
+	//case EActionType::Dodge:
+	//	LaunchDodge();
+	//	break;
+	//case EActionType::Attack:
+	//	LaunchCombo();
+	//	break;
+	//case EActionType::Skill:
+	//	break;
+	//}
 }
 
 FVector UMeleeHero_AnimInstance::GetFocusDodgeDirection() const

@@ -57,6 +57,8 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter() : Super()
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(CapRadius, CapHalfSize);
 
+	bUsePreviousMovementAxis = false;
+	bDisableYawInput = false;
 
 	HeroStats = CreateDefaultSubobject<UHeroStatsComponent>(TEXT("Stats"));
 	PawnStats = HeroStats;	
@@ -133,23 +135,39 @@ void ATheLastBastionHeroCharacter::LookUpAtRate(float Rate)
 
 void ATheLastBastionHeroCharacter::MoveForward(float Value)
 {
-	if ((Controller != NULL) && (Value != 0.0f))
+	// catch the forward axis
+	if (!bUsePreviousMovementAxis)
+		MoveForwardAxis = Value;
+	else
 	{
+		// the default previous movement axis is forward, i.e W is pressed
+		if (MoveRightAxis == 0.0f && MoveForwardAxis == 0.0f)
+		{
+			MoveForwardAxis = 1.0f;
+		}
+	}
+
+	if ((Controller != NULL) && (MoveForwardAxis != 0.0f))
+	{
+
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
-	}
-	MoveForwardAxis = Value;
 
+		AddMovementInput(Direction, MoveForwardAxis);
+	}
 }
 
 void ATheLastBastionHeroCharacter::MoveRight(float Value)
 {
-	if ((Controller != NULL) && (Value != 0.0f))
+	// Catch the right axis 
+	if (!bUsePreviousMovementAxis)
+		MoveRightAxis = Value;
+
+	if ((Controller != NULL) && (MoveRightAxis != 0.0f))
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -158,10 +176,20 @@ void ATheLastBastionHeroCharacter::MoveRight(float Value)
 		// get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// add movement in that direction
-		AddMovementInput(Direction, Value);
+		AddMovementInput(Direction, MoveRightAxis);
 	}
-	MoveRightAxis = Value;
 
+	//if ((Controller != NULL) && (Value != 0.0f))
+	//{
+	//	// find out which way is right
+	//	const FRotator Rotation = Controller->GetControlRotation();
+	//	const FRotator YawRotation(0, Rotation.Yaw, 0);
+	//	// get right vector 
+	//	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+	//	// add movement in that direction
+	//	AddMovementInput(Direction, Value);
+	//}
+	//MoveRightAxis = Value;
 }
 
 
@@ -234,6 +262,7 @@ void ATheLastBastionHeroCharacter::AddControllerYaw(float _yaw)
 	//{
 	//	this->AddControllerYawInput(_yaw);
 	//}
+
 	this->AddControllerYawInput(_yaw);
 }
 
@@ -251,7 +280,6 @@ void ATheLastBastionHeroCharacter::OnHealthChangedHandle(const UPawnStatsCompone
 
 	// Animation
 	mAnimInstanceRef->OnBeingHit(_damage, _boneName, _shotFromDirection, _pawnStatsComp);
-
 }
 
 FVector ATheLastBastionHeroCharacter::GetPawnViewLocation() const

@@ -256,7 +256,7 @@ protected:
 
 public:
 
-		FORCEINLINE bool IsSpeedOverrideByAnim() const { return bVelocityOverrideByAnim; }
+		FORCEINLINE bool IsVelocityOverrideByAnim() const { return bVelocityOverrideByAnim; }
 		FORCEINLINE bool IsRotationRateOverrideByAnim() const { return bRotationRateOverrideByAnim; }
 		FORCEINLINE bool GetIsJumpEnable() const { return bEnableJump; }
 		FORCEINLINE void SetIsJump(bool _val) { bTryToJump = _val; }

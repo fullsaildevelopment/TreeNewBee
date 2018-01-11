@@ -75,14 +75,8 @@ protected:
 	/** Called when RMB is released*/
 	void OnRightMouseButtonReleased();
 
-
 	/** Preserve the Yaw input from Pawn interface, and capatable with camera Lock - on*/
 	void AddControllerYaw(float _yaw);
-
-
-
-
-
 #pragma endregion
 
 
@@ -99,6 +93,16 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera)
 		float LockOn_CamRotationLagging;
+
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Control)
+		/** Disable updating the movement axis and use the value from previous frame*/
+		bool bUsePreviousMovementAxis;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Control)
+		/** Disable the update the control yaw input*/
+		bool bDisableYawInput;
+
 
 private:
 
@@ -130,10 +134,10 @@ private:
 
 #pragma endregion
 
-	private:
+private:
 
-		UFUNCTION()
-			void OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType, FName _boneNmame, FVector _shotFromDirection);
+	UFUNCTION()
+		void OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType, FName _boneNmame, FVector _shotFromDirection);
 
 
 public:
