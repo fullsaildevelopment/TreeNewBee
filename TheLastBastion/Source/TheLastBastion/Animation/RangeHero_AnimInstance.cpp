@@ -12,7 +12,7 @@
 
 #define MontageSection_Equip TEXT("EquipHeroCB")
 #define MontageSection_Unequip TEXT("UnEquipHeroCB")
-
+#define MontageSection_FireOnce TEXT("FireOnce")
 
 URangeHero_AnimInstance::URangeHero_AnimInstance(const FObjectInitializer& _objectInitalizer) : Super(_objectInitalizer)
 {
@@ -20,24 +20,16 @@ URangeHero_AnimInstance::URangeHero_AnimInstance(const FObjectInitializer& _obje
 	CameraZoomInRate = 10.0f;
 	CameraShiftRate = 3.0f;
 	bTryToZoomIn = false;
-	ZoomedFOV = 65.0f;
-	CameraRelativeLocation = FVector(100, 50, 0);
+
+	CameraEquipOffset = FVector(100, 50, 0);
+
+	CameraZoomOffset = FVector(200, 50, 10);
 }
 
 
 void URangeHero_AnimInstance::OnBeginPlay()
 {
 	Super::OnBeginPlay();
-
-	// Store the camera default field of view
-	if (mCharacter)
-	{
-		UCameraComponent* CameraComp = mCharacter->GetFollowCamera();
-		if (CameraComp)
-		{
-			DefalutFOV = CameraComp->FieldOfView;
-		}
-	}
 }
 
 void URangeHero_AnimInstance::OnInit()
@@ -62,10 +54,29 @@ void URangeHero_AnimInstance::OnUpdate(float _deltaTime)
 		else
 		{
 			mAccelerationDirection = UKismetMathLibrary::GetForwardVector(mCharacter->GetControlRotation());
-			mCharacter->GetFollowCamera()->RelativeLocation
-				= UKismetMathLibrary::VInterpTo(mCharacter->GetFollowCamera()->RelativeLocation, CameraRelativeLocation, _deltaTime, CameraShiftRate);
-			// Camera Zoom
-			ZoomInCamera(_deltaTime);
+
+			if (bTryToZoomIn)
+			{
+				mCharacter->GetFollowCamera()->RelativeLocation
+					= UKismetMathLibrary::VInterpTo(mCharacter->GetFollowCamera()->RelativeLocation, CameraZoomOffset, _deltaTime, CameraZoomInRate);
+
+				// walk in zoom in mode
+				if (!bTryToSprint)
+				{
+					MoveForwardAxis *= 0.5f;
+					MoveRightAxis  *= 0.5f;
+					movementComp->MaxWalkSpeed = mCharacter->GetWalkSpeed();
+				}
+				else
+					movementComp->MaxWalkSpeed = mCharacter->GetJogSpeed();
+
+			}
+			else
+			{
+				mCharacter->GetFollowCamera()->RelativeLocation
+					= UKismetMathLibrary::VInterpTo(mCharacter->GetFollowCamera()->RelativeLocation, CameraEquipOffset, _deltaTime, CameraShiftRate);
+				movementComp->MaxWalkSpeed = mCharacter->GetJogSpeed();
+			}
 		}
 
 		movementComp->RotationRate.Yaw
@@ -98,18 +109,34 @@ void URangeHero_AnimInstance::OnPostEvaluate()
 
 void URangeHero_AnimInstance::OnAttack()
 {
-	if (mCharacter)
-	{
-		UHeroStatsComponent* heroStats = mCharacter->GetHeroStatsComp();
-		if (heroStats)
-		{
-			ARangeWeapon* rangeWeapon = Cast<ARangeWeapon>(heroStats->GetRightHandWeapon());
+	// Condition Check
+	bool ignore = Montage_IsPlaying(Fire_Montage) || Fire_Montage == nullptr || bIsInAir || mCharacter == nullptr;
 
-			if (rangeWeapon)
-				rangeWeapon->Fire();
-			else
-				UE_LOG(LogTemp, Error, TEXT("RangeWeapon Is Null -- URangeHero_AnimInstance::OnAttack"));
+	if (ignore)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Fire Ignore - URangeHero_AnimInstance::OnAttack"));
+		return;
+	}
+
+	// If we are unarmed, equip our weapon
+	if (ActivatedEquipment == EEquipType::Travel)
+	{
+		OnEquip();
+		return;
+	}
+
+	UHeroStatsComponent* heroStats = mCharacter->GetHeroStatsComp();
+	if (heroStats)
+	{
+		ARangeWeapon* rangeWeapon = Cast<ARangeWeapon>(heroStats->GetRightHandWeapon());
+
+		if (rangeWeapon)
+		{
+			rangeWeapon->Fire();
+			PlayMontage(Fire_Montage, 1.0f, MontageSection_FireOnce);
 		}
+		else
+			UE_LOG(LogTemp, Error, TEXT("RangeWeapon Is Null -- URangeHero_AnimInstance::OnAttack"));
 	}
 }
 
@@ -155,7 +182,9 @@ bool URangeHero_AnimInstance::OnEquip()
 void URangeHero_AnimInstance::OnRightMouseButtonPressed()
 {
 	if (ActivatedEquipment == EEquipType::Travel)
-		return;
+	{
+		OnEquip();
+	}
 	bTryToZoomIn = true;
 }
 
@@ -167,23 +196,4 @@ void URangeHero_AnimInstance::OnRightMouseButtonReleased()
 	bTryToZoomIn = false;
 }
 
-void URangeHero_AnimInstance::ZoomInCamera(float DeltaTime)
-{
-	// Update Camera FOV smoothly
-	float TargetFOV = bTryToZoomIn ? ZoomedFOV : DefalutFOV;
 
-	UCameraComponent* CameraComp = mCharacter->GetFollowCamera();
-	float NewFOV = FMath::FInterpTo(CameraComp->FieldOfView, TargetFOV, DeltaTime, CameraZoomInRate);
-
-	CameraComp->SetFieldOfView(NewFOV);
-}
-
-
-//void URangeHero_AnimInstance::LerpCameraToTravelPosition(float _deltaTime)
-//{
-//
-//
-//	//float delta = cameraShiftRate * _deltaTime;
-//	//mCharacter->GetCameraBoom()->RelativeLocation.X += 2 * delta;
-//	//mCharacter->GetCameraBoom()->RelativeLocation.Y += delta;
-//}

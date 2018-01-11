@@ -90,6 +90,7 @@ public:
 	FORCEINLINE float GetMinTurnRateForTravel() const { return  minTurnRate_Travel; }
 	FORCEINLINE float GetMinTurnRateForCombat() const { return  minTurnRate_Combat; }
 
+	FORCEINLINE float GetWalkSpeed() const { return walkSpeed; }
 	FORCEINLINE float GetJogSpeed() const { return JogSpeed; }
 	FORCEINLINE float GetSprintSpeed() const { return SprintSpeed; }
 

@@ -197,7 +197,7 @@ void ATheLastBastionHeroCharacter::OnAttackPressed()
 void ATheLastBastionHeroCharacter::OnEquipPressed()
 {
 	mAnimInstanceRef->OnEquip();
-}
+} 
 
 void ATheLastBastionHeroCharacter::OnMiddleMouseButtonPressed()
 {

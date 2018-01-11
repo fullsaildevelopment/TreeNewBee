@@ -130,8 +130,6 @@ protected:
 		/** Angle between Acceleration and Forward Direction must less than this angle to trigger dodge*/
 		float DodgeMinTurnThreshold;
 
-
-
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 		/** spine angle to blend */
 		FRotator spineAngleRotator;

@@ -53,13 +53,6 @@ protected:
 	bool bTryToZoomIn;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
-	float ZoomedFOV;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
-	float DefalutFOV;
-
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
 	/** FOV blend rate zoom in and zoom out*/
 	float CameraZoomInRate;
 
@@ -68,16 +61,14 @@ protected:
 	float CameraShiftRate;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
-	FVector CameraRelativeLocation; 
+		/** Camera relative location during equip */
+	FVector CameraEquipOffset; 
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)		
+		/** Camera relative location during Zoom In */
+	FVector CameraZoomOffset;
 
 
 private:
-
-	//void LerpCameraToCombatPosition();
-
-	//void LerpCameraToTravelPosition();
-
-	void ZoomInCamera(float DeltaTime);
 
 };

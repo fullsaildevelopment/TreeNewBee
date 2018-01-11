@@ -324,7 +324,7 @@ void UMeleeHero_AnimInstance::OnAttack()
 	// Apply Input Filter
 	if (ignore)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Attack ignore - UMeleeHero_AnimInstance::OnAttack"));
+		UE_LOG(LogTemp, Warning, TEXT("Attack ignore - UMeleeHero_AnimInstance::OnAttack"));
 		return;
 	}
 
