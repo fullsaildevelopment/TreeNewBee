@@ -70,8 +70,6 @@ protected:
 		void OnNextAttack();
 
 
-	UFUNCTION(BlueprintCallable)
-		void OnResetCombo();
 
 	UFUNCTION(BlueprintCallable)
 		void OnEnableDamage(bool bIsright = true, bool bIsAll = false);
@@ -88,6 +86,12 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		virtual void OnDodgeFinish();
 
+
+	UFUNCTION()
+		virtual void OnMontageStartHandle(class UAnimMontage* _animMontage);
+
+	UFUNCTION()
+		virtual void OnMontageBlendOutStartHandle(class UAnimMontage* _animMontage, bool _bInterruptted);
 
 
 
@@ -146,6 +150,9 @@ private:
 
 	void LaunchCombo();
 
+	/** Reset Combo when attack montage gets blended out without any interrupt*/
+	void ResetCombo();
+
 
 
 
@@ -158,6 +165,7 @@ private:
 
 	/** Toggle Focus mode on and off*/
 	void ToggleFocusMode(bool _IsOn);
+
 
 
 

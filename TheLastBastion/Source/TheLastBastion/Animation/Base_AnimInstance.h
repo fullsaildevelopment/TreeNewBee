@@ -9,6 +9,11 @@
 /**
  * 
  */
+
+
+
+
+
 UCLASS()
 class THELASTBASTION_API UBase_AnimInstance : public UAnimInstance
 {
@@ -34,6 +39,13 @@ public:
 protected:
 
 	float PlayMontage(class UAnimMontage* _animMontage, float _rate, FName _startSectionName = NAME_None);
+
+	UFUNCTION()
+		virtual void OnMontageStartHandle(class UAnimMontage* _animMontage);
+
+	UFUNCTION()
+		virtual void OnMontageBlendOutStartHandle(class UAnimMontage* _animMontage, bool _bInterruptted);
+
 
 protected:
 

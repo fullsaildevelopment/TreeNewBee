@@ -31,6 +31,14 @@ protected:
 		 void OnPostEvaluate() override;
 
 
+	UFUNCTION()
+		void OnMontageStartHandle(class UAnimMontage* _animMontage) override;
+
+	UFUNCTION()
+		void OnMontageBlendOutStartHandle(class UAnimMontage* _animMontage, bool _bInterruptted) override;
+
+
+
 #pragma region Anim Notification
 
 	UFUNCTION(BlueprintCallable)
@@ -61,11 +69,6 @@ public:
 
 private:
 
-	UFUNCTION()
-		void OnMontageStartHandle(class UAnimMontage* _animMontage);
-
-	UFUNCTION()
-	    void OnMontageBlendOutStartHandle(class UAnimMontage* _animMontage, bool _bInterruptted);
 
 	void SyncMotionForMeleeAttack();
 

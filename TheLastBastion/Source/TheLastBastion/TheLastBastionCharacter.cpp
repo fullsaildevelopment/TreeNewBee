@@ -29,9 +29,9 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	walkSpeed = 255.0f;
 	minTurnRate_Travel = 180.0f;
 	maxTurnRate_Travel = 630.0f;
-	minTurnRate_Combat = 360.0f;
+	minTurnRate_Combat = 240.0f;
 
-	maxTurnRate_Combat = 1440.0f;
+	maxTurnRate_Combat = 1080.0f;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;

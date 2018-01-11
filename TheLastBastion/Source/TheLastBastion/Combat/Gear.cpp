@@ -48,7 +48,8 @@ void AGear::Equip(class USkeletalMeshComponent* const _skeletonMeshComponent)
 		break;
 	default:
 	case EGearType::Armor:
-		return;
+		SlotName = TEXT("Root");
+		break;
 	}
 	this->AttachToComponent(_skeletonMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, SlotName);
 

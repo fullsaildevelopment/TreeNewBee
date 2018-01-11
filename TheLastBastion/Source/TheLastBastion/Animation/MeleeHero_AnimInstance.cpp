@@ -31,6 +31,8 @@ void UMeleeHero_AnimInstance::OnBeginPlay()
 	Super::OnBeginPlay();
 	UE_LOG(LogTemp, Warning, TEXT("UMeleeHero_AnimInstance Call BeginPlay, %d"), (int)AttackState);
 
+	OnMontageStarted.AddDynamic(this, &UMeleeHero_AnimInstance::OnMontageStartHandle);
+	OnMontageBlendingOut.AddDynamic(this, &UMeleeHero_AnimInstance::OnMontageBlendOutStartHandle);
 }
 
 void UMeleeHero_AnimInstance::OnInit()
@@ -45,23 +47,32 @@ void UMeleeHero_AnimInstance::OnUpdate(float _deltaTime)
 
 	if (mCharacter)
 	{
+
 		UCharacterMovementComponent* movementComp = mCharacter->GetCharacterMovement();
 
-		mAccelerationDirection = movementComp->GetCurrentAcceleration();
-		mAccelerationDirection.Normalize();
+		if (ActivatedEquipment == EEquipType::Travel)
+		{
+			mAccelerationDirection = movementComp->GetCurrentAcceleration().GetSafeNormal();
+		}
+		else
+		{
+			mAccelerationDirection = UKismetMathLibrary::GetForwardVector(mCharacter->GetControlRotation());
+		}
+
 		Acceleration_bodySpace
 			= UKismetMathLibrary::InverseTransformDirection(mCharacter->GetTransform(), mAccelerationDirection);
-
 		turn = FMath::RadiansToDegrees(FMath::Atan2(Acceleration_bodySpace.Y, Acceleration_bodySpace.X));
 
 		if (!bRotationRateOverrideByAnim)
 		{
 			// the more of the angle between forward vector and acceleration, the more rotation speed
 			if (ActivatedEquipment == EEquipType::Travel)
+			{
 				movementComp->RotationRate.Yaw
-				= UKismetMathLibrary::MapRangeClamped(FMath::Abs(turn), 0, 180.0f,
-					mCharacter->GetMinTurnRateForTravel(),
-					mCharacter->GetMaxTurnRateForTravel());
+					= UKismetMathLibrary::MapRangeClamped(FMath::Abs(turn), 0, 180.0f,
+						mCharacter->GetMinTurnRateForTravel(),
+						mCharacter->GetMaxTurnRateForTravel());
+			}
 			else
 			{
 				if (AttackState == EAttackState::PreWinding)
@@ -381,6 +392,21 @@ void UMeleeHero_AnimInstance::LaunchCombo()
 	bRotationRateOverrideByAnim = false;
 }
 
+void UMeleeHero_AnimInstance::ResetCombo()
+{
+	UE_LOG(LogTemp, Log, TEXT("Reset Combo"));
+	AttackState = EAttackState::None;
+	NextAction = EActionType::None;
+
+	if (AttackState == EAttackState::Dodging)
+		return;
+	CurrentComboIndex = 0;
+	bVelocityOverrideByAnim = false;
+	bRotationRateOverrideByAnim = false;
+
+	//mCharacter->GetMovementComponent()->Velocity = mAccelerationDirection;
+}
+
 void UMeleeHero_AnimInstance::OnEnableDamage(bool bIsright, bool bIsAll)
 {
 	//Super::OnEnableWeapon(bIsright, bIsAll);
@@ -426,20 +452,6 @@ void UMeleeHero_AnimInstance::OnNextAttack()
 
 }
 
-void UMeleeHero_AnimInstance::OnResetCombo()
-{
-	//Super::OnResetCombo();
-
-	AttackState = EAttackState::None;
-	NextAction = EActionType::None;
-
-	if (AttackState == EAttackState::Dodging)
-		return;
-	CurrentComboIndex = 0;
-	bVelocityOverrideByAnim = false;
-	bRotationRateOverrideByAnim = false;
-	mCharacter->GetMovementComponent()->Velocity = mAccelerationDirection;
-}
 
 #pragma endregion
 
@@ -449,9 +461,11 @@ void UMeleeHero_AnimInstance::OnDodge()
 {
 
 	bool ignore
-		= Montage_IsPlaying(Hit_Montage) ||
-		(FMath::Abs(turn) > DodgeMinTurnThreshold && !bIsFocused) ||
+		= Montage_IsPlaying(Hit_Montage) || 
 		bIsInAir || Dodge_Montage == nullptr;
+	//(FMath::Abs(turn) > DodgeMinTurnThreshold && !bIsFocused)
+
+
 
 	if (ignore)
 	{
@@ -515,7 +529,9 @@ void UMeleeHero_AnimInstance::LaunchDodge()
 		mCharacter->GetCharacterMovement()->RotationRate.Yaw = 0;
 		if (bTryToMove)
 		{
-			mSpeedOverrideDirection = mAccelerationDirection;
+			//mSpeedOverrideDirection = mAccelerationDirection;
+			mSpeedOverrideDirection = mCharacter->GetActorForwardVector();
+
 			this->PlayMontage(Dodge_Montage, 1.0f, TEXT("Dodge_Fwd"));
 		}
 		else
@@ -659,6 +675,18 @@ void UMeleeHero_AnimInstance::OnDodgeFinish()
 		break;
 	case EActionType::Skill:
 		break;
+	}
+}
+
+void UMeleeHero_AnimInstance::OnMontageStartHandle(UAnimMontage * _animMontage)
+{
+}
+
+void UMeleeHero_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontage, bool _bInterruptted)
+{
+	if (_animMontage == Attack_Montage && !_bInterruptted)
+	{
+		ResetCombo();
 	}
 }
 

@@ -41,3 +41,13 @@ float UBase_AnimInstance::PlayMontage(class UAnimMontage* _animMontage, float _r
 	return 0.f;
 
 }
+
+void UBase_AnimInstance::OnMontageStartHandle(UAnimMontage * _animMontage)
+{
+
+}
+
+void UBase_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontage, bool _bInterruptted)
+{
+
+}
