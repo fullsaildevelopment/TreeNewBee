@@ -79,6 +79,12 @@ protected:
 	void AddControllerYaw(float _yaw);
 #pragma endregion
 
+private:
+
+	UFUNCTION()
+		void OnHealthChangedHandle(const class UPawnStatsComponent * _pawnStatsComp, float _damage, const class UDamageType * _damageType, FName _boneName, const FVector& _shotFromDirection, const FVector& _hitLocation) override;
+
+
 
 protected:
 
@@ -95,13 +101,21 @@ protected:
 		float LockOn_CamRotationLagging;
 
 public:
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Control)
 		/** Disable updating the movement axis and use the value from previous frame*/
 		bool bUsePreviousMovementAxis;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Control)
 		/** Disable the update the control yaw input*/
-		bool bDisableYawInput;
+		bool bIsMovementEnabled;
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Control)
+		/** Disable the update the control yaw input*/
+		bool bIsYawControllEnabled;
+
+
 
 
 private:
@@ -133,11 +147,6 @@ private:
 		class UCameraComponent* FollowCamera;
 
 #pragma endregion
-
-private:
-
-	UFUNCTION()
-		void OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType, FName _boneNmame, FVector _shotFromDirection);
 
 
 public:

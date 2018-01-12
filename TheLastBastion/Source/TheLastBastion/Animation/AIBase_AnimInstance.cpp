@@ -12,6 +12,7 @@
 UAIBase_AnimInstance::UAIBase_AnimInstance(const FObjectInitializer& _objectInitalizer) :Super(_objectInitalizer)
 {
 	CurrentActionState = EAIActionState::None;
+	MomentumRatioByActor = 0.7f;
 }
 
 void UAIBase_AnimInstance::OnBeginPlay()

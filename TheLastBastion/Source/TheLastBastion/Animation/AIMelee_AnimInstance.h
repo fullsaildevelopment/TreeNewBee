@@ -65,14 +65,16 @@ public:
 		void Attack(EAIMeleeAttackType _attackType) override;
 
 	void OnBeingHit(float _damage, FName boneName,
-		const FVector& _shotFromDirection, const class UPawnStatsComponent* _pawnStats) override;
+		const FVector& _shotFromDirection, const FVector& _hitLocation, const class UPawnStatsComponent* _pawnStats) override;
 
 private:
 
 
 	void SyncMotionForMeleeAttack();
 
-	FName HitReaction_SHSword(FName boneName, const FVector & _shotFromDirection);
+	void SyncMotionForGettingHurt();
+
+	FName HitReaction_SHSword(FName boneName, const FVector & _shotFromDirection, const FVector& _hitLocation);
 
 
 	

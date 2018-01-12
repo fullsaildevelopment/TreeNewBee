@@ -375,10 +375,14 @@ void UPawnStatsComponent::OnTakePointDamageHandle(AActor * DamagedActor, float D
 
 	float totalDamage = Damage + CalculateDamage();
 
-	HpCurrent = HpCurrent - totalDamage;
+	if (!mCharacter->GetIsGodMode())
+	{
+		HpCurrent = HpCurrent - totalDamage;
+	}
 	HpCurrent = FMath::Clamp(HpCurrent, 0.0f, HpMax);
 	// Let Character class to handle Updating the HUD display
-	OnHealthChanged.Broadcast(this, totalDamage, DamageType, BoneName, ShotFromDirection);
+	OnHealthChanged.Broadcast(this, totalDamage, DamageType, BoneName, ShotFromDirection, HitLocation);
+	
 
 	// Create Floating damage point
 	UInGameFloatingText* floatingDamage = GenerateFloatingText(HitLocation);

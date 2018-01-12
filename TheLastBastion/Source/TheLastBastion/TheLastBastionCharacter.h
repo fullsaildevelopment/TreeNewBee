@@ -72,7 +72,11 @@ protected:
 
 #pragma endregion
 
-	bool bIsDead;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	    bool bIsDead;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		bool bIsGodMode;
 
 
 protected:
@@ -80,7 +84,7 @@ protected:
 	void CharacterCustomInit();
 
 	UFUNCTION()
-		virtual void OnHealthChangedHandle(const class UPawnStatsComponent * _pawnStatsComp, float _damage, const class UDamageType * _damageType, FName _boneNmame, FVector _shotFromDirection);
+		virtual void OnHealthChangedHandle(const class UPawnStatsComponent * _pawnStatsComp, float _damage, const class UDamageType * _damageType, FName _boneNmame, const FVector& _shotFromDirection, const FVector& _hitLocation);
 
 public:
 
@@ -98,6 +102,9 @@ public:
 	FORCEINLINE class UPawnStatsComponent*  GetPawnStatsComp() const { return PawnStats; }
 	FORCEINLINE void SetCharacterType(ECharacterType _val) { CharacterType = _val; }
 	FORCEINLINE bool GetIsDead() const { return bIsDead; }
+
+	FORCEINLINE bool GetIsGodMode() const { return bIsGodMode; }
+
 
 };
 

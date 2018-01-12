@@ -33,7 +33,7 @@ protected:
 
 public:
 	virtual void OnBeingHit
-	(float _damage, FName boneName, const FVector& _shotFromDirection, const class UPawnStatsComponent* _pawnStats);
+	(float _damage, FName boneName ,const FVector& _shotFromDirection, const FVector& _hitLocation, const class UPawnStatsComponent* _pawnStats);
 
 
 protected:
@@ -42,6 +42,9 @@ protected:
 
 	UFUNCTION()
 		virtual void OnMontageStartHandle(class UAnimMontage* _animMontage);
+
+	UFUNCTION()
+		virtual void OnMontageEndHandle(class UAnimMontage* _animMontage, bool _bInterruptted);
 
 	UFUNCTION()
 		virtual void OnMontageBlendOutStartHandle(class UAnimMontage* _animMontage, bool _bInterruptted);
@@ -77,5 +80,13 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
 		float MoveRightAxis;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Movement)
+		/** the weight to decide damage momentum direction by damage causer location */
+		float MomentumRatioByActor;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Movement)
+		FVector damageMomentum;
+
 
 };

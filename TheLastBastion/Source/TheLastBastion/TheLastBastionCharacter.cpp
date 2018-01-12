@@ -22,6 +22,7 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 {	
 	bReplicates = true;
 	bIsDead = false;
+	bIsGodMode = false;
 
 
 	SprintSpeed = 850.0f;
@@ -65,7 +66,7 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 }
 
 
-void ATheLastBastionCharacter::OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType, FName _boneNmame, FVector _shotFromDirection)
+void ATheLastBastionCharacter::OnHealthChangedHandle(const class UPawnStatsComponent * _pawnStatsComp, float _damage, const class UDamageType * _damageType, FName _boneNmame, const FVector& _shotFromDirection, const FVector& _hitLocation)
 {
 
 }

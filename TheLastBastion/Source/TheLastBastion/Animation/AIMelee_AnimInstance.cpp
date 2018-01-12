@@ -7,12 +7,17 @@
 #include "Combat/PawnStatsComponent.h"
 
 #define HEADBONE TEXT("neck_01")
+#define RIGHTLEGBONE TEXT("calf_r")
+#define LEFTLEGBONE TEXT("calf_l")
 #define SH_HitReaction_HEAD_RIGHT      TEXT("Head_R")
 #define SH_HitReaction_HEAD_LEFT       TEXT("Head_L")
 #define SH_HitReaction_HEAD_FRONT      TEXT("Head_F")
 #define SH_HitReaction_BODY_RIGHT      TEXT("Body_R")
 #define SH_HitReaction_BODY_LEFT       TEXT("Body_L")
 #define SH_HitReaction_BODY_FRONT      TEXT("Body_F")
+#define SH_HitReaction_LEG_RIGHT       TEXT("Leg_R")
+#define SH_HitReaction_LEG_LEFT        TEXT("Leg_L")
+
 
 
 
@@ -24,7 +29,6 @@ void UAIMelee_AnimInstance::OnBeginPlay()
 
 	OnMontageStarted.AddDynamic(this, &UAIMelee_AnimInstance::OnMontageStartHandle);
 	OnMontageBlendingOut.AddDynamic(this, &UAIMelee_AnimInstance::OnMontageBlendOutStartHandle);
-
 }
 
 void UAIMelee_AnimInstance::OnInit()
@@ -43,6 +47,10 @@ void UAIMelee_AnimInstance::OnUpdate(float _deltaTime)
 	case EAIActionState::MeleeAttack:
 		SyncMotionForMeleeAttack();
 		break;
+	case EAIActionState::GettingHurt:
+		SyncMotionForGettingHurt();
+		break;
+
 	default:
 		break;
 	}
@@ -82,6 +90,7 @@ void UAIMelee_AnimInstance::Attack(EAIMeleeAttackType _attackType)
 	attackChoice = _attackType;
 }
 
+
 void UAIMelee_AnimInstance::FinishAttack()
 {
 	CurrentActionState = EAIActionState::None;
@@ -110,10 +119,6 @@ void UAIMelee_AnimInstance::InitAttack()
 
 void UAIMelee_AnimInstance::OnMontageStartHandle(UAnimMontage * _animMontage)
 {
-	if (_animMontage == Hit_Montage)
-	{
-		UE_LOG(LogTemp, Log, TEXT("I am being hit - OnMontageStartHandle"));
-	}
 }
 
 void UAIMelee_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontage, bool _bInterruptted)
@@ -162,50 +167,46 @@ void UAIMelee_AnimInstance::SyncMotionForMeleeAttack()
 
 }
 
-void UAIMelee_AnimInstance::OnBeingHit(float _damage, FName boneName, const FVector & _shotFromDirection, const UPawnStatsComponent * _pawnStats)
+void UAIMelee_AnimInstance::SyncMotionForGettingHurt()
 {
-	
-	FinishAttack();
-	CurrentActionState = EAIActionState::GettingHurt;
+	UCharacterMovementComponent* movementComp = mCharacter->GetCharacterMovement();
 
+	// Sync Velocity
+	float speed = GetCurveValue("Speed");
 
+	FVector Velocity = movementComp->Velocity;
+	movementComp->Velocity = damageMomentum * speed;
+	movementComp->Velocity.Z = Velocity.Z;
 
-	//UE_LOG(LogTemp, Log, TEXT("disable weapon on hit"));
-	OnDisableWeapon(false, true);
-	if (Hit_Montage == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Hit Montage is nullptr"));
-		return;
-	}
-
-	FName sectionToPlay;
-	ECharacterType Type = mCharacter->GetCharacterType();
-	switch (Type)
-	{
-	case ECharacterType::LanTrooper_T0:
-		sectionToPlay = HitReaction_SHSword(boneName, _shotFromDirection);
-		break;
-	default:
-		break;
-	}
-
-	PlayMontage(Hit_Montage, 1.0f, sectionToPlay);
 }
 
-FName UAIMelee_AnimInstance::HitReaction_SHSword(FName boneName, const FVector & _shotFromDirection)
+FName UAIMelee_AnimInstance::HitReaction_SHSword(FName boneName, const FVector & _shotFromDirection, const FVector & _hitLocation)
 {
+	// assume always face to attacker
 	FName sectionName;
-	FVector away = _shotFromDirection.GetSafeNormal();
-	//UE_LOG(LogTemp, Warning, TEXT("%s"), *boneName.ToString());
 
-	float vert = FVector::DotProduct(mCharacter->GetActorForwardVector(), away);
+
+	// relative position of damage causer
+	FVector damageCauserRelative = _shotFromDirection;
+	damageCauserRelative.Z = 0.0f;
+	damageCauserRelative = damageCauserRelative.GetUnsafeNormal();
+
+
+	FVector hitRelative = _hitLocation - GetSkelMeshComponent()->GetSocketLocation(boneName);
+	float hitZOffset = hitRelative.Z;
+	hitRelative.Z = 0;
+	hitRelative = hitRelative.GetSafeNormal();
+
+	float vert = FVector::DotProduct(mCharacter->GetActorForwardVector(), hitRelative);
+
 	if (boneName.Compare(HEADBONE) == 0)
 	{
-		if (vert > 0.9f)
+		/// *** Head Hit
+		if (vert > 0.7f)
 			sectionName = SH_HitReaction_HEAD_FRONT;
 		else
 		{
-			float hor = FVector::DotProduct(mCharacter->GetActorRightVector(), away);
+			float hor = FVector::DotProduct(mCharacter->GetActorRightVector(), hitRelative);
 			if (hor > 0)
 				sectionName = SH_HitReaction_HEAD_RIGHT;
 			else
@@ -214,18 +215,65 @@ FName UAIMelee_AnimInstance::HitReaction_SHSword(FName boneName, const FVector &
 	}
 	else
 	{
-		if (vert > 0.9f)
-			sectionName = SH_HitReaction_BODY_FRONT;
+
+		if (boneName.Compare(RIGHTLEGBONE) == 0 || boneName.Compare(LEFTLEGBONE) == 0)
+		{
+			float hor = FVector::DotProduct(mCharacter->GetActorRightVector(), hitRelative);
+			if (hor > 0)
+				sectionName = SH_HitReaction_LEG_RIGHT;
+			else
+				sectionName = SH_HitReaction_LEG_LEFT;
+		}
+
 		else
 		{
-			float hor = FVector::DotProduct(mCharacter->GetActorRightVector(), away);
-			if (hor > 0)
-				sectionName = SH_HitReaction_BODY_RIGHT;
+			if (vert > 0.7f)
+				sectionName = SH_HitReaction_BODY_FRONT;
 			else
-				sectionName = SH_HitReaction_BODY_LEFT;
+			{
+				float hor = FVector::DotProduct(mCharacter->GetActorRightVector(), hitRelative);
+				if (hor > 0)
+					sectionName = SH_HitReaction_BODY_RIGHT;
+				else
+					sectionName = SH_HitReaction_BODY_LEFT;
+			}
 		}
 	}
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *sectionName.ToString());
+
+
+	damageMomentum = -MomentumRatioByActor * damageCauserRelative - (1 - MomentumRatioByActor) * hitRelative;
+	damageMomentum = damageMomentum.GetUnsafeNormal();
 
 	return sectionName;
 }
+
+void UAIMelee_AnimInstance::OnBeingHit(float _damage, FName boneName, const FVector & _shotFromDirection, const FVector & _hitLocation, const UPawnStatsComponent * _pawnStats)
+{
+
+	if (Hit_Montage == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Hit Montage is nullptr"));
+		return;
+	}
+
+	FinishAttack();
+	CurrentActionState = EAIActionState::GettingHurt;
+	//UE_LOG(LogTemp, Log, TEXT("disable weapon on hit"));
+	OnDisableWeapon(false, true);
+
+
+	FName sectionToPlay;
+	ECharacterType Type = mCharacter->GetCharacterType();
+	switch (Type)
+	{
+	case ECharacterType::LanTrooper_T0:
+		sectionToPlay = HitReaction_SHSword(boneName, _shotFromDirection, _hitLocation);
+		break;
+	default:
+		break;
+	}
+
+	PlayMontage(Hit_Montage, 1.0f, sectionToPlay);
+}
+
+

@@ -54,7 +54,7 @@ protected:
 	void BeginPlay() override;	
 
  	UFUNCTION()
-		void OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType, FName _boneNmame, FVector _shotFromDirection) override;
+		void OnHealthChangedHandle(const class UPawnStatsComponent * _pawnStatsComp, float _damage, const class UDamageType * _damageType, FName _boneName, const FVector& _shotFromDirection, const FVector& _hitLocation) override;
 
 public:
 

@@ -155,10 +155,7 @@ bool URangeHero_AnimInstance::OnEquip()
 			}
 			DisableJump();
 			bVelocityOverrideByAnim = false;
-			bRotationRateOverrideByAnim = false;
 		}
-
-
 
 		// Player Animation Montage based on activated equip type
 		if (ActivatedEquipment == EEquipType::Travel)

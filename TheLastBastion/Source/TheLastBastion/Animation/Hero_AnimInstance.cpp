@@ -19,8 +19,7 @@ UHero_AnimInstance::UHero_AnimInstance(const FObjectInitializer& _objectInitaliz
 	bTryToSprint = false;
 	bTryToMove = false;
 	bIsSprinting = false;
-
-	bRotationRateOverrideByAnim = false;
+	MomentumRatioByActor = 0.7f;
 	bVelocityOverrideByAnim = false;
 }
 
@@ -89,6 +88,7 @@ void UHero_AnimInstance::OnRightMouseButtonReleased()
 {
 }
 
+
 void UHero_AnimInstance::OnSprintPressed()
 {
 	bTryToSprint = true;
@@ -110,7 +110,6 @@ void UHero_AnimInstance::OnSprintReleased()
 	mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
 	bIsSprinting = false;
 }
-
 
 
 void UHero_AnimInstance::StartOverrideSpeed()
@@ -165,7 +164,6 @@ void UHero_AnimInstance::OnEquipWeapon()
 	mCharacter->GetHeroStatsComp()->OnEquipWeapon();
 	mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = true;
 	mCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
-
 }
 
 void UHero_AnimInstance::OnSheathWeapon()
@@ -184,6 +182,7 @@ void UHero_AnimInstance::OnSheathWeapon()
 
 }
 
+/** Skip equipAnimation direction to equip mode, change the movement role to strafe*/
 void UHero_AnimInstance::SkipEquip()
 {
 	OnEquipWeapon();
@@ -195,10 +194,27 @@ void UHero_AnimInstance::SkipEquip()
 		bIsSprinting = false;
 	}
 	bVelocityOverrideByAnim = false;
-	bRotationRateOverrideByAnim = false;
+	DisableJump();
+}
+
+void UHero_AnimInstance::AttachWeapon()
+{
+	ActivatedEquipment = CurrentEquipment;
+	mCharacter->GetHeroStatsComp()->OnEquipWeapon();
+
+	if (bIsSprinting)
+	{
+		// Once Attack, we activate combat mode, hence we have to slow our speed down
+		// if we are sprinting then stop
+		mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
+		bIsSprinting = false;
+	}
+	bVelocityOverrideByAnim = false;
 	DisableJump();
 
 }
+
+
 
 #pragma endregion
 
@@ -236,48 +252,95 @@ void UHero_AnimInstance::OnJumpStop()
 #pragma endregion
 
 
-void UHero_AnimInstance::OnBeingHit(float _damage, FName boneName, const FVector & _shotFromDirection, const UPawnStatsComponent * _pawnStats)
+
+void UHero_AnimInstance::OnBeingHit(float _damage, FName boneName, const FVector & _shotFromDirection, const FVector & _hitLocation, const UPawnStatsComponent * _pawnStats)
 {
-	// reset the attack state and movement override, cuz we are being attack
-	OnActionInterrupt();
-	FVector away = _shotFromDirection.GetSafeNormal();
-	float vert = FVector::DotProduct(mCharacter->GetActorForwardVector(), away);
-
-	FName sectionName;
-	if (vert >= 0.7f)
-	{
-		if (boneName.Compare("neck_01") == 0)
-			sectionName = TEXT("HitHead");
-		else
-			sectionName = TEXT("HitCenter");
-	}
-
-	else if (vert <= -0.7f)
-		sectionName = TEXT("HitBack");
-	else
-	{
-		float hor = FVector::DotProduct(mCharacter->GetActorRightVector(), away);
-		if (hor > 0)
-			sectionName = TEXT("HitRight");
-		else
-			sectionName = TEXT("HitLeft");
-	}
 
 	if (Hit_Montage)
+	{
+		// reset the attack state and movement override, cuz we are being attack
+		ResetOnBeingHit();
+
+		// relative position of damage causer
+		FVector damageCauserRelative = _shotFromDirection;
+		damageCauserRelative.Z = 0.0f;
+		damageCauserRelative = damageCauserRelative.GetUnsafeNormal();
+
+
+		bool HitFromFront = FVector::DotProduct(mCharacter->GetActorForwardVector(), damageCauserRelative) > 0.3f;
+		FName sectionName;
+
+		if (HitFromFront)
+		{
+			FVector hitRelative = _hitLocation - GetSkelMeshComponent()->GetSocketLocation(boneName);
+			float hitZOffset = hitRelative.Z;
+			hitRelative.Z = 0;
+			hitRelative = hitRelative.GetSafeNormal();
+			float vert = FVector::DotProduct(mCharacter->GetActorForwardVector(), hitRelative);
+			if (vert >= 0.7f)
+			{
+				if (boneName.Compare("neck_01") == 0)
+					sectionName = TEXT("HitHead");
+				else
+					sectionName = TEXT("HitCenter");
+			}
+			else
+			{
+				float hor = FVector::DotProduct(mCharacter->GetActorRightVector(), hitRelative);
+				if (hor > 0)
+					sectionName = TEXT("HitRight");
+				else
+					sectionName = TEXT("HitLeft");
+			}
+
+			damageMomentum = - MomentumRatioByActor * damageCauserRelative - (1 - MomentumRatioByActor) * hitRelative;
+			damageMomentum = damageMomentum.GetUnsafeNormal();
+		}
+		else
+		{
+			sectionName = TEXT("HitBack");
+			damageMomentum = -damageCauserRelative;
+		}
+
 		this->PlayMontage(Hit_Montage, 1.0f, sectionName);
+	}
 	else
 		UE_LOG(LogTemp, Error, TEXT("Hit_Montage is nullptr - UHero_AnimInstance::OnBeingHit"));
-
 }
 
-void UHero_AnimInstance::OnActionInterrupt()
+void UHero_AnimInstance::ResetOnBeingHit()
 {
-	bVelocityOverrideByAnim = false;
-	bRotationRateOverrideByAnim = false;
-	AttackState = EAttackState::None;
+	mCharacter->bIsMovementEnabled = false;
+	AttackState = EAttackState::BeingHit;
 	NextAction = EActionType::None;
+
+	bVelocityOverrideByAnim = true;
+ 
+	if (ActivatedEquipment == EEquipType::Travel)
+	{
+		AttachWeapon(); 
+	}
+	mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	mCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
+
 }
 
+void UHero_AnimInstance::RecoverFromBeingHit(bool _bInterrupted)
+{
+	if (_bInterrupted)
+	{
+		// Take a other hit, cuz only hit can interrupt hit
+		return;
+	}
+
+
+	AttackState = EAttackState::None;
+	bVelocityOverrideByAnim = false;	
+	mCharacter->bIsMovementEnabled = true;
+
+	mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	mCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
+}
 
 void UHero_AnimInstance::HeadTrack()
 {

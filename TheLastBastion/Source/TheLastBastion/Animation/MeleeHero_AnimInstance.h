@@ -58,7 +58,7 @@ public:
 	void OnCorLAltPressed() override;
 
 	/** Called when combat properties requires to be reset*/
-	void OnActionInterrupt() override;
+	void ResetOnBeingHit() override;
 
 
 protected:
@@ -84,14 +84,15 @@ protected:
 
 
 	UFUNCTION(BlueprintCallable)
-		virtual void OnDodgeFinish();
+		virtual void OnDodgeFinish(bool _bInterruptted);
 
 
 	UFUNCTION()
-		virtual void OnMontageStartHandle(class UAnimMontage* _animMontage);
+		void OnMontageStartHandle(class UAnimMontage* _animMontage) override;
+
 
 	UFUNCTION()
-		virtual void OnMontageBlendOutStartHandle(class UAnimMontage* _animMontage, bool _bInterruptted);
+		void OnMontageBlendOutStartHandle(class UAnimMontage* _animMontage, bool _bInterruptted) override;
 
 
 

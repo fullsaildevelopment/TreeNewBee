@@ -142,7 +142,9 @@ void AWeapon::Tick(float _deltaTime)
 			if (bDisableCutOpenDamage)
 				IgnoredActors.Add(DamageInfo.hitResult.GetActor());
 		
-			DamageInfo.hitDirection = DamageInfo.hitResult.Location - DamageInfo.hitResult.GetActor()->GetActorLocation();
+
+			DamageInfo.hitDirection = GearOwner->GetActorLocation() - DamageInfo.hitResult.GetActor()->GetActorLocation();
+
 			UPawnStatsComponent* pSC = GearOwner->GetPawnStatsComp();
 			if (pSC != nullptr)
 				pSC->ApplyDamage(DamageInfo);

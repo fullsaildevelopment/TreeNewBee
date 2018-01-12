@@ -58,7 +58,8 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter() : Super()
 	GetCapsuleComponent()->InitCapsuleSize(CapRadius, CapHalfSize);
 
 	bUsePreviousMovementAxis = false;
-	bDisableYawInput = false;
+	bIsYawControllEnabled = true;
+	bIsMovementEnabled = true;
 
 	HeroStats = CreateDefaultSubobject<UHeroStatsComponent>(TEXT("Stats"));
 	PawnStats = HeroStats;	
@@ -129,12 +130,11 @@ void ATheLastBastionHeroCharacter::LookUpAtRate(float Rate)
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
-
-
-
-
 void ATheLastBastionHeroCharacter::MoveForward(float Value)
 {
+
+	if (!bIsMovementEnabled)
+		return;
 	// catch the forward axis
 	if (!bUsePreviousMovementAxis)
 		MoveForwardAxis = Value;
@@ -142,9 +142,7 @@ void ATheLastBastionHeroCharacter::MoveForward(float Value)
 	{
 		// the default previous movement axis is forward, i.e W is pressed
 		if (MoveRightAxis == 0.0f && MoveForwardAxis == 0.0f)
-		{
-			MoveForwardAxis = 1.0f;
-		}
+			MoveForwardAxis = -1.0f;
 	}
 
 	if ((Controller != NULL) && (MoveForwardAxis != 0.0f))
@@ -163,6 +161,9 @@ void ATheLastBastionHeroCharacter::MoveForward(float Value)
 
 void ATheLastBastionHeroCharacter::MoveRight(float Value)
 {
+	if (!bIsMovementEnabled)
+		return;
+
 	// Catch the right axis 
 	if (!bUsePreviousMovementAxis)
 		MoveRightAxis = Value;
@@ -178,21 +179,7 @@ void ATheLastBastionHeroCharacter::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, MoveRightAxis);
 	}
-
-	//if ((Controller != NULL) && (Value != 0.0f))
-	//{
-	//	// find out which way is right
-	//	const FRotator Rotation = Controller->GetControlRotation();
-	//	const FRotator YawRotation(0, Rotation.Yaw, 0);
-	//	// get right vector 
-	//	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-	//	// add movement in that direction
-	//	AddMovementInput(Direction, Value);
-	//}
-	//MoveRightAxis = Value;
 }
-
-
 
 void ATheLastBastionHeroCharacter::OnSprintPressed()
 {
@@ -250,28 +237,20 @@ void ATheLastBastionHeroCharacter::OnRightMouseButtonReleased()
 
 void ATheLastBastionHeroCharacter::AddControllerYaw(float _yaw)
 {
-	//if (CharacterType == ECharacterType::Ranger)
-	//{
-	//	UMeleeHero_AnimInstance* animRef = Cast<UMeleeHero_AnimInstance>(mAnimInstanceRef);
-	//	if (animRef && !animRef->GetIsFocus())
-	//	{
-	//		this->AddControllerYawInput(_yaw);
-	//	}
-	//}
-	//else
-	//{
-	//	this->AddControllerYawInput(_yaw);
-	//}
-
-	this->AddControllerYawInput(_yaw);
+	if (bIsYawControllEnabled)
+	{
+		this->AddControllerYawInput(_yaw);
+	}
 }
+
 
 #pragma endregion
 
-void ATheLastBastionHeroCharacter::OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType, FName _boneName, FVector _shotFromDirection)
+
+
+void ATheLastBastionHeroCharacter::OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType, FName _boneName, const FVector & _shotFromDirection, const FVector & _hitLocation)
 {
 	// UI
-
 	AGamePC* gamePC = Cast<AGamePC>(GetController());
 	if (gamePC)
 	{
@@ -279,8 +258,10 @@ void ATheLastBastionHeroCharacter::OnHealthChangedHandle(const UPawnStatsCompone
 	}
 
 	// Animation
-	mAnimInstanceRef->OnBeingHit(_damage, _boneName, _shotFromDirection, _pawnStatsComp);
+	mAnimInstanceRef->OnBeingHit(_damage, _boneName, _shotFromDirection, _hitLocation, _pawnStatsComp);
+
 }
+
 
 FVector ATheLastBastionHeroCharacter::GetPawnViewLocation() const
 {

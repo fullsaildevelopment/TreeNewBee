@@ -87,7 +87,7 @@ void ATheLastBastionEnemyCharacter::BeginPlay()
 		GetCharacterMovement()->MaxWalkSpeed = JogSpeed;
 }
 
-void ATheLastBastionEnemyCharacter::OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage,const UDamageType * _damageType, FName _boneNmame, FVector _shotFromDirection)
+void ATheLastBastionEnemyCharacter::OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType, FName _boneName, const FVector & _shotFromDirection, const FVector & _hitLocation)
 {
 
 	UInGameAIHUD* aiHUD = Cast<UInGameAIHUD>(InfoHUD->GetUserWidgetObject());
@@ -109,7 +109,7 @@ void ATheLastBastionEnemyCharacter::OnHealthChangedHandle(const UPawnStatsCompon
 	// Animation Call
 	if (mAnimInstanceRef)
 	{
-		mAnimInstanceRef->OnBeingHit(_damage, _boneNmame, _shotFromDirection, _pawnStatsComp);
+		mAnimInstanceRef->OnBeingHit(_damage, _boneName, _shotFromDirection, _hitLocation, _pawnStatsComp);
 	}
 
 }

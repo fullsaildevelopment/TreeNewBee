@@ -25,15 +25,17 @@ enum class EAttackState : uint8
 	None = 0   UMETA(DisplayName = "None"),
 	/** Player speed will be override by animation, can dodge freely in this state*/
 	PreWinding = 1  UMETA(DisplayName = "PreWinding"),
-	/** Player action will be locked in this state*/
+	/** Player action, movement will be locked in this state*/
 	Attacking = 2   UMETA(DisplayName = "Attacking"),
-	/** Player action can move freely*/
+	/** Player can perform next action freely, movement is locked*/
 	ReadyForNext = 3 UMETA(DisplayName = "ReadyForNext"),
 	/** Player speed and direction will be override by dodge animation in this state
-	*   No Only Action allowed */
+	*   No Action allowed */
 	Dodging = 4 UMETA(DisplayName = "Dodging"),
 	/** Player speed and direction still override by Dodging anim, but can perform next action, but not dodge*/
-	PostDodging = 5 UMETA(DisplayName = "PostDodging")
+	PostDodging = 5 UMETA(DisplayName = "PostDodging"),
+	/** Player has no control */
+	BeingHit = 6 UMETA(DisplayName = "BeingHit")
 };
 
 UENUM(BlueprintType)
@@ -82,10 +84,6 @@ protected:
 		/** If true, the velocity of character is controlled by animation
 		* and calculated direction */
 		bool bVelocityOverrideByAnim;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
-		/** If true, the rotation rate is controlled by animation */
-		bool bRotationRateOverrideByAnim;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
 		bool bEnableJump;
@@ -238,26 +236,28 @@ public:
 #pragma endregion
 
 	virtual void OnBeingHit
-	( float _damage, FName boneName, const FVector& _shotFromDirection, const class UPawnStatsComponent* _pawnStats) override;
-
-	virtual void OnActionInterrupt();
-
+	( float _damage, FName boneName, const FVector& _shotFromDirection, const FVector& _hitLocation, const class UPawnStatsComponent* _pawnStats) override;
 
 protected:
 
 
 	/** Called when player try to attack and dodge and use skill without equip at the first place
-	    Simply attach a weapon on the slot without play the animation, disable jump*/
-
+	    Simply attach a weapon on the slot without play the animation, disable jump, change movement rules to strafe*/
 	void SkipEquip();
 
 	void HeadTrack();
+
+	virtual void ResetOnBeingHit();
+
+	virtual void RecoverFromBeingHit(bool _bInterrupted);
+
+	/** Similar to SkipEquip, without change movement rules*/
+	void AttachWeapon();
 
 
 public:
 
 		FORCEINLINE bool IsVelocityOverrideByAnim() const { return bVelocityOverrideByAnim; }
-		FORCEINLINE bool IsRotationRateOverrideByAnim() const { return bRotationRateOverrideByAnim; }
 		FORCEINLINE bool GetIsJumpEnable() const { return bEnableJump; }
 		FORCEINLINE void SetIsJump(bool _val) { bTryToJump = _val; }
 
