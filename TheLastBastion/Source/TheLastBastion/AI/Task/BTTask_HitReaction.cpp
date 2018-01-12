@@ -49,7 +49,6 @@ EBTNodeResult::Type UBTTask_HitReaction::ExecuteTask(UBehaviorTreeComponent & Ow
 	{
 		NodeResult = EBTNodeResult::InProgress;
 		animRef->OnRecoverFromHitSignature.BindUObject(this, &UBTTask_HitReaction::OnRecoverFromHitHandle);
-
 		return NodeResult;
 	}
 	else

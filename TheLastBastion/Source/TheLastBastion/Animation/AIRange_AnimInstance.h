@@ -34,10 +34,5 @@ protected:
 protected:
 
 
-		UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
-			float GoForword;
-
-		UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
-			float GoRight;
 
 };

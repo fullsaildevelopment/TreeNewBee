@@ -26,6 +26,7 @@ public:
 
 public: 
 
+	void UseNewProfile();
 	void LogOutProfile();
 
 	UPROPERTY()

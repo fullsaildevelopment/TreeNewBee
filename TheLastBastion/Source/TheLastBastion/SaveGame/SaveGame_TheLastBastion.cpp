@@ -3,10 +3,32 @@
 #include "SaveGame_TheLastBastion.h"
 #include "CustomType.h"
 
+
+static FText defaultPlayerName = FText::FromString(TEXT("New Player"));
+static TSubclassOf<ACharacter> defaultCharacterClass = nullptr;
+static UTexture2D* defaultCharacterImage = nullptr;
+static UTexture2D* defaultAvatarImage = nullptr;
+
+
 USaveGame_TheLastBastion::USaveGame_TheLastBastion(const FObjectInitializer& _init) :Super(_init)
 {
 
-	//mPlayerProfile.mPlayerName = FText::FromString(TEXT("New Player"));
+	if (defaultAvatarImage == nullptr)
+	{
+
+	}
+
+	if (defaultCharacterImage == nullptr)
+	{
+
+	}
+
+	if (defaultCharacterClass = nullptr)
+	{
+
+	}
+
+
 
 	UCustomType::FindClass<ACharacter>(mPlayerProfile.mCharacterClass, TEXT("/Game/Blueprints/Heros/Ranger_Bp"));
 
@@ -23,6 +45,11 @@ USaveGame_TheLastBastion::USaveGame_TheLastBastion(const FObjectInitializer& _in
 		mPlayerProfile.mAvatarImage = AvatarImage.Object;
 	else
 		UE_LOG(LogTemp, Error, TEXT("Can not find default avatar"));
+}
+
+void USaveGame_TheLastBastion::UseNewProfile()
+{
+	mPlayerProfile.mPlayerName = defaultPlayerName;
 }
 
 void USaveGame_TheLastBastion::LogOutProfile()

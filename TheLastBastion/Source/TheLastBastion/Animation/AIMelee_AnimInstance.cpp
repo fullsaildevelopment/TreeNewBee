@@ -185,7 +185,6 @@ FName UAIMelee_AnimInstance::HitReaction_SHSword(FName boneName, const FVector &
 	// assume always face to attacker
 	FName sectionName;
 
-
 	// relative position of damage causer
 	FVector damageCauserRelative = _shotFromDirection;
 	damageCauserRelative.Z = 0.0f;
