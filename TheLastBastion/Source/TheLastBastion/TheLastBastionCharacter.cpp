@@ -13,10 +13,15 @@
 
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
+#include "CustomType.h"
 #include "Engine.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ATheLastBastionCharacter
+
+#define TLB_CHARACTER_NUM  4
+static TSubclassOf<class ACharacter> TLBCharacterClass[TLB_CHARACTER_NUM];
+
 
 ATheLastBastionCharacter::ATheLastBastionCharacter()
 {	
@@ -45,22 +50,17 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	GetCharacterMovement()->JumpZVelocity = 1500.0f;
 	GetCharacterMovement()->AirControl = 0.2f;
 
-
-	// Init capsule size of each situations
-	CapHalfSize = 90.0f;
-	CapRadius = 50.0f;
-
-	// Set size for collision capsule
-	GetCapsuleComponent()->InitCapsuleSize(CapRadius, CapHalfSize);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+
 	GetCapsuleComponent()->bGenerateOverlapEvents = true;
 
-	GetMesh()->RelativeLocation = FVector(0, 0, -CapHalfSize);
+
+	GetMesh()->RelativeLocation = FVector(0, 0, -90);
 	GetMesh()->RelativeRotation = FRotator(0, -90, 0);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->bGenerateOverlapEvents = true;
 
-
+	LocateAllCharacterClass();
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
@@ -69,6 +69,24 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 void ATheLastBastionCharacter::OnHealthChangedHandle(const class UPawnStatsComponent * _pawnStatsComp, float _damage, const class UDamageType * _damageType, FName _boneNmame, const FVector& _shotFromDirection, const FVector& _hitLocation)
 {
 
+}
+
+TSubclassOf<class ACharacter> ATheLastBastionCharacter::GetCharacterClass(ECharacterType _characterType)
+{
+	return TLBCharacterClass[(int)(_characterType)];
+}
+/** Find All Character Blueprint Class*/
+void ATheLastBastionCharacter::LocateAllCharacterClass()
+{
+	if (TLBCharacterClass[(int)(ECharacterType::Ranger)] == nullptr)
+		UCustomType::FindClass<ACharacter>(TLBCharacterClass[(int)(ECharacterType::Ranger)], TEXT("/Game/Blueprints/Heros/Ranger_Bp"));
+
+	if (TLBCharacterClass[(int)(ECharacterType::Builder)] == nullptr)
+		UCustomType::FindClass<ACharacter>(TLBCharacterClass[(int)(ECharacterType::Builder)], TEXT("/Game/Blueprints/Heros/Builder_Bp"));
+
+	if (TLBCharacterClass[(int)(ECharacterType::LanTrooper_T0)] == nullptr)
+		UCustomType::FindClass<ACharacter>(TLBCharacterClass[(int)(ECharacterType::LanTrooper_T0)],
+			TEXT("/Game/Blueprints/AI/Lannester/Lan_Trooper_T0"));
 }
 
 void ATheLastBastionCharacter::BeginPlay()
@@ -80,10 +98,7 @@ void ATheLastBastionCharacter::BeginPlay()
 		PawnStats->OnHealthChanged.AddDynamic(this, &ATheLastBastionCharacter::OnHealthChangedHandle);
 	}
 
-
-
 	CharacterCustomInit();
-
 }
 
 void ATheLastBastionCharacter::CharacterCustomInit()

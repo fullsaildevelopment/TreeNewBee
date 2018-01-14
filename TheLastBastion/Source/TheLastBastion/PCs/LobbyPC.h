@@ -9,6 +9,9 @@
 /**
 *
 */
+
+enum class ECharacterType : uint8;
+
 UCLASS()
 class THELASTBASTION_API ALobbyPC : public APlayerController
 {
@@ -58,10 +61,19 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 		void SERVER_LeaveLobbyAndUpdateConnectedPlayer();
 
+	UFUNCTION()
+		void SaveCurrentPlayerFile();
+
+
 private:
 
 	bool mAmReady;
+
+	UPROPERTY()
 	struct FPlayerProfile playerProfile;
+
+	UPROPERTY()
+		class USaveGame_TheLastBastion* SaveGame;
 
 private:
 
@@ -74,11 +86,20 @@ private:
 
 private:
 
-	class UGI_TheLastBastion* mGameInstanceRef;
-	class ULobbyMenu* mLobbyMenuRef;
+	UPROPERTY()
+		class UGI_TheLastBastion* mGameInstanceRef;
+
+	UPROPERTY()
+		class ULobbyMenu* mLobbyMenuRef;
 
 public:
 
 	FORCEINLINE bool GetAmReady() const { return mAmReady; }
 	FORCEINLINE struct FPlayerProfile GetPlayerProfile() const { return playerProfile; }
+
+	/** Update player profile for client and save it locally, and upload to server
+	and ask server to update all client about this change*/
+	void SetCharacterClass(ECharacterType _characterType);
+
+
 };

@@ -44,11 +44,25 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UWidget* CrossHair;
 
+	UPROPERTY(BlueprintReadOnly, meta = (BlueprintProtected))
+		class UTexture2D* WeaponThumbNail;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* ProjectileCount_Text;
+
+
+	UPROPERTY()
+		bool bIsRanger;
+
+
+
+
 public:
 
 	void AddTeamMember(const FPlayerProfile& _newTeamMember);
 
-	void SetPlayerName(const FPlayerProfile& _profile);
+	/** Initialize the HUD during creation by player profile*/
+	void LoadPlayerProfile(const FPlayerProfile& _profile);
 
 	void InitStats(const class UHeroStatsComponent* _heroStats);
 

@@ -6,7 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "LobbyPawn.generated.h"
 
-UCLASS()
+UCLASS(BlueprintType)
 class THELASTBASTION_API ALobbyPawn : public APawn
 {
 	GENERATED_BODY()
@@ -28,22 +28,35 @@ public:
 
 private:
 
+
+
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class USpringArmComponent* CameraBoom;
 
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class UCameraComponent* FollowCamera;
+		class UCameraComponent* InspectorCamera;
 
 protected:
 
 	/** Follow camera */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Position, meta = (MakeEditWidget = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = InspectorCamera)
 		FVector RangerAvatarPosition;
 
 	/** Follow camera */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Position, meta = (MakeEditWidget = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = InspectorCamera)
 		FVector BuilderAvatarPosition;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = InspectorCamera)
+		/** Inspector camera switch speed between two hero avatar*/
+		float InspectorCameraSwitchRate;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = InspectorCamera)
+		bool bIsCheckingRanger;
+
+public:
+
+	FORCEINLINE void SetIsCheckingRanger(bool _val) { bIsCheckingRanger = _val; }
 
 };

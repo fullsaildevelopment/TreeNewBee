@@ -9,6 +9,8 @@
 /**
 *
 */
+enum class ECharacterType : uint8;
+
 UCLASS()
 class THELASTBASTION_API ULobbyMenu : public UUserWidget
 {
@@ -17,7 +19,7 @@ class THELASTBASTION_API ULobbyMenu : public UUserWidget
 
 private:
 
-
+	UPROPERTY()
 	TSubclassOf<class UUserWidget> LobbyPlayerRow_Class;
 
 	UPROPERTY(meta = (BindWidget))
@@ -30,31 +32,73 @@ private:
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* StartMatch_Text;
 	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* MapDescription_Text;
+		class UTextBlock* ClassName_Text;
 	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* HeroDescription_Text;
-	UPROPERTY(meta = (BindWidget))
-		class UEditableTextBox* ChatText;
+		class UTextBlock* Identity_Text;
 
+
+
+	/** Toggles */
 	UPROPERTY(meta = (BindWidget))
-		class UButton* ToggleLeft;
+		class UButton* ToggleLeft_Map;
 	UPROPERTY(meta = (BindWidget))
-		class UButton* ToggleRight;
+		class UButton* ToggleRight_Map;
+	UPROPERTY(meta = (BindWidget))
+		class UButton* ToggleLeft_CharacterClass;
+	UPROPERTY(meta = (BindWidget))
+		class UButton* ToggleRight_CharacterClass;
+	UPROPERTY(meta = (BindWidget))
+		class UButton* ToggleLeft_Born;
+	UPROPERTY(meta = (BindWidget))
+		class UButton* ToggleRight_Born;
+
+	/** Buttons*/
 	UPROPERTY(meta = (BindWidget))
 		class UButton* StartReady;
 	UPROPERTY(meta = (BindWidget))
 		class UButton* ChooseCharacter;
 	UPROPERTY(meta = (BindWidget))
 		class UButton* Leave;
+	//UPROPERTY(meta = (BindWidget))
+	//	class UButton* Back;
 	UPROPERTY(meta = (BindWidget))
-		class UButton* Back;
+		class UButton* Accept;
+
+	/** Description */
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* MapDescription_Text;
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* HeroDescription_Text;
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* IdentityDescription_Text;
+
+
+	/** Stats Value*/
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* VitalityValue;
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* StaminaValue;
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* StrengthValue;
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* EnduranceValue;
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* ResistenceValue;
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* FaithValue;
+
+
 
 	UPROPERTY(meta = (BindWidget))
 		class UWidgetSwitcher* MenuSwitch;
 	UPROPERTY(meta = (BindWidget))
 		class UVerticalBox* PlayerWindow;
-	UPROPERTY(meta = (BindWidget))
-		class UVerticalBox* HeroStats;
+
+
+	
+
+
 
 
 protected:
@@ -72,9 +116,24 @@ private:
 	UFUNCTION()
 		void OnChooseCharacterClicked();
 
+	//UFUNCTION()
+	//	void OnBackClicked();
 	UFUNCTION()
-		void OnBackClicked();
+		void OnAcceptClicked();
 
+
+	UFUNCTION()
+		void OnToggleLeft_CharacterClassClicked();
+
+	UFUNCTION()
+		void OnToggleRight_CharacterClassClicked();
+
+private:
+	
+	UPROPERTY()
+		ECharacterType mCharacterClassSelection;
+
+	
 
 public:
 
@@ -85,5 +144,7 @@ public:
 	void AddPlayerToPlayerList(const TArray<struct FPlayerProfile>& _connectedPlayers);
 
 	void SetStartMatchButtonEnabled(bool _val);
+
+
 
 };

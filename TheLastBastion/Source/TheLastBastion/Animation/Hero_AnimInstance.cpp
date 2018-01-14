@@ -310,7 +310,7 @@ void UHero_AnimInstance::OnBeingHit(float _damage, FName boneName, const FVector
 
 void UHero_AnimInstance::ResetOnBeingHit()
 {
-	mCharacter->bIsMovementEnabled = false;
+	mCharacter->bIsMovementDisabled = true;
 	AttackState = EAttackState::BeingHit;
 	NextAction = EActionType::None;
 
@@ -336,7 +336,7 @@ void UHero_AnimInstance::RecoverFromBeingHit(bool _bInterrupted)
 
 	AttackState = EAttackState::None;
 	bVelocityOverrideByAnim = false;	
-	mCharacter->bIsMovementEnabled = true;
+	mCharacter->bIsMovementDisabled = false;
 
 	mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = true;
 	mCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;

@@ -28,4 +28,5 @@ void ULobbyPlayerRow::FillLobbyPlayerRow(const FPlayerProfile& _incomingPlayer)
 	PlayerStatus->SetText(_incomingPlayer.mPlayerStatus);
 	PlayerName->SetText(_incomingPlayer.mPlayerName);
 	mPlayerAvatar = _incomingPlayer.mAvatarImage;
+	mCharacterAvatar = _incomingPlayer.mCharacterImage;
 }

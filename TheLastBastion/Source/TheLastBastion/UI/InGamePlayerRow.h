@@ -47,7 +47,8 @@ protected:
 
 public:
 	
-	void SetPlayerName(const struct FPlayerProfile& _profile);
+	/** Called during the create of HUD, init by player profile*/
+	void InitByPlayerProfile(const struct FPlayerProfile& _profile);
 
 	void SetHpValue(float _currentHp, float _maxHp);
 

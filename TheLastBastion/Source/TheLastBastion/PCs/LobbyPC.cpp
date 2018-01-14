@@ -9,6 +9,7 @@
 #include "CustomType.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/LobbyMenu.h"
+#include "TheLastBastionCharacter.h"
 #include "Engine/World.h"
 
 ALobbyPC::ALobbyPC(const FObjectInitializer& _objectInitializer) : Super(_objectInitializer)
@@ -140,26 +141,43 @@ bool ALobbyPC::SERVER_LeaveLobbyAndUpdateConnectedPlayer_Validate()
 	return true;
 }
 
+void ALobbyPC::SaveCurrentPlayerFile()
+{
+	if (SaveGame == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SaveGame is null, use Default Save Game Instead"));
+		SaveGame = Cast<USaveGame_TheLastBastion>(UGameplayStatics::CreateSaveGameObject(USaveGame_TheLastBastion::StaticClass()));
+		SaveGame->UseDefaultProfile();
+	}
+	// copy the change we made to game save
+	SaveGame->mPlayerProfile = playerProfile;
+	UGameplayStatics::SaveGameToSlot(SaveGame, mGameInstanceRef->GetPlayerSettingsSaveFString(), 0);
+}
+
 void ALobbyPC::SaveGameCheck()
 {
 
-	USaveGame_TheLastBastion* saveGame = mGameInstanceRef->LoadSaveGame();
+	SaveGame = mGameInstanceRef->LoadSaveGame();
 
 	// check again if we have a save game
-	if (saveGame == nullptr)
+	if (SaveGame == nullptr)
 	{
 		// if we dont have a save game create a new one
-		saveGame = Cast<USaveGame_TheLastBastion>(UGameplayStatics::CreateSaveGameObject(USaveGame_TheLastBastion::StaticClass()));
-		UGameplayStatics::SaveGameToSlot(saveGame, mGameInstanceRef->GetPlayerSettingsSaveFString(), 0);
+		SaveGame = Cast<USaveGame_TheLastBastion>(UGameplayStatics::CreateSaveGameObject(USaveGame_TheLastBastion::StaticClass()));
+		SaveGame->UseDefaultProfile();
 	}
+	else
+		SaveGame->LobbyInit();
 
-	playerProfile = saveGame->mPlayerProfile;
+	// Save the game profile
+	UGameplayStatics::SaveGameToSlot(SaveGame, mGameInstanceRef->GetPlayerSettingsSaveFString(), 0);
+
+	playerProfile = SaveGame->mPlayerProfile;
 
 	if (HasAuthority())
 		playerProfile.mPlayerStatus = FText::FromString(TEXT("Host"));
 	else
 		playerProfile.mPlayerStatus = FText::FromString(TEXT("Not Ready"));
-
 }
 
 void ALobbyPC::CreateLobbyUI()
@@ -176,6 +194,31 @@ void ALobbyPC::CreateLobbyUI()
 	inputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 	SetInputMode(inputMode);
 }
+
+void ALobbyPC::SetCharacterClass(ECharacterType _characterType)
+{
+	switch (_characterType)
+	{
+	case ECharacterType::Ranger:
+		playerProfile.mCharacterImage = USaveGame_TheLastBastion::GetRangerAvatarImage();
+		playerProfile.mCharacterClass = ATheLastBastionCharacter::GetCharacterClass(_characterType);
+		playerProfile.bIsRangerClass = true;
+		break;
+	case ECharacterType::Builder:
+		playerProfile.mCharacterImage = USaveGame_TheLastBastion::GetBuilderAvatarImage();
+		playerProfile.mCharacterClass = ATheLastBastionCharacter::GetCharacterClass(_characterType);
+		playerProfile.bIsRangerClass = false;
+		break;
+	default:
+		UE_LOG(LogTemp, Warning, TEXT(" character type is not recoginized -  SERVER_SetCharacterClass_Implementation"));
+		break;
+	}
+
+	SaveCurrentPlayerFile();
+
+	SERVER_UpdateAllConnectedPlayer(playerProfile);
+}
+
 
 void ALobbyPC::CLIENT_OnQuitLobby_Implementation()
 {

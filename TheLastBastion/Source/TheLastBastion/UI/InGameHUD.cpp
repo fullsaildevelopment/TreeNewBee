@@ -26,6 +26,7 @@ UInGameHUD::UInGameHUD(const FObjectInitializer& objInit) : Super(objInit)
 
 bool UInGameHUD::Initialize()
 {
+	bIsRanger = true;
 
 	if (Super::Initialize() == false)
 		return false;
@@ -36,7 +37,8 @@ bool UInGameHUD::Initialize()
 	// Bind Delegetes to Widget components
 	bool bAllWidgetAreGood =
 		PlayerRow != nullptr && TeamWindow != nullptr
-		&& GoldValue != nullptr && WoodValue != nullptr && MetalValue != nullptr && RockValue != nullptr && CrossHair != nullptr;
+		&& GoldValue != nullptr && WoodValue != nullptr && MetalValue != nullptr && RockValue != nullptr && CrossHair != nullptr
+		&& ProjectileCount_Text && CrossHair;
 
 	if (!bAllWidgetAreGood)
 	{
@@ -64,9 +66,18 @@ void UInGameHUD::AddTeamMember(const FPlayerProfile & _newTeamMember)
 	}
 }
 
-void UInGameHUD::SetPlayerName(const FPlayerProfile & _profile)
+void UInGameHUD::LoadPlayerProfile(const FPlayerProfile & _profile)
 {
-	PlayerRow->SetPlayerName(_profile);
+	PlayerRow->InitByPlayerProfile(_profile);
+	bIsRanger = _profile.bIsRangerClass;
+	if (bIsRanger)
+	{
+		
+		CrossHair->SetVisibility(ESlateVisibility::Hidden);
+		ProjectileCount_Text->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+
 }
 
 void UInGameHUD::InitStats(const UHeroStatsComponent * _heroStats)
@@ -74,10 +85,6 @@ void UInGameHUD::InitStats(const UHeroStatsComponent * _heroStats)
 	PlayerRow->SetHpValue(_heroStats->GetHpCurrent(), _heroStats->GetHpMax());
 	PlayerRow->SetSpValue(_heroStats->GetStaminaCurrent(), _heroStats->GetStaminaMax());
 	PlayerRow->SetLevel(_heroStats->GetLevel());
-
-
-	CrossHair->SetVisibility(ESlateVisibility::Hidden);
-
 }
 
 void UInGameHUD::SetHpOnHealthChange(const UPawnStatsComponent * _pawnStats)

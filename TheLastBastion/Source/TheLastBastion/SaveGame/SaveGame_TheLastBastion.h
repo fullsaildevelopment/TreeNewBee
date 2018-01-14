@@ -11,14 +11,12 @@
 /**
  * 
  */
+
+
 UCLASS()
 class THELASTBASTION_API USaveGame_TheLastBastion : public USaveGame
 {
 	GENERATED_BODY()
-
-
-
-
 		
 public:
 
@@ -26,8 +24,15 @@ public:
 
 public: 
 
-	void UseNewProfile();
+	void UseDefaultProfile();
+
+	/** Called when Log into Lobby on SaveGameCheck, set character class to default class*/
+	void LobbyInit();
+
 	void LogOutProfile();
+
+	static UTexture2D* GetRangerAvatarImage();
+	static UTexture2D* GetBuilderAvatarImage();
 
 	UPROPERTY()
 	FPlayerProfile mPlayerProfile;

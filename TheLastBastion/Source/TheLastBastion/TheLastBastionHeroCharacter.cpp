@@ -18,7 +18,7 @@
 #include "UI/InGameHUD.h"
 #include "PCs/GamePC.h"
 
-ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter() : Super()
+ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 {
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -29,7 +29,7 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter() : Super()
 	CameraBoom->RelativeLocation = FVector(0, 0, 60);
 
 	LockOn_CamRotationLagging = 10.0f;
-	NonLockOn_CamRotationLagging = 50.0f;
+	NonLockOn_CamRotationLagging = 30.0f;
 
 												// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
@@ -51,15 +51,18 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter() : Super()
 
 	GetMesh()->SetCollisionProfileName("HeroBody");
 
-	CapHalfSize = 90.0f;
-	CapRadius = 34.0f;
+	//CapHalfSize = 90.0f;
+	//CapRadius = 34.0f;
 
 	// Set size for collision capsule
-	GetCapsuleComponent()->InitCapsuleSize(CapRadius, CapHalfSize);
+	GetCapsuleComponent()->InitCapsuleSize(34.0f, 90.0f);
 
 	bUsePreviousMovementAxis = false;
-	bIsYawControllEnabled = true;
-	bIsMovementEnabled = true;
+	bIsYawControllDisabled = false;
+	bIsMovementDisabled = false;
+
+	LockOn_CamRotationLagging = 15.0f;
+	NonLockOn_CamRotationLagging = 30.0f;
 
 	HeroStats = CreateDefaultSubobject<UHeroStatsComponent>(TEXT("Stats"));
 	PawnStats = HeroStats;	
@@ -68,7 +71,7 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter() : Super()
 void ATheLastBastionHeroCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	CameraBoom->CameraRotationLagSpeed = NonLockOn_CamRotationLagging;
 
 	// Get Anim Bp Reference
@@ -133,7 +136,7 @@ void ATheLastBastionHeroCharacter::LookUpAtRate(float Rate)
 void ATheLastBastionHeroCharacter::MoveForward(float Value)
 {
 
-	if (!bIsMovementEnabled)
+	if (bIsMovementDisabled)
 		return;
 	// catch the forward axis
 	if (!bUsePreviousMovementAxis)
@@ -161,7 +164,7 @@ void ATheLastBastionHeroCharacter::MoveForward(float Value)
 
 void ATheLastBastionHeroCharacter::MoveRight(float Value)
 {
-	if (!bIsMovementEnabled)
+	if (bIsMovementDisabled)
 		return;
 
 	// Catch the right axis 
@@ -237,7 +240,7 @@ void ATheLastBastionHeroCharacter::OnRightMouseButtonReleased()
 
 void ATheLastBastionHeroCharacter::AddControllerYaw(float _yaw)
 {
-	if (bIsYawControllEnabled)
+	if (!bIsYawControllDisabled)
 	{
 		this->AddControllerYawInput(_yaw);
 	}

@@ -21,7 +21,7 @@ UGI_TheLastBastion::UGI_TheLastBastion(const FObjectInitializer & ObjectInitiali
 {
 	LocateAllVFX();
 	LocateAllWidgetClass();
-	LocateAllCharacterClass();
+	//LocateAllCharacterClass();
 
 	playerSettingsSave = FString(TEXT("playerSettingsSave"));
 
@@ -58,10 +58,10 @@ void UGI_TheLastBastion::LocateAllWidgetClass()
 
 }
 
-void UGI_TheLastBastion::LocateAllCharacterClass()
-{
-	UCustomType::FindClass<ACharacter>(Ranger_Class, TEXT("/Game/Blueprints/Heros/Ranger_Bp"));
-}
+//void UGI_TheLastBastion::LocateAllCharacterClass()
+//{
+//	UCustomType::FindClass<ACharacter>(Ranger_Class, TEXT("/Game/Blueprints/Heros/Ranger_Bp"));
+//}
 
 void UGI_TheLastBastion::LocateAllVFX()
 {

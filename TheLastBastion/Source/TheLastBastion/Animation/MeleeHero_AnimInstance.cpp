@@ -341,7 +341,7 @@ void UMeleeHero_AnimInstance::OnCorLAltPressed()
 void UMeleeHero_AnimInstance::ToggleFocusMode(bool _IsOn)
 {
 	bIsFocused = _IsOn;
-	mCharacter->bIsYawControllEnabled = !bIsFocused;
+	mCharacter->bIsYawControllDisabled = bIsFocused;
 
 	if (ActivatedEquipment == EEquipType::Travel)
 	{

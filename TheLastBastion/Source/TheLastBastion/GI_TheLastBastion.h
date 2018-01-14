@@ -77,8 +77,8 @@ protected:
 
 #pragma region All Character Class
 
-	UPROPERTY(EditDefaultsOnly, Category = GamePlayCharacterClass)
-		TSubclassOf<class ACharacter> Ranger_Class;
+	//UPROPERTY(EditDefaultsOnly, Category = GamePlayCharacterClass)
+	//	TSubclassOf<class ACharacter> Ranger_Class;
 
 #pragma endregion
 
@@ -168,8 +168,8 @@ public:
 
 #pragma region Character Class Getter
 
-	UFUNCTION(BlueprintPure)
-		FORCEINLINE TSubclassOf<ACharacter> GetRanger_Class() const { return Ranger_Class; }
+	//UFUNCTION(BlueprintPure)
+	//	FORCEINLINE TSubclassOf<ACharacter> GetRanger_Class() const { return Ranger_Class; }
 
 #pragma endregion
 
@@ -252,7 +252,7 @@ private:
 	void OnSessionFindComplete(bool _success);
 
 	void LocateAllWidgetClass();
-	void LocateAllCharacterClass();
+	//void LocateAllCharacterClass();
 	void LocateAllVFX();
 };
 

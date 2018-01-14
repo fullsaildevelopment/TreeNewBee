@@ -94,26 +94,26 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Targeting)
 		class USphereComponent*    TargetDetector;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera)
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (BlueprintProtected))
 		float NonLockOn_CamRotationLagging;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera)
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (BlueprintProtected))
 		float LockOn_CamRotationLagging;
 
 public:
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Control)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Control, meta = (BlueprintProtected))
 		/** Disable updating the movement axis and use the value from previous frame*/
-		bool bUsePreviousMovementAxis;
+		bool bUsePreviousMovementAxis = false;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Control)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Control, meta = (BlueprintProtected))
 		/** Disable the update the control yaw input*/
-		bool bIsMovementEnabled;
+		bool bIsMovementDisabled = false;
 
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Control)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Control, meta = (BlueprintProtected))
 		/** Disable the update the control yaw input*/
-		bool bIsYawControllEnabled;
+		bool bIsYawControllDisabled = false;
 
 
 

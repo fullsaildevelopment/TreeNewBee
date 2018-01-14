@@ -30,6 +30,7 @@ UHeroStatsComponent::UHeroStatsComponent()
 	UCustomType::FindClass<AGear>(LeftHandWeapon_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_Shield"));
 	UCustomType::FindClass<AGear>(RightHandWeapon_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_SHSword"));
 	UCustomType::FindClass<AArmor>(Armor_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_Armor"));
+	Level = 1;
 }
 
 void UHeroStatsComponent::BeginPlay()

@@ -106,7 +106,7 @@ void AGamePC::CLIENT_UpdateHpOnHealthChanged_Implementation(const UPawnStatsComp
 void AGamePC::CreateInGameHUD()
 {
 	mInGameHUD = Cast<UInGameHUD>(CreateWidget<UUserWidget>(this, InGameHuD_WBPClass));
-	mInGameHUD->SetPlayerName(playerProfile);
+	mInGameHUD->LoadPlayerProfile(playerProfile);
 	mInGameHUD->AddToViewport();
 }
 
@@ -151,6 +151,7 @@ void AGamePC::SaveGameCheck()
 	{
 		// if we dont have a save game create a new one
 		saveGame = Cast<USaveGame_TheLastBastion>(UGameplayStatics::CreateSaveGameObject(USaveGame_TheLastBastion::StaticClass()));
+		saveGame->UseDefaultProfile();
 		UGameplayStatics::SaveGameToSlot(saveGame, game_gi->GetPlayerSettingsSaveFString(), 0);
 	}
 

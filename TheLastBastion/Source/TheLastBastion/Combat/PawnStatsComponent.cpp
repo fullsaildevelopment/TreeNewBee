@@ -128,7 +128,7 @@ void UPawnStatsComponent::GenerateRawStatsByLevel(int _level)
 	Level = _level;
 	_level--;
 	// Just Avoid negative
-	if (_level < 0) Level = 0;
+	if (_level <= 0) Level = 0;
 
 	StaminaRaw = -1;
 	if (mCharacter)
@@ -143,13 +143,13 @@ void UPawnStatsComponent::GenerateRawStatsByLevel(int _level)
 		break;
 		case ECharacterType::Ranger:
 		{
-			HpRaw = 230.0f + _level * 15;
-			StaminaRaw = 100.0f;
+			HpRaw = RangerInitHp + _level * 15;
+			StaminaRaw = 120.0f;
 			break;
 		}
 		case ECharacterType::Builder:
 		{
-			HpRaw = 180.0f + _level * 11.5f;
+			HpRaw = BuilderInitHp + _level * 11.5f;
 			StaminaRaw = 100.0f;
 			break;
 		}

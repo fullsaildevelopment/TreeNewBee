@@ -26,7 +26,6 @@ bool UInGamePlayerRow::Initialize()
 	//else
 	//{
 	//	UE_LOG(LogTemp, Warning, TEXT("pc is null"));
-
 	//}
 
 	if (!bAllWidgetAreGood)
@@ -37,11 +36,14 @@ bool UInGamePlayerRow::Initialize()
 	return true;
 }
 
-void UInGamePlayerRow::SetPlayerName(const FPlayerProfile& _profile)
+void UInGamePlayerRow::InitByPlayerProfile(const FPlayerProfile& _profile)
 {
 	HeroAvatarImage = _profile.mCharacterImage;
 	Name->SetText(_profile.mPlayerName);
-
+	if (_profile.bIsRangerClass)
+		Class->SetText(FText::FromString("Ranger"));
+	else		
+		Class->SetText(FText::FromString("Builder"));
 }
 
 void UInGamePlayerRow::SetHpValue(float _currentHp, float _maxHp)

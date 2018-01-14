@@ -8,6 +8,8 @@
 
 
 
+
+
 UENUM(BlueprintType)
 enum class ECharacterType : uint8
 {
@@ -17,7 +19,6 @@ enum class ECharacterType : uint8
 	LanTrooper_T0 = 3 	  UMETA(DisplayName = "Lannester Trooper New Recruit")
              
 };
-
 
 UCLASS(config=Game)
 class ATheLastBastionCharacter : public ACharacter
@@ -43,39 +44,39 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
 		bool bIsWalking;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
-		float CapHalfSize;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (BlueprintProtected))
+	//	float CapHalfSize;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
-		float CapRadius;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (BlueprintProtected))
+	//	float CapRadius;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (BlueprintProtected))
 		float SprintSpeed = 850.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (BlueprintProtected))
 		float JogSpeed = 595.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (BlueprintProtected))
 		float walkSpeed = 255.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (BlueprintProtected))
 		float minTurnRate_Travel = 180.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (BlueprintProtected))
 		float maxTurnRate_Travel = 630.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (BlueprintProtected))
 		float minTurnRate_Combat = 360.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (BlueprintProtected))
 		float maxTurnRate_Combat = 1440.0f;
 
 #pragma endregion
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BlueprintProtected))
 	    bool bIsDead;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BlueprintProtected))
 		bool bIsGodMode;
 
 
@@ -102,9 +103,12 @@ public:
 	FORCEINLINE class UPawnStatsComponent*  GetPawnStatsComp() const { return PawnStats; }
 	FORCEINLINE void SetCharacterType(ECharacterType _val) { CharacterType = _val; }
 	FORCEINLINE bool GetIsDead() const { return bIsDead; }
-
 	FORCEINLINE bool GetIsGodMode() const { return bIsGodMode; }
 
+	static TSubclassOf<class ACharacter> GetCharacterClass(ECharacterType _characterType);
 
+private:
+
+	void LocateAllCharacterClass();
 };
 
