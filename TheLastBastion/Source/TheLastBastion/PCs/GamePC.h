@@ -39,6 +39,12 @@ public:
 	UFUNCTION(Client, Reliable)
 		void CLIENT_UpdateHpOnHealthChanged(const class UPawnStatsComponent* _pawnStats);
 
+	UFUNCTION(Server, Reliable, WithValidation)
+		/** Called after a new clients join, the last client ask server to tell all other clients to update the player list*/
+		void SERVER_UpdatePlayerList();
+
+
+
 	UFUNCTION()
 		void CreateInGameHUD();
 
@@ -49,10 +55,6 @@ private:
 		and ask server to spawn a character */
 		void SERVER_UploadProfileAndRequestCharacter(const FPlayerProfile& _profile, int _index);
 
-	UFUNCTION(Server, Reliable, WithValidation)
-		/** Called after a new clients join, client ask server to tell all other clients to update the player list*/
-		void SERVER_UpdatePlayerList();
-			
 	/** Copy the player profile from local to client version of player controller*/
 	void SaveGameCheck();
 

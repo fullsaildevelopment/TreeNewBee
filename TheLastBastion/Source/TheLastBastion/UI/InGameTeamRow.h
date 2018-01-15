@@ -39,7 +39,11 @@ protected:
 
 public:
 
-	void InitHeader(const FPlayerProfile& _memberProfile);
+	/** Assign name, class name, initial stats*/
+	void InitHeader(const struct FMatchPlayer& _member);
 
+	void SetHpValue(const class UPawnStatsComponent* _pawnComp);
+
+	void SetLevel(int _Level);
 
 };

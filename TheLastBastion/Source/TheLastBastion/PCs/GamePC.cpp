@@ -74,7 +74,7 @@ void AGamePC::CLIENT_AddPlayerToPlayerList_Implementation(const TArray<FMatchPla
 			continue;
 		else
 		{
-			mInGameHUD->AddTeamMember(_allConnectedPlayers[iPlayer].profile);
+			mInGameHUD->AddTeamMember(_allConnectedPlayers[iPlayer]);
 		}
 	}
 

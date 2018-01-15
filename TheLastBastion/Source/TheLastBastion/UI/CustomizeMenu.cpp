@@ -73,6 +73,7 @@ void UCustomizeMenu::OnAcceptClick()
 
 	if (mSaveGame)
 	{
+		mSaveGame->UseDefaultProfile();
 		mSaveGame->mPlayerProfile.mAvatarImage = mCurrentAvatar;
 		mSaveGame->mPlayerProfile.mPlayerName = PlayerName->GetText();
 		UGameplayStatics::SaveGameToSlot(mSaveGame, mGameInstanceRef->GetPlayerSettingsSaveFString(), 0);

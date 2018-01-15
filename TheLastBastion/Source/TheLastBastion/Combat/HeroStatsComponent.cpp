@@ -80,7 +80,10 @@ void UHeroStatsComponent::BeginPlay()
 	{
 		AGamePC* gamePC = Cast<AGamePC>(mHeroCharacter->GetController());
 		if (gamePC)
+		{
 			gamePC->CLIENT_InitUI(this);
+			gamePC->SERVER_UpdatePlayerList();
+		}
 	}
 }
 

@@ -421,6 +421,7 @@ void UPawnStatsComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >
 	DOREPLIFETIME(UPawnStatsComponent, Armor);
 	DOREPLIFETIME(UPawnStatsComponent, mCharacter);
 
+
 	DOREPLIFETIME(UPawnStatsComponent, HpMax);
 	DOREPLIFETIME(UPawnStatsComponent, HpCurrent);
 	DOREPLIFETIME(UPawnStatsComponent, StaminaMax);

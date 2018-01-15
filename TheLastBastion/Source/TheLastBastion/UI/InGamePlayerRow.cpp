@@ -18,16 +18,6 @@ bool UInGamePlayerRow::Initialize()
 		SpBar != nullptr && Sp != nullptr;
 
 
-	//APlayerController* pc = GetOwningPlayer();
-	//if (pc != nullptr)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("pc is: %s"), *pc->GetName());
-	//}
-	//else
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("pc is null"));
-	//}
-
 	if (!bAllWidgetAreGood)
 	{
 		UE_LOG(LogTemp, Error, TEXT("bAllWidgetAreGood is not true -- UInGamePlayerRow::Initialize"));

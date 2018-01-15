@@ -3,6 +3,10 @@
 #include "Base_AnimInstance.h"
 
 
+UBase_AnimInstance::UBase_AnimInstance(const FObjectInitializer& _objectInitalizer)
+{
+	
+}
 
 void UBase_AnimInstance::OnBeginPlay()
 {

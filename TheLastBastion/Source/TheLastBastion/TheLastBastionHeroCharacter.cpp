@@ -79,8 +79,6 @@ void ATheLastBastionHeroCharacter::BeginPlay()
 	if (mAnimInstanceRef == nullptr) { UE_LOG(LogTemp, Warning, TEXT("ATheLastBastionCharacter can not take other AnimInstance other than UHero_AnimInstance, - ATheLastBastionCharacter")); return; }
 
 	UE_LOG(LogTemp, Warning, TEXT("Try Get GameInstance"));
-
-
 }
 
 void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -253,6 +251,7 @@ void ATheLastBastionHeroCharacter::AddControllerYaw(float _yaw)
 
 void ATheLastBastionHeroCharacter::OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType, FName _boneName, const FVector & _shotFromDirection, const FVector & _hitLocation)
 {
+
 	// UI
 	AGamePC* gamePC = Cast<AGamePC>(GetController());
 	if (gamePC)
@@ -262,7 +261,6 @@ void ATheLastBastionHeroCharacter::OnHealthChangedHandle(const UPawnStatsCompone
 
 	// Animation
 	mAnimInstanceRef->OnBeingHit(_damage, _boneName, _shotFromDirection, _hitLocation, _pawnStatsComp);
-
 }
 
 

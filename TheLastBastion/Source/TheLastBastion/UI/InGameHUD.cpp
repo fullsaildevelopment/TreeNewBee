@@ -51,7 +51,7 @@ bool UInGameHUD::Initialize()
 	return true;
 }
 
-void UInGameHUD::AddTeamMember(const FPlayerProfile & _newTeamMember)
+void UInGameHUD::AddTeamMember(const FMatchPlayer& _newTeamMember)
 {
 	if (!InGameTeamRow_WBPClass)
 	{

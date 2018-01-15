@@ -16,7 +16,7 @@ AGamePlayGM::AGamePlayGM(const FObjectInitializer & _objectInitilizer) : Super(_
 {
 	PlayerControllerClass = AGamePC::StaticClass();
 	MaxNumOfPlayers = 0;
-	CurrentNumOfPlayersInGame = 1;
+	CurrentNumOfPlayersInGame = 0;
 }
 
 void AGamePlayGM::PostLogin(APlayerController * NewPlayer)
@@ -173,20 +173,13 @@ void AGamePlayGM::GrabProfileAndSpawnPlayer(const FPlayerProfile & _profile, int
 
 void AGamePlayGM::UpdatePlayerList()
 {
-
-	//for (int iClients = 0; iClients < AllPlayers.Num(); iClients++)
-	//{
-	//	UE_LOG(LogTemp, Log, TEXT("%d"), iClients);
-	//	AllPlayers[iClients].controller->CLIENT_AddPlayerToPlayerList(AllPlayers, iClients);
-	//}
-
 	CurrentNumOfPlayersInGame++;
-	if (CurrentNumOfPlayersInGame == AllPlayers.Num())
+
+	if (CurrentNumOfPlayersInGame == MaxNumOfPlayers)
 	{
-		for (int iClients = 0; iClients < AllPlayers.Num(); iClients++)
+		for (int iClients = 0; iClients < MaxNumOfPlayers; iClients++)
 		{
 			AllPlayers[iClients].controller->CLIENT_AddPlayerToPlayerList(AllPlayers, iClients);
 		}
 	}
-
 }

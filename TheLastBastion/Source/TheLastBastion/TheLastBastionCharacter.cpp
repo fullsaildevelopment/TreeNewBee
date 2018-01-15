@@ -64,7 +64,6 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
 
-
 void ATheLastBastionCharacter::OnHealthChangedHandle(const class UPawnStatsComponent * _pawnStatsComp, float _damage, const class UDamageType * _damageType, FName _boneNmame, const FVector& _shotFromDirection, const FVector& _hitLocation)
 {
 

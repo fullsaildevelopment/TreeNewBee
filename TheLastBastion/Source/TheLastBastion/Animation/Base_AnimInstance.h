@@ -20,6 +20,10 @@ class THELASTBASTION_API UBase_AnimInstance : public UAnimInstance
 	GENERATED_BODY()
 
 
+public:
+
+	UBase_AnimInstance(const FObjectInitializer& _objectInitalizer);
+
 
 protected:
 

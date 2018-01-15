@@ -101,6 +101,7 @@ public:
 
 	FORCEINLINE ECharacterType GetCharacterType() const { return CharacterType; }
 	FORCEINLINE class UPawnStatsComponent*  GetPawnStatsComp() const { return PawnStats; }
+	FORCEINLINE const class UPawnStatsComponent*  GetPawnStatsComp_Const() const { return PawnStats; }
 	FORCEINLINE void SetCharacterType(ECharacterType _val) { CharacterType = _val; }
 	FORCEINLINE bool GetIsDead() const { return bIsDead; }
 	FORCEINLINE bool GetIsGodMode() const { return bIsGodMode; }

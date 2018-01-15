@@ -4,6 +4,9 @@
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 #include "GI_TheLastBastion.h"
+#include "GameMode/GamePlayGM.h"
+#include "Combat/PawnStatsComponent.h"
+#include "TheLastBastionHeroCharacter.h"
 
 
 bool UInGameTeamRow::Initialize()
@@ -24,8 +27,27 @@ bool UInGameTeamRow::Initialize()
 	return true;
 }
 
-void UInGameTeamRow::InitHeader(const FPlayerProfile & _memberProfile)
+void UInGameTeamRow::InitHeader(const FMatchPlayer & _member)
 {	
-	Name->SetText(_memberProfile.mPlayerName);
-	HeroClass->SetText((_memberProfile.bIsRangerClass) ? FText::FromString(TEXT("Ranger")) : FText::FromString(TEXT("Builder")));
+	Name->SetText(_member.profile.mPlayerName);
+	HeroClass->SetText((_member.profile.bIsRangerClass) ?
+		FText::FromString(TEXT("Ranger")) : FText::FromString(TEXT("Builder")));
+
+	const UPawnStatsComponent* pawnStats = _member.character->GetPawnStatsComp_Const();
+	SetHpValue(pawnStats);
+	SetLevel(pawnStats->GetLevel());
+} 
+
+void UInGameTeamRow::SetHpValue(const UPawnStatsComponent* _pawnComp)
+{
+	FString HpStatsText = FString::Printf(TEXT("%d / %d"), (int)_pawnComp->GetHpCurrent(), 
+		(int)(int)_pawnComp->GetHpMax());
+	Hp->SetText(FText::FromString(HpStatsText));
+	HpBar->SetPercent(_pawnComp->GetHpCurrent() * _pawnComp->GetDivByHpMax());
+}
+
+void UInGameTeamRow::SetLevel(int _Level)
+{
+	FString LevelText = FString::Printf(TEXT("Lv. %d"), _Level);
+	Level->SetText(FText::FromString(LevelText));
 }
