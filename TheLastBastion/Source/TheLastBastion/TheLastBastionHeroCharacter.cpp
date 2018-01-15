@@ -28,8 +28,8 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 	CameraBoom->bEnableCameraRotationLag = true;
 	CameraBoom->RelativeLocation = FVector(0, 0, 60);
 
-	LockOn_CamRotationLagging = 10.0f;
-	NonLockOn_CamRotationLagging = 30.0f;
+	//Focus_CamRotationLagging = 10.0f;
+	//Unfocus_CamRotationLagging = 30.0f;
 
 												// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
@@ -61,8 +61,8 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 	bIsYawControllDisabled = false;
 	bIsMovementDisabled = false;
 
-	LockOn_CamRotationLagging = 15.0f;
-	NonLockOn_CamRotationLagging = 30.0f;
+	Focus_CamRotationLagging = 15.0f;
+	Unfocus_CamRotationLagging = 30.0f;
 
 	HeroStats = CreateDefaultSubobject<UHeroStatsComponent>(TEXT("Stats"));
 	PawnStats = HeroStats;	
@@ -72,7 +72,7 @@ void ATheLastBastionHeroCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CameraBoom->CameraRotationLagSpeed = NonLockOn_CamRotationLagging;
+	CameraBoom->CameraRotationLagSpeed = Unfocus_CamRotationLagging;
 
 	// Get Anim Bp Reference
 	mAnimInstanceRef = Cast<UHero_AnimInstance>(this->GetMesh()->GetAnimInstance());

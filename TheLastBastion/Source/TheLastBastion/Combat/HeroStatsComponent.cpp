@@ -1,22 +1,21 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "HeroStatsComponent.h"
-//#include "TheLastBastionCharacter.h"
+#include "Net/UnrealNetwork.h"
+
 #include "TheLastBastionHeroCharacter.h"
-#include "GI_TheLastBastion.h"
 #include "UI/InGameHUD.h"
 #include "PCs/GamePC.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "GameFramework/Character.h"
 #include "Components/SphereComponent.h"
-#include "Components/BoxComponent.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "Camera/CameraComponent.h"
 
 #include "Combat/Weapon.h"
 #include "Combat/Armor.h"
 #include "CustomType.h"
+
 #include "AICharacters/TheLastBastionEnemyCharacter.h"
 #include "Animation/MeleeHero_AnimInstance.h"
 
@@ -35,42 +34,53 @@ UHeroStatsComponent::UHeroStatsComponent()
 
 void UHeroStatsComponent::BeginPlay()
 {
-	Super::BeginPlay();
-
-	if (mCharacter)
+	if (GetOwnerRole() == ROLE_Authority)
 	{
-		mHeroCharacter = Cast<ATheLastBastionHeroCharacter>(mCharacter);
-		if (mHeroCharacter != nullptr)
+		Super::BeginPlay();
+		if (mCharacter)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("UHeroStatsComponent is owned by ATheLastBastionHeroCharacter"));
-			TargetDetector = mHeroCharacter->GetTargetDetector();
+			mHeroCharacter = Cast<ATheLastBastionHeroCharacter>(mCharacter);
+			if (mHeroCharacter != nullptr)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("UHeroStatsComponent is owned by ATheLastBastionHeroCharacter"));
+				TargetDetector = mHeroCharacter->GetTargetDetector();
+			}
+			else
+				UE_LOG(LogTemp, Error, TEXT("UHeroStatsComponent is NOT owned by a ATheLastBastionHeroCharacter"));
+
+			mCurrentTarget = nullptr;
+			mNextThreat = nullptr;
+
+			if (TargetDetector )
+			{
+				if (mCharacter->GetCharacterType() == ECharacterType::Ranger)
+				{
+					TargetDetector->OnComponentBeginOverlap.AddDynamic(this, &UHeroStatsComponent::OnEnemyEnter);
+					TargetDetector->OnComponentEndOverlap.AddDynamic(this, &UHeroStatsComponent::OnEnemyLeave);
+				}
+				else
+				{
+					TargetDetector->SetActive(false);
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("TargetDetector is NULL UHeroStatsComponent::BeginPlay"));
+				return;
+			}
 		}
 		else
-			UE_LOG(LogTemp, Error, TEXT("UHeroStatsComponent is NOT owned by a ATheLastBastionHeroCharacter"));
-
-		mCurrentTarget = nullptr;
-		mNextThreat = nullptr;
-		if (TargetDetector)
 		{
-			TargetDetector->OnComponentBeginOverlap.AddDynamic(this, &UHeroStatsComponent::OnEnemyEnter);
-			TargetDetector->OnComponentEndOverlap.AddDynamic(this, &UHeroStatsComponent::OnEnemyLeave);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("TargetDetector is NULL UHeroStatsComponent::BeginPlay"));
-			return;
+			UE_LOG(LogTemp, Error, TEXT("mCharacter is NULL - UHeroStatsComponent::BeginPlay"));
 		}
 
-		// Let Our UI to pop our stats on our screen
-		AGamePC* gamePC = Cast<AGamePC>( mHeroCharacter->GetController());
-		if (gamePC)
-		{
-			gamePC->CLIENT_InitUI(this);
-		}
 	}
-	else
+	// Let Server to call client to Init UI
+	if (mHeroCharacter)
 	{
-		UE_LOG(LogTemp, Error, TEXT("mCharacter is NULL - UHeroStatsComponent::BeginPlay"));
+		AGamePC* gamePC = Cast<AGamePC>(mHeroCharacter->GetController());
+		if (gamePC)
+			gamePC->CLIENT_InitUI(this);
 	}
 }
 
@@ -199,3 +209,9 @@ void UHeroStatsComponent::MeleeFocus()
 		UE_LOG(LogTemp, Warning, TEXT("No Availble Target"));
 }
 
+void UHeroStatsComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UHeroStatsComponent, mHeroCharacter);
+}

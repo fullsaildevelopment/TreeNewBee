@@ -26,7 +26,8 @@ protected:
 
 
 protected:
-	UPROPERTY()
+
+	UPROPERTY(Replicated)
 		class ATheLastBastionHeroCharacter* mHeroCharacter;
 
 

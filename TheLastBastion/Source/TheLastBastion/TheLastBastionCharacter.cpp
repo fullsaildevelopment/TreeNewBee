@@ -29,7 +29,6 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	bIsDead = false;
 	bIsGodMode = false;
 
-
 	SprintSpeed = 850.0f;
 	JogSpeed = 595.0f;
 	walkSpeed = 255.0f;

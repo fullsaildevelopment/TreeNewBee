@@ -18,6 +18,8 @@
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "UI/InGameFloatingText.h"
 
+#include "Net/UnrealNetwork.h"
+
 const float RangerInitHp = 230.0f;
 const float BuilderInitHp = 180.0f;
 
@@ -32,28 +34,35 @@ UPawnStatsComponent::UPawnStatsComponent()
 	bGenerateStatsAtBeginPlay = true;
 	bArmedFromBeginPlay = false;
 
+	SetIsReplicated(true);
+
 	if (!FloatingText_WBP)
 		UCustomType::FindClass<UUserWidget>(FloatingText_WBP, TEXT("/Game/UI/In-Game/WBP_FloatingNumber"));
-
+	
 }
 
+///*** OnAuthority
 // Called when the game starts
 void UPawnStatsComponent::BeginPlay()
 {
-	Super::BeginPlay();
 
-	mCharacter = Cast<ATheLastBastionCharacter>(this->GetOwner());
-
-	if (mCharacter == nullptr)
+	if (GetOwnerRole() == ROLE_Authority)
 	{
-		UE_LOG(LogTemp, Error,
-			TEXT("mCharacter must be a ATheLastBastionCharacter - UPawnStatsComponent::BeginPlay"));
-		return;
-	}
-	mCharacter->OnTakeAnyDamage.AddDynamic(this, &UPawnStatsComponent::OnTakeAnyDamageHandle);
-	mCharacter->OnTakePointDamage.AddDynamic(this, &UPawnStatsComponent::OnTakePointDamageHandle);
+		Super::BeginPlay();
 
-	GenerateStatsAtBeginPlay();
+		mCharacter = Cast<ATheLastBastionCharacter>(this->GetOwner());
+
+		if (mCharacter == nullptr)
+		{
+			UE_LOG(LogTemp, Error,
+				TEXT("mCharacter must be a ATheLastBastionCharacter - UPawnStatsComponent::BeginPlay"));
+			return;
+		}
+
+		mCharacter->OnTakeAnyDamage.AddDynamic(this, &UPawnStatsComponent::OnTakeAnyDamageHandle);
+		mCharacter->OnTakePointDamage.AddDynamic(this, &UPawnStatsComponent::OnTakePointDamageHandle);
+		GenerateStatsAtBeginPlay();
+	}
 }
 
 // Called every frame
@@ -63,6 +72,7 @@ void UPawnStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 	// ...
 }
+
 
 void UPawnStatsComponent::SetEnableWeapon(bool _bIsEnabled, bool _bIsRightHand, bool _bIsAll)
 {
@@ -107,9 +117,6 @@ void UPawnStatsComponent::OnEquipWeapon()
 void UPawnStatsComponent::OnSheathWeapon()
 {
 	RightHandWeapon->Equip(mCharacter->GetMesh());
-
-	//RightHandWeapon->AttachToComponent(mCharacter->GetMesh(),
-	//	FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("SHSwordEquip"));
 }
 
 void UPawnStatsComponent::OnKill()
@@ -128,7 +135,7 @@ void UPawnStatsComponent::GenerateRawStatsByLevel(int _level)
 	Level = _level;
 	_level--;
 	// Just Avoid negative
-	if (_level <= 0) Level = 0;
+	if (_level <= 0) _level = 0;
 
 	StaminaRaw = -1;
 	if (mCharacter)
@@ -246,6 +253,8 @@ float UPawnStatsComponent::GetBaseDamage()
 #pragma endregion
 
 
+
+///*** OnAuthority
 /** Generate Raw Stats, equip geat, and Add Gear buff on raw stats*/
 void UPawnStatsComponent::GenerateStatsAtBeginPlay()
 {
@@ -258,15 +267,18 @@ void UPawnStatsComponent::GenerateStatsAtBeginPlay()
 	// Equip the owner character
 	if (world)
 	{
+		FActorSpawnParameters spawnParam;
+		spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		spawnParam.Owner = mCharacter;
 		if (LeftHandWeapon_ClassBp)
 		{
-			LeftHandWeapon = world->SpawnActor<AGear>(LeftHandWeapon_ClassBp);
+			LeftHandWeapon = world->SpawnActor<AGear>(LeftHandWeapon_ClassBp, spawnParam);
 			LeftHandWeapon->Equip(mCharacter->GetMesh());
 		}
 
 		if (RightHandWeapon_ClassBp)
 		{
-			RightHandWeapon = world->SpawnActor<AGear>(RightHandWeapon_ClassBp);
+			RightHandWeapon = world->SpawnActor<AGear>(RightHandWeapon_ClassBp, spawnParam);
 			if (bArmedFromBeginPlay)
 				RightHandWeapon->Arm(mCharacter->GetMesh());
 			else
@@ -275,13 +287,18 @@ void UPawnStatsComponent::GenerateStatsAtBeginPlay()
 
 		if (Armor_ClassBp)
 		{
-			Armor = world->SpawnActor<AArmor>(Armor_ClassBp);
+			Armor = world->SpawnActor<AArmor>(Armor_ClassBp, spawnParam);
 			Armor->Equip(mCharacter->GetMesh());
 		}
-
 		GenerateMaxStats();
 	}
 }
+void UPawnStatsComponent::OnRep_EquipArmor()
+{
+	if (Armor)
+		Armor->Equip(mCharacter->GetMesh());
+}
+
 
 UInGameFloatingText* UPawnStatsComponent::GenerateFloatingText(const FVector& _worldPos)
 {
@@ -360,11 +377,13 @@ void UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), vfxSelected, _damageInfo.hitResult.Location);
 }
 
+///*** OnAuthority
 void UPawnStatsComponent::OnTakeAnyDamageHandle(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
 {
 
 }
 
+///*** OnAuthority
 void UPawnStatsComponent::OnTakePointDamageHandle(AActor * DamagedActor, float Damage, AController * InstigatedBy, FVector HitLocation, UPrimitiveComponent * FHitComponent, FName BoneName, FVector ShotFromDirection, const UDamageType * DamageType, AActor * DamageCauser)
 {
 
@@ -393,8 +412,22 @@ void UPawnStatsComponent::OnTakePointDamageHandle(AActor * DamagedActor, float D
 	}
 }
 
+void UPawnStatsComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(UPawnStatsComponent, RightHandWeapon);
+	DOREPLIFETIME(UPawnStatsComponent, LeftHandWeapon);
+	DOREPLIFETIME(UPawnStatsComponent, Armor);
+	DOREPLIFETIME(UPawnStatsComponent, mCharacter);
 
-
+	DOREPLIFETIME(UPawnStatsComponent, HpMax);
+	DOREPLIFETIME(UPawnStatsComponent, HpCurrent);
+	DOREPLIFETIME(UPawnStatsComponent, StaminaMax);
+	DOREPLIFETIME(UPawnStatsComponent, StaminaCurrent);
+	DOREPLIFETIME(UPawnStatsComponent, DivByHpMax);
+	DOREPLIFETIME(UPawnStatsComponent, DivByStaminaMax);
+	DOREPLIFETIME(UPawnStatsComponent, Level);
+}
 
 

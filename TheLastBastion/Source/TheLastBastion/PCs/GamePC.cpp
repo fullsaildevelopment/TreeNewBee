@@ -19,12 +19,7 @@ AGamePC::AGamePC(const FObjectInitializer & _objInit) : Super(_objInit)
 	if (!InGameHuD_WBPClass)
 		UCustomType::FindClass<UUserWidget>(InGameHuD_WBPClass, TEXT("/Game/UI/In-Game/WBP_InGameHUD"));
 }
-//void AGamePC::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
-//{
-//	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-//
-//	DOREPLIFETIME(AGamePC, mGameInstanceRef);
-//}
+
 
 void AGamePC::CLIENT_Login_Implementation(int _index)
 {
@@ -90,6 +85,8 @@ void AGamePC::CLIENT_InitUI_Implementation(const class UHeroStatsComponent* _her
 	if (mInGameHUD)
 	{
 		mInGameHUD->InitStats(_heroStats);
+		UE_LOG(LogTemp, Log, TEXT("mInGameHUD is Init - AGamePC::CLIENT_InitUI_Implementation"));
+
 	}
 	else
 	{
@@ -115,6 +112,7 @@ void AGamePC::SERVER_UpdatePlayerList_Implementation()
 	UWorld* world = GetWorld();
 	if (world)
 	{
+		
 		AGamePlayGM* gamePlayGM = Cast<AGamePlayGM>(UGameplayStatics::GetGameMode(world));
 		if (gamePlayGM)
 			gamePlayGM->UpdatePlayerList();
@@ -161,9 +159,9 @@ void AGamePC::SaveGameCheck()
 
 void AGamePC::BeginPlay()
 {
-	if (!HasAuthority())
-	{
-		SERVER_UpdatePlayerList();
-	}
+	//if (!HasAuthority())
+	//{
+	//	SERVER_UpdatePlayerList();
+	//}
 }
 

@@ -95,10 +95,10 @@ protected:
 		class USphereComponent*    TargetDetector;
 
 	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (BlueprintProtected))
-		float NonLockOn_CamRotationLagging;
+		float Unfocus_CamRotationLagging = 30.0f;
 
 	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (BlueprintProtected))
-		float LockOn_CamRotationLagging;
+		float Focus_CamRotationLagging = 15.0f;
 
 public:
 
@@ -166,8 +166,8 @@ public:
 	FORCEINLINE class UHeroStatsComponent* GetHeroStatsComp() const { return HeroStats; }	
 	FORCEINLINE class UHero_AnimInstance* GetAnimInstanceRef() const { return mAnimInstanceRef; }
 
-	FORCEINLINE float GetLockOnCameraRotationLag() const { return LockOn_CamRotationLagging; }
-	FORCEINLINE float GetNonLockOnCameraRotationLag() const { return NonLockOn_CamRotationLagging; }
+	FORCEINLINE float GetLockOnCameraRotationLag() const { return Focus_CamRotationLagging; }
+	FORCEINLINE float GetNonLockOnCameraRotationLag() const { return Unfocus_CamRotationLagging; }
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE float GetMoveForwardAxis() const { return MoveForwardAxis; }

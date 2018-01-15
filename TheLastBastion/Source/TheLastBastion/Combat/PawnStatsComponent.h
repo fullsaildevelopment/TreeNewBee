@@ -66,52 +66,64 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
 	    bool bArmedFromBeginPlay;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	class ATheLastBastionCharacter* mCharacter;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combat)
 		TSubclassOf <class AGear> LeftHandWeapon_ClassBp;
+
+	UPROPERTY(Replicated)
 	class AGear*    LeftHandWeapon;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combat)
 		TSubclassOf <class AGear> RightHandWeapon_ClassBp;
+
+	UPROPERTY(Replicated)
 	class AGear*    RightHandWeapon;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combat)
 		TSubclassOf <class AArmor> Armor_ClassBp;
-	class AArmor *    Armor;
+
+
+	UPROPERTY(ReplicatedUsing = OnRep_EquipArmor)
+		/** Once the armor is updated, update all connected client this change*/
+	class AArmor*    Armor;
+	UFUNCTION()
+		/** Called once the armor is updated*/
+		void OnRep_EquipArmor();
+
 
 
 	
 #pragma region Character Stats
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = CharactorStats)
-		// Init health by Level
+		// Hp without any armor
 		float HpRaw;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = CharactorStats)
-		// Init stamina
+		// Sp without any armor
 		float StaminaRaw;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+	UPROPERTY(Replicated, BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		float HpMax;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+	UPROPERTY(Replicated, BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		float HpCurrent;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+	UPROPERTY(Replicated, BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		float StaminaMax;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+	UPROPERTY(Replicated, BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		float StaminaCurrent;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+	UPROPERTY(Replicated, BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		float DivByHpMax;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+	UPROPERTY(Replicated, BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		float DivByStaminaMax;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+	UPROPERTY(Replicated, BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		int Level;
 
 
