@@ -36,7 +36,7 @@ void ARangeWeapon::Fire()
 
 	// Trace the world from pawn eyes to crosshair location
 	if (GearOwner != nullptr && ProjectileClassBP != nullptr)
-	{
+	{   
 		// Find Player eyes location and rotation
 		FVector EyesLocation;
 		FRotator EyesRotation;

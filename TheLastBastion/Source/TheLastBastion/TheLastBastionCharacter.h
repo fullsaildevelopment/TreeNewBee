@@ -16,7 +16,8 @@ enum class ECharacterType : uint8
 	None = 0              UMETA(DisplayName = "None"),
 	Ranger = 1            UMETA(DisplayName = "Ranger"),
 	Builder = 2           UMETA(DisplayName = "Builder"),
-	LanTrooper_T0 = 3 	  UMETA(DisplayName = "Lannester Trooper New Recruit")
+	LanTrooper_T0 = 3 	  UMETA(DisplayName = "Lannester Trooper New Recruit"),
+	LanCB_T0 = 4          UMETA(DisplayName = "Lannester Shooter New Recruit")
              
 };
 
