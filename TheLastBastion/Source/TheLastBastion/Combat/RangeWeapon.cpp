@@ -67,7 +67,7 @@ void ARangeWeapon::Fire()
 
 
 		// Draw a bebug line when linetrace hits something
-		DrawDebugLine(GetWorld(), EyesLocation, TraceEnd, FColor::Red, false, 2.0f, 0, 1.0f);
+		//DrawDebugLine(GetWorld(), EyesLocation, TraceEnd, FColor::Red, false, 2.0f, 0, 1.0f);
 
 		// Correctly Spawn the projectile
 		FVector MuzzleLocation = MeshComp->GetSocketLocation(MuzzleSocketName);
@@ -92,7 +92,7 @@ void ARangeWeapon::Fire()
 		CrossbowProjectile->GetProjectileMovementComp()->Velocity = FlyDir * BulletSpeed;
 
 		// Draw a bebug line from weapon to impact position
-		DrawDebugLine(GetWorld(), LaunchLocation, TraceEnd, FColor::Green, false, 2.0f, 0, 1.0f);
+		//DrawDebugLine(GetWorld(), LaunchLocation, TraceEnd, FColor::Green, false, 2.0f, 0, 1.0f);
 	}
 }
 
@@ -100,7 +100,6 @@ void ARangeWeapon::NPCFire(const AActor* _target)
 {
 
 	GearOwner = Cast<ATheLastBastionCharacter>(GetOwner());
-
 	// Trace the world from pawn eyes to crosshair location
 	if (GearOwner != nullptr && ProjectileClassBP != nullptr)
 	{
@@ -116,6 +115,18 @@ void ARangeWeapon::NPCFire(const AActor* _target)
 
 		AProjectile* CrossbowProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClassBP, MuzzleLocation, MuzzleRotation, SpawnParams);
 
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(GearOwner);
+		QueryParams.AddIgnoredActor(this);
+		QueryParams.bTraceComplex = true;
+		QueryParams.bReturnPhysicalMaterial = false;
+		FHitResult Hit;
+		bool const IsHit = GetWorld()->LineTraceSingleByChannel(Hit, MuzzleLocation, TargetActor->GetActorLocation(), ECollisionChannel::ECC_Visibility);
+		if (IsHit)
+		{
+			//UE_LOG(LogTemp, Log, TEXT(""))
+		}
+
 		// Calculate the velocity for the projectile
 		FVector FlyDir = (TargetActor->GetActorLocation() - MuzzleLocation).GetSafeNormal();
 
@@ -127,47 +138,6 @@ void ARangeWeapon::NPCFire(const AActor* _target)
 
 	}
 
-
-
-
-
-	//ATheLastBastionEnemyCharacter* RangeEnemyCharacter = Cast<ATheLastBastionEnemyCharacter>(GearOwner);
-
-	//// Check if the gearowner is a enemy character
-	//if (RangeEnemyCharacter)
-	//{
-	//	// Get the AI Controller from the enemy
-	//	ATheLastBastionBaseAIController* EnemyAIController = Cast<ATheLastBastionBaseAIController>(RangeEnemyCharacter->GetController());
-	//	if (EnemyAIController)
-	//	{
-	//		// Get Enemy's target actor location to initialize velocity for projectile
-	//		UBehaviorTreeComponent* BehaviorTreeComp = EnemyAIController->GetBTComp();
-	//		if (BehaviorTreeComp)
-	//		{
-	//			UBlackboardComponent* BlackboardComp = BehaviorTreeComp->GetBlackboardComponent();
-	//			if (BlackboardComp)
-	//			{
-	//			}
-	//			else
-	//			{
-	//				UE_LOG(LogTemp, Warning, TEXT("Can't get Blackboard Component from BehaviorTree Component"));
-	//				return;
-	//			}
-
-	//		}
-	//		else
-	//		{
-	//			UE_LOG(LogTemp, Warning, TEXT("Can't find Enemy AI BehaviorTreeComp"));
-	//			return;
-	//		}
-
-	//	}
-	//	else
-	//	{
-	//		UE_LOG(LogTemp, Warning, TEXT("Can't find Enemy AI Controller"));
-	//		return;
-	//	}
-	//}
 }
 
 

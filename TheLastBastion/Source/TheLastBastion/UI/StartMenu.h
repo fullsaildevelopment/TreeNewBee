@@ -62,6 +62,9 @@ private:
 #pragma region Connection Type Selection List
 
 	UPROPERTY(meta = (BindWidget))
+		class UButton* SinglePlayerButton;
+
+	UPROPERTY(meta = (BindWidget))
 		class UButton* SteamButton;
 
 	UPROPERTY(meta = (BindWidget))
@@ -96,6 +99,9 @@ private:
 	UFUNCTION()
 		void OnJoinButtonClick();
 
+
+	UFUNCTION()
+		void OnSinglePlayerButtonClick();
 
 	UFUNCTION()
 		void OnSteamButtonClick();

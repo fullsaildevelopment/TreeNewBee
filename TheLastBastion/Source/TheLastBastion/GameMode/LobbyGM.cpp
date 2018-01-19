@@ -11,7 +11,8 @@
 
 
 
-const FString GAME_MAP = TEXT("/Game/Maps/Gameplay_Dev?listen");
+#define GAME_MAP  TEXT("/Game/Maps/Gameplay_Dev?listen")
+
 ALobbyGM::ALobbyGM()
 {
 	UCustomType::FindClass<APawn>(DefaultPawnClass, TEXT("/Game/Blueprints/Heros/LobbyPawn_Bp"));

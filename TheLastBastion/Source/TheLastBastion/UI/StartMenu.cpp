@@ -7,8 +7,11 @@
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "GI_TheLastBastion.h"
 
+
+#define SinglePlayerMap  TEXT("/Game/Maps/SinglePlayer?listen")
 
 bool UStartMenu::Initialize()
 {
@@ -48,6 +51,7 @@ bool UStartMenu::Initialize()
 	LanButton  ->OnClicked.AddDynamic(this, &UStartMenu::OnLanButtonClick);
 
 	BackButton->OnClicked.AddDynamic(this, &UStartMenu::OnBackButtonClick);
+	SinglePlayerButton->OnClicked.AddDynamic(this, &UStartMenu::OnSinglePlayerButtonClick);
 
 	// Init Button
 	SteamButton->SetIsEnabled(false);
@@ -68,6 +72,16 @@ void UStartMenu::OnJoinButtonClick()
 	mGameInstanceRef->ShowJoinMenu();
 
 }
+
+void UStartMenu::OnSinglePlayerButtonClick()
+{
+	AGameModeBase* gm = UGameplayStatics::GetGameMode(GetWorld());
+	gm->bUseSeamlessTravel = true;
+	
+	this->RemoveFromParent();
+	GetWorld()->ServerTravel(SinglePlayerMap);
+}
+
 
 void UStartMenu::OnSteamButtonClick()
 {	

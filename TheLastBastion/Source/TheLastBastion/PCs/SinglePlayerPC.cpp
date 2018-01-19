@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SinglePlayerPC.h"
+#include "GameMode/SinglePlayerGM.h"
 #include "GI_TheLastBastion.h"
 #include "Kismet/GameplayStatics.h"
 #include "SaveGame/SaveGame_TheLastBastion.h"
@@ -20,6 +21,35 @@ void ASinglePlayerPC::OnPostLogin()
 	FInputModeGameOnly inputMode;
 	SetInputMode(inputMode);
 	SaveGameCheck();
+
+
+	// ask server to spawn a hero class depend on player's previous choice, and ask this server version pc to poccess
+	APawn* pawn = this->GetPawn();
+	if (pawn)
+		pawn->Destroy();
+
+	pawn = nullptr;
+
+	TArray<AActor*> playerStarts;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), playerStarts);
+
+	if (playerStarts.Num() == 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Please a playerStart in GamePlay map,  AGamePlayGM::SpawnPlayer"))
+			return;
+	}
+
+	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	
+	if (gm)
+	{
+		FActorSpawnParameters spawnParam;
+		spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		ATheLastBastionHeroCharacter* hero
+			= GetWorld()->SpawnActor<ATheLastBastionHeroCharacter>(gm->DefaultPawnClass, playerStarts[0]->GetTransform(), spawnParam);
+		this->Possess(hero);
+	}
+
 	CreateInGameHUD();
 }
 

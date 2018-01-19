@@ -43,7 +43,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning, meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* mSpawnVolumn;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Lannester, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Lannester, meta = (AllowPrivateAccess = "true"))
 		TSubclassOf<class ATheLastBastionCharacter> TrooperTier0;
 
 	float spawnDelay;
