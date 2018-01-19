@@ -52,12 +52,13 @@ void UAIRange_AnimInstance::Fire()
 
 		if (RangeWeapon)
 		{   
+			bAim = true;
 			RangeWeapon->Fire();
 			FName sectionToPlay;
 			//sectionToPlay = TEXT("SingleShot");
 			sectionToPlay = TEXT("PowerShot");
 			PlayMontage(Fire_Montage, 1.0f, sectionToPlay);
-
+			bAim = false;
 			UE_LOG(LogTemp, Log, TEXT("FIre"));
 		}
 	}

@@ -23,6 +23,7 @@ ARangeWeapon::ARangeWeapon()
 	// initialize variables
 	ShootingRange = 10000.0f;
 	BulletSpeed = 1500.0f;
+	BulletSpread = 5.0f;
 }
 
 void ARangeWeapon::BeginPlay()
@@ -68,6 +69,11 @@ void ARangeWeapon::Fire()
 
 						// Calculate the velocity for the projectile
 						FVector FlyDir = (TargetActor->GetActorLocation() - MuzzleLocation).GetSafeNormal();
+
+						// Bullet Spread
+						float HalfRad = FMath::DegreesToRadians(BulletSpread);
+						FlyDir = FMath::VRandCone(FlyDir, HalfRad, HalfRad);
+
 						CrossbowProjectile->GetProjectileMovementComp()->Velocity = FlyDir * BulletSpeed;
 					}
 					else
