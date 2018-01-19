@@ -76,25 +76,24 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 		class ATheLastBastionHeroCharacter* mCharacter;
 
-
 #pragma region Movement
 
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Movement)
 		/** If true, the velocity of character is controlled by animation
 		* and calculated direction */
 		bool bVelocityOverrideByAnim;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Movement)
 		bool bEnableJump;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Movement)
 		bool bTryToJump;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Movement)
 		bool bIsInAir;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Movement)
 		bool bTryToMove;
 
 	/** Is Character currently sprinting*/
@@ -102,21 +101,25 @@ protected:
 		bool bIsSprinting;
 
 	/** Is Sprinting button is still pressed, only reset by button release */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
+	UPROPERTY(BlueprintReadOnly, Category = Movement)
 		bool bTryToSprint;
 
+	UPROPERTY(BlueprintReadOnly, Category = Movement)
+		/** A boolean needs to be toggle when equip or unequip gears*/
+		bool bTryToEquip;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
-	FVector Acceleration_bodySpace;
+	    FVector Acceleration_bodySpace;
 
+	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	FVector mAccelerationDirection;
 
+	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	FVector mSpeedOverrideDirection;
 
 #pragma endregion
 
-
-#pragma region HeadTrack
+#pragma region Bone Control
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = HeadTrack)
 		float HeadTrackRate;
@@ -130,8 +133,15 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = HeadTrack)
 		float HeadTrackAlpha;
 
-#pragma endregion
+	UPROPERTY(BlueprintReadOnly, Category = MeleeAttack)
+		/** spine angle to blend alpha*/
+		float spineAngleOverrideAlpha;
 
+	UPROPERTY(BlueprintReadOnly, Category = MeleeAttack)
+		/** spine angle to blend */
+		FRotator spineAngleRotator;
+
+#pragma endregion
 
 #pragma region Combat
 	
@@ -152,50 +162,77 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 		EAttackState AttackState;
 
-				
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+		/** Must be assigned for before focused dodge*/
+		EFocusDodgeDirection FocusDodgeDirection;	
+
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+		/** which section I am going play next in Attack_Montage*/
+		int CurrentComboIndex;
 #pragma endregion
+
+#pragma region MeleeFocus
+
+	UPROPERTY(BlueprintReadOnly, Category = MeleeFocus)
+		/** Flag to check if our character is in strafe mode,
+		*  Set by Focus Button, Reset by Equip button and focus button
+		*  if player is in travel mode, focus button will automatically implement equip*/
+		bool bIsFocused;
+
+	UPROPERTY(BlueprintReadOnly, Category = MeleeFocus)
+		/** Due to I dont want to mess up my dodge movement property,
+		*   if someone try to enter focus mode  during dodge, toggle this boolean to true, and wait
+		*   until the dodge finish, enter the focus mode, reset this boolean*/
+		bool bIsFocusEnterPending;
+
+	UPROPERTY(BlueprintReadOnly, Category = MeleeFocus)
+		/** Due to I dont want to mess up my dodge movement property,
+		*   if someone try to exit focus mode during dodge, toggle this boolean to true, and wait
+		*   until the dodge finish, exit the focus mode, reset this boolean */
+		bool bIsFocusExitPending;
+
+#pragma endregion
+
+#pragma region RangeFire
+
+	UPROPERTY(BlueprintReadOnly, Category = Fire)
+		bool bTryToZoomIn;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
+		/** FOV blend rate zoom in and zoom out*/
+		float CameraZoomInRate;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
+		/** Camera blend rate between travel mode and crossbow mode*/
+		float CameraShiftRate;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
+		/** Camera relative location during equip */
+		FVector CameraEquipOffset;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
+		/** Camera relative location during Zoom In */
+		FVector CameraZoomOffset;
+
+#pragma endregion
+
 
 	
 protected:
 
-		virtual void OnBeginPlay() override;
+	UFUNCTION(BlueprintCallable)
+		void OnBeginPlay() override;
+	UFUNCTION(BlueprintCallable)
+		void OnInit() override;
+	UFUNCTION(BlueprintCallable)
+		void OnUpdate(float _deltaTime) override;
+	UFUNCTION(BlueprintCallable)
+		void OnPostEvaluate() override;
+	UFUNCTION()
+		void OnMontageStartHandle(class UAnimMontage* _animMontage) override;
+	UFUNCTION()
+		void OnMontageBlendOutStartHandle(class UAnimMontage* _animMontage, bool _bInterruptted) override;
 
-		virtual void OnInit() override;
-
-		virtual void OnUpdate(float _deltaTime) override;
-
-		virtual void OnPostEvaluate() override;
-
-
-#pragma region Anim Notification
-
-
-		UFUNCTION(BlueprintCallable)
-			/** Called by animation state machine, to sync animation and movement */
-			void StartOverrideSpeed();
-
-		UFUNCTION(BlueprintCallable)
-			void StopOverrideSpeed();
-
-		/** Called when enter idle state and loop state during travel mode*/
-		UFUNCTION(BlueprintCallable)
-			void EnableJump();
-
-		/** Called when leave idle state or loop state, and also called when exit travel mode*/
-		UFUNCTION(BlueprintCallable)
-			void DisableJump();
-
-		/** Called when Character draw his weapon during animation,
-		toggle on use desired control rotation*/
-		UFUNCTION(BlueprintCallable)
-			virtual void OnEquipWeapon();
-
-		/** Called when Character draw his weapon during animation,
-		toggle off use desired control rotation*/
-		UFUNCTION(BlueprintCallable)
-			virtual void OnSheathWeapon();
-
-#pragma endregion
 
 public:
 
@@ -206,6 +243,8 @@ public:
 	virtual void OnAttack();
 	/** Called when equip button is pressed*/
 	virtual bool OnEquip();
+	/** Called when TAB button pressed*/
+	void OnSwapBetweenMeleeAndRange();
 	/** Called when Jump button is pressed*/
 	virtual void OnJumpStart();
 	/** Called when Jump button is released*/
@@ -215,7 +254,7 @@ public:
 	/** Called when Sprint Button is released*/
 	void OnSprintReleased();
 
-
+	void OnFocus();
 
 	///** Custom Binding based on Character type
 
@@ -231,36 +270,142 @@ public:
 	/** Called when RMB is released*/
 	virtual void OnRightMouseButtonReleased();
 
-
-
 #pragma endregion
 
 	virtual void OnBeingHit
 	( float _damage, FName boneName, const FVector& _shotFromDirection, const FVector& _hitLocation, const class UPawnStatsComponent* _pawnStats) override;
 
-protected:
+private:
 
-
-	/** Called when player try to attack and dodge and use skill without equip at the first place
-	    Simply attach a weapon on the slot without play the animation, disable jump, change movement rules to strafe*/
-	void SkipEquip();
 
 	void HeadTrack();
+	/** Called when player try to attack and dodge and use skill without equip at the first place
+	    Simply attach a weapon on the slot without play the animation, disable jump, change movement rules to strafe*/
 
-	virtual void ResetOnBeingHit();
 
-	virtual void RecoverFromBeingHit(bool _bInterrupted);
-
+	void SkipEquip();
 	/** Similar to SkipEquip, without change movement rules*/
 	void AttachWeapon();
 
 
+
+	void ResetOnBeingHit();
+
+	void RecoverFromBeingHit(bool _bInterrupted);
+
+
+
+
+
+
+	///*** Melee Function ***///
+
+	void MeleeUpdate(class UCharacterMovementComponent* movementComp, float _deltaTime);
+	/** Called OnAttack is called and Player's current Equipment is melee weapon*/
+	void OnMeleeAttack();
+
+	//void OnDefendOn();
+	//void OnDefendOff();
+
+
+	void LaunchCombo();
+	/** Reset Combo when attack montage gets blended out without any interrupt*/
+	void ResetCombo();
+	/** Called when player press LAlt or C*/
+	void OnDodge();
+	void LaunchDodge();
+	void OnDodgeFinish(bool _bInterruptted);
+	FVector GetFocusDodgeDirection() const;
+	/** Toggle Focus mode on and off*/
+	void ToggleFocusMode(bool _IsOn);
+
+	///*** Range Function***///
+
+	void RangeUpdate(class UCharacterMovementComponent* movementComp, float _deltaTime);
+	/** Called OnAttack is called if Player's current Equipment is range weapon*/
+	void OnRangeAttack();
+
+	/** Called When RMB is pressed, if Player's current Equipment is range weapon*/
+	void OnZoomIn();
+
+	/** Called When RMB is released, if Player's current Equipment is range weapon*/
+	void OnZoomOut();
+
+
+protected:
+
+
+#pragma region Travel Event
+
+	UFUNCTION(BlueprintCallable)
+		/** Called by animation state machine, to sync animation and movement */
+		void StartOverrideSpeed();
+
+	UFUNCTION(BlueprintCallable)
+		void StopOverrideSpeed();
+
+	/** Called when enter idle state and loop state during travel mode*/
+	UFUNCTION(BlueprintCallable)
+		void EnableJump();
+
+	/** Called when leave idle state or loop state, and also called when exit travel mode*/
+	UFUNCTION(BlueprintCallable)
+		void DisableJump();
+
+#pragma endregion
+
+#pragma region  Equip Event
+
+	/** Called when Character draw his weapon during animation,
+	toggle on use desired control rotation*/
+	UFUNCTION(BlueprintCallable)
+		virtual void OnEquipWeapon();
+
+	/** Called when Character draw his weapon during animation,
+	toggle off use desired control rotation*/
+	UFUNCTION(BlueprintCallable)
+		virtual void OnSheathWeapon();
+
+#pragma endregion
+
+#pragma region Melee Attack Event
+
+	UFUNCTION(BlueprintCallable)
+		/** Called when before attack state enter the ReadyForNext Stage,
+		*   Trigger the catched action, if the next action is not None */
+		void OnNextAttack();
+
+	UFUNCTION(BlueprintCallable)
+		void OnEnableDamage(bool bIsright = true, bool bIsAll = false);
+
+	UFUNCTION(BlueprintCallable)
+		void OnDisableDamage(bool bIsright = true, bool bIsAll = false);
+
+#pragma endregion
+
+#pragma region Dodge Event
+
+	UFUNCTION(BlueprintCallable)
+		/** Called when before attack state enter the DodgePost Stage,
+		*   Trigger the catched action (except for dodge), if the next action is not None */
+		virtual void OnDodgePost();
+
+
+
+#pragma endregion
+
+
 public:
 
-		FORCEINLINE bool IsVelocityOverrideByAnim() const { return bVelocityOverrideByAnim; }
-		FORCEINLINE bool GetIsJumpEnable() const { return bEnableJump; }
-		FORCEINLINE void SetIsJump(bool _val) { bTryToJump = _val; }
+	FORCEINLINE bool IsVelocityOverrideByAnim() const { return bVelocityOverrideByAnim; }
+	FORCEINLINE bool GetIsJumpEnable() const { return bEnableJump; }
+	FORCEINLINE void SetIsJump(bool _val) { bTryToJump = _val; }
 
-		FORCEINLINE EEquipType GetCurrentEquipmentType() const { return CurrentEquipment; }
-		FORCEINLINE EEquipType GetActivatedEquipmentType() const { return ActivatedEquipment; }
+	FORCEINLINE EEquipType GetCurrentEquipmentType() const { return CurrentEquipment; }
+	FORCEINLINE EEquipType GetActivatedEquipmentType() const { return ActivatedEquipment; }
+
+	FORCEINLINE bool GetIsFocus() const { return bIsFocused; }
+	FORCEINLINE bool GetFocusPendingEnter() const { return bIsFocusEnterPending; }
+	FORCEINLINE bool GetFocusPendingExit() const { return bIsFocusExitPending; }
+
 };

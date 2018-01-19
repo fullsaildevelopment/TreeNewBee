@@ -38,8 +38,17 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true", BlueprintProtected = "true"))
 		EGearType GearType;
+
 	UPROPERTY(BlueprintReadOnly)
 		class ATheLastBastionCharacter* GearOwner;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+		/** When this gear is used as right hand gear, should we put other gear on the left hand*/
+		TSubclassOf<AGear> LeftHand;
+
+	UPROPERTY(EditDefaultsOnly, Category = DamageCalculation)
+		TSubclassOf <class UDamageType> DamageType;
+
 
 private:
 
@@ -50,7 +59,10 @@ private:
 		float ElementalDamage;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-		float MagicalDamage;
+		float FireDamage;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+		float IceDamage;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 		float PhysicalDefence;
@@ -59,7 +71,10 @@ private:
 		float ElementalDefence;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-		float MagicalDefence;
+		float FireDefence;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+		float IceDefence;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 		float HpBonus;
@@ -74,19 +89,35 @@ public:
 
 	virtual void Arm(class USkeletalMeshComponent* const _skeletonMeshComponent);
 	
+	virtual void SetDamageIsEnabled(bool _val);
+
 	FORCEINLINE class ATheLastBastionCharacter* GetGearOwner() const { return GearOwner; }
 
 	FORCEINLINE float GetHpBonus() const { return HpBonus;}
 	FORCEINLINE float GetStaminaBonus() const { return StaminaBonus; }
 	FORCEINLINE float GetPhysicalDamage() const { return PhysicalDamage; }
 	FORCEINLINE float GetElementalDamage() const { return ElementalDamage; }
-	FORCEINLINE float GetMagicalDamage() const { return MagicalDamage; }
+	FORCEINLINE float GetFireDamage() const { return FireDamage; }
+	FORCEINLINE float GetIceDamage() const { return IceDamage; }
+
 	FORCEINLINE float GetPhysicalDefence() const { return PhysicalDefence; }
 	FORCEINLINE float GetElementalDefence() const { return ElementalDefence; }
-	FORCEINLINE float GetMagicalDefence() const { return MagicalDefence; }
+	FORCEINLINE float GetFireDefence() const { return FireDefence; }
+	FORCEINLINE float GetIceDefence() const { return IceDefence; }
 
 
+	FORCEINLINE TSubclassOf<AGear> GetLeftHandGear() const { return LeftHand; }
 
+
+	FORCEINLINE EGearType GetGearType() const { return GearType; }
+
+	FORCEINLINE virtual class USceneComponent* GetMesh() const { return nullptr; }
+
+	FORCEINLINE TSubclassOf<class UDamageType> GetDamageType() { return DamageType; }
+
+	void ToggleVisibilty(bool _val);
+
+	void CombineDamage(const AGear* _other);
 
 
 

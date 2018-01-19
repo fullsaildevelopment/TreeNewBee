@@ -173,7 +173,7 @@ void UAIMelee_AnimInstance::SyncMotionForGettingHurt()
 
 	// Sync Velocity
 	float speed = GetCurveValue("Speed");
-
+	
 	FVector Velocity = movementComp->Velocity;
 	movementComp->Velocity = damageMomentum * speed;
 	movementComp->Velocity.Z = Velocity.Z;

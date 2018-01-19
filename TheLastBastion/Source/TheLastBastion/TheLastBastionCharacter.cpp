@@ -50,12 +50,14 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	GetCharacterMovement()->AirControl = 0.2f;
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
 
 	GetCapsuleComponent()->bGenerateOverlapEvents = true;
 
 
 	GetMesh()->RelativeLocation = FVector(0, 0, -90);
 	GetMesh()->RelativeRotation = FRotator(0, -90, 0);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->bGenerateOverlapEvents = true;
 

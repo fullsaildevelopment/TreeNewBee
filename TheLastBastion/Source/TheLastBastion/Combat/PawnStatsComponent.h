@@ -20,7 +20,6 @@ enum class EApplyDamageType : uint8
 	RadiusFallOf = 4 UMETA(DisplayName = "RadiusFallOf")
 };
 
-
 USTRUCT()
 struct FDamageInfo
 {
@@ -42,9 +41,22 @@ struct FDamageInfo
 		TSubclassOf<class UDamageType> damageType;
 };
 
+
+USTRUCT()
+struct FWeaponSlot
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	class AGear* LeftHand;
+
+	UPROPERTY()
+	class AGear* RightHand;
+};
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FOnHealthChangedSignature, const UPawnStatsComponent*, pawnStatsComp, float, damage, const class UDamageType*, _damageType, FName, _boneNmame, const FVector&, _shotFromDirection, const FVector&, _hitPosition);
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(BlueprintType, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class THELASTBASTION_API UPawnStatsComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -61,40 +73,31 @@ public:
 
 protected:
 
-	bool bGenerateStatsAtBeginPlay;
+	bool bGenerateRawStatsAtBeginPlay;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
 	    bool bArmedFromBeginPlay;
 
-	UPROPERTY(Replicated)
+	UPROPERTY()
 	class ATheLastBastionCharacter* mCharacter;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combat)
-		TSubclassOf <class AGear> LeftHandWeapon_ClassBp;
+	UPROPERTY()
+		FWeaponSlot WeaponSlots[2];
 
-	UPROPERTY(Replicated)
-	class AGear*    LeftHandWeapon;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Gear)
+		TArray<TSubclassOf<class AGear>> WeaponWheels;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Gear)
+		/** Index to the WeaponWheels*/
+		int CurrentWeapon_Index;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combat)
-		TSubclassOf <class AGear> RightHandWeapon_ClassBp;
-
-	UPROPERTY(Replicated)
-	class AGear*    RightHandWeapon;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combat)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Gear)
 		TSubclassOf <class AArmor> Armor_ClassBp;
 
-
-	UPROPERTY(ReplicatedUsing = OnRep_EquipArmor)
+	UPROPERTY()
 		/** Once the armor is updated, update all connected client this change*/
 	class AArmor*    Armor;
-	UFUNCTION()
-		/** Called once the armor is updated*/
-		void OnRep_EquipArmor();
-
-
-
 	
+
 #pragma region Character Stats
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = CharactorStats)
@@ -105,25 +108,25 @@ protected:
 		// Sp without any armor
 		float StaminaRaw;
 
-	UPROPERTY(Replicated, BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		float HpMax;
 
-	UPROPERTY(Replicated, BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		float HpCurrent;
 
-	UPROPERTY(Replicated, BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		float StaminaMax;
 
-	UPROPERTY(Replicated, BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		float StaminaCurrent;
 
-	UPROPERTY(Replicated, BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		float DivByHpMax;
 
-	UPROPERTY(Replicated, BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		float DivByStaminaMax;
 
-	UPROPERTY(Replicated, BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		int Level;
 
 
@@ -168,9 +171,12 @@ public:
 
 	void OnKill();
 
+	virtual bool OnSwapBetweenMeleeAndRange();
+
 
 public:
 
+	static int GetMaxWeaponSlot();
 	FORCEINLINE float GetHpRaw() const { return HpRaw; }
 	FORCEINLINE float GetStamina() const { return StaminaRaw; }
 	FORCEINLINE float GetHpCurrent() const { return HpCurrent; }
@@ -179,8 +185,8 @@ public:
 	FORCEINLINE float GetStaminaMax() const { return StaminaMax; }
 	FORCEINLINE float GetDivByHpMax() const { return DivByHpMax; }
 	FORCEINLINE float GetDivBySpMax() const { return DivByStaminaMax; }
-	FORCEINLINE int GetLevel() const { return Level; }
-	FORCEINLINE AGear* GetRightHandWeapon() const { return RightHandWeapon; }
+	FORCEINLINE int   GetLevel() const { return Level; }
+	FORCEINLINE AGear* GetCurrentRightHandWeapon() const { return WeaponSlots[CurrentWeapon_Index].RightHand; }
 
 	// Called after a character is spawned, generate the raw stats according to its level
 	void GenerateRawStatsByLevel(int Level);

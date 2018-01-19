@@ -36,6 +36,7 @@ void UInGamePlayerRow::InitByPlayerProfile(const FPlayerProfile& _profile)
 		Class->SetText(FText::FromString("Builder"));
 }
 
+
 void UInGamePlayerRow::SetHpValue(float _currentHp, float _maxHp)
 {
 	FString HpStatsText = FString::Printf(TEXT("%d / %d"), (int) _currentHp, (int) _maxHp);

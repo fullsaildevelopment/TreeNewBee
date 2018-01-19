@@ -64,7 +64,11 @@ public:
 	/** Initialize the HUD during creation by player profile*/
 	void LoadPlayerProfile(const FPlayerProfile& _profile);
 
+	void LoadPlayerProfile_Sp(const FPlayerProfile& _profile);
+
 	void InitStats(const class UHeroStatsComponent* _heroStats);
 
 	void SetHpOnHealthChange(const UPawnStatsComponent * _pawnStats);
+
+	void ToggleFireMode(bool _val);
 };

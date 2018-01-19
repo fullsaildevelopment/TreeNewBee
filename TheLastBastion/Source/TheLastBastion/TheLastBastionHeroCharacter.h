@@ -68,23 +68,25 @@ protected:
 	/** Called when Dodge Button is Pressed*/
 	void OnCorLAltPressed();
 
-
 	/** Called when RMB is pressed*/
 	void OnRightMouseButtonPressed();
 
 	/** Called when RMB is released*/
 	void OnRightMouseButtonReleased();
 
+	/** Called when player try to Switch between Melee and Range weapon*/
+	void OnTABPressed();
+
 	/** Preserve the Yaw input from Pawn interface, and capatable with camera Lock - on*/
 	void AddControllerYaw(float _yaw);
+
+
 #pragma endregion
 
 private:
 
 	UFUNCTION()
 		void OnHealthChangedHandle(const class UPawnStatsComponent * _pawnStatsComp, float _damage, const class UDamageType * _damageType, FName _boneName, const FVector& _shotFromDirection, const FVector& _hitLocation) override;
-
-
 
 protected:
 
@@ -100,6 +102,13 @@ protected:
 	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (BlueprintProtected))
 		float Focus_CamRotationLagging = 15.0f;
 
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AnimationMovementControl)
+		float MoveForwardAxis;
+
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AnimationMovementControl)
+		float MoveRightAxis;
+
+
 public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Control, meta = (BlueprintProtected))
@@ -110,23 +119,17 @@ public:
 		/** Disable the update the control yaw input*/
 		bool bIsMovementDisabled = false;
 
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Control, meta = (BlueprintProtected))
 		/** Disable the update the control yaw input*/
 		bool bIsYawControllDisabled = false;
-
-
-
 
 private:
 
 	/** Animation Bp Reference */
 	UPROPERTY()
 		class UHero_AnimInstance*  mAnimInstanceRef;
-
-	float MoveForwardAxis;
-
-	float MoveRightAxis;
+	UPROPERTY()
+		class UInGameHUD*          mInGameHUD;
 
 #pragma region  Camera
 
@@ -152,12 +155,8 @@ private:
 public:
 
 	// Override A Parent class function
-	FVector GetPawnViewLocation() const override;
-
-	
+	FVector GetPawnViewLocation() const override;	
 	FORCEINLINE class USphereComponent* GetTargetDetector() const { return TargetDetector; }
-
-
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
@@ -168,6 +167,8 @@ public:
 
 	FORCEINLINE float GetLockOnCameraRotationLag() const { return Focus_CamRotationLagging; }
 	FORCEINLINE float GetNonLockOnCameraRotationLag() const { return Unfocus_CamRotationLagging; }
+
+	FORCEINLINE class UInGameHUD* GetInGameHUD() const { return mInGameHUD; }
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE float GetMoveForwardAxis() const { return MoveForwardAxis; }

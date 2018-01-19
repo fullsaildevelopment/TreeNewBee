@@ -17,58 +17,58 @@ class THELASTBASTION_API URangeHero_AnimInstance : public UHero_AnimInstance
 	
 
 
-public:
-
-	URangeHero_AnimInstance(const FObjectInitializer& _objectInitalizer);
-
-protected:
-
-	UFUNCTION(BlueprintCallable)
-	void OnBeginPlay() override;
-
-	UFUNCTION(BlueprintCallable)
-	void OnInit() override;
-
-	UFUNCTION(BlueprintCallable)
-	/** Animation Update tick, run every frame*/
-	void OnUpdate(float _deltaTime) override;
-
-	UFUNCTION(BlueprintCallable)
-	void OnPostEvaluate() override;
-
-public:
-
-	void OnAttack() override;
-
-	/** Called when equip button is pressed  */
-	bool OnEquip() override;
-
-	void OnRightMouseButtonPressed() override;
-
-	void OnRightMouseButtonReleased() override;
-
-protected:
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
-	bool bTryToZoomIn;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
-	/** FOV blend rate zoom in and zoom out*/
-	float CameraZoomInRate;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
-	/** Camera blend rate between travel mode and crossbow mode*/
-	float CameraShiftRate;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
-		/** Camera relative location during equip */
-	FVector CameraEquipOffset; 
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)		
-		/** Camera relative location during Zoom In */
-	FVector CameraZoomOffset;
-
-
-private:
+//public:
+//
+//	URangeHero_AnimInstance(const FObjectInitializer& _objectInitalizer);
+//
+//protected:
+//
+//	UFUNCTION(BlueprintCallable)
+//	void OnBeginPlay() override;
+//
+//	UFUNCTION(BlueprintCallable)
+//	void OnInit() override;
+//
+//	UFUNCTION(BlueprintCallable)
+//	/** Animation Update tick, run every frame*/
+//	void OnUpdate(float _deltaTime) override;
+//
+//	UFUNCTION(BlueprintCallable)
+//	void OnPostEvaluate() override;
+//
+//public:
+//
+//	void OnAttack() override;
+//
+//	/** Called when equip button is pressed  */
+//	bool OnEquip() override;
+//
+//	void OnRightMouseButtonPressed() override;
+//
+//	void OnRightMouseButtonReleased() override;
+//
+//protected:
+//
+//	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
+//	bool bTryToZoomIn;
+//
+//	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
+//	/** FOV blend rate zoom in and zoom out*/
+//	float CameraZoomInRate;
+//
+//	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
+//	/** Camera blend rate between travel mode and crossbow mode*/
+//	float CameraShiftRate;
+//
+//	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
+//		/** Camera relative location during equip */
+//	FVector CameraEquipOffset; 
+//
+//	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)		
+//		/** Camera relative location during Zoom In */
+//	FVector CameraZoomOffset;
+//
+//
+//private:
 
 };

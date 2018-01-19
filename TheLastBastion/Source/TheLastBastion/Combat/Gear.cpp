@@ -96,6 +96,29 @@ void AGear::Arm(USkeletalMeshComponent * const _skeletonMeshComponent)
 	this->AttachToComponent(_skeletonMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, SlotName);
 }
 
+void AGear::SetDamageIsEnabled(bool _val)
+{
+
+}
+
+void AGear::ToggleVisibilty(bool _val)
+{
+
+	USceneComponent* mesh = GetMesh();
+	if (mesh)
+	{
+		mesh->SetVisibility(_val);
+	}
+}
+
+void AGear::CombineDamage(const AGear * _other)
+{
+	PhysicalDamage += _other->PhysicalDamage;
+	ElementalDamage += _other->ElementalDamage;
+	FireDamage += _other->FireDamage;
+	IceDamage  += _other->IceDamage;
+}
+
 
 
 

@@ -47,18 +47,13 @@ protected:
 		/** The actor to ignore in one slash*/
 		TArray<AActor*> IgnoredActors;
 
-	UPROPERTY(EditDefaultsOnly, Category = DamageCalculation)
-		TSubclassOf <class UDamageType> DamageType;
-
 
 public:
-
-	FORCEINLINE class UStaticMeshComponent* GetWeaponMeshRef() const { return Mesh; }
-
-	///** Called when character try to attack without equip animation, or during equip animation*/
-	//void Arm(USkeletalMeshComponent * const _skeletonMeshComponent);
 
 	void SetDamageIsEnabled(bool _val);
 
 	void Tick(float _deltaTime) override;	
+
+	class USceneComponent* GetMesh() const override;
+
 };

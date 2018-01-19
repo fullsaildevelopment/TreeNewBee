@@ -5,7 +5,7 @@
 
 #include "TheLastBastionHeroCharacter.h"
 #include "UI/InGameHUD.h"
-#include "PCs/GamePC.h"
+#include "PCs/SinglePlayerPC.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "GameFramework/Character.h"
@@ -17,73 +17,57 @@
 #include "CustomType.h"
 
 #include "AICharacters/TheLastBastionEnemyCharacter.h"
-#include "Animation/MeleeHero_AnimInstance.h"
-
-
 
 
 UHeroStatsComponent::UHeroStatsComponent()
 {
 	
 	// Just some init armor for our melee hero
-	UCustomType::FindClass<AGear>(LeftHandWeapon_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_Shield"));
-	UCustomType::FindClass<AGear>(RightHandWeapon_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_SHSword"));
 	UCustomType::FindClass<AArmor>(Armor_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_Armor"));
 	Level = 1;
 }
 
 void UHeroStatsComponent::BeginPlay()
 {
-	if (GetOwnerRole() == ROLE_Authority)
+
+	Super::BeginPlay();
+	if (mCharacter)
 	{
-		Super::BeginPlay();
-		if (mCharacter)
+		mHeroCharacter = Cast<ATheLastBastionHeroCharacter>(mCharacter);
+		if (mHeroCharacter != nullptr)
 		{
-			mHeroCharacter = Cast<ATheLastBastionHeroCharacter>(mCharacter);
-			if (mHeroCharacter != nullptr)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("UHeroStatsComponent is owned by ATheLastBastionHeroCharacter"));
-				TargetDetector = mHeroCharacter->GetTargetDetector();
-			}
-			else
-				UE_LOG(LogTemp, Error, TEXT("UHeroStatsComponent is NOT owned by a ATheLastBastionHeroCharacter"));
+			UE_LOG(LogTemp, Warning, TEXT("UHeroStatsComponent is owned by ATheLastBastionHeroCharacter"));
+			TargetDetector = mHeroCharacter->GetTargetDetector();
+		}
+		else
+			UE_LOG(LogTemp, Error, TEXT("UHeroStatsComponent is NOT owned by a ATheLastBastionHeroCharacter"));
 
-			mCurrentTarget = nullptr;
-			mNextThreat = nullptr;
+		mCurrentTarget = nullptr;
+		mNextThreat = nullptr;
 
-			if (TargetDetector )
-			{
-				if (mCharacter->GetCharacterType() == ECharacterType::Ranger)
-				{
-					TargetDetector->OnComponentBeginOverlap.AddDynamic(this, &UHeroStatsComponent::OnEnemyEnter);
-					TargetDetector->OnComponentEndOverlap.AddDynamic(this, &UHeroStatsComponent::OnEnemyLeave);
-				}
-				else
-				{
-					TargetDetector->SetActive(false);
-				}
-			}
-			else
-			{
-				UE_LOG(LogTemp, Error, TEXT("TargetDetector is NULL UHeroStatsComponent::BeginPlay"));
-				return;
-			}
+		if (TargetDetector)
+		{
+			TargetDetector->OnComponentBeginOverlap.AddDynamic(this, &UHeroStatsComponent::OnEnemyEnter);
+			TargetDetector->OnComponentEndOverlap.AddDynamic(this, &UHeroStatsComponent::OnEnemyLeave);
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("mCharacter is NULL - UHeroStatsComponent::BeginPlay"));
+			UE_LOG(LogTemp, Error, TEXT("TargetDetector is NULL UHeroStatsComponent::BeginPlay"));
+			return;
 		}
-
 	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("mCharacter is NULL - UHeroStatsComponent::BeginPlay"));
+	}
+
+
 	// Let Server to call client to Init UI
 	if (mHeroCharacter)
 	{
-		AGamePC* gamePC = Cast<AGamePC>(mHeroCharacter->GetController());
-		if (gamePC)
-		{
-			gamePC->CLIENT_InitUI(this);
-			gamePC->SERVER_UpdatePlayerList();
-		}
+		ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(mHeroCharacter->GetController());
+		if (pc)
+			pc->InitUIOnBeginPlay(this);
 	}
 }
 
@@ -93,7 +77,7 @@ void UHeroStatsComponent::OnFocus()
 	{
 		// if not focused, enter focus mode, else quit
 
-		UMeleeHero_AnimInstance* animRef = Cast<UMeleeHero_AnimInstance>(mHeroCharacter->GetAnimInstanceRef());
+		UHero_AnimInstance* animRef = mHeroCharacter->GetAnimInstanceRef();
 		if (animRef)
 		{
 			bool setTargetToNull
@@ -118,6 +102,52 @@ void UHeroStatsComponent::OnFocus()
 		}
 		
 	}
+}
+
+bool UHeroStatsComponent::OnSwapBetweenMeleeAndRange()
+{
+	bool accept = WeaponSlots[0].RightHand && WeaponSlots[1].RightHand;
+
+	if (accept)
+	{
+		AGear* leftWeapon =  WeaponSlots[CurrentWeapon_Index].LeftHand;
+		AGear* rightWeapon = WeaponSlots[CurrentWeapon_Index].RightHand;
+
+		switch (mHeroCharacter->GetAnimInstanceRef()->GetCurrentEquipmentType())
+		{
+			// hide the shield, equip sword
+		case EEquipType::ShieldSword:
+		{
+			if (leftWeapon)
+				leftWeapon->ToggleVisibilty(false);
+			rightWeapon->Equip(mCharacter->GetMesh());
+			break;
+		}
+		case EEquipType::CrossBow:
+		{
+			rightWeapon->Equip(mCharacter->GetMesh());
+			mHeroCharacter->GetInGameHUD()->ToggleFireMode(false);
+			break;
+		}
+		}
+
+		// Get the next weapon slot
+		CurrentWeapon_Index++;
+		if (CurrentWeapon_Index >= GetMaxWeaponSlot())
+			CurrentWeapon_Index =0;
+
+		// Toggle Visiblity for next weapon
+		leftWeapon = WeaponSlots[CurrentWeapon_Index].LeftHand;
+		if (leftWeapon)
+			leftWeapon->ToggleVisibilty(true);
+
+		rightWeapon = WeaponSlots[CurrentWeapon_Index].RightHand;
+		if (rightWeapon->GetGearType() == EGearType::CrossBow)
+			mHeroCharacter->GetInGameHUD()->ToggleFireMode(true);
+		rightWeapon->ToggleVisibilty(true);
+	}
+
+	return accept;
 }
 
 void UHeroStatsComponent::OnEnemyEnter(UPrimitiveComponent * _overlappedComponent, AActor * _otherActor, UPrimitiveComponent * _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult & _SweepResult)
@@ -160,7 +190,7 @@ void UHeroStatsComponent::OnEnemyLeaveMelee(AActor * _otherActor)
 			// if our current target is leaving the detector, quit Focus
 			// Stay away from enemy will leave focus mode
 
-			UMeleeHero_AnimInstance* animInstanceRef = Cast<UMeleeHero_AnimInstance>(mHeroCharacter->GetAnimInstanceRef());
+			UHero_AnimInstance* animInstanceRef = Cast<UHero_AnimInstance>(mHeroCharacter->GetAnimInstanceRef());
 			if (animInstanceRef && animInstanceRef->GetIsFocus())
 			{
 				animInstanceRef->OnFocus();

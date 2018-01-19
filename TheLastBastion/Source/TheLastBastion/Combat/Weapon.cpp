@@ -28,45 +28,6 @@ void AWeapon::BeginPlay()
 	Super::BeginPlay();
 }
 
-//void AWeapon::Arm(USkeletalMeshComponent * const _skeletonMeshComponent)
-//{
-//	if (GearOwner == nullptr)
-//	{
-//		GearOwner = Cast<ATheLastBastionCharacter>(_skeletonMeshComponent->GetOwner());
-//		SetOwner(GearOwner);
-//	}
-//
-//	FName SlotName;
-//
-//	switch (GearType)
-//	{
-//	case EGearType::Armor:
-//	default:
-//		SlotName = TEXT("Root");
-//		break;
-//	case EGearType::Shield:
-//		SlotName = TEXT("Shield");
-//		break;
-//	case EGearType::SingleHandWeapon:
-//		SlotName = TEXT("SingleHandWeapon");
-//		break;
-//	case EGearType::DoubleHandWeapon:
-//		SlotName = TEXT("DHSwordEquip");
-//		break;
-//	case EGearType::CrossBow:
-//		SlotName = TEXT("CrossBow");
-//		break;
-//	case EGearType::CrossBowBolt:
-//		SlotName = TEXT("BoltsEquip");
-//		break;
-//	case EGearType::TwinBlade:
-//		SlotName = TEXT("ik_hand_r");
-//		break;
-//
-//	}
-//	this->AttachToComponent(_skeletonMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, SlotName);
-//}
-
 void AWeapon::SetDamageIsEnabled(bool _val)
 {
 	bDamageIsEnable = _val;
@@ -107,12 +68,7 @@ void AWeapon::Tick(float _deltaTime)
 		}
 
 
-		// Box Trace
-		static const FName BoxTraceSingleName(TEXT("BoxTraceSingleForObjects"));
-
-		FCollisionQueryParams Params;
-
-		
+		FCollisionQueryParams Params;	
 		if (IgnoredActors.Num() > 0 && bDisableCutOpenDamage)
 			Params.AddIgnoredActors(IgnoredActors);
 
@@ -126,7 +82,7 @@ void AWeapon::Tick(float _deltaTime)
 		
 		if (ObjectParams.IsValid() == false)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Invalid object types"));
+			UE_LOG(LogTemp, Warning, TEXT("Invalid object types - AWeapon::Tick"));
 			return;
 		}
 
@@ -153,6 +109,11 @@ void AWeapon::Tick(float _deltaTime)
 		}
 	}
 
+}
+
+USceneComponent * AWeapon::GetMesh() const
+{
+	return Mesh;
 }
 
 

@@ -16,7 +16,7 @@
 
 #include "GI_TheLastBastion.h"
 #include "UI/InGameHUD.h"
-#include "PCs/GamePC.h"
+#include "PCs/SinglePlayerPC.h"
 
 ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 {
@@ -28,10 +28,7 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 	CameraBoom->bEnableCameraRotationLag = true;
 	CameraBoom->RelativeLocation = FVector(0, 0, 60);
 
-	//Focus_CamRotationLagging = 10.0f;
-	//Unfocus_CamRotationLagging = 30.0f;
-
-												// Create a follow camera
+	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false;
@@ -78,7 +75,20 @@ void ATheLastBastionHeroCharacter::BeginPlay()
 	mAnimInstanceRef = Cast<UHero_AnimInstance>(this->GetMesh()->GetAnimInstance());
 	if (mAnimInstanceRef == nullptr) { UE_LOG(LogTemp, Warning, TEXT("ATheLastBastionCharacter can not take other AnimInstance other than UHero_AnimInstance, - ATheLastBastionCharacter")); return; }
 
-	UE_LOG(LogTemp, Warning, TEXT("Try Get GameInstance"));
+	ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(GetController());
+	if (pc)
+	{
+		mInGameHUD = pc->GetInGameHUD();
+		if (mInGameHUD)
+		{
+			mInGameHUD->InitStats(HeroStats);
+		}
+		else
+			UE_LOG(LogTemp, Error, TEXT("mInGameHUD is NULL - ATheLastBastionHeroCharacter::BeginPlay"));
+	}
+	else
+		UE_LOG(LogTemp, Error, TEXT("pc is NULL - ATheLastBastionHeroCharacter::BeginPlay"));
+
 }
 
 void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -113,6 +123,7 @@ void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputCompone
 	PlayerInputComponent->BindAction("RMB", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnRightMouseButtonPressed);
 	PlayerInputComponent->BindAction("RMB", IE_Released, this, &ATheLastBastionHeroCharacter::OnRightMouseButtonReleased);
 
+	PlayerInputComponent->BindAction("TabMeleeRange", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnTABPressed);
 
 
 }
@@ -184,6 +195,7 @@ void ATheLastBastionHeroCharacter::MoveRight(float Value)
 
 void ATheLastBastionHeroCharacter::OnSprintPressed()
 {
+
 	mAnimInstanceRef->OnSprintPressed();
 	//UE_LOG(LogTemp, Warning, TEXT("OnSprintPressed"));
 }
@@ -197,7 +209,6 @@ void ATheLastBastionHeroCharacter::OnSprintReleased()
 void ATheLastBastionHeroCharacter::OnJumpPressed()
 {
 	mAnimInstanceRef->OnJumpStart();
-
 }
 
 void ATheLastBastionHeroCharacter::OnJumpReleased()
@@ -213,7 +224,7 @@ void ATheLastBastionHeroCharacter::OnAttackPressed()
 void ATheLastBastionHeroCharacter::OnEquipPressed()
 {
 	mAnimInstanceRef->OnEquip();
-} 
+}
 
 void ATheLastBastionHeroCharacter::OnMiddleMouseButtonPressed()
 {
@@ -244,20 +255,18 @@ void ATheLastBastionHeroCharacter::AddControllerYaw(float _yaw)
 	}
 }
 
+void ATheLastBastionHeroCharacter::OnTABPressed()
+{
+	mAnimInstanceRef->OnSwapBetweenMeleeAndRange();
+}
 
 #pragma endregion
-
 
 
 void ATheLastBastionHeroCharacter::OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType, FName _boneName, const FVector & _shotFromDirection, const FVector & _hitLocation)
 {
 
-	// UI
-	AGamePC* gamePC = Cast<AGamePC>(GetController());
-	if (gamePC)
-	{
-		gamePC->CLIENT_UpdateHpOnHealthChanged(_pawnStatsComp);
-	}
+	mInGameHUD->SetHpOnHealthChange(_pawnStatsComp);
 
 	// Animation
 	mAnimInstanceRef->OnBeingHit(_damage, _boneName, _shotFromDirection, _hitLocation, _pawnStatsComp);

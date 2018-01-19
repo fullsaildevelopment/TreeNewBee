@@ -8,8 +8,10 @@
 
 #define ECC_EnemyBody ECollisionChannel::ECC_GameTraceChannel3
 #define ECC_HeroBody  ECollisionChannel::ECC_GameTraceChannel1
+#define CLOSESHOTDISTANCE 350
+static FName MuzzleSocketName =TEXT( "MuzzleSocket");
+static FName LaunchLocationName = TEXT("LaunchLocation");
 
-static FName MuzzleSocketName = "MuzzleSocket";
 // Sets default values
 ARangeWeapon::ARangeWeapon()
 {
@@ -45,6 +47,7 @@ void ARangeWeapon::Fire()
 		// Find the impact location
 		FVector ShotDirection = EyesRotation.Vector();
 		FVector TraceEnd = EyesLocation + (ShotDirection * ShootingRange);
+		FVector ImpactPoint;
 
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(GearOwner);
@@ -52,11 +55,13 @@ void ARangeWeapon::Fire()
 		QueryParams.bTraceComplex = true;
 		QueryParams.bReturnPhysicalMaterial = false;
 		FHitResult Hit;
-
-		if (GetWorld()->LineTraceSingleByChannel(Hit, EyesLocation, TraceEnd, ECollisionChannel::ECC_Visibility))
+		bool const IsHit = GetWorld()->LineTraceSingleByChannel(Hit, EyesLocation, TraceEnd, ECollisionChannel::ECC_Visibility);
+		if (IsHit)
 		{
 			// Override TracerEndPoint when bullet get blocked
-			TraceEnd = Hit.ImpactPoint;
+			ImpactPoint = Hit.ImpactPoint;
+			UE_LOG(LogTemp, Log, TEXT("Hit Distance, %f"), Hit.Distance);
+
 		}
 
 
@@ -65,20 +70,27 @@ void ARangeWeapon::Fire()
 
 		// Correctly Spawn the projectile
 		FVector MuzzleLocation = MeshComp->GetSocketLocation(MuzzleSocketName);
-		FRotator MuzzleRotation = MeshComp->GetSocketRotation(MuzzleSocketName);
-
+		FVector LaunchLocation = MeshComp->GetSocketLocation(LaunchLocationName);
+		
 		// Create and Initialize the spawn parameters for the projectile
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
+		SpawnParams.Owner = this;
 
 		AProjectile* CrossbowProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClassBP, MuzzleLocation, EyesRotation, SpawnParams);
 
 		// Calculate the velocity for the projectile
-		FVector FlyDir = (TraceEnd - MuzzleLocation).GetSafeNormal();
+		// if enemy is too close, we are using weapon forward vector as fly dircection
+
+		//UE_LOG(LogTemp, Log, TEXT("Hit Distance, %d"), Hit.Distance);
+
+
+		TraceEnd = (IsHit && Hit.Distance > CLOSESHOTDISTANCE) ? ImpactPoint : TraceEnd;
+		FVector FlyDir = (TraceEnd - LaunchLocation).GetSafeNormal();
+
 		CrossbowProjectile->GetProjectileMovementComp()->Velocity = FlyDir * BulletSpeed;
 
 		// Draw a bebug line from weapon to impact position
-		DrawDebugLine(GetWorld(), MuzzleLocation, TraceEnd, FColor::Green, false, 2.0f, 0, 1.0f);
+		DrawDebugLine(GetWorld(), LaunchLocation, TraceEnd, FColor::Green, false, 2.0f, 0, 1.0f);
 	}
 }

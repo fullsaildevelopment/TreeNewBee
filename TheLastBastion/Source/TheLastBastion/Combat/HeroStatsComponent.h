@@ -33,12 +33,12 @@ protected:
 
 private:
 
-	class ATheLastBastionEnemyCharacter* mCurrentTarget;
-	class ATheLastBastionEnemyCharacter* mNextThreat;
-
+	UPROPERTY()
+	    class ATheLastBastionEnemyCharacter* mCurrentTarget;
+	UPROPERTY()
+	    class ATheLastBastionEnemyCharacter* mNextThreat;
 	UPROPERTY()
 		class USphereComponent*    TargetDetector;
-
 	UPROPERTY()
 	TArray<class ATheLastBastionEnemyCharacter*> mPotentialTargets;
 
@@ -46,6 +46,8 @@ public:
 
 	// Called when Melee player enter Focus mode
 	void OnFocus();
+
+	bool OnSwapBetweenMeleeAndRange() override;
 
 public:
 	FORCEINLINE const class ATheLastBastionEnemyCharacter* GetCurrentTarget() const { return mCurrentTarget; }

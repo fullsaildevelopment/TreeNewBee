@@ -71,13 +71,18 @@ void UInGameHUD::LoadPlayerProfile(const FPlayerProfile & _profile)
 	PlayerRow->InitByPlayerProfile(_profile);
 	bIsRanger = _profile.bIsRangerClass;
 	if (bIsRanger)
-	{
-		
+	{		
 		CrossHair->SetVisibility(ESlateVisibility::Hidden);
 		ProjectileCount_Text->SetVisibility(ESlateVisibility::Hidden);
 	}
+}
 
+void UInGameHUD::LoadPlayerProfile_Sp(const FPlayerProfile & _profile)
+{
+	PlayerRow->InitByPlayerProfile(_profile);
 
+	CrossHair->SetVisibility(ESlateVisibility::Hidden);
+	ProjectileCount_Text->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UInGameHUD::InitStats(const UHeroStatsComponent * _heroStats)
@@ -93,6 +98,21 @@ void UInGameHUD::SetHpOnHealthChange(const UPawnStatsComponent * _pawnStats)
 
 	PlayerRow->SetHpValue(currentHp, _pawnStats->GetHpMax());
 	PlayerRow->SetHpPercentage(currentHp, _pawnStats->GetDivByHpMax());
+}
+
+void UInGameHUD::ToggleFireMode(bool _val)
+{
+	if (_val == true)
+	{
+		CrossHair->SetVisibility(ESlateVisibility::Visible);
+		ProjectileCount_Text->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		CrossHair->SetVisibility(ESlateVisibility::Hidden);
+		ProjectileCount_Text->SetVisibility(ESlateVisibility::Hidden);
+
+	}
 }
 
 

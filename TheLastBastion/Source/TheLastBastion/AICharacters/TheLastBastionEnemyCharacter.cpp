@@ -152,8 +152,16 @@ void ATheLastBastionEnemyCharacter::OnDead()
 
 void ATheLastBastionEnemyCharacter::Kill()
 {
+	
+	// Destroy all the actor attach on our mesh
+	TArray<USceneComponent*> children = GetMesh()->GetAttachChildren();
+
+	for (int i = 0; i < children.Num(); i++)
+	{
+		children[i]->GetOwner()->Destroy();
+	}
+
 	Destroy();
-	PawnStats->OnKill();
 }
 
 
