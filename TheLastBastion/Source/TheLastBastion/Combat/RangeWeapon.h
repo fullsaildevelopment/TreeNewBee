@@ -28,6 +28,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "RangeWeapon")
 	float BulletSpeed;
 
+	// Bullet Spread in Degrees
+	float BulletSpread;
+
 public:
 	// Sets default values for this actor's properties
 	ARangeWeapon();
