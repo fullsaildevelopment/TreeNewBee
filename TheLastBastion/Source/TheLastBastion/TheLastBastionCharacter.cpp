@@ -87,6 +87,7 @@ void ATheLastBastionCharacter::LocateAllCharacterClass()
 	if (TLBCharacterClass[(int)(ECharacterType::LanTrooper_T0)] == nullptr)
 		UCustomType::FindClass<ACharacter>(TLBCharacterClass[(int)(ECharacterType::LanTrooper_T0)],
 			TEXT("/Game/Blueprints/AI/Lannester/Lan_Trooper_T0"));
+
 }
 
 void ATheLastBastionCharacter::BeginPlay()
@@ -107,6 +108,7 @@ void ATheLastBastionCharacter::CharacterCustomInit()
 	switch (CharacterType)
 	{
 	case ECharacterType::LanTrooper_T0:
+	case ECharacterType::LanCB_T0:
 		GetCharacterMovement()->bUseControllerDesiredRotation = true;
 		GetCharacterMovement()->bOrientRotationToMovement = false;
 		break;
