@@ -49,7 +49,7 @@ void UAIBase_AnimInstance::Attack(EAIMeleeAttackType _attackType)
 {
 }
 
-void UAIBase_AnimInstance::Fire()
+void UAIBase_AnimInstance::Fire(const AActor * _target)
 {
 }
 

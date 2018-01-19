@@ -6,8 +6,7 @@
 #include "Projectile.h"
 #include "DrawDebugHelpers.h"
 
-#define ECC_EnemyBody ECollisionChannel::ECC_GameTraceChannel3
-#define ECC_HeroBody  ECollisionChannel::ECC_GameTraceChannel1
+
 #define CLOSESHOTDISTANCE 350
 static FName MuzzleSocketName =TEXT( "MuzzleSocket");
 static FName LaunchLocationName = TEXT("LaunchLocation");
@@ -22,6 +21,7 @@ ARangeWeapon::ARangeWeapon()
 	// initialize variables
 	ShootingRange = 10000.0f;
 	BulletSpeed = 1500.0f;
+	BulletSpread = 5.0f;
 }
 
 void ARangeWeapon::BeginPlay()
@@ -32,7 +32,7 @@ void ARangeWeapon::BeginPlay()
 
 void ARangeWeapon::Fire()
 {   
-	UE_LOG(LogTemp, Warning, TEXT("Fire in the hole"));
+	//UE_LOG(LogTemp, Warning, TEXT("Fire in the hole"));
 
 	GearOwner = Cast<ATheLastBastionCharacter>(GetOwner());
 
@@ -58,9 +58,10 @@ void ARangeWeapon::Fire()
 		bool const IsHit = GetWorld()->LineTraceSingleByChannel(Hit, EyesLocation, TraceEnd, ECollisionChannel::ECC_Visibility);
 		if (IsHit)
 		{
+
 			// Override TracerEndPoint when bullet get blocked
 			ImpactPoint = Hit.ImpactPoint;
-			UE_LOG(LogTemp, Log, TEXT("Hit Distance, %f"), Hit.Distance);
+			UE_LOG(LogTemp, Log, TEXT("Hit on, %s"), *Hit.GetActor()->GetName());
 
 		}
 
@@ -94,3 +95,80 @@ void ARangeWeapon::Fire()
 		DrawDebugLine(GetWorld(), LaunchLocation, TraceEnd, FColor::Green, false, 2.0f, 0, 1.0f);
 	}
 }
+
+void ARangeWeapon::NPCFire(const AActor* _target)
+{
+
+	GearOwner = Cast<ATheLastBastionCharacter>(GetOwner());
+
+	// Trace the world from pawn eyes to crosshair location
+	if (GearOwner != nullptr && ProjectileClassBP != nullptr)
+	{
+		const AActor* TargetActor = _target;
+		// Correctly Spawn the projectile
+		FVector MuzzleLocation = MeshComp->GetSocketLocation(MuzzleSocketName);
+		FRotator MuzzleRotation = MeshComp->GetSocketRotation(MuzzleSocketName);
+
+		// Create and Initialize the spawn parameters for the projectile
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParams.Owner = this;
+
+		AProjectile* CrossbowProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClassBP, MuzzleLocation, MuzzleRotation, SpawnParams);
+
+		// Calculate the velocity for the projectile
+		FVector FlyDir = (TargetActor->GetActorLocation() - MuzzleLocation).GetSafeNormal();
+
+		// Bullet Spread
+		float HalfRad = FMath::DegreesToRadians(BulletSpread);
+		FlyDir = FMath::VRandCone(FlyDir, HalfRad, HalfRad);
+
+		CrossbowProjectile->GetProjectileMovementComp()->Velocity = FlyDir * BulletSpeed;
+
+	}
+
+
+
+
+
+	//ATheLastBastionEnemyCharacter* RangeEnemyCharacter = Cast<ATheLastBastionEnemyCharacter>(GearOwner);
+
+	//// Check if the gearowner is a enemy character
+	//if (RangeEnemyCharacter)
+	//{
+	//	// Get the AI Controller from the enemy
+	//	ATheLastBastionBaseAIController* EnemyAIController = Cast<ATheLastBastionBaseAIController>(RangeEnemyCharacter->GetController());
+	//	if (EnemyAIController)
+	//	{
+	//		// Get Enemy's target actor location to initialize velocity for projectile
+	//		UBehaviorTreeComponent* BehaviorTreeComp = EnemyAIController->GetBTComp();
+	//		if (BehaviorTreeComp)
+	//		{
+	//			UBlackboardComponent* BlackboardComp = BehaviorTreeComp->GetBlackboardComponent();
+	//			if (BlackboardComp)
+	//			{
+	//			}
+	//			else
+	//			{
+	//				UE_LOG(LogTemp, Warning, TEXT("Can't get Blackboard Component from BehaviorTree Component"));
+	//				return;
+	//			}
+
+	//		}
+	//		else
+	//		{
+	//			UE_LOG(LogTemp, Warning, TEXT("Can't find Enemy AI BehaviorTreeComp"));
+	//			return;
+	//		}
+
+	//	}
+	//	else
+	//	{
+	//		UE_LOG(LogTemp, Warning, TEXT("Can't find Enemy AI Controller"));
+	//		return;
+	//	}
+	//}
+}
+
+
+

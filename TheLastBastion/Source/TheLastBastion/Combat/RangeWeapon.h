@@ -39,6 +39,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void Fire();
 
+	UFUNCTION(BlueprintCallable)
+	virtual void NPCFire(const AActor* _target);
+
 protected:
 	virtual void BeginPlay() override;
 };

@@ -47,6 +47,8 @@ EBTNodeResult::Type UBTTask_RangeAttack::ExecuteTask(UBehaviorTreeComponent & Ow
 	float distanceSqr = (targetActor->GetActorLocation() - me->GetActorLocation()).SizeSquared();
 	bbc->SetValue<UBlackboardKeyType_Float>(enemyC->GetKeyID_ToTargetActorDistanceSqr(), distanceSqr);
 
+	const AActor* target = Cast<AActor>(bbc->GetValue<UBlackboardKeyType_Object>(enemyC->GetKeyID_TargetActor()));
+
 	if (distanceSqr > RangeAttackDistanceSqr)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Is too far too attack, failed this task, and move to next task"));
@@ -54,7 +56,7 @@ EBTNodeResult::Type UBTTask_RangeAttack::ExecuteTask(UBehaviorTreeComponent & Ow
 	}
 	else
 	{
-		animRef->Fire();
+		animRef->Fire(target);
 		NodeResult = EBTNodeResult::Succeeded;
 
 		return NodeResult;

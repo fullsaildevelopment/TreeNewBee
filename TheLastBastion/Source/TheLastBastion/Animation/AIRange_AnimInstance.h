@@ -42,7 +42,7 @@ public:
 #pragma region Anim Notification
 
 	UFUNCTION(BlueprintCallable)
-		void Fire() override;
+		void Fire(const AActor * _target) override;
 
 	//UFUNCTION(BlueprintCallable)
 	//	/** Called at the end of attack frame, and let BT know attack is finished*/

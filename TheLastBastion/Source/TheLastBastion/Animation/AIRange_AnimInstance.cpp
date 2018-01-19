@@ -44,16 +44,16 @@ void UAIRange_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMon
 
 }
 
-void UAIRange_AnimInstance::Fire()
-{   
+void UAIRange_AnimInstance::Fire(const AActor * _target)
+{
 	if (mCharacter)
-	{   
-		ARangeWeapon* RangeWeapon = Cast<ARangeWeapon>(mCharacter->GetEnemyStatsComponent()->GetRightHandWeapon());
+	{
+		ARangeWeapon* RangeWeapon = Cast<ARangeWeapon>(mCharacter->GetEnemyStatsComponent()->GetCurrentRightHandWeapon());
 
 		if (RangeWeapon)
-		{   
+		{
 			bAim = true;
-			RangeWeapon->Fire();
+			RangeWeapon->NPCFire(_target);
 			FName sectionToPlay;
 			//sectionToPlay = TEXT("SingleShot");
 			sectionToPlay = TEXT("PowerShot");
@@ -62,7 +62,9 @@ void UAIRange_AnimInstance::Fire()
 			UE_LOG(LogTemp, Log, TEXT("FIre"));
 		}
 	}
+
 }
+
 
 //void UAIRange_AnimInstance::FinishAttack()
 //{

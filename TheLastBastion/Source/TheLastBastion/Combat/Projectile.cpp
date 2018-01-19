@@ -98,12 +98,6 @@ void AProjectile::Tick(float _deltaTime)
 		Params.bReturnPhysicalMaterial = true;
 		Params.bTraceComplex = true;
 
-		//ObjectParams.AddObjectTypesToQuery(ECC_EnemyBody);
-		//ObjectParams.AddObjectTypesToQuery(ECC_HeroBody);
-		//ObjectParams.AddObjectTypesToQuery(ECC_EnemyWeapon);
-		//ObjectParams.AddObjectTypesToQuery(ECC_HeroWeapon);
-		//ObjectParams.AddObjectTypesToQuery(ECC_WorldStatic);
-
 		if (ObjectParams.IsValid() == false)
 		{
 			UE_LOG(LogTemp, Error, TEXT("Invalid object types -  AProjectile::Tick"));

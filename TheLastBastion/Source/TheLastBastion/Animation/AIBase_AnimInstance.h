@@ -88,7 +88,7 @@ public:
 	virtual void Attack(EAIMeleeAttackType _attackType);
 
 	// Called when an enemy BT decide to shot from far range
-	virtual void Fire();
+	virtual void Fire(const AActor* _target);
 
 	// Called When Attack Sequence is done by the end of animation sequence
 	virtual void FinishAttack();
