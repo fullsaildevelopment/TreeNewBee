@@ -17,6 +17,8 @@ ASpawnVolumn::ASpawnVolumn()
 	MinimumSpawnDelay = 10.0f;
 	MaximumSpawnDelay = 20.0f;
 
+	bActivated = false;
+
 
 }
 
@@ -40,7 +42,7 @@ void ASpawnVolumn::Tick(float DeltaTime)
 
 void ASpawnVolumn::Spawn()
 {
-	if (TrooperTier0 != nullptr)
+	if (TrooperTier0 != nullptr && bActivated)
 	{
 		UWorld* const world = GetWorld();
 		if (world)

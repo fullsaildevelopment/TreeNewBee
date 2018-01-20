@@ -87,7 +87,6 @@ void ATheLastBastionCharacter::LocateAllCharacterClass()
 	if (TLBCharacterClass[(int)(ECharacterType::LanTrooper_T0)] == nullptr)
 		UCustomType::FindClass<ACharacter>(TLBCharacterClass[(int)(ECharacterType::LanTrooper_T0)],
 			TEXT("/Game/Blueprints/AI/Lannester/Lan_Trooper_T0"));
-
 }
 
 void ATheLastBastionCharacter::BeginPlay()

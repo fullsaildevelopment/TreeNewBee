@@ -29,7 +29,6 @@ public:
 
 protected:
 
-	FTimerHandle mSpawnTimer;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning, meta = (AllowPrivateAccess = "true"))
 		float MinimumSpawnDelay;
@@ -37,8 +36,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning, meta = (AllowPrivateAccess = "true"))
 		float MaximumSpawnDelay;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning, meta = (AllowPrivateAccess = "true"))
+		bool bActivated;
+
 
 private:
+
+	FTimerHandle mSpawnTimer;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning, meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* mSpawnVolumn;
