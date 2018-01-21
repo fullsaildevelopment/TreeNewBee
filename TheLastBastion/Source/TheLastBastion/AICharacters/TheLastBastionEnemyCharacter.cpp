@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TheLastBastionEnemyCharacter.h"
+#include "GameMode/SinglePlayerGM.h"
+#include "Kismet/GameplayStatics.h"
 #include "Combat/PawnStatsComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -139,15 +141,23 @@ void ATheLastBastionEnemyCharacter::OnDead()
 	UInGameAIHUD* aiHUD = Cast<UInGameAIHUD>(InfoHUD->GetUserWidgetObject());
 	aiHUD->ToggleUI(false, false);
 
+	// condition for ragdoll
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+	// disable BT
 	ATheLastBastionBaseAIController* enemyC = Cast<ATheLastBastionBaseAIController>(GetController());
 	enemyC->UnPossess();
 	enemyC->Destroy();
 	
 	GetWorldTimerManager().SetTimer(mKillTimer, this, &ATheLastBastionEnemyCharacter::Kill, 1.0f, false, 10.0f);
+
+	// Tell GM that I am dead
+	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	gm->UpdateEnemyAmount(-1);
+	
 }
 
 void ATheLastBastionEnemyCharacter::Kill()
@@ -160,6 +170,10 @@ void ATheLastBastionEnemyCharacter::Kill()
 	{
 		children[i]->GetOwner()->Destroy();
 	}
+
+
+	
+
 
 	Destroy();
 }

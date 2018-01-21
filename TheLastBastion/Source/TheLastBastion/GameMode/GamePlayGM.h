@@ -65,9 +65,6 @@ private:
 		/** Number of player are already begin play*/
 		int CurrentNumOfPlayersInGame;
 
-
-
-
 public:
 
 	UFUNCTION()

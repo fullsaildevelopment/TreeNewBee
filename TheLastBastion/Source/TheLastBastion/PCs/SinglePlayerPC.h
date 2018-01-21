@@ -20,18 +20,27 @@ public:
 	
 private:
 
-	TSubclassOf<UUserWidget> InGameHuD_WBPClass;
-
+	UPROPERTY()
+		TSubclassOf<UUserWidget> InGameHuD_WBPClass;
 	UPROPERTY()
 		class UInGameHUD*                  mInGameHUD;
 
+
+	UPROPERTY()
+		TSubclassOf<UUserWidget> SmithShop_WBPClass;
+	UPROPERTY()
+		class UUserWidget*                 mSmithShopHUD;
+
+	
 	struct FPlayerProfile   playerProfile;
 
 public:
 
 
+
 	UFUNCTION()
 		void OnPostLogin();
+
 	UFUNCTION()
 		void OnFinishSeamlessTravel();
 
@@ -40,6 +49,12 @@ public:
 
 	UFUNCTION()
 		void OnHealthChange(const class UPawnStatsComponent* _heroStats);
+
+	UFUNCTION(Exec)
+		void OpenSmithShop();
+
+	UFUNCTION(Exec)
+		void CloseSmithShop();
 
 	FORCEINLINE class UInGameHUD* GetInGameHUD() const { return mInGameHUD; }
 

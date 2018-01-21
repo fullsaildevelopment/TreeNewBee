@@ -49,6 +49,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = DamageCalculation)
 		TSubclassOf <class UDamageType> DamageType;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = UI)
+		/** Visual appearence as UI element*/
+		UTexture2D* ThumbNail;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = UI)
+		/** Name Showed Up On UI */
+		FText Name;
 
 private:
 
@@ -85,13 +92,12 @@ private:
 	
 public:
 
-	virtual void Equip(class USkeletalMeshComponent* const _skeletonMeshComponent);
-
-	virtual void Arm(class USkeletalMeshComponent* const _skeletonMeshComponent);
-	
-	virtual void SetDamageIsEnabled(bool _val);
 
 	FORCEINLINE class ATheLastBastionCharacter* GetGearOwner() const { return GearOwner; }
+	FORCEINLINE TSubclassOf<AGear> GetLeftHandGear() const { return LeftHand; }
+	FORCEINLINE EGearType GetGearType() const { return GearType; }
+	FORCEINLINE virtual class USceneComponent* GetMesh() const { return nullptr; }
+	FORCEINLINE TSubclassOf<class UDamageType> GetDamageType() { return DamageType; }
 
 	FORCEINLINE float GetHpBonus() const { return HpBonus;}
 	FORCEINLINE float GetStaminaBonus() const { return StaminaBonus; }
@@ -99,27 +105,25 @@ public:
 	FORCEINLINE float GetElementalDamage() const { return ElementalDamage; }
 	FORCEINLINE float GetFireDamage() const { return FireDamage; }
 	FORCEINLINE float GetIceDamage() const { return IceDamage; }
-
 	FORCEINLINE float GetPhysicalDefence() const { return PhysicalDefence; }
 	FORCEINLINE float GetElementalDefence() const { return ElementalDefence; }
 	FORCEINLINE float GetFireDefence() const { return FireDefence; }
 	FORCEINLINE float GetIceDefence() const { return IceDefence; }
+	
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE FText GetName() const { return Name; }
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE UTexture2D* GetThumbNailImage() const { return ThumbNail; }
 
 
-	FORCEINLINE TSubclassOf<AGear> GetLeftHandGear() const { return LeftHand; }
+
+	virtual void SetDamageIsEnabled(bool _val);
 
 
-	FORCEINLINE EGearType GetGearType() const { return GearType; }
-
-	FORCEINLINE virtual class USceneComponent* GetMesh() const { return nullptr; }
-
-	FORCEINLINE TSubclassOf<class UDamageType> GetDamageType() { return DamageType; }
-
+	virtual void Equip(class USkeletalMeshComponent* const _skeletonMeshComponent);
+	virtual void Arm(class USkeletalMeshComponent* const _skeletonMeshComponent);
 	void ToggleVisibilty(bool _val);
-
 	void CombineDamage(const AGear* _other);
-
-
 
 };
 

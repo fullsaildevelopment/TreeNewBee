@@ -686,7 +686,6 @@ void UHero_AnimInstance::SkipEquip()
 		bIsSprinting = false;
 	}
 	bVelocityOverrideByAnim = false;
-	bTryToJump = true;
 	DisableJump();
 }
 

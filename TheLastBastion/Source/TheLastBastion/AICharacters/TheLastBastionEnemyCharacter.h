@@ -75,7 +75,10 @@ public:
 
 private:
 
+	// Called on Hp = 0;
 	void OnDead();
+
+	// Called on actor destroyed
 	void Kill();
 
 };

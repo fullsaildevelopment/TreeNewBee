@@ -14,6 +14,10 @@ ASinglePlayerPC::ASinglePlayerPC(const FObjectInitializer & _objInit) : Super(_o
 {
 	if (!InGameHuD_WBPClass)
 		UCustomType::FindClass<UUserWidget>(InGameHuD_WBPClass, TEXT("/Game/UI/In-Game/WBP_InGameHUD"));
+
+	if (!SmithShop_WBPClass)
+		UCustomType::FindClass<UUserWidget>(SmithShop_WBPClass, TEXT("/Game/UI/In-Game/WBP_SmithShop"));
+
 }
 
 void ASinglePlayerPC::OnPostLogin()
@@ -61,7 +65,10 @@ void ASinglePlayerPC::OnFinishSeamlessTravel()
 void ASinglePlayerPC::InitUIOnBeginPlay(const UHeroStatsComponent * _heroStats)
 {
 	if (mInGameHUD)
+	{
 		mInGameHUD->InitStats(_heroStats);
+
+	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("mInGameHUD is NULL - AGamePC::CLIENT_InitUI_Implementation"));
@@ -73,6 +80,39 @@ void ASinglePlayerPC::OnHealthChange(const UPawnStatsComponent * _heroStats)
 	if (mInGameHUD)
 		mInGameHUD->SetHpOnHealthChange(_heroStats);
 }
+
+
+void ASinglePlayerPC::OpenSmithShop()
+{
+	if (mSmithShopHUD != nullptr)
+		mSmithShopHUD->AddToViewport();
+	else
+	{
+		if (SmithShop_WBPClass)
+		{
+			mSmithShopHUD = CreateWidget <UUserWidget>(this, SmithShop_WBPClass);
+			if (mSmithShopHUD != nullptr)
+			{
+				mSmithShopHUD->AddToViewport();
+			}
+		}
+		else
+			UE_LOG(LogTemp, Warning, TEXT("Widget Class not Set - ASinglePlayerPC::ShowSmithShop"));
+	}
+	bShowMouseCursor = true;
+}
+
+void ASinglePlayerPC::CloseSmithShop()
+{
+	if (mSmithShopHUD)
+	{
+		mSmithShopHUD->RemoveFromParent();
+		bShowMouseCursor = false;
+	}
+}
+
+
+
 
 void ASinglePlayerPC::SaveGameCheck()
 {
