@@ -29,6 +29,7 @@ protected:
 	float BulletSpeed;
 
 	// Bullet Spread in Degrees
+	UPROPERTY(EditDefaultsOnly, Category = "RangeWeapon")
 	float BulletSpread;
 
 public:

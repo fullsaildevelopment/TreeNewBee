@@ -20,7 +20,7 @@ EBTNodeResult::Type UBTTask_RangeAttack::ExecuteTask(UBehaviorTreeComponent & Ow
 		return NodeResult;
 	}
 
-	UAIBase_AnimInstance* animRef = enemyC->GetAnimInstance();
+	UAIRange_AnimInstance* animRef = Cast<UAIRange_AnimInstance>(enemyC->GetAnimInstance());
 	if (animRef == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("animRef is NULL - UBTTask_RangeAttack::ExecuteTask"));
@@ -52,6 +52,7 @@ EBTNodeResult::Type UBTTask_RangeAttack::ExecuteTask(UBehaviorTreeComponent & Ow
 	if (distanceSqr > RangeAttackDistanceSqr)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Is too far too attack, failed this task, and move to next task"));
+		animRef->StopFire();
 		return NodeResult;
 	}
 	else

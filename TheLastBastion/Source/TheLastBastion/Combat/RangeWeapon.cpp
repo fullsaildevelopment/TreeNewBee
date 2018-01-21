@@ -21,7 +21,7 @@ ARangeWeapon::ARangeWeapon()
 	// initialize variables
 	ShootingRange = 10000.0f;
 	BulletSpeed = 1500.0f;
-	BulletSpread = 5.0f;
+	BulletSpread = 50.0f;
 }
 
 void ARangeWeapon::BeginPlay()
@@ -103,7 +103,8 @@ void ARangeWeapon::NPCFire(const AActor* _target)
 	// Trace the world from pawn eyes to crosshair location
 	if (GearOwner != nullptr && ProjectileClassBP != nullptr)
 	{
-		const AActor* TargetActor = _target;
+		const ACharacter* TargetActor = Cast<ACharacter>( _target);
+
 		// Correctly Spawn the projectile
 		FVector MuzzleLocation = MeshComp->GetSocketLocation(MuzzleSocketName);
 		FRotator MuzzleRotation = MeshComp->GetSocketRotation(MuzzleSocketName);
@@ -121,18 +122,29 @@ void ARangeWeapon::NPCFire(const AActor* _target)
 		QueryParams.bTraceComplex = true;
 		QueryParams.bReturnPhysicalMaterial = false;
 		FHitResult Hit;
-		bool const IsHit = GetWorld()->LineTraceSingleByChannel(Hit, MuzzleLocation, TargetActor->GetActorLocation(), ECollisionChannel::ECC_Visibility);
+
+
+		FVector TraceEnd = TargetActor->GetActorLocation();
+
+		// Make Precision and prediction
+		float VerticalRandomOffset = FMath::RandRange(0.0f, 1.0f)*BulletSpread;
+		TraceEnd += FVector(0, 0, VerticalRandomOffset);
+		//TODO: horizontal offset
+
+		//TODO: predication
+
+		bool const IsHit = GetWorld()->LineTraceSingleByChannel(Hit, MuzzleLocation, TraceEnd, ECollisionChannel::ECC_Visibility);
 		if (IsHit)
 		{
 			//UE_LOG(LogTemp, Log, TEXT(""))
 		}
 
 		// Calculate the velocity for the projectile
-		FVector FlyDir = (TargetActor->GetActorLocation() - MuzzleLocation).GetSafeNormal();
+		FVector FlyDir = (TraceEnd - MuzzleLocation).GetSafeNormal();
 
 		// Bullet Spread
-		float HalfRad = FMath::DegreesToRadians(BulletSpread);
-		FlyDir = FMath::VRandCone(FlyDir, HalfRad, HalfRad);
+		// float HalfRad = FMath::DegreesToRadians(BulletSpread);
+		// FlyDir = FMath::VRandCone(FlyDir, HalfRad, HalfRad);
 
 		CrossbowProjectile->GetProjectileMovementComp()->Velocity = FlyDir * BulletSpeed;
 

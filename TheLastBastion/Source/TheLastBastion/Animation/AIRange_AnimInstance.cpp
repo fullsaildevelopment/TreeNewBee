@@ -58,13 +58,17 @@ void UAIRange_AnimInstance::Fire(const AActor * _target)
 			//sectionToPlay = TEXT("SingleShot");
 			sectionToPlay = TEXT("PowerShot");
 			PlayMontage(Fire_Montage, 1.0f, sectionToPlay);
-			bAim = false;
+			//bAim = false;
 			UE_LOG(LogTemp, Log, TEXT("FIre"));
 		}
 	}
 
 }
 
+void UAIRange_AnimInstance::StopFire()
+{
+	bAim = false;
+}
 
 //void UAIRange_AnimInstance::FinishAttack()
 //{

@@ -44,6 +44,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void Fire(const AActor * _target) override;
 
+	UFUNCTION(BlueprintCallable)
+		void StopFire();
+
 	//UFUNCTION(BlueprintCallable)
 	//	/** Called at the end of attack frame, and let BT know attack is finished*/
 	//	void FinishAttack() override;
