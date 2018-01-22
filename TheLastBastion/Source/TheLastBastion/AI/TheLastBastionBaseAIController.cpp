@@ -59,13 +59,15 @@ void ATheLastBastionBaseAIController::Possess(APawn* _possPawn)
 	}
 
 	mBBComp->InitializeBlackboard(*bbData);
+	Blackboard = mBBComp;
 
 	// Fetch the Keys
 	targetActor_KeyID = mBBComp->GetKeyID("targetActor");
 	ToTargetActorDistanceSqr_KeyId = mBBComp->GetKeyID("ToTargetActorDistanceSqr");
+	CurrentActionState_KeyID = mBBComp->GetKeyID("CurrentActionState");
 
 	mBBComp->SetValue<UBlackboardKeyType_Float>(ToTargetActorDistanceSqr_KeyId, MAX_FLT);
-
+	mBBComp->SetValue<UBlackboardKeyType_Enum>(CurrentActionState_KeyID, static_cast<UBlackboardKeyType_Enum::FDataType>(EAIActionState::None));
 	UE_LOG(LogTemp, Warning, TEXT("Possess, %s"), *_possPawn->GetName());
 
 	// Launch behavior Tree
@@ -94,4 +96,17 @@ void ATheLastBastionBaseAIController::BeginPlay()
 	//		return;
 	//	}
 	//}
+}
+
+void ATheLastBastionBaseAIController::OnBeingHit(ECharacterType _characterType)
+{
+
+	switch (_characterType)
+	{
+	case ECharacterType::LanCB_T0:
+	default:
+		mBBComp->SetValue<UBlackboardKeyType_Enum>(CurrentActionState_KeyID, 
+			static_cast<UBlackboardKeyType_Enum::FDataType>(EAIActionState::GettingHurt));
+		break;
+	}
 }

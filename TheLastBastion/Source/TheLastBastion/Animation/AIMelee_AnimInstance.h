@@ -67,17 +67,7 @@ public:
 	void OnBeingHit(float _damage, FName boneName,
 		const FVector& _shotFromDirection, const FVector& _hitLocation, const class UPawnStatsComponent* _pawnStats) override;
 
-private:
 
-
-	void SyncMotionForMeleeAttack();
-
-	void SyncMotionForGettingHurt();
-
-	FName HitReaction_SHSword(FName boneName, const FVector & _shotFromDirection, const FVector& _hitLocation);
-
-
-	
 
 protected:
 

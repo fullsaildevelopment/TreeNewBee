@@ -29,6 +29,21 @@ enum class EAIMeleeAttackType : uint8
 };
 
 
+#define HEADBONE TEXT("neck_01")
+#define RIGHTLEGBONE TEXT("calf_r")
+#define LEFTLEGBONE TEXT("calf_l")
+#define SH_HitReaction_HEAD_RIGHT      TEXT("Head_R")
+#define SH_HitReaction_HEAD_LEFT       TEXT("Head_L")
+#define SH_HitReaction_HEAD_FRONT      TEXT("Head_F")
+#define SH_HitReaction_BODY_RIGHT      TEXT("Body_R")
+#define SH_HitReaction_BODY_LEFT       TEXT("Body_L")
+#define SH_HitReaction_BODY_FRONT      TEXT("Body_F")
+#define SH_HitReaction_LEG_RIGHT       TEXT("Leg_R")
+#define SH_HitReaction_LEG_LEFT        TEXT("Leg_L")
+
+
+
+
 DECLARE_DELEGATE_OneParam(FOnFinishAttackSignature, class UBehaviorTreeComponent*);
 DECLARE_DELEGATE_OneParam(FOnRecoverFromHitSignature, class UBehaviorTreeComponent*);
 
@@ -90,11 +105,21 @@ public:
 	// Called when an enemy BT decide to shot from far range
 	virtual void Fire(const AActor* _target);
 
+	virtual void StopFire();
+
 	// Called When Attack Sequence is done by the end of animation sequence
 	virtual void FinishAttack();
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE EAIActionState GetCurrentActionState() const {return CurrentActionState;}
+
+protected:
+
+	void SyncMotionForMeleeAttack();
+
+	void SyncMotionForGettingHurt();
+
+	FName HitReaction_SHSword(FName boneName, const FVector & _shotFromDirection, const FVector& _hitLocation);
 
 
 };

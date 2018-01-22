@@ -9,6 +9,8 @@
 /**
  * 
  */
+enum class ECharacterType : uint8;
+
 UCLASS()
 class THELASTBASTION_API ATheLastBastionBaseAIController : public AAIController
 {
@@ -37,8 +39,8 @@ private:
 
 	uint8
 		targetActor_KeyID,
+		CurrentActionState_KeyID,
 		ToTargetActorDistanceSqr_KeyId;
-
 
 public:
 
@@ -57,4 +59,8 @@ public:
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE uint8 GetKeyID_ToTargetActorDistanceSqr() const { return ToTargetActorDistanceSqr_KeyId; }
 
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE uint8 GetKeyID_CurrentActionState() const { return CurrentActionState_KeyID; }
+
+	void OnBeingHit(ECharacterType _characterType);
 };

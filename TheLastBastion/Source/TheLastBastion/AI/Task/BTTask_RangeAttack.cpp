@@ -57,8 +57,13 @@ EBTNodeResult::Type UBTTask_RangeAttack::ExecuteTask(UBehaviorTreeComponent & Ow
 	}
 	else
 	{
-		animRef->Fire(target);
-		NodeResult = EBTNodeResult::Succeeded;
+
+		if (animRef->GetCurrentActionState() == EAIActionState::None)
+		{
+			animRef->Fire(target);
+			NodeResult = EBTNodeResult::Succeeded;
+			return NodeResult;
+		}
 
 		return NodeResult;
 	}

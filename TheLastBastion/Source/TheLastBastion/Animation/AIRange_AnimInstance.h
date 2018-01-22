@@ -39,13 +39,16 @@ protected:
 
 
 public:
-#pragma region Anim Notification
 
 	UFUNCTION(BlueprintCallable)
 		void Fire(const AActor * _target) override;
 
 	UFUNCTION(BlueprintCallable)
-		void StopFire();
+		void StopFire() override;
+
+	void OnBeingHit(float _damage, FName boneName,
+		const FVector& _shotFromDirection, const FVector& _hitLocation, const class UPawnStatsComponent* _pawnStats) override;
+
 
 	//UFUNCTION(BlueprintCallable)
 	//	/** Called at the end of attack frame, and let BT know attack is finished*/

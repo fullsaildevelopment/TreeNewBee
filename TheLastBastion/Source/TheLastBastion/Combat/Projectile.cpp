@@ -73,7 +73,7 @@ void AProjectile::BeginPlay()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("RangeWeapon is NULL - AProjectile::BeginPlay"));
+		//UE_LOG(LogTemp, Error, TEXT("RangeWeapon is NULL - AProjectile::BeginPlay"));
 	}
 
 }
