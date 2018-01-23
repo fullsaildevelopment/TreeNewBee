@@ -33,17 +33,21 @@ private:
 protected:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = DamageCollision)
-		bool bDisableCutOpenDamage;
-	UPROPERTY(BlueprintReadOnly, Category = DamageCollsion)
+		bool bEnableCutOpenDamage;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = DamageCollision)
+		bool bShowBounding;
+
+	UPROPERTY(BlueprintReadOnly, Category = DamageCollision)
 		bool bDamageIsEnable;
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = DamageCollsion)
-		float DamageEdgeOffset_start;
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = DamageCollsion)
-		float DamageEdgeOffset_end;
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = DamageCollsion)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = DamageCollision)
+		FVector DamageEdgeOffset_start;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = DamageCollision)
+		FVector DamageEdgeOffset_end;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = DamageCollision)
 		FVector DamageVolumnExtend;
 
-	UPROPERTY(BlueprintReadOnly, Category = DamageCollsion)
+	UPROPERTY(BlueprintReadOnly, Category = DamageCollision)
 		/** The actor to ignore in one slash*/
 		TArray<AActor*> IgnoredActors;
 

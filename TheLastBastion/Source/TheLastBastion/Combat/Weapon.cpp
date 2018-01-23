@@ -5,6 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "AICharacters/TheLastBastionEnemyCharacter.h"
 #include "Combat/PawnStatsComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 
 #define ECC_EnemyBody ECollisionChannel::ECC_GameTraceChannel3
@@ -15,12 +16,13 @@ AWeapon::AWeapon()
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Appearence"));
 	Mesh->SetCollisionProfileName("EnemyWeapon");
 	RootComponent = Mesh;
-	DamageEdgeOffset_start = 95.0f;
-	DamageEdgeOffset_end = 15.0f;
+	DamageEdgeOffset_start = FVector(0, 0, 95.0f);
+	DamageEdgeOffset_end = FVector(0, 0, 15.0f);
 	DamageVolumnExtend = FVector(3.0f, 3.0f, 0.0f);
 	PrimaryActorTick.bCanEverTick = true;
 	bDamageIsEnable = false;
-	bDisableCutOpenDamage = true;
+	bEnableCutOpenDamage = false;
+	bShowBounding = false;
 }
 
 void AWeapon::BeginPlay()
@@ -41,35 +43,80 @@ void AWeapon::SetDamageIsEnabled(bool _val)
 void AWeapon::Tick(float _deltaTime)
 {
 
+
+	if (bShowBounding)
+	{
+		FVector startPosition, endPosition;
+
+		//startPosition = GetActorLocation() + DamageEdgeOffset_start;
+		//endPosition   = GetActorLocation() + DamageEdgeOffset_end;
+
+		switch (GearType)
+		{
+		case EGearType::SingleHandWeapon:
+		{
+			startPosition = GetActorLocation() + GetActorUpVector() * DamageEdgeOffset_start.Z;
+			endPosition = GetActorLocation() + GetActorUpVector() * DamageEdgeOffset_end.Z;
+			break;
+		}
+		case EGearType::DoubleHandWeapon:
+		case EGearType::HeavyWeapon:
+		{
+			startPosition = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_start;
+			endPosition = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_end;
+			break;
+		}
+		case EGearType::TwinBlade:
+		{
+			startPosition = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_start;
+			endPosition = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_end;
+			break;
+		}
+		default:
+			break;
+		}
+
+
+		FHitResult _hit;
+		const TArray<AActor* > ignoreActors;
+		UKismetSystemLibrary::BoxTraceSingle(GetWorld(), startPosition, endPosition, DamageVolumnExtend, this->GetActorRotation(),
+			ETraceTypeQuery::TraceTypeQuery1, false, ignoreActors, EDrawDebugTrace::ForOneFrame, _hit, true);
+	}
+
+
 	if (bDamageIsEnable)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Damage Enabled !!!!!!!!!!!!"));
 
 		// Get Start End Position
 		FVector startPosition, endPosition;
-		switch (GearType)
-		{
-		case EGearType::SingleHandWeapon:
-		case EGearType::DoubleHandWeapon:
-		default:
-		{
-			startPosition = GetActorLocation() + GetActorUpVector() * DamageEdgeOffset_start;
-			endPosition   = GetActorLocation() + GetActorUpVector() * DamageEdgeOffset_end;
-			break;
-		}
 
-		case EGearType::TwinBlade:
-		{
-			startPosition = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_start;
-			endPosition   = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_end;
-			break;
+		startPosition = GetActorLocation() + DamageEdgeOffset_start;
+		endPosition   = GetActorLocation() + DamageEdgeOffset_end;
 
-		}
-		}
+		//switch (GearType)
+		//{
+		//case EGearType::SingleHandWeapon:
+		//{
+		//	startPosition = GetActorLocation() + GetActorUpVector() * DamageEdgeOffset_start;
+		//	endPosition = GetActorLocation() + GetActorUpVector() * DamageEdgeOffset_end;
+		//	break;
+		//}
+		//case EGearType::DoubleHandWeapon:
+		//case EGearType::HeavyWeapon:
+		//case EGearType::TwinBlade:
+		//{
+		//	startPosition = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_start;
+		//	endPosition   = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_end;
+		//	break;
+		//}
+		//default:
+		//	break;
+		//}
 
 
 		FCollisionQueryParams Params;	
-		if (IgnoredActors.Num() > 0 && bDisableCutOpenDamage)
+		if (IgnoredActors.Num() > 0 && !bEnableCutOpenDamage)
 			Params.AddIgnoredActors(IgnoredActors);
 
 		Params.bReturnPhysicalMaterial = true;
@@ -95,7 +142,7 @@ void AWeapon::Tick(float _deltaTime)
 			FCollisionShape::MakeBox(DamageVolumnExtend), Params);
 		if (IsHit)
 		{
-			if (bDisableCutOpenDamage)
+			if (!bEnableCutOpenDamage)
 				IgnoredActors.Add(DamageInfo.hitResult.GetActor());
 		
 

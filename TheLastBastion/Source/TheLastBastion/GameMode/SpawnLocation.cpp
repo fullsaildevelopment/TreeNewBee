@@ -13,6 +13,10 @@ ASpawnLocation::ASpawnLocation()
 	BoxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
 	RootComponent = BoxComp;
 
+	BoxComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	BoxComp->bGenerateOverlapEvents = false;
+	bIsWorkingLocation = true;
+
 }
 
 // Called when the game starts or when spawned

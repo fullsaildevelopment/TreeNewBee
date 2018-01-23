@@ -33,15 +33,25 @@ protected:
 	virtual void BeginPlay() override;
 
 protected:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		/** Whether if this spawn location is activated for spawing*/
+		bool bIsWorkingLocation;
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LocationType")
 		ESpawnWorldLocation LocationType;
 
 public:
+
+
 	UFUNCTION(BlueprintPure)
 	FVector GetRandomSpawnPoint() const;
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE ESpawnWorldLocation GetSpawnLocationType() const { return LocationType; }
 
-
+	UFUNCTION(BlueprintPure)
+		/** Check to see if this spawn location is activated */
+		FORCEINLINE bool IsWorking() const { return bIsWorkingLocation; }
 };

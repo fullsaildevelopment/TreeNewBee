@@ -133,34 +133,38 @@ void ASinglePlayerGM::SpawnNewEnemy()
 		{   
 			for (int32 i = 0; i < LannesterSpawnLocations_One.Num(); i++)
 			{   
-				int32 EnemyTypeToSpawn = FMath::RandRange(0, 1);
-				FVector RandomSpawnPoint = LannesterSpawnLocations_One[i]->GetRandomSpawnPoint();
-				FActorSpawnParameters spawnParam;
-				spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-				switch (EnemyTypeToSpawn)
+				if (LannesterSpawnLocations_One[i]->IsWorking())
 				{
-				case 0:
-				{
-					ATheLastBastionCharacter* aiPawn = world->SpawnActor<ATheLastBastionCharacter>(LannesterTrooper_T0_BP, RandomSpawnPoint, FRotator::ZeroRotator, spawnParam);
-					if (aiPawn)
-						aiPawn->SpawnDefaultController();
-					else
-						UE_LOG(LogTemp, Warning, TEXT("SomeHow spawner cant spawn .... - ASinglePlayerGM::SpawnNewEnemy"));
+					int32 EnemyTypeToSpawn = FMath::RandRange(0, 1);
+					FVector RandomSpawnPoint = LannesterSpawnLocations_One[i]->GetRandomSpawnPoint();
+					FActorSpawnParameters spawnParam;
+					spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+					switch (EnemyTypeToSpawn)
+					{
+					case 0:
+					{
+						ATheLastBastionCharacter* aiPawn = world->SpawnActor<ATheLastBastionCharacter>(LannesterTrooper_T0_BP, RandomSpawnPoint, FRotator::ZeroRotator, spawnParam);
+						if (aiPawn)
+							aiPawn->SpawnDefaultController();
+						else
+							UE_LOG(LogTemp, Warning, TEXT("SomeHow spawner cant spawn .... - ASinglePlayerGM::SpawnNewEnemy"));
 
-					break;
-				}
-				case 1:
-				{
-					ATheLastBastionCharacter* aiPawn = world->SpawnActor<ATheLastBastionCharacter>(LannesterShooter_T0_BP, RandomSpawnPoint, FRotator::ZeroRotator, spawnParam);
-					if (aiPawn)
-						aiPawn->SpawnDefaultController();
-					else
-						UE_LOG(LogTemp, Warning, TEXT("SomeHow spawner cant spawn .... - ASinglePlayerGM::SpawnNewEnemy"));
+						break;
+					}
+					case 1:
+					{
+						ATheLastBastionCharacter* aiPawn = world->SpawnActor<ATheLastBastionCharacter>(LannesterShooter_T0_BP, RandomSpawnPoint, FRotator::ZeroRotator, spawnParam);
+						if (aiPawn)
+							aiPawn->SpawnDefaultController();
+						else
+							UE_LOG(LogTemp, Warning, TEXT("SomeHow spawner cant spawn .... - ASinglePlayerGM::SpawnNewEnemy"));
 
-					break;
+						break;
+					}
+					}
+					EnemyAmount++;
+
 				}
-				}
-				EnemyAmount++;
 			}
 		}
 	}

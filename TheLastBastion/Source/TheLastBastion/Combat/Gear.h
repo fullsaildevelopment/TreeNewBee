@@ -9,13 +9,16 @@
 UENUM(BlueprintType)
 enum class EGearType : uint8
 {
-	Armor = 0 UMETA(DisplayName = "Armor"),
-	Shield = 1 UMETA(DisplayName = "Shield"),
+	Armor = 0            UMETA(DisplayName = "Armor"),
+	Shield = 1           UMETA(DisplayName = "Shield"),
 	SingleHandWeapon = 2 UMETA(DisplayName = "SingleHandWeapon"),
 	DoubleHandWeapon = 3 UMETA(DisplayName = "DoubleHandWeapon"),
-	CrossBow = 4 UMETA(DisplayName = "CrossBow"),
-	CrossBowBolt = 5 UMETA(DisplayName = "CrossBowBolt"),
-	TwinBlade = 6 UMETA(DisplayName = "TwinBlade")
+	CrossBow = 4         UMETA(DisplayName = "CrossBow"),
+	CrossBowBolt = 5     UMETA(DisplayName = "CrossBowBolt"),
+	TwinBlade = 6        UMETA(DisplayName = "TwinBlade"),
+	HeavyWeapon = 7      UMETA(DisplayName = "HeavyWeapon"),
+	Bow = 8              UMETA(DisplayName = "Bow"),
+	Arrow = 9            UMETA(DisplayName = "Arrow"),
 };
 
 
