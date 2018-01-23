@@ -29,8 +29,17 @@ protected:
 	float BulletSpeed;
 
 	// Bullet Spread in Degrees
-	UPROPERTY(EditDefaultsOnly, Category = "RangeWeapon")
-	float BulletSpread;
+	UPROPERTY(EditDefaultsOnly, Category = "AIRangeWeapon")
+	float MinVerticalAimOffset;
+
+	UPROPERTY(EditDefaultsOnly, Category = "AIRangeWeapon")
+	float MaxVerticalAimOffset;
+
+	UPROPERTY(EditDefaultsOnly, Category = "AIRangeWeapon")
+	float MinHorizontalAimOffset;
+
+	UPROPERTY(EditDefaultsOnly, Category = "AIRangeWeapon")
+	float MaxHorizontalAimOffset;
 
 public:
 	// Sets default values for this actor's properties
