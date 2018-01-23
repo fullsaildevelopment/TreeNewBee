@@ -20,10 +20,9 @@
 
 
 UHeroStatsComponent::UHeroStatsComponent()
-{
-	
+{	
 	// Just some init armor for our melee hero
-	UCustomType::FindClass<AArmor>(Armor_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun_Armor"));
+	UCustomType::FindClass<AArmor>(Armor_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun/Tsun_Armor"));
 	Level = 1;
 }
 

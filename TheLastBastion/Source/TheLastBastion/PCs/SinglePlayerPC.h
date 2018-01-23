@@ -27,9 +27,9 @@ private:
 
 
 	UPROPERTY()
-		TSubclassOf<UUserWidget> SmithShop_WBPClass;
+		TSubclassOf<UUserWidget> TradeMenu_WBPClass;
 	UPROPERTY()
-		class UUserWidget*                 mSmithShopHUD;
+		class UTradeMenu*                 mTradeMenu;
 
 	
 	struct FPlayerProfile   playerProfile;
@@ -51,10 +51,10 @@ public:
 		void OnHealthChange(const class UPawnStatsComponent* _heroStats);
 
 	UFUNCTION(Exec)
-		void OpenSmithShop();
+		void OpenTradeMenu();
 
 	UFUNCTION(Exec)
-		void CloseSmithShop();
+		void CloseTradeMenu();
 
 	FORCEINLINE class UInGameHUD* GetInGameHUD() const { return mInGameHUD; }
 

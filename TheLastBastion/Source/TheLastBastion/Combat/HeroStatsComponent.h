@@ -50,7 +50,9 @@ public:
 	bool OnSwapBetweenMeleeAndRange() override;
 
 public:
+
 	FORCEINLINE const class ATheLastBastionEnemyCharacter* GetCurrentTarget() const { return mCurrentTarget; }
+	FORCEINLINE int GetMaxNumOfWeaponSlot() const override { return 4; }
 
 
 private:

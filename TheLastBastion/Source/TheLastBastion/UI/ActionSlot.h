@@ -9,6 +9,9 @@
 /**
  * 
  */
+
+
+
 UCLASS()
 class THELASTBASTION_API UActionSlot : public UUserWidget
 {
@@ -53,6 +56,8 @@ protected:
 public:
 
 	void SetSize(float _width, float _height);
+
+	FORCEINLINE void SetActionImage(class UTexture2D* _image) { mActionImage = _image; }
 
 	
 	

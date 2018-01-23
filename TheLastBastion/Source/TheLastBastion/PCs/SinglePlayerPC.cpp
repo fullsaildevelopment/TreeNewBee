@@ -6,6 +6,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "SaveGame/SaveGame_TheLastBastion.h"
 #include "UI/InGameHUD.h"
+#include "TheLastBastionHeroCharacter.h"
+#include "UI/Gameplay/TradeMenu.h"
 #include "CustomType.h"
 
 
@@ -15,8 +17,8 @@ ASinglePlayerPC::ASinglePlayerPC(const FObjectInitializer & _objInit) : Super(_o
 	if (!InGameHuD_WBPClass)
 		UCustomType::FindClass<UUserWidget>(InGameHuD_WBPClass, TEXT("/Game/UI/In-Game/WBP_InGameHUD"));
 
-	if (!SmithShop_WBPClass)
-		UCustomType::FindClass<UUserWidget>(SmithShop_WBPClass, TEXT("/Game/UI/In-Game/WBP_SmithShop"));
+	if (!TradeMenu_WBPClass)
+		UCustomType::FindClass<UUserWidget>(TradeMenu_WBPClass, TEXT("/Game/UI/In-Game/WBP_TradeMenu"));
 
 }
 
@@ -81,37 +83,51 @@ void ASinglePlayerPC::OnHealthChange(const UPawnStatsComponent * _heroStats)
 		mInGameHUD->SetHpOnHealthChange(_heroStats);
 }
 
-
-void ASinglePlayerPC::OpenSmithShop()
+void ASinglePlayerPC::OpenTradeMenu()
 {
-	if (mSmithShopHUD != nullptr)
-		mSmithShopHUD->AddToViewport();
+	if (mTradeMenu != nullptr)
+		mTradeMenu->AddToViewport();
 	else
 	{
-		if (SmithShop_WBPClass)
+		if (TradeMenu_WBPClass)
 		{
-			mSmithShopHUD = CreateWidget <UUserWidget>(this, SmithShop_WBPClass);
-			if (mSmithShopHUD != nullptr)
+			mTradeMenu = CreateWidget <UTradeMenu>(this, TradeMenu_WBPClass);
+			if (mTradeMenu != nullptr)
 			{
-				mSmithShopHUD->AddToViewport();
+				mTradeMenu->AddToViewport();
 			}
 		}
 		else
 			UE_LOG(LogTemp, Warning, TEXT("Widget Class not Set - ASinglePlayerPC::ShowSmithShop"));
 	}
-	bShowMouseCursor = true;
-}
 
-void ASinglePlayerPC::CloseSmithShop()
-{
-	if (mSmithShopHUD)
+
+	if (mTradeMenu)
 	{
-		mSmithShopHUD->RemoveFromParent();
-		bShowMouseCursor = false;
+		// set input mode
+		bShowMouseCursor = true;
+		FInputModeUIOnly InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		InputMode.SetWidgetToFocus(mTradeMenu->TakeWidget());
+		SetInputMode(InputMode);
+
+
+		ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(GetCharacter());
+
+		mTradeMenu->OnOpenTradeMenu(hero->GetHeroStatsComp());
 	}
 }
 
-
+void ASinglePlayerPC::CloseTradeMenu()
+{
+	if (mTradeMenu)
+	{
+		mTradeMenu->RemoveFromParent();
+		bShowMouseCursor = false;
+		FInputModeGameOnly InputMode;
+		SetInputMode(InputMode);
+	}
+}
 
 
 void ASinglePlayerPC::SaveGameCheck()

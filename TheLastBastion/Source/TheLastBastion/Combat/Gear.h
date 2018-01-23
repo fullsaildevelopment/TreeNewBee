@@ -111,7 +111,7 @@ public:
 	FORCEINLINE float GetIceDefence() const { return IceDefence; }
 	
 	UFUNCTION(BlueprintPure)
-		FORCEINLINE FText GetName() const { return Name; }
+		FORCEINLINE FText GetGearName() const { return Name; }
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE UTexture2D* GetThumbNailImage() const { return ThumbNail; }
 

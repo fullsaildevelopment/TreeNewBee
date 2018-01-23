@@ -467,4 +467,9 @@ int UPawnStatsComponent::GetMaxWeaponSlot()
 	return MaxWeaponSlot;
 }
 
+AGear * UPawnStatsComponent::GetCurrentArmor() const
+{
+	return Armor;
+}
+
 

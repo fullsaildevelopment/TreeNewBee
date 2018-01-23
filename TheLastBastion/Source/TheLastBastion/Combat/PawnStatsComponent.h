@@ -173,10 +173,26 @@ public:
 
 	virtual bool OnSwapBetweenMeleeAndRange();
 
+	// Called after a character is spawned, generate the raw stats according to its level
+	void GenerateRawStatsByLevel(int Level);
+
+	// Called after equip and unequip 
+	void GenerateMaxStats(bool _setCurrentToMax = true);
+
+	// Called after character is level up, generater raw && max stats, recover full health
+	void LevelUp();
+
+	// Called 
+	void Born();
+
+	UFUNCTION()
+		void ApplyDamage(const FDamageInfo& _hit);
 
 public:
 
 	static int GetMaxWeaponSlot();
+	AGear* GetCurrentArmor() const;
+
 	FORCEINLINE float GetHpRaw() const { return HpRaw; }
 	FORCEINLINE float GetStamina() const { return StaminaRaw; }
 	FORCEINLINE float GetHpCurrent() const { return HpCurrent; }
@@ -187,21 +203,8 @@ public:
 	FORCEINLINE float GetDivBySpMax() const { return DivByStaminaMax; }
 	FORCEINLINE int   GetLevel() const { return Level; }
 	FORCEINLINE AGear* GetCurrentRightHandWeapon() const { return WeaponSlots[CurrentWeapon_Index].RightHand; }
-
-	// Called after a character is spawned, generate the raw stats according to its level
-	void GenerateRawStatsByLevel(int Level);
-
-	// Called after equip and unequip 
-	void GenerateMaxStats(bool _setCurrentToMax = true);
-
-	// Called after character is level up, generater raw && max stats, recover full health
-	void LevelUp();
-	
-	// Called 
-	void Born();
-
-	UFUNCTION()
-		void ApplyDamage( const FDamageInfo& _hit);
+	FORCEINLINE virtual int GetMaxNumOfWeaponSlot() const { return 2; }
+	FORCEINLINE FWeaponSlot GetWeaponSlotAt(int _index) const { return WeaponSlots[_index]; }
 
 protected:
 
