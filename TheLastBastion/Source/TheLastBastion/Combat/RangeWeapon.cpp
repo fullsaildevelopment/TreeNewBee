@@ -61,8 +61,7 @@ void ARangeWeapon::Fire()
 
 			// Override TracerEndPoint when bullet get blocked
 			ImpactPoint = Hit.ImpactPoint;
-			UE_LOG(LogTemp, Log, TEXT("Hit on, %s"), *Hit.GetActor()->GetName());
-
+			//UE_LOG(LogTemp, Log, TEXT("Hit on, %s"), *Hit.GetActor()->GetName());
 		}
 
 

@@ -79,8 +79,7 @@ void UBTTask_HitReaction::TickTask(UBehaviorTreeComponent & OwnerComp, uint8 * N
 void UBTTask_HitReaction::OnTaskFinished(UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory, EBTNodeResult::Type TaskResult)
 {
 	// empty in base class
-	UE_LOG(LogTemp, Warning, TEXT("UBTTask_NKAttack - OnTaskFinished"));
-
+	// UE_LOG(LogTemp, Warning, TEXT("UBTTask_NKAttack - OnTaskFinished"));
 }
 
 void UBTTask_HitReaction::OnRecoverFromHitHandle(UBehaviorTreeComponent* OwnerComp)

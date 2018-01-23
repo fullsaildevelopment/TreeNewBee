@@ -1202,8 +1202,6 @@ void UHero_AnimInstance::OnBeingHit(float _damage, FName boneName, const FVector
 		damageCauserRelative.Z = 0.0f;
 		damageCauserRelative = damageCauserRelative.GetUnsafeNormal();
 
-
-
 		bool HitFromFront = FVector::DotProduct(mCharacter->GetActorForwardVector(), damageCauserRelative) > 0.3f;
 		FName sectionName;
 
@@ -1239,7 +1237,7 @@ void UHero_AnimInstance::OnBeingHit(float _damage, FName boneName, const FVector
 			damageMomentum = -damageCauserRelative;
 		}
 
-		UE_LOG(LogTemp, Log, TEXT("%f, %f, %f"), damageMomentum.X, damageMomentum.Y, damageMomentum.Z);
+		//UE_LOG(LogTemp, Log, TEXT("%f, %f, %f"), damageMomentum.X, damageMomentum.Y, damageMomentum.Z);
 
 		this->PlayMontage(Hit_Montage, 1.0f, sectionName);
 	}

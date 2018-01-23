@@ -31,7 +31,7 @@ ATheLastBastionEnemyCharacter::ATheLastBastionEnemyCharacter()
 	InfoHUD->SetDrawSize(size);
 	InfoHUD->bGenerateOverlapEvents = false;
 	InfoHUD->SetCollisionProfileName("HUD");
-
+	
 
 	EnemyStats = CreateDefaultSubobject<UPawnStatsComponent>(TEXT("Stats"));
 	PawnStats = EnemyStats;

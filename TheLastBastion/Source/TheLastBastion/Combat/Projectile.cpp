@@ -5,6 +5,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Combat/PawnStatsComponent.h"
+#include "Combat/Weapon.h"
+
 #include "TheLastBastionCharacter.h"
 #include "DrawDebugHelpers.h"
 
@@ -59,6 +61,8 @@ void AProjectile::BeginPlay()
 	AGear* RangeWeapon = Cast<AGear>(GetOwner());
 	if (RangeWeapon)
 	{
+		UE_LOG(LogTemp, Log, TEXT("From RangeWeapon - AProjectile::BeginPlay"));
+
 		//CombineDamage(RangeWeapon);
 		GearOwner = RangeWeapon->GetGearOwner();
 		ProjectileMovementComp->SetActive(true);
@@ -70,10 +74,14 @@ void AProjectile::BeginPlay()
 		ObjectParams.AddObjectTypesToQuery(ECC_EnemyWeapon);
 		ObjectParams.AddObjectTypesToQuery(ECC_HeroWeapon);
 		ObjectParams.AddObjectTypesToQuery(ECC_WorldStatic);
+		IgnoredActors.Add(this);
+		IgnoredActors.Add(RangeWeapon);
+		IgnoredActors.Add(GearOwner);
 	}
 	else
 	{
-		//UE_LOG(LogTemp, Error, TEXT("RangeWeapon is NULL - AProjectile::BeginPlay"));
+		MakeStatic();
+		UE_LOG(LogTemp, Log, TEXT("From Hit - AProjectile::BeginPlay"));
 	}
 
 }
@@ -84,8 +92,18 @@ bool AProjectile::ShouldDestroy() const
 	return PenetrateLevel <= CurrentHitCount;
 }
 
+void AProjectile::MakeStatic()
+{
+	SetDamageIsEnabled(false);
+	ProjectileMovementComp->SetActive(false);
+	ProjectileMovementComp->Velocity = FVector::ZeroVector;
+	SetActorScale3D(FVector(1.0f, 1.0f, 1.0f));
+
+}
+
 void AProjectile::Tick(float _deltaTime)
 {
+	//UE_LOG(LogTemp, Log, TEXT("Vel: %f"), ProjectileMovementComp->Velocity.SizeSquared());
 	if (bDamageIsEnable)
 	{
 		FVector ArrowPosition = DamageSphereHolder->GetComponentLocation();
@@ -118,37 +136,125 @@ void AProjectile::Tick(float _deltaTime)
 		if (bHit)
 		{
 			AActor* damagedActor = DamageInfo.hitResult.GetActor();
-			CurrentHitCount++;
-			IgnoredActors.Add(damagedActor);
+			// Check what do we hit
 
-			DamageInfo.hitDirection = GearOwner->GetActorLocation() - DamageInfo.hitResult.GetActor()->GetActorLocation();
-			UPawnStatsComponent* pSC = GearOwner->GetPawnStatsComp();
-
-			if (pSC != nullptr)
-				pSC->ApplyDamage(DamageInfo);
-			else
-				UE_LOG(LogTemp, Error, TEXT("UPawnStatsComponent is NuLL -- AWeapon::Tick "));
-
-			if (PenetrateLevel <= CurrentHitCount)
+			// if it is a person or shield
+			ATheLastBastionCharacter* Character = Cast<ATheLastBastionCharacter>(damagedActor);
+			if (Character)
 			{
+				CurrentHitCount++;
+				DamageInfo.hitDirection = GearOwner->GetActorLocation() - DamageInfo.hitResult.GetActor()->GetActorLocation();
+				UPawnStatsComponent* pSC = GearOwner->GetPawnStatsComp();
 
-				FActorSpawnParameters spawnParam;
-				spawnParam.Owner = damagedActor;
-				spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-				AProjectile* copyProjectile = GetWorld()->SpawnActor<AProjectile>(this->GetClass(), GetActorLocation(), GetActorRotation(), spawnParam);
-
-				
-				ATheLastBastionCharacter* Character = Cast<ATheLastBastionCharacter>(damagedActor);
-				FAttachmentTransformRules attachRules = FAttachmentTransformRules(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true);
-
-				if (Character)
-					copyProjectile->AttachToComponent(Character->GetMesh(), attachRules, DamageInfo.hitResult.BoneName);
+				if (pSC != nullptr)
+					pSC->ApplyDamage(DamageInfo);
 				else
-					copyProjectile->AttachToActor(damagedActor, attachRules);
+					UE_LOG(LogTemp, Error, TEXT("UPawnStatsComponent is NuLL -- AWeapon::Tick "));
 
-				Destroy();
+				if (PenetrateLevel <= CurrentHitCount)
+				{
+					FActorSpawnParameters spawnParam;
+					spawnParam.Owner = damagedActor;
+					spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+					AProjectile* copyProjectile = GetWorld()->SpawnActor<AProjectile>(this->GetClass(), GetActorLocation(), GetActorRotation(), spawnParam);
+					copyProjectile->AttachToComponent
+					(Character->GetMesh(), FAttachmentTransformRules::KeepWorldTransform, DamageInfo.hitResult.BoneName);
+
+					Destroy();
+					//copyProjectile->MakeStatic();
+				}
+				else
+				{
+					IgnoredActors.Add(damagedActor);
+				}
 			}
+			else
+			{
+				AWeapon* Shield = Cast<AWeapon>(damagedActor);
+				if (Shield)
+				{
+					CurrentHitCount++;
+					if (PenetrateLevel <= CurrentHitCount)
+					{
+						UE_LOG(LogTemp, Log, TEXT("Hit on Shield"));
+						FActorSpawnParameters spawnParam;
+						spawnParam.Owner = damagedActor;
+						spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+						AProjectile* copyProjectile = GetWorld()->SpawnActor<AProjectile>(this->GetClass(), GetActorLocation(), GetActorRotation(), spawnParam);
+						copyProjectile->AttachToComponent
+						(Shield->GetMesh(), FAttachmentTransformRules::KeepWorldTransform);
+						copyProjectile->MakeStatic();
+						Destroy();
+					}
+					else
+					{
+						IgnoredActors.Add(damagedActor);
+					}
+
+				}
+				else
+				{
+					FActorSpawnParameters spawnParam;
+					spawnParam.Owner = damagedActor;
+					spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+					AProjectile* copyProjectile = GetWorld()->SpawnActor<AProjectile>(this->GetClass(), GetActorLocation(), GetActorRotation(), spawnParam);
+					copyProjectile->AttachToActor(damagedActor, FAttachmentTransformRules::KeepWorldTransform);
+					Destroy();
+
+				}
+
+			}
+
+
+
+
+
+
+
+			//CurrentHitCount++;
+
+			//DamageInfo.hitDirection = GearOwner->GetActorLocation() - DamageInfo.hitResult.GetActor()->GetActorLocation();
+			//UPawnStatsComponent* pSC = GearOwner->GetPawnStatsComp();
+
+			//if (pSC != nullptr)
+			//	pSC->ApplyDamage(DamageInfo);
+			//else
+			//	UE_LOG(LogTemp, Error, TEXT("UPawnStatsComponent is NuLL -- AWeapon::Tick "));
+
+			//if (PenetrateLevel <= CurrentHitCount)
+			//{
+			//	this->MakeStatic();
+			//	FActorSpawnParameters spawnParam;
+			//	spawnParam.Owner = damagedActor;
+			//	spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+			//	AProjectile* copyProjectile = GetWorld()->SpawnActor<AProjectile>(this->GetClass(), GetActorLocation(), GetActorRotation(), spawnParam);
+			//	copyProjectile->MakeStatic();
+
+			//	ATheLastBastionCharacter* Character = Cast<ATheLastBastionCharacter>(damagedActor);
+			//	FAttachmentTransformRules attachRules = FAttachmentTransformRules(EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true);
+
+			//	if (Character)
+			//		copyProjectile->AttachToComponent(Character->GetMesh(), attachRules, DamageInfo.hitResult.BoneName);
+			//	else
+			//	{
+			//		AGear* shield = Cast<AGear>(damagedActor);
+			//		if (shield)
+			//		{
+			//			copyProjectile->AttachToComponent(shield->GetMesh(), attachRules);
+			//			UE_LOG(LogTemp, Log, TEXT("Hit on Shield"));
+			//		}
+			//		else
+			//			copyProjectile->AttachToActor(damagedActor, attachRules);
+			//	}
+			//	Destroy();
+			//}
+
+			//IgnoredActors.Add(damagedActor);
+
 			//UE_LOG(LogTemp, Log, TEXT("Hit on : %s"), *DamageInfo.hitResult.GetActor()->GetName());
 		}
 	}

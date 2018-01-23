@@ -50,7 +50,7 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	GetCharacterMovement()->AirControl = 0.2f;
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 
 	GetCapsuleComponent()->bGenerateOverlapEvents = true;
 

@@ -18,7 +18,7 @@ AWeapon::AWeapon()
 	RootComponent = Mesh;
 	DamageEdgeOffset_start = FVector(0, 0, 95.0f);
 	DamageEdgeOffset_end = FVector(0, 0, 15.0f);
-	DamageVolumnExtend = FVector(3.0f, 3.0f, 0.0f);
+	DamageVolumnExtend = FVector(1.0f, 1.0f, 0.0f);
 	PrimaryActorTick.bCanEverTick = true;
 	bDamageIsEnable = false;
 	bEnableCutOpenDamage = false;
@@ -68,8 +68,6 @@ void AWeapon::Tick(float _deltaTime)
 		// Get Start End Position
 		FVector startPosition, endPosition;
 
-		//startPosition = GetActorLocation() + DamageEdgeOffset_start;
-		//endPosition   = GetActorLocation() + DamageEdgeOffset_end;
 		GetRayCastPosition(startPosition, endPosition);
 
 		FCollisionQueryParams Params;	
@@ -95,7 +93,7 @@ void AWeapon::Tick(float _deltaTime)
 		DamageInfo.damageType = DamageType;
 
 		UWorld* world = GetWorld();
-		bool IsHit = world->SweepSingleByObjectType(DamageInfo.hitResult, startPosition, endPosition, FRotator::ZeroRotator.Quaternion(), ObjectParams,
+		bool IsHit = world->SweepSingleByObjectType(DamageInfo.hitResult, startPosition, endPosition, this->GetActorRotation().Quaternion(), ObjectParams,
 			FCollisionShape::MakeBox(DamageVolumnExtend), Params);
 		if (IsHit)
 		{
@@ -132,16 +130,22 @@ void AWeapon::GetRayCastPosition(FVector & _start, FVector & _end)
 		break;
 	}
 	case EGearType::DoubleHandWeapon:
+	{
+		_start = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_start.Y + GetActorUpVector() * DamageEdgeOffset_start.Z;;
+		_end = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_end.Y;
+		break;
+	}
 	case EGearType::HeavyWeapon:
 	{
-		_start = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_start;
-		_end = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_end;
+		_start = GetActorLocation() - GetActorRightVector() * DamageEdgeOffset_start.Y   + GetActorForwardVector() * DamageEdgeOffset_start;
+		_end = GetActorLocation()   - GetActorRightVector() * DamageEdgeOffset_end.Y     + GetActorForwardVector() * DamageEdgeOffset_end;
 		break;
 	}
 	case EGearType::TwinBlade:
+	case EGearType::Shield:
 	{
 		_start = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_start;
-		_end = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_end;
+		_end = GetActorLocation()   + GetActorForwardVector() * DamageEdgeOffset_end;
 		break;
 	}
 	default:

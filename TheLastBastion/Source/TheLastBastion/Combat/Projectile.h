@@ -64,6 +64,7 @@ public:
 	/** Returns ProjectileMovement subobject **/
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovementComp() const { return ProjectileMovementComp; }
 
-
+private:
+	void MakeStatic();
 	
 };
