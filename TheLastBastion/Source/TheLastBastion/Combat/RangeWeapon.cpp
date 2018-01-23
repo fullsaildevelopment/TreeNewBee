@@ -21,7 +21,10 @@ ARangeWeapon::ARangeWeapon()
 	// initialize variables
 	ShootingRange = 10000.0f;
 	BulletSpeed = 1500.0f;
-	BulletSpread = 50.0f;
+	MinVerticalAimOffset = -50.0f;
+	MaxVerticalAimOffset = 50.0f;
+	MinHorizontalAimOffset = -100.0f;
+	MaxHorizontalAimOffset = 100.0f;
 }
 
 void ARangeWeapon::BeginPlay()
@@ -122,28 +125,33 @@ void ARangeWeapon::NPCFire(const AActor* _target)
 		QueryParams.bReturnPhysicalMaterial = false;
 		FHitResult Hit;
 
-
+		// Get target location
 		FVector TraceEnd = TargetActor->GetActorLocation();
 
-		// Make Precision and prediction
-		float VerticalRandomOffset = FMath::RandRange(0.0f, 1.0f)*BulletSpread;
-		TraceEnd += FVector(0, 0, VerticalRandomOffset);
-		//TODO: horizontal offset
+		// AI fire predication
+		FVector FlyDir;
+		float FlyDistance; 
+		(TraceEnd - MuzzleLocation).ToDirectionAndLength(FlyDir, FlyDistance);
+		float FlyTime = FlyDistance / BulletSpeed;
+		FVector PredictedPosition = TraceEnd + (TargetActor->GetVelocity()*FlyTime);
 
-		//TODO: predication
+		// vertical offset
+		float VerticalRandomOffset = FMath::RandRange(MinVerticalAimOffset, MaxVerticalAimOffset);
+
+		// horizontal offset
+		float HorizontalRandomOffset = FMath::RandRange(MinHorizontalAimOffset, MaxHorizontalAimOffset);
+
+		// Override Predicted Location with offset value
+		PredictedPosition += FVector(0, HorizontalRandomOffset, VerticalRandomOffset);
+
+		// Finalize Projectile fly direction
+		FlyDir = (PredictedPosition - MuzzleLocation).GetSafeNormal();
 
 		bool const IsHit = GetWorld()->LineTraceSingleByChannel(Hit, MuzzleLocation, TraceEnd, ECollisionChannel::ECC_Visibility);
 		if (IsHit)
 		{
 			//UE_LOG(LogTemp, Log, TEXT(""))
 		}
-
-		// Calculate the velocity for the projectile
-		FVector FlyDir = (TraceEnd - MuzzleLocation).GetSafeNormal();
-
-		// Bullet Spread
-		// float HalfRad = FMath::DegreesToRadians(BulletSpread);
-		// FlyDir = FMath::VRandCone(FlyDir, HalfRad, HalfRad);
 
 		CrossbowProjectile->GetProjectileMovementComp()->Velocity = FlyDir * BulletSpeed;
 
