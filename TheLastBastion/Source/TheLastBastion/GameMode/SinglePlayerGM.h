@@ -36,6 +36,36 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = CharacterClass)
 		TSubclassOf<class ATheLastBastionCharacter> LannesterShooter_T0_BP;
 
+	FTimerHandle TimerHandle_EnemySpawner;
+
+	FTimerHandle TimerHandle_NextWaveStart;
+
+	// Bots to spawn in current wave
+	int32 NumOfEnemiesToSpawn;
+
+	int32 WaveCount;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spawner")
+	float TimeBetweenWaves;
+
+protected:
+	// Spawn a single enemy
+	void SpawnNewEnemy();
+
+	void SpawnEnemyTimerElapsed();
+
+	// Start Spawning Bots
+	void StartWave();
+
+	// Stop Spawning Bots
+	void EndWave();
+
+	// Set timer for next startwave
+	void PrepareForNextWave();
+
+	// Check enemy amount to determine if we're ready for next wave
+	void CheckWaveState();
+
 
 private:
 
@@ -46,7 +76,7 @@ private:
 		TArray<class ASpawnLocation*> LannesterSpawnLocations_One;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
-		int EnemyAmount;
+		int32 EnemyAmount;
 
 	
 private:
@@ -56,5 +86,9 @@ private:
 public:
 
 	void UpdateEnemyAmount(int _val);
+
+	void StartPlay() override;
+
+	void Tick(float DeltaSeconds) override;
 
 };
