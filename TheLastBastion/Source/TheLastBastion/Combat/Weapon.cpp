@@ -50,31 +50,8 @@ void AWeapon::Tick(float _deltaTime)
 
 		//startPosition = GetActorLocation() + DamageEdgeOffset_start;
 		//endPosition   = GetActorLocation() + DamageEdgeOffset_end;
+		GetRayCastPosition(startPosition, endPosition);
 
-		switch (GearType)
-		{
-		case EGearType::SingleHandWeapon:
-		{
-			startPosition = GetActorLocation() + GetActorUpVector() * DamageEdgeOffset_start.Z;
-			endPosition = GetActorLocation() + GetActorUpVector() * DamageEdgeOffset_end.Z;
-			break;
-		}
-		case EGearType::DoubleHandWeapon:
-		case EGearType::HeavyWeapon:
-		{
-			startPosition = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_start;
-			endPosition = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_end;
-			break;
-		}
-		case EGearType::TwinBlade:
-		{
-			startPosition = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_start;
-			endPosition = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_end;
-			break;
-		}
-		default:
-			break;
-		}
 
 
 		FHitResult _hit;
@@ -91,29 +68,9 @@ void AWeapon::Tick(float _deltaTime)
 		// Get Start End Position
 		FVector startPosition, endPosition;
 
-		startPosition = GetActorLocation() + DamageEdgeOffset_start;
-		endPosition   = GetActorLocation() + DamageEdgeOffset_end;
-
-		//switch (GearType)
-		//{
-		//case EGearType::SingleHandWeapon:
-		//{
-		//	startPosition = GetActorLocation() + GetActorUpVector() * DamageEdgeOffset_start;
-		//	endPosition = GetActorLocation() + GetActorUpVector() * DamageEdgeOffset_end;
-		//	break;
-		//}
-		//case EGearType::DoubleHandWeapon:
-		//case EGearType::HeavyWeapon:
-		//case EGearType::TwinBlade:
-		//{
-		//	startPosition = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_start;
-		//	endPosition   = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_end;
-		//	break;
-		//}
-		//default:
-		//	break;
-		//}
-
+		//startPosition = GetActorLocation() + DamageEdgeOffset_start;
+		//endPosition   = GetActorLocation() + DamageEdgeOffset_end;
+		GetRayCastPosition(startPosition, endPosition);
 
 		FCollisionQueryParams Params;	
 		if (IgnoredActors.Num() > 0 && !bEnableCutOpenDamage)
@@ -161,6 +118,36 @@ void AWeapon::Tick(float _deltaTime)
 USceneComponent * AWeapon::GetMesh() const
 {
 	return Mesh;
+}
+
+void AWeapon::GetRayCastPosition(FVector & _start, FVector & _end)
+{
+
+	switch (GearType)
+	{
+	case EGearType::SingleHandWeapon:
+	{
+		_start = GetActorLocation() + GetActorUpVector() * DamageEdgeOffset_start.Z;
+		_end = GetActorLocation() + GetActorUpVector() * DamageEdgeOffset_end.Z;
+		break;
+	}
+	case EGearType::DoubleHandWeapon:
+	case EGearType::HeavyWeapon:
+	{
+		_start = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_start;
+		_end = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_end;
+		break;
+	}
+	case EGearType::TwinBlade:
+	{
+		_start = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_start;
+		_end = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_end;
+		break;
+	}
+	default:
+		break;
+	}
+
 }
 
 

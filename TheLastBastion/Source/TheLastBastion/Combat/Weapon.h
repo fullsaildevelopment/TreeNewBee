@@ -60,4 +60,6 @@ public:
 
 	class USceneComponent* GetMesh() const override;
 
+
+	void GetRayCastPosition(FVector& _start, FVector& _end);
 };
