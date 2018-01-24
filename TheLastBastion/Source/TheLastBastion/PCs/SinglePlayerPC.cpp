@@ -131,7 +131,7 @@ void ASinglePlayerPC::CloseTradeMenu()
 
 void ASinglePlayerPC::OnTradeMenuAccept(UHeroStatsComponent * _heroStats)
 {
-	mInGameHUD->InitStats(_heroStats);
+	mInGameHUD->ResetStats(_heroStats);
 }
 
 

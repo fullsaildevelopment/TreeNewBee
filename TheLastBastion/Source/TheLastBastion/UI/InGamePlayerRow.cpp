@@ -66,3 +66,15 @@ void UInGamePlayerRow::SetLevel(int _Level)
 	FString LevelText = FString::Printf(TEXT("Lv. %d"), _Level);
 	Level->SetText(FText::FromString(LevelText));
 }
+
+void UInGamePlayerRow::SetHp(float _currentHp, float _maxHp, float _divByMax)
+{
+	SetHpValue(_currentHp, _maxHp);
+	SetHpPercentage(_currentHp, _divByMax);
+}
+
+void UInGamePlayerRow::SetSp(float _currentSp, float _maxSp, float _divByMax)
+{
+	SetSpValue(_currentSp, _maxSp);
+	SetSpPercentage(_currentSp, _divByMax);
+}

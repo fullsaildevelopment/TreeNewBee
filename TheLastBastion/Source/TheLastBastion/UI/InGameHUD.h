@@ -68,6 +68,9 @@ public:
 
 	void InitStats(const class UHeroStatsComponent* _heroStats);
 
+    /** Called On ReEquip, Level Up*/
+	void ResetStats(const class UHeroStatsComponent* _heroStats);
+
 	void SetHpOnHealthChange(const UPawnStatsComponent * _pawnStats);
 
 	void ToggleFireMode(bool _val);

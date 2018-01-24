@@ -169,8 +169,34 @@ void UHeroStatsComponent::OnTradeMenuAccept(UInventoryUI * _inventoryMenu)
 			Armor = world->SpawnActor<AArmor>(Armor_ClassBp, spawnParam);
 			Armor->Equip(mCharacter->GetMesh());
 		}
-
 	}
+	
+	// Check Weapon
+
+	if (WeaponWheels[0] != _inventoryMenu->GetCurrentSHWeapon())
+	{
+		WeaponWheels[0] = _inventoryMenu->GetCurrentSHWeapon();
+		if (WeaponWheels[0])
+		{
+			AGear* rightHand = WeaponSlots[0].RightHand;
+			AGear* leftHand = WeaponSlots[0].LeftHand;
+
+			if (WeaponSlots[0].RightHand)
+				rightHand->Destroy();
+			if (WeaponSlots[0].LeftHand)
+				leftHand->Destroy();
+
+			WeaponSlots[0].RightHand = world->SpawnActor<AGear>(WeaponWheels[0], spawnParam);
+			TSubclassOf<AGear> LeftHandClass = WeaponSlots[0].RightHand->GetLeftHandGear();
+			if (LeftHandClass)
+				WeaponSlots[0].LeftHand = world->SpawnActor<AGear>(LeftHandClass, spawnParam);
+
+			WeaponSlots[0].RightHand->Equip(mCharacter->GetMesh());
+			WeaponSlots[0].LeftHand->Equip(mCharacter->GetMesh());
+
+		}
+	}
+
 	GenerateMaxStats();
 }
 

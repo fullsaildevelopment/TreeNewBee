@@ -92,6 +92,13 @@ void UInGameHUD::InitStats(const UHeroStatsComponent * _heroStats)
 	PlayerRow->SetLevel(_heroStats->GetLevel());
 }
 
+void UInGameHUD::ResetStats(const UHeroStatsComponent * _heroStats)
+{
+	PlayerRow->SetHp(_heroStats->GetHpCurrent(), _heroStats->GetHpMax(), _heroStats->GetDivByHpMax());
+	PlayerRow->SetSp(_heroStats->GetStaminaCurrent(), _heroStats->GetStaminaMax(), _heroStats->GetDivBySpMax());
+	PlayerRow->SetLevel(_heroStats->GetLevel());
+}
+
 void UInGameHUD::SetHpOnHealthChange(const UPawnStatsComponent * _pawnStats)
 {
 	float currentHp = FMath::Clamp(_pawnStats->GetHpCurrent(), 0.0f, MAX_FLT);

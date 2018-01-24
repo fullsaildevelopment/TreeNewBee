@@ -88,7 +88,8 @@ void ARangeWeapon::Fire()
 		//UE_LOG(LogTemp, Log, TEXT("Hit Distance, %d"), Hit.Distance);
 
 
-		TraceEnd = (IsHit && Hit.Distance > CLOSESHOTDISTANCE) ? ImpactPoint : TraceEnd;
+		//TraceEnd = (IsHit && Hit.Distance > CLOSESHOTDISTANCE) ? ImpactPoint : TraceEnd;
+	
 		FVector FlyDir = (TraceEnd - LaunchLocation).GetSafeNormal();
 
 		CrossbowProjectile->GetProjectileMovementComp()->Velocity = FlyDir * BulletSpeed;
