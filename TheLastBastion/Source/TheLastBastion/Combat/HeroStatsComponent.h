@@ -49,6 +49,9 @@ public:
 
 	bool OnSwapBetweenMeleeAndRange() override;
 
+	/** Called when player update their gears, replace the gear with players'choice and update stats*/
+	void OnTradeMenuAccept(class UInventoryUI* _inventoryMenu);
+
 public:
 
 	FORCEINLINE const class ATheLastBastionEnemyCharacter* GetCurrentTarget() const { return mCurrentTarget; }

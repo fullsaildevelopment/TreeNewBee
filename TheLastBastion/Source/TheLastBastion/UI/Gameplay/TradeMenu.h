@@ -48,7 +48,8 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UShopRow* WolfRow;
 
-	TArray<UTexture2D*> WolfRowImages;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Upgrades")
+	TArray<struct FGearUI> WolfRow_GearUI;
 
 	UPROPERTY(meta = (BindWidget))
 		class UShopRow* NordicRow;
@@ -84,7 +85,12 @@ public:
 
 private:
 
-	void FindImage(UTexture2D* _image, const TCHAR* _imageToFind);
+	UFUNCTION()
+		void OnAcceptClicked();
 
-	void LoadWolfThumbNail();
+	UFUNCTION()
+		void OnCancelClicked();
+
+
+
 };

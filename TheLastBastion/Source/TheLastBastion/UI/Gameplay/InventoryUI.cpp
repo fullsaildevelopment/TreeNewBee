@@ -29,7 +29,10 @@ bool UInventoryUI::Initialize()
 	{
 		slot = Cast<UActionSlot>(GearRow->GetChildAt(i));
 		if (slot)
+		{
 			slot->SetSize(150.0f, 150.0f);
+			slot->OnInventoryInit(i);
+		}
 	}
 
 	return true;
@@ -69,4 +72,29 @@ void UInventoryUI::OnOpenTradeMenu(UHeroStatsComponent * _heroStats)
 		}
 	}
 
+}
+
+TSubclassOf<class AGear> UInventoryUI::GetCurrentSHWeapon() const
+{
+	return SHWeapon->GetGearClass();
+}
+
+TSubclassOf<class AGear> UInventoryUI::GetCurrentTHWeapon() const
+{
+	return THWeapon->GetGearClass();
+}
+
+TSubclassOf<class AGear> UInventoryUI::GetCurrentHeavyWeapon() const
+{
+	return HeavyWeapon->GetGearClass();
+}
+
+TSubclassOf<class AGear> UInventoryUI::GetCurrentRangeWeapon() const
+{
+	return RangeWeapon->GetGearClass();
+}
+
+TSubclassOf<class AGear> UInventoryUI::GetCurrentArmor() const
+{
+	return Armor->GetGearClass();
 }

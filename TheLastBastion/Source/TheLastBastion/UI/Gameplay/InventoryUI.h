@@ -64,6 +64,10 @@ public:
 
 	void OnOpenTradeMenu(class UHeroStatsComponent * _heroStats);
 
-	
+	TSubclassOf<class AGear> GetCurrentSHWeapon() const; 
+	TSubclassOf<class AGear> GetCurrentTHWeapon() const;    
+	TSubclassOf<class AGear> GetCurrentHeavyWeapon() const;
+	TSubclassOf<class AGear> GetCurrentRangeWeapon() const; 
+	TSubclassOf<class AGear> GetCurrentArmor() const;    
 	
 };

@@ -17,7 +17,7 @@
 #include "CustomType.h"
 
 #include "AICharacters/TheLastBastionEnemyCharacter.h"
-
+#include "UI/Gameplay/InventoryUI.h"
 
 UHeroStatsComponent::UHeroStatsComponent()
 {	
@@ -147,6 +147,31 @@ bool UHeroStatsComponent::OnSwapBetweenMeleeAndRange()
 	}
 
 	return accept;
+}
+
+void UHeroStatsComponent::OnTradeMenuAccept(UInventoryUI * _inventoryMenu)
+{
+	UWorld* world = GetWorld();
+	if (world == nullptr)
+		return;
+
+	FActorSpawnParameters spawnParam;
+	spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	spawnParam.Owner = mCharacter;
+
+	// Check Armor
+	if (Armor_ClassBp != _inventoryMenu->GetCurrentArmor())
+	{
+		Armor_ClassBp = _inventoryMenu->GetCurrentArmor();
+		if (Armor_ClassBp)
+		{
+			Armor->Destroy();
+			Armor = world->SpawnActor<AArmor>(Armor_ClassBp, spawnParam);
+			Armor->Equip(mCharacter->GetMesh());
+		}
+
+	}
+	GenerateMaxStats();
 }
 
 void UHeroStatsComponent::OnEnemyEnter(UPrimitiveComponent * _overlappedComponent, AActor * _otherActor, UPrimitiveComponent * _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult & _SweepResult)

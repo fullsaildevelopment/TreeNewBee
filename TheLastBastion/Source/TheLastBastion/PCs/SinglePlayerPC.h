@@ -36,8 +36,6 @@ private:
 
 public:
 
-
-
 	UFUNCTION()
 		void OnPostLogin();
 
@@ -56,6 +54,10 @@ public:
 	UFUNCTION(Exec)
 		void CloseTradeMenu();
 
+	/** Update the stats based on the change of gears*/
+	void OnTradeMenuAccept(class UHeroStatsComponent* _heroStats);
+
+
 	FORCEINLINE class UInGameHUD* GetInGameHUD() const { return mInGameHUD; }
 
 private:
@@ -63,4 +65,6 @@ private:
 	void SaveGameCheck();
 
 	void CreateInGameHUD();
+
+
 };

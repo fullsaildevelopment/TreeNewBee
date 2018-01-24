@@ -129,6 +129,11 @@ void ASinglePlayerPC::CloseTradeMenu()
 	}
 }
 
+void ASinglePlayerPC::OnTradeMenuAccept(UHeroStatsComponent * _heroStats)
+{
+	mInGameHUD->InitStats(_heroStats);
+}
+
 
 void ASinglePlayerPC::SaveGameCheck()
 {
@@ -164,3 +169,5 @@ void ASinglePlayerPC::CreateInGameHUD()
 	mInGameHUD->LoadPlayerProfile_Sp(playerProfile);
 	mInGameHUD->AddToViewport();
 }
+
+

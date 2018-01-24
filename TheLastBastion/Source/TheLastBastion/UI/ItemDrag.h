@@ -9,15 +9,18 @@
 /**
  * 
  */
-
-
+enum class EUpgradeGearType : uint8;
 
 UCLASS()
 class THELASTBASTION_API UItemDrag : public UDragDropOperation
 {
-	GENERATED_BODY()
-	
-	
-	
-	
+	GENERATED_UCLASS_BODY()
+
+public:
+
+	UPROPERTY(BlueprintReadOnly)
+		struct FGearUI GearUI;
+
+	EUpgradeGearType UpgradeGearType;
+
 };

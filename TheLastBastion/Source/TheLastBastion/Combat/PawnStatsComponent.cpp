@@ -187,7 +187,9 @@ void UPawnStatsComponent::GenerateMaxStats(bool _setCurrentToMax)
 {
 	float
 		factorHp = 1,
-		factorStamina = 1;
+		factorStamina = 1,
+		HpAdd = 0,
+		SpAdd = 0;
 
 	AGear* LeftHandWeapon = WeaponSlots[CurrentWeapon_Index].LeftHand;
 	AGear* RightHandWeapon = WeaponSlots[CurrentWeapon_Index].RightHand;
@@ -196,23 +198,30 @@ void UPawnStatsComponent::GenerateMaxStats(bool _setCurrentToMax)
 	{
 		factorHp += LeftHandWeapon->GetHpBonus();
 		factorStamina += LeftHandWeapon->GetStaminaBonus();
+		HpAdd += LeftHandWeapon->GetHpAdditive();
+		SpAdd += LeftHandWeapon->GetSpAdditive();
 	}
 
 	if (RightHandWeapon)
 	{
 		factorHp += RightHandWeapon->GetHpBonus();
 		factorStamina += RightHandWeapon->GetStaminaBonus();
+		HpAdd += RightHandWeapon->GetHpAdditive();
+		SpAdd += RightHandWeapon->GetSpAdditive();
+
 	}
 
 	if (Armor)
 	{
 		factorHp += Armor->GetHpBonus();
 		factorStamina += Armor->GetStaminaBonus();
+		HpAdd += Armor->GetHpAdditive();
+		SpAdd += Armor->GetSpAdditive();
 	}
 
 
-	HpMax = factorHp * HpRaw;
-	StaminaMax = factorStamina * StaminaRaw;
+	HpMax = factorHp * HpRaw + HpAdd;
+	StaminaMax = factorStamina * StaminaRaw + SpAdd;
 	if (_setCurrentToMax)
 	{
 		HpCurrent = HpMax;
@@ -460,7 +469,6 @@ void UPawnStatsComponent::OnTakePointDamageHandle(AActor * DamagedActor, float D
 		floatingDamage->AddToViewport();
 	}
 }
-
 
 int UPawnStatsComponent::GetMaxWeaponSlot()
 {

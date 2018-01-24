@@ -2,18 +2,21 @@
 
 #include "TradeMenu.h"
 #include "Components/ScrollBox.h"
+#include "Components/Button.h"
 #include "UI/Gameplay/ShopRow.h"
 #include "UI/Gameplay/InventoryUI.h"
-#include "UObject/ConstructorHelpers.h"
+#include "CustomType.h"
+#include "UI/ActionSlot.h"
+#include "TheLastBastionHeroCharacter.h"
+#include "Combat/HeroStatsComponent.h"
+#include "PCs/SinglePlayerPC.h"
 
 
 #define ShopRowSize 7
 
 UTradeMenu::UTradeMenu(const FObjectInitializer & ObjectInit) : Super(ObjectInit)
 {
-
-	LoadWolfThumbNail();
-
+	//Wolf_Bp
 
 }
 
@@ -29,7 +32,8 @@ bool UTradeMenu::Initialize()
 
 	if (bAllWidgetAreGood)
 	{
-
+		Accept->OnClicked.AddDynamic(this, &UTradeMenu::OnAcceptClicked);
+		Cancel->OnClicked.AddDynamic(this, &UTradeMenu::OnCancelClicked);
 	}
 	else
 		return false;
@@ -45,7 +49,11 @@ bool UTradeMenu::Initialize()
 		}
 	}
 
-	WolfRow->SetEachSlotActionImage(WolfRowImages);
+
+	if (WolfRow_GearUI.Num() == ShopRowSize)
+	{
+		WolfRow->SetEachSlotAction(WolfRow_GearUI);
+	}
 
 	return true;
 }
@@ -55,50 +63,34 @@ void UTradeMenu::OnOpenTradeMenu(UHeroStatsComponent * _heroStats)
 	InventoryUI->OnOpenTradeMenu(_heroStats);
 }
 
-void UTradeMenu::FindImage(UTexture2D * _image, const TCHAR * _imageToFind)
+void UTradeMenu::OnAcceptClicked()
 {
-
-	if (_image == nullptr)
+	ASinglePlayerPC* pc =Cast<ASinglePlayerPC>(GetOwningPlayer());
+	if (pc)
 	{
-		// Set the default player avatar image
-		ConstructorHelpers::FObjectFinder<UTexture2D> image(_imageToFind);
-		if (image.Succeeded())
-			_image = image.Object;
+		ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(pc->GetCharacter());
+		if (hero)
+		{
+			UHeroStatsComponent* heroStats = hero->GetHeroStatsComp();
+			if (heroStats)
+			{
+				heroStats->OnTradeMenuAccept(InventoryUI);
+				// pc update HUD
+				pc->OnTradeMenuAccept(heroStats);
+			}
+		}
 	}
 
+	OnCancelClicked();
 }
 
-void UTradeMenu::LoadWolfThumbNail()
+void UTradeMenu::OnCancelClicked()
 {
-
-	WolfRowImages.SetNum(ShopRowSize);
-
-	ConstructorHelpers::FObjectFinder<UTexture2D> ArmorTB(TEXT("/Game/UI/ThumbNail/TN_WolfArmor"));
-	if (ArmorTB.Succeeded())
-		WolfRowImages[(int)EType::Armor] = ArmorTB.Object;
-
-	ConstructorHelpers::FObjectFinder<UTexture2D> SHWeaponLongTB(TEXT("/Game/UI/ThumbNail/TN_WolfArmor"));
-	if (SHWeaponLongTB.Succeeded())
-		WolfRowImages[(int)EType::SHWeapon_Long] = SHWeaponLongTB.Object;
-
-	ConstructorHelpers::FObjectFinder<UTexture2D> SHWeaponShortTB(TEXT("/Game/UI/ThumbNail/TN_WolfArmor"));
-	if (SHWeaponShortTB.Succeeded())
-		WolfRowImages[(int)EType::SHWeapon_Short] = SHWeaponShortTB.Object;
-
-	ConstructorHelpers::FObjectFinder<UTexture2D> RangeWeaponTB(TEXT("/Game/UI/ThumbNail/TN_WolfArmor"));
-	if (RangeWeaponTB.Succeeded())
-		WolfRowImages[(int)EType::RangeWeapon] = RangeWeaponTB.Object;
-
-	ConstructorHelpers::FObjectFinder<UTexture2D> THWeaponTB(TEXT("/Game/UI/ThumbNail/TN_WolfArmor"));
-	if (THWeaponTB.Succeeded())
-		WolfRowImages[(int)EType::THWeapon] = THWeaponTB.Object;
-
-	ConstructorHelpers::FObjectFinder<UTexture2D> HeavyWeaponAxeTB(TEXT("/Game/UI/ThumbNail/TN_WolfArmor"));
-	if (HeavyWeaponAxeTB.Succeeded())
-		WolfRowImages[(int)EType::HeavyWeapon_Axe] = HeavyWeaponAxeTB.Object;
-
-	ConstructorHelpers::FObjectFinder<UTexture2D> HeavyWeaponHammerTB(TEXT("/Game/UI/ThumbNail/TN_WolfArmor"));
-	if (HeavyWeaponHammerTB.Succeeded())
-		WolfRowImages[(int)EType::HeavyWeapon_Hammer] = HeavyWeaponHammerTB.Object;
-
+	this->RemoveFromParent();
+	APlayerController* pc = GetOwningPlayer();
+	pc->bShowMouseCursor = false;
+	FInputModeGameOnly InputMode;
+	pc -> SetInputMode(InputMode);
 }
+
+

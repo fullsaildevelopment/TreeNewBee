@@ -87,12 +87,23 @@ private:
 		float IceDefence;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+		/** Percentage */
 		float HpBonus;
 
-	// if stamina = -1, that means this character has infinite stamina
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 		float StaminaBonus;
 	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+		/** Additive Hp on the max Hp*/
+	    float HpAdditive;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+		/** Additive Sp on the max Hp*/
+		float SpAdditive;
+
+
+
+
 public:
 
 
@@ -112,13 +123,13 @@ public:
 	FORCEINLINE float GetElementalDefence() const { return ElementalDefence; }
 	FORCEINLINE float GetFireDefence() const { return FireDefence; }
 	FORCEINLINE float GetIceDefence() const { return IceDefence; }
-	
+	FORCEINLINE float GetHpAdditive() const { return HpAdditive; }
+	FORCEINLINE float GetSpAdditive() const { return SpAdditive; }
+
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE FText GetGearName() const { return Name; }
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE UTexture2D* GetThumbNailImage() const { return ThumbNail; }
-
-
 
 	virtual void SetDamageIsEnabled(bool _val);
 

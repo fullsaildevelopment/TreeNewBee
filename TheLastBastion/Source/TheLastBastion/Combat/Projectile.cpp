@@ -71,9 +71,8 @@ void AProjectile::BeginPlay()
 
 		ObjectParams.AddObjectTypesToQuery(ECC_EnemyBody);
 		ObjectParams.AddObjectTypesToQuery(ECC_HeroBody);
-		ObjectParams.AddObjectTypesToQuery(ECC_EnemyWeapon);
-		ObjectParams.AddObjectTypesToQuery(ECC_HeroWeapon);
 		ObjectParams.AddObjectTypesToQuery(ECC_WorldStatic);
+		ObjectParams.AddObjectTypesToQuery(ECC_WorldDynamic);
 		IgnoredActors.Add(this);
 		IgnoredActors.Add(RangeWeapon);
 		IgnoredActors.Add(GearOwner);

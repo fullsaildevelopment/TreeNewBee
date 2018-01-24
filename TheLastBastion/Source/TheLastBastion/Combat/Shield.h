@@ -9,12 +9,21 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType)
 class THELASTBASTION_API AShield : public AWeapon
 {
 	GENERATED_BODY()
+
+public:
+
+	AShield();
 	
-	
+protected:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Shield)
+		class UBoxComponent* ShieldBox;
+
+
 	
 	
 };

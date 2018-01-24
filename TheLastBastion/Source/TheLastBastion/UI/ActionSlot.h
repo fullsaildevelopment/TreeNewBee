@@ -9,6 +9,40 @@
 /**
  * 
  */
+USTRUCT(BlueprintType)
+struct FGearUI
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSubclassOf<class AGear> Gear_Bp;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	UTexture2D* Gear_Image;
+};
+
+
+UENUM(BlueprintType)
+enum class EInventoryGearType : uint8
+{
+	SHWeapon = 0,
+	RangeWeapon,
+	Armor,
+	THWeapon,
+	HeavyWeapon
+};
+
+UENUM(BlueprintType)
+enum class EUpgradeGearType : uint8
+{
+	SHWeapon_Long = 0,
+	SHWeapon_Short,
+	RangeWeapon,
+	Armor,
+	THWeapon,
+	HeavyWeapon_Axe,
+	HeavyWeapon_Hammer
+};
 
 
 
@@ -17,7 +51,14 @@ class THELASTBASTION_API UActionSlot : public UUserWidget
 {
 	GENERATED_BODY()
 	
+private:
 
+	static TSubclassOf<class UUserWidget> WBP_DraggedItem;
+
+
+public:
+
+	UActionSlot(const FObjectInitializer& _objInit);
 
 protected:
 
@@ -39,13 +80,14 @@ protected:
 	//	UDragDropOperation* InOperation) override;
 
 
-
-
 protected:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (BlueprintProtected))
 		// Image to tell what this action does
-		class UTexture2D* mActionImage;
+		FGearUI GearUI;
+
+	UPROPERTY()
+		TSubclassOf<class AGear> Gear_Bp;
 
 	UPROPERTY(meta = (BindWidget))
 		class USizeBox* SlotSize;
@@ -53,12 +95,32 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UButton* ActionButton;
 
+	UPROPERTY(BlueprintReadOnly)
+		// Image to tell what this action does
+		EInventoryGearType InventoryGearType;
+	
+	UPROPERTY(BlueprintReadOnly)
+		// Image to tell what this action does
+		EUpgradeGearType UpgradeGearType;
+
+	UPROPERTY(BlueprintReadOnly)
+		bool bFromUpgrade;
+
+
 public:
 
 	void SetSize(float _width, float _height);
 
-	FORCEINLINE void SetActionImage(class UTexture2D* _image) { mActionImage = _image; }
+	/** Called on Inventory UI init, index the action slot for later condition check */
+	void OnInventoryInit(int _index);
 
-	
-	
+	/** Called on ShopRow init, index the action slot for later condition check */
+	void OnShopRowInit(int _index);
+
+	FORCEINLINE void SetAction(const FGearUI& _val) { GearUI = _val; }
+
+	FORCEINLINE void SetActionImage(class UTexture2D* _image) { GearUI.Gear_Image = _image; }
+		
+	FORCEINLINE TSubclassOf<class AGear> GetGearClass() const { return GearUI.Gear_Bp; }
+
 };

@@ -50,6 +50,8 @@ public:
 
 	void SetEachSlotSize(float _width, float _height);
 
+	void SetEachSlotAction(const TArray<struct FGearUI>& _data);
+
 	void SetEachSlotActionImage(const TArray<UTexture2D*>& _actionImages);
 	
 };

@@ -30,12 +30,27 @@ bool UShopRow::Initialize()
 void UShopRow::SetEachSlotSize(float _width, float _height)
 {
 	UActionSlot* slot = nullptr;
+	for (int i = 0; i < ItemRow->GetChildrenCount(); i++)
+	{
+		slot = Cast<UActionSlot>(ItemRow->GetChildAt(i));
+		if (slot)
+		{
+			slot->SetSize(_width, _height);
+			slot->OnShopRowInit(i);
+		}
+	}
+}
+
+void UShopRow::SetEachSlotAction(const TArray<struct FGearUI>& _data)
+{
+	UActionSlot* slot = nullptr;
 	for (size_t i = 0; i < ItemRow->GetChildrenCount(); i++)
 	{
 		slot = Cast<UActionSlot>(ItemRow->GetChildAt(i));
 		if (slot)
-			slot->SetSize(_width, _height);
+			slot->SetAction(_data[i]);
 	}
+
 }
 
 void UShopRow::SetEachSlotActionImage(const TArray<UTexture2D*>& _actionImages)
