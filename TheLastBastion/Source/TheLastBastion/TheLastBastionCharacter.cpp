@@ -61,7 +61,7 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->bGenerateOverlapEvents = true;
 
-	LocateAllCharacterClass();
+	//LocateAllCharacterClass();
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
@@ -78,15 +78,15 @@ TSubclassOf<class ACharacter> ATheLastBastionCharacter::GetCharacterClass(EChara
 /** Find All Character Blueprint Class*/
 void ATheLastBastionCharacter::LocateAllCharacterClass()
 {
-	if (TLBCharacterClass[(int)(ECharacterType::Ranger)] == nullptr)
-		UCustomType::FindClass<ACharacter>(TLBCharacterClass[(int)(ECharacterType::Ranger)], TEXT("/Game/Blueprints/Heros/Ranger_Bp"));
+	//if (TLBCharacterClass[(int)(ECharacterType::Ranger)] == nullptr)
+	//	UCustomType::FindClass<ACharacter>(TLBCharacterClass[(int)(ECharacterType::Ranger)], TEXT("/Game/Blueprints/Heros/Ranger_Bp"));
 
-	if (TLBCharacterClass[(int)(ECharacterType::Builder)] == nullptr)
-		UCustomType::FindClass<ACharacter>(TLBCharacterClass[(int)(ECharacterType::Builder)], TEXT("/Game/Blueprints/Heros/Builder_Bp"));
+	//if (TLBCharacterClass[(int)(ECharacterType::Builder)] == nullptr)
+	//	UCustomType::FindClass<ACharacter>(TLBCharacterClass[(int)(ECharacterType::Builder)], TEXT("/Game/Blueprints/Heros/Builder_Bp"));
 
-	if (TLBCharacterClass[(int)(ECharacterType::LanTrooper_T0)] == nullptr)
-		UCustomType::FindClass<ACharacter>(TLBCharacterClass[(int)(ECharacterType::LanTrooper_T0)],
-			TEXT("/Game/Blueprints/AI/Lannester/Lan_Trooper_T0"));
+	//if (TLBCharacterClass[(int)(ECharacterType::LanTrooper_T0)] == nullptr)
+	//	UCustomType::FindClass<ACharacter>(TLBCharacterClass[(int)(ECharacterType::LanTrooper_T0)],
+	//		TEXT("/Game/Blueprints/AI/Lannester/Lan_Trooper_T0"));
 }
 
 void ATheLastBastionCharacter::BeginPlay()
