@@ -9,7 +9,7 @@ bool UDraggedItem::Initialize()
 		return false;
 
 	bool bAllWidgetAreGood =
-		ItemSize;
+		ItemSize != nullptr;
 
 	if (bAllWidgetAreGood)
 	{
