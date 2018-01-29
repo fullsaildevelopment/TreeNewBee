@@ -42,16 +42,22 @@ struct FDamageInfo
 };
 
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FWeaponSlot
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
-	class AGear* LeftHand;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+		TSubclassOf<class AGear> WeaponClass;
 
 	UPROPERTY()
-	class AGear* RightHand;
+		class AGear* LeftHand;
+
+	UPROPERTY()
+		class AGear* RightHand;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+		bool bHideWhenEquip;
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FOnHealthChangedSignature, const UPawnStatsComponent*, pawnStatsComp, float, damage, const class UDamageType*, _damageType, FName, _boneNmame, const FVector&, _shotFromDirection, const FVector&, _hitPosition);
@@ -81,11 +87,13 @@ protected:
 	UPROPERTY()
 	class ATheLastBastionCharacter* mCharacter;
 
-	UPROPERTY()
-		FWeaponSlot WeaponSlots[2];
-
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Gear)
-		TArray<TSubclassOf<class AGear>> WeaponWheels;
+		TArray<FWeaponSlot> WeaponSlots;
+		//FWeaponSlot WeaponSlots[4];
+
+	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Gear)
+	//	TArray<TSubclassOf<class AGear>> WeaponWheels;
+
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Gear)
 		/** Index to the WeaponWheels*/
 		int CurrentWeapon_Index;
@@ -152,7 +160,6 @@ private:
 
 	virtual float GetBaseDamage();
 
-
 	void GenerateStatsAtBeginPlay();
 
 	class UInGameFloatingText* GenerateFloatingText(const FVector& _worldPos);
@@ -190,7 +197,6 @@ public:
 
 public:
 
-	static int GetMaxWeaponSlot();
 	AGear* GetCurrentArmor() const;
 
 	FORCEINLINE float GetHpRaw() const { return HpRaw; }
@@ -203,8 +209,9 @@ public:
 	FORCEINLINE float GetDivBySpMax() const { return DivByStaminaMax; }
 	FORCEINLINE int   GetLevel() const { return Level; }
 	FORCEINLINE AGear* GetCurrentRightHandWeapon() const { return WeaponSlots[CurrentWeapon_Index].RightHand; }
-	FORCEINLINE virtual int GetMaxNumOfWeaponSlot() const { return 2; }
+	FORCEINLINE int GetMaxNumOfWeaponSlot() const { return WeaponSlots.Num(); }
 	FORCEINLINE FWeaponSlot GetWeaponSlotAt(int _index) const { return WeaponSlots[_index]; }
+	FORCEINLINE void SetWeaponEquipVisibility(int _index, bool _val) { WeaponSlots[_index].bHideWhenEquip = _val; }
 
 protected:
 

@@ -12,14 +12,47 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine.h"
 
-const TArray<FName> Attack_Montage_SectionNames
-= { FName("Combo_0"), FName("Combo_1") ,FName("Combo_2"),FName("Combo_3"), FName("Combo_4"), FName("Combo_5") };
+const TArray<FName> LongSwordAttack_Montage_SN
+= { FName("LSCombo_0"), FName("LSCombo_1") ,FName("LSCombo_2"), FName("LSCombo_3"), FName("LSCombo_4"), FName("LSCombo_5") };
 
+const TArray<FName> AxeMaceAttack_Montage_SN
+= { FName("AMCombo_0"), FName("AMCombo_1") ,FName("AMCombo_2"), FName("AMCombo_3"), FName("AMCombo_4"), FName("AMCombo_5") };
 
-#define MONTAGE_SN_HERO_SnsEquip   TEXT("SnsEquip")
-#define MONTAGE_SN_HERO_SnsUnequip TEXT("SnsUnequip")
-#define MONTAGE_SN_HERO_CBEquip    TEXT("CBEquip")
-#define MONTAGE_SN_HERO_CBUnequip  TEXT("CBUnequip")
+const TArray<FName> BattleAxeAttack_Montage_SN
+= { FName("BACombo_0"), FName("BACombo_1")};
+
+const TArray<FName> GSHammerAttack_Montage_SN
+= { FName("GHCombo_0"), FName("GHCombo_1") ,FName("GHCombo_2")};
+
+const TArray<FName> KatanaAttack_Montage_SN
+= { FName("KACombo_0"), FName("KACombo_1") ,FName("KACombo_2"), FName("KACombo_3"), FName("KACombo_4"), FName("KACombo_5") };
+
+const TArray<FName> KatanaAirAttack_Montage_SN
+= { FName("KACombo_A0"), FName("KACombo_A1"),FName("KACombo_A2") };
+
+#define MONTAGE_SN_HERO_SnsEquip           TEXT("SnsEquip")
+#define MONTAGE_SN_HERO_SnsUnequip         TEXT("SnsUnequip")
+#define MONTAGE_SN_HERO_CBEquip            TEXT("CBEquip")
+#define MONTAGE_SN_HERO_CBUnequip          TEXT("CBUnequip")
+#define MONTAGE_SN_HERO_HVEquip            TEXT("HVEquip")
+#define MONTAGE_SN_HERO_HVUnequip          TEXT("HVUnequip")
+#define MONTAGE_SN_HERO_DHEquip            TEXT("DHEquip")
+#define MONTAGE_SN_HERO_DHUnequip          TEXT("DHUnequip")
+
+#define MONTAGE_SN_HERO_SnsDodgeFwd        TEXT("SnsFwd")
+#define MONTAGE_SN_HERO_SnsDodgeBwd        TEXT("SnsBwd")
+#define MONTAGE_SN_HERO_SnsDodgeLeft       TEXT("SnsLeft")
+#define MONTAGE_SN_HERO_SnsDodgeRight      TEXT("SnsRight")
+#define MONTAGE_SN_HERO_HVDodgeFwd         TEXT("HVFwd")
+#define MONTAGE_SN_HERO_HVDodgeBwd         TEXT("HVBwd")
+#define MONTAGE_SN_HERO_HVDodgeLeft        TEXT("HVLeft")
+#define MONTAGE_SN_HERO_HVDodgeRight       TEXT("HVRight")
+#define MONTAGE_SN_HERO_KatanaDodgeFwd     TEXT("KAFwd")
+#define MONTAGE_SN_HERO_KatanaDodgeFwdF    TEXT("KAFwdF")
+#define MONTAGE_SN_HERO_KatanaDodgeBwd     TEXT("KABwd")
+#define MONTAGE_SN_HERO_KatanaDodgeLeft    TEXT("KALeft")
+#define MONTAGE_SN_HERO_KatanaDodgeRight   TEXT("KARight")
+
 #define MONTAGE_SN_HERO_FireOnce   TEXT("FireOnce")
 
 #pragma region Class Base Interface
@@ -41,6 +74,7 @@ UHero_AnimInstance::UHero_AnimInstance(const FObjectInitializer& _objectInitaliz
 	// Melee Init
 	CurrentComboIndex = 0;
 	CurrentEquipment = EEquipType::ShieldSword;
+
 	FocusDodgeDirection = EFocusDodgeDirection::None;
 	bIsFocused = false;
 
@@ -55,16 +89,20 @@ UHero_AnimInstance::UHero_AnimInstance(const FObjectInitializer& _objectInitaliz
 
 void UHero_AnimInstance::OnBeginPlay()
 {
+	UE_LOG(LogTemp, Warning, TEXT("UHero_AnimInstance::OnBeginPlay"));
 	APawn* pawn = TryGetPawnOwner();
 	mCharacter = Cast<ATheLastBastionHeroCharacter>(pawn);
 	if (mCharacter == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("The MeleeHero can only assigned to ATheLastBastionCharacter - UMeleeHero_AnimInstance "));
+		UE_LOG(LogTemp, Warning, TEXT("The Hero can only assigned to ATheLastBastionCharacter - UHero_AnimInstance::OnBeginPlay "));
 		return;
 	}
 
+	UpdateComboList(EGearType::LongSword);
+
 	OnMontageStarted.AddDynamic(this, &UHero_AnimInstance::OnMontageStartHandle);
 	OnMontageBlendingOut.AddDynamic(this, &UHero_AnimInstance::OnMontageBlendOutStartHandle);
+
 }
 
 void UHero_AnimInstance::OnInit()
@@ -92,7 +130,6 @@ void UHero_AnimInstance::OnUpdate(float _deltaTime)
 
 		currentSpeed = movementComp->Velocity.Size();
 
-
 		if (ActivatedEquipment == EEquipType::Travel || AttackState == EAttackState::Dodging || AttackState == EAttackState::PostDodging)
 			mAccelerationDirection = movementComp->GetCurrentAcceleration().GetSafeNormal();
 		else
@@ -108,6 +145,8 @@ void UHero_AnimInstance::OnUpdate(float _deltaTime)
 			RangeUpdate(movementComp, _deltaTime);
 			break;
 		case EEquipType::ShieldSword:
+		case EEquipType::HeavyWeapon:
+		case EEquipType::TwoHandSword:
 			MeleeUpdate(movementComp, _deltaTime);
 			break;
 		}
@@ -116,26 +155,7 @@ void UHero_AnimInstance::OnUpdate(float _deltaTime)
 
 void UHero_AnimInstance::MeleeUpdate(UCharacterMovementComponent * movementComp, float _deltaTime)
 {
-	// the more of the angle between forward vector and acceleration, the more rotation speed
-	if (ActivatedEquipment == EEquipType::Travel)
-	{
-		movementComp->RotationRate.Yaw
-			= UKismetMathLibrary::MapRangeClamped(FMath::Abs(turn), 0, 180.0f,
-				mCharacter->GetMinTurnRateForTravel(),
-				mCharacter->GetMaxTurnRateForTravel());
-	}
-	else
-	{
-		if (AttackState == EAttackState::PreWinding)
-			movementComp->RotationRate.Yaw = mCharacter->GetMaxTurnRateForCombat();
-		else
-			movementComp->RotationRate.Yaw
-			= UKismetMathLibrary::MapRangeClamped(FMath::Abs(turn), 0, 180.0f,
-				mCharacter->GetMinTurnRateForCombat(),
-				mCharacter->GetMaxTurnRateForCombat());
-	}
-
-
+	MeleeRotateRateAndMaxSpeedUpdate(movementComp);
 
 	///** movement update during velocity override
 	if (bVelocityOverrideByAnim)
@@ -230,19 +250,89 @@ void UHero_AnimInstance::MeleeUpdate(UCharacterMovementComponent * movementComp,
 
 }
 
-void UHero_AnimInstance::RangeUpdate(UCharacterMovementComponent* movementComp, float _deltaTime)
+void UHero_AnimInstance::MeleeRotateRateAndMaxSpeedUpdate(UCharacterMovementComponent * movementComp)
 {
+	// the more of the angle between forward vector and acceleration, the more rotation speed
 	if (ActivatedEquipment == EEquipType::Travel)
 	{
+		movementComp->JumpZVelocity = 1000.0f;
+		movementComp->RotationRate.Yaw
+			= UKismetMathLibrary::MapRangeClamped(FMath::Abs(turn), 0, 180.0f,
+				mCharacter->GetMinTurnRateForTravel(),
+				mCharacter->GetMaxTurnRateForTravel());
+
+		if (bIsSprinting)
+			mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetSprintSpeed();
+		else
+			mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();
+	}
+	else
+	{
+		if (AttackState == EAttackState::PreWinding)
+			movementComp->RotationRate.Yaw = mCharacter->GetMaxTurnRateForCombat();
+		else
+			movementComp->RotationRate.Yaw
+			= UKismetMathLibrary::MapRangeClamped(FMath::Abs(turn), 0, 180.0f,
+				mCharacter->GetMinTurnRateForCombat(),
+				mCharacter->GetMaxTurnRateForCombat());
+
+		switch (CurrentEquipment)
+		{
+		case EEquipType::ShieldSword:
+			movementComp->JumpZVelocity = 1100.0f;
+			mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();
+			break;
+		case EEquipType::HeavyWeapon:
+			movementComp->JumpZVelocity = 800.0f;
+			if (bIsSprinting)
+				mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed() - 100.0f;
+			else
+			{
+				mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetWalkSpeed();
+				MoveForwardAxis *= 0.5f;
+				MoveRightAxis *= 0.5f;
+			}
+			break;
+		case EEquipType::TwoHandSword:
+			movementComp->JumpZVelocity = 1200.0f;
+			if (bIsSprinting && MoveForwardAxis > 0 && MoveRightAxis == 0)
+			{
+				mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetSprintSpeed();
+				MoveForwardAxis *= 2.0f;
+			}
+			else
+				mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();
+			break;
+		default:
+			break;
+		}
+	}
+
+}
+
+void UHero_AnimInstance::RangeUpdate(UCharacterMovementComponent* movementComp, float _deltaTime)
+{
+	movementComp->RotationRate.Yaw
+		= UKismetMathLibrary::MapRangeClamped(FMath::Abs(turn), 0, 180.0f,
+			mCharacter->GetMinTurnRateForTravel(),
+			mCharacter->GetMaxTurnRateForTravel());
+
+	if (ActivatedEquipment == EEquipType::Travel)
+	{
+
 		mCharacter->GetFollowCamera()->RelativeLocation
 			= UKismetMathLibrary::VInterpTo(mCharacter->GetFollowCamera()->RelativeLocation, FVector::ZeroVector, _deltaTime, CameraShiftRate);
+		if (bIsSprinting)
+			movementComp->MaxWalkSpeed = mCharacter->GetSprintSpeed();
+		else
+			movementComp->MaxWalkSpeed = mCharacter->GetJogSpeed();
 	}
 	else
 	{
 		if (bTryToZoomIn)
 		{
 			// walk in zoom in mode
-			if (!bTryToSprint)
+			if (!bIsSprinting)
 			{
 				MoveForwardAxis *= 0.5f;
 				MoveRightAxis *= 0.5f;
@@ -256,16 +346,21 @@ void UHero_AnimInstance::RangeUpdate(UCharacterMovementComponent* movementComp, 
 		}
 		else
 		{
+			// Sprinting mode when not aiming
+			if (bIsSprinting && MoveRightAxis == 0 && MoveForwardAxis > 0)
+			{
+				movementComp->MaxWalkSpeed = mCharacter->GetSprintSpeed();
+				MoveForwardAxis *= 2.0f;
+			}
+			else
+				movementComp->MaxWalkSpeed = mCharacter->GetJogSpeed();
+
+
 			mCharacter->GetFollowCamera()->RelativeLocation
 				= UKismetMathLibrary::VInterpTo(mCharacter->GetFollowCamera()->RelativeLocation, CameraEquipOffset, _deltaTime, CameraShiftRate);
-			movementComp->MaxWalkSpeed = mCharacter->GetJogSpeed();
 		}
 	}
 
-	movementComp->RotationRate.Yaw
-		= UKismetMathLibrary::MapRangeClamped(FMath::Abs(turn), 0, 180.0f,
-			mCharacter->GetMinTurnRateForTravel(),
-			mCharacter->GetMaxTurnRateForTravel());
 
 	if (bVelocityOverrideByAnim)
 	{
@@ -317,6 +412,7 @@ void UHero_AnimInstance::OnMiddleMouseButtonPressed()
 	{
 	case EEquipType::ShieldSword:
 	case EEquipType::TwoHandSword:
+	case EEquipType::HeavyWeapon:
 	{
 		if (mCharacter)
 		{
@@ -348,17 +444,14 @@ void UHero_AnimInstance::OnCorLAltPressed()
 	{
 	case EEquipType::ShieldSword:
 	case EEquipType::TwoHandSword:
+	case EEquipType::HeavyWeapon:
 		OnDodge();
-
 		break;
 	case EEquipType::CrossBow:
 		break;
 	default:
 		break;
 	}
-
-
-
 }
 
 void UHero_AnimInstance::OnRightMouseButtonPressed()
@@ -394,12 +487,11 @@ void UHero_AnimInstance::OnSprintPressed()
 {
 	bTryToSprint = true;
 
-	//bool ableToSprint = !bSpeedOverrideByAnim && ActivatedEquipment == EEquipType::Travel;
-	bool ableToSprint = ActivatedEquipment == EEquipType::Travel && !bIsInAir;
+	bool ableToSprint = !bIsInAir;
 
 	if (ableToSprint)
 	{
-		mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetSprintSpeed();
+		//mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetSprintSpeed();
 		bIsSprinting = true;
 	}
 }
@@ -408,7 +500,7 @@ void UHero_AnimInstance::OnSprintReleased()
 {
 	bTryToSprint = false;
 
-	mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
+	//mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
 	bIsSprinting = false;
 }
 
@@ -429,7 +521,6 @@ void UHero_AnimInstance::StopOverrideSpeed()
 	mCharacter->GetCharacterMovement()->MaxWalkSpeed 
 		= (bIsSprinting)? mCharacter->GetSprintSpeed() : mCharacter->GetJogSpeed();
 }
-
 
 void UHero_AnimInstance::OnFocus()
 {
@@ -521,13 +612,7 @@ bool UHero_AnimInstance::OnEquip()
 		// Equip
 		if (ActivatedEquipment != CurrentEquipment)
 		{
-			// if we are sprinting then stop
-			if (bIsSprinting)
-			{
-				mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
-				bIsSprinting = false;
-			}
-			DisableJump();
+			//DisableJump();
 			bVelocityOverrideByAnim = false;
 			bTryToEquip = true;
 		}
@@ -541,23 +626,19 @@ bool UHero_AnimInstance::OnEquip()
 				UE_LOG(LogTemp, Warning, TEXT("Unequip during focus, unfocus is implemented automatically"));
 			}
 			bTryToEquip = false;
+			bTryToZoomIn = false;
 		}
-
 		/** play animation montage based on CurrentEquipment */
 		switch (CurrentEquipment)
 		{
 		case EEquipType::ShieldSword:
 		{
 			if (ActivatedEquipment == EEquipType::Travel)
-			{
 				// Equip
 				this->PlayMontage(Equip_Montage, 1.0f, MONTAGE_SN_HERO_SnsEquip);
-			}
 			else if (ActivatedEquipment == CurrentEquipment)
-			{
 				// Unequip
 				this->PlayMontage(Equip_Montage, 1.0f, MONTAGE_SN_HERO_SnsUnequip);
-			}
 
 			break;
 
@@ -565,15 +646,22 @@ bool UHero_AnimInstance::OnEquip()
 		case EEquipType::TwoHandSword:
 		{
 			if (ActivatedEquipment == EEquipType::Travel)
-			{
 				// Equip
-				this->PlayMontage(Equip_Montage, 1.0f, MONTAGE_SN_HERO_CBEquip);
-			}
+				this->PlayMontage(Equip_Montage, 1.0f, MONTAGE_SN_HERO_DHEquip);
 			else if (ActivatedEquipment == CurrentEquipment)
-			{
 				// Unequip
-				this->PlayMontage(Equip_Montage, 1.0f, MONTAGE_SN_HERO_CBUnequip);
-			}
+				this->PlayMontage(Equip_Montage, 1.0f, MONTAGE_SN_HERO_DHUnequip);
+			break;
+
+		}
+		case EEquipType::HeavyWeapon:
+		{
+			if (ActivatedEquipment == EEquipType::Travel)
+				// Equip
+				this->PlayMontage(Equip_Montage, 1.0f, MONTAGE_SN_HERO_HVEquip);
+			else if (ActivatedEquipment == CurrentEquipment)
+				// Unequip
+				this->PlayMontage(Equip_Montage, 1.0f, MONTAGE_SN_HERO_HVUnequip);
 			break;
 
 		}
@@ -582,13 +670,16 @@ bool UHero_AnimInstance::OnEquip()
 			if (ActivatedEquipment == EEquipType::Travel)
 			{
 				// Equip
+				mCharacter->ToggleFireMode(true);
 				this->PlayMontage(Equip_Montage, 1.0f, MONTAGE_SN_HERO_CBEquip);
 			}
 			else if (ActivatedEquipment == CurrentEquipment)
 			{
 				// Unequip
+				mCharacter->ToggleFireMode(false);
 				this->PlayMontage(Equip_Montage, 1.0f, MONTAGE_SN_HERO_CBUnequip);
 			}
+			break;
 		}
 		}
 		return true;
@@ -616,37 +707,93 @@ void UHero_AnimInstance::OnSwapBetweenMeleeAndRange()
 	bool success = mCharacter->GetHeroStatsComp()->OnSwapBetweenMeleeAndRange();
 	if (success)
 	{
-		if (ActivatedEquipment == EEquipType::Travel)
-		{
-			bVelocityOverrideByAnim = false;
-			bTryToEquip = true;
-		}
-		// Check the current main weapon after swap
-		AGear* mainWeapon = heroStats->GetCurrentRightHandWeapon();
-		
-		switch (mainWeapon->GetGearType())
-		{
-		case EGearType::SingleHandWeapon:
-			CurrentEquipment = EEquipType::ShieldSword;
-			this->PlayMontage(Equip_Montage, 1.0f, MONTAGE_SN_HERO_SnsEquip);
-			break;
-		case EGearType::DoubleHandWeapon:
-			CurrentEquipment = EEquipType::TwoHandSword;
-			break;
-		case EGearType::CrossBow:
-		{			
-			CurrentEquipment = EEquipType::CrossBow;
-			if (bIsFocused)
-			{
-				OnFocus();
-			}
-			this->PlayMontage(Equip_Montage, 1.0f, MONTAGE_SN_HERO_CBEquip);
-			break;
-		}
-		}
-		
+		OnChangeWeaponFinsh();
 	}
 
+
+}
+
+void UHero_AnimInstance::OnChangeWeapon(EEquipType _next)
+{
+
+	UHeroStatsComponent* heroStats = mCharacter->GetHeroStatsComp();
+	bool ignore
+		= AttackState != EAttackState::None
+		|| Montage_IsPlaying(Equip_Montage) 
+		|| (_next == ActivatedEquipment)
+		|| Equip_Montage == nullptr 
+		|| heroStats == nullptr;
+
+	if (ignore)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("OnChangeWeapon is ignore due to wrong attack state, running montage, null Montage or heroStats"));
+		return;
+	}
+
+	bool inventoryCheck = heroStats->OnSwitchWeapon(_next);
+
+	if (inventoryCheck)
+	{
+		OnChangeWeaponFinsh();
+	}
+
+}
+
+void UHero_AnimInstance::OnChangeWeaponFinsh()
+{
+	if (ActivatedEquipment == EEquipType::Travel)
+	{
+		bVelocityOverrideByAnim = false;
+		bTryToEquip = true;
+	}
+	else if (ActivatedEquipment == EEquipType::CrossBow)
+	{
+		bTryToZoomIn = false;
+	}
+
+
+	// Check the current main weapon after swap, update the combo array
+	AGear* mainWeapon = mCharacter->GetHeroStatsComp()->GetCurrentRightHandWeapon();
+
+	FName sectionToPlay;
+
+	switch (mainWeapon->GetGearType())
+	{
+	case EGearType::LongSword:
+	case EGearType::WarAxe:
+	case EGearType::Mace:
+		CurrentEquipment = EEquipType::ShieldSword;
+		sectionToPlay = MONTAGE_SN_HERO_SnsEquip;
+		//this->PlayMontage(Equip_Montage, 1.0f, MONTAGE_SN_HERO_SnsEquip);
+		break;
+	case EGearType::DoubleHandWeapon:
+		CurrentEquipment = EEquipType::TwoHandSword;
+		sectionToPlay = MONTAGE_SN_HERO_DHEquip;
+		//this->PlayMontage(Equip_Montage, 1.0f, MONTAGE_SN_HERO_DHEquip);
+		break;
+	case EGearType::BattleAxe:
+	case EGearType::Hammer:
+	case EGearType::GreatSword:
+		CurrentEquipment = EEquipType::HeavyWeapon;
+		sectionToPlay = MONTAGE_SN_HERO_HVEquip;
+		//this->PlayMontage(Equip_Montage, 1.0f, MONTAGE_SN_HERO_HVEquip);
+		break;
+	case EGearType::CrossBow:
+	{
+		CurrentEquipment = EEquipType::CrossBow;
+		if (bIsFocused)
+		{
+			OnFocus();
+		}
+		sectionToPlay = MONTAGE_SN_HERO_CBEquip;
+		this->PlayMontage(Equip_Montage, 1.0f, MONTAGE_SN_HERO_CBEquip);
+		break;
+	}
+	}
+	UpdateComboList(mainWeapon->GetGearType());
+	// play EquipAnimation?
+	this->PlayMontage(Equip_Montage, 1.0f, sectionToPlay);
 
 }
 
@@ -678,15 +825,15 @@ void UHero_AnimInstance::OnSheathWeapon()
 void UHero_AnimInstance::SkipEquip()
 {
 	OnEquipWeapon();
-	if (bIsSprinting)
-	{
-		// Once Attack, we activate combat mode, hence we have to slow our speed down
-		// if we are sprinting then stop
-		mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
-		bIsSprinting = false;
-	}
+	//if (bIsSprinting)
+	//{
+	//	// Once Attack, we activate combat mode, hence we have to slow our speed down
+	//	// if we are sprinting then stop
+	//	mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
+	//	bIsSprinting = false;
+	//}
 	bVelocityOverrideByAnim = false;
-	DisableJump();
+	//DisableJump();
 }
 
 void UHero_AnimInstance::AttachWeapon()
@@ -694,15 +841,15 @@ void UHero_AnimInstance::AttachWeapon()
 	ActivatedEquipment = CurrentEquipment;
 	mCharacter->GetHeroStatsComp()->OnEquipWeapon();
 
-	if (bIsSprinting)
-	{
-		// Once Attack, we activate combat mode, hence we have to slow our speed down
-		// if we are sprinting then stop
-		mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
-		bIsSprinting = false;
-	}
+	//if (bIsSprinting)
+	//{
+	//	// Once Attack, we activate combat mode, hence we have to slow our speed down
+	//	// if we are sprinting then stop
+	//	mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
+	//	bIsSprinting = false;
+	//}
 	bVelocityOverrideByAnim = false;
-	DisableJump();
+	//DisableJump();
 
 }
 
@@ -752,9 +899,8 @@ void UHero_AnimInstance::OnAttack()
 		break;
 	case EEquipType::ShieldSword:
 	case EEquipType::TwoHandSword:
+	case EEquipType::HeavyWeapon:
 		OnMeleeAttack();
-		break;
-	default:
 		break;
 	}
 
@@ -762,7 +908,10 @@ void UHero_AnimInstance::OnAttack()
 
 void UHero_AnimInstance::OnMeleeAttack()
 {
-	bool ignore = Montage_IsPlaying(Hit_Montage) || Attack_Montage == nullptr || bIsInAir;
+	bool ignore =
+		Montage_IsPlaying(Hit_Montage)
+		|| (bIsInAir)
+		|| Attack_Montage == nullptr;
 
 	// Apply Input Filter
 	if (ignore)
@@ -786,7 +935,6 @@ void UHero_AnimInstance::OnMeleeAttack()
 		LaunchCombo();
 		return;
 	}
-
 	case EAttackState::Attacking:
 	case EAttackState::Dodging:
 	{
@@ -796,7 +944,6 @@ void UHero_AnimInstance::OnMeleeAttack()
 		NextAction = EActionType::Attack;
 		return;
 	}
-
 	case EAttackState::PreWinding:
 	default:
 		//UE_LOG(LogTemp, Warning, TEXT("current attack state ignore attack action"));
@@ -810,7 +957,7 @@ void UHero_AnimInstance::OnRangeAttack()
 	// Condition Check
 	bool ignore = Montage_IsPlaying(Hit_Montage) ||
 		Montage_IsPlaying(Fire_Montage) || 
-		Fire_Montage == nullptr || bIsInAir || mCharacter == nullptr;
+		Fire_Montage == nullptr || mCharacter == nullptr;
 
 	if (ignore)
 	{
@@ -868,17 +1015,14 @@ void UHero_AnimInstance::OnZoomOut()
 
 void UHero_AnimInstance::LaunchCombo()
 {
-	if (CurrentComboIndex >= Attack_Montage_SectionNames.Num())
+	if (CurrentComboIndex >= Current_AttackSectionName->Num())
 	{
 		// start over
-		//UE_LOG(LogTemp, Warning, TEXT("mCurrentComboIndex: %d, reach max Combo Index, reset "), CurrentComboIndex);
+		UE_LOG(LogTemp, Warning, TEXT("mCurrentComboIndex: %d, reach max Combo Index: %d, reset "), CurrentComboIndex, Current_AttackSectionName->Num());
 		CurrentComboIndex = 0;
 	}
 
-	this->PlayMontage(Attack_Montage, 1.0f, Attack_Montage_SectionNames[CurrentComboIndex]);
-	AttackState = EAttackState::PreWinding;
-	NextAction = EActionType::None;
-	CurrentComboIndex++;
+	this->PlayMontage(Attack_Montage, 1.0f, (*Current_AttackSectionName)[CurrentComboIndex]);
 	bVelocityOverrideByAnim = true;
 
 	if (!bIsFocused)
@@ -886,7 +1030,10 @@ void UHero_AnimInstance::LaunchCombo()
 		mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = true;
 		mCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 	}
-	//bRotationRateOverrideByAnim = false;
+
+	AttackState = EAttackState::PreWinding;
+	NextAction = EActionType::None;
+	CurrentComboIndex++;
 }
 
 void UHero_AnimInstance::ResetCombo()
@@ -1026,7 +1173,7 @@ void UHero_AnimInstance::LaunchDodge()
 		mCharacter->bUsePreviousMovementAxis = true;
 		mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = false;
 		mCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
-		this->PlayMontage(Dodge_Montage, 1.0f, TEXT("Dodge_Fwd"));
+		this->PlayMontage(Dodge_Montage, 1.0f, GetForwardDodgeSection());
 	}
 	else
 	{
@@ -1038,17 +1185,17 @@ void UHero_AnimInstance::LaunchDodge()
 		{
 			if (MoveRightAxis > 0)
 			{
-				dodgeSection = TEXT("Dodge_Right90");
+				dodgeSection = GetRightDodgeSection();
 				FocusDodgeDirection = EFocusDodgeDirection::Right90;
 			}
 			else if (MoveRightAxis < 0)
 			{
-				dodgeSection = TEXT("Dodge_Left90");
+				dodgeSection = GetLeftDodgeSection();
 				FocusDodgeDirection = EFocusDodgeDirection::Left90;
 			}
 			else
 			{
-				dodgeSection = TEXT("Dodge_Bwd");
+				dodgeSection = GetBackDodgeSection();
 				FocusDodgeDirection = EFocusDodgeDirection::Back;
 			}
 		}
@@ -1056,17 +1203,17 @@ void UHero_AnimInstance::LaunchDodge()
 		{
 			if (MoveRightAxis > 0)
 			{
-				dodgeSection = TEXT("Dodge_Right90");
+				dodgeSection = GetRightDodgeSection();
 				FocusDodgeDirection = EFocusDodgeDirection::Right45;
 			}
 			else if (MoveRightAxis<0)
 			{
-				dodgeSection = TEXT("Dodge_Left90");
+				dodgeSection = GetLeftDodgeSection();
 				FocusDodgeDirection = EFocusDodgeDirection::Left45;
 			}
 			else
 			{
-				dodgeSection = TEXT("Dodge_Fwd");
+				dodgeSection = GetForwardDodgeSection();
 				FocusDodgeDirection = EFocusDodgeDirection::Forward;
 			}
 		}
@@ -1074,18 +1221,18 @@ void UHero_AnimInstance::LaunchDodge()
 		{
 			if (MoveRightAxis > 0)
 			{
-				dodgeSection = TEXT("Dodge_Right90");
+				dodgeSection = GetRightDodgeSection();
 				FocusDodgeDirection = EFocusDodgeDirection::Right135;
 
 			}
 			else if (MoveRightAxis<0)
 			{
-				dodgeSection = TEXT("Dodge_Left90");
+				dodgeSection = GetLeftDodgeSection();
 				FocusDodgeDirection = EFocusDodgeDirection::Left135;
 			}
 			else
 			{
-				dodgeSection = TEXT("Dodge_Bwd");
+				dodgeSection = GetBackDodgeSection();
 				FocusDodgeDirection = EFocusDodgeDirection::Back;
 			}
 		}
@@ -1149,6 +1296,64 @@ void UHero_AnimInstance::OnDodgeFinish(bool _bInterruptted)
 		ToggleFocusMode(false);
 
 }
+
+
+FName UHero_AnimInstance::GetForwardDodgeSection() const 
+{
+	switch (CurrentEquipment)
+	{
+	case EEquipType::ShieldSword:
+	default:
+		return MONTAGE_SN_HERO_SnsDodgeFwd;
+	case EEquipType::TwoHandSword:
+		if (bIsFocused)
+			return MONTAGE_SN_HERO_KatanaDodgeFwdF;
+		else
+			return MONTAGE_SN_HERO_KatanaDodgeFwd;
+	case EEquipType::HeavyWeapon:
+		return MONTAGE_SN_HERO_HVDodgeFwd;
+	}
+}
+FName UHero_AnimInstance::GetRightDodgeSection() const
+{
+	switch (CurrentEquipment)
+	{
+	case EEquipType::ShieldSword:
+	default:
+		return MONTAGE_SN_HERO_SnsDodgeRight;
+	case EEquipType::TwoHandSword:
+		return MONTAGE_SN_HERO_KatanaDodgeRight;
+	case EEquipType::HeavyWeapon:
+		return MONTAGE_SN_HERO_HVDodgeRight;
+	}
+}
+FName UHero_AnimInstance::GetLeftDodgeSection() const
+{
+	switch (CurrentEquipment)
+	{
+	case EEquipType::ShieldSword:
+	default:
+		return MONTAGE_SN_HERO_SnsDodgeLeft;
+	case EEquipType::TwoHandSword:
+		return MONTAGE_SN_HERO_KatanaDodgeLeft;
+	case EEquipType::HeavyWeapon:
+		return MONTAGE_SN_HERO_HVDodgeLeft;
+	}
+}
+FName UHero_AnimInstance::GetBackDodgeSection() const
+{
+	switch (CurrentEquipment)
+	{
+	case EEquipType::ShieldSword:
+	default:
+		return MONTAGE_SN_HERO_SnsDodgeBwd;
+	case EEquipType::TwoHandSword:
+		return MONTAGE_SN_HERO_KatanaDodgeBwd;
+	case EEquipType::HeavyWeapon:
+		return MONTAGE_SN_HERO_HVDodgeBwd;
+	}
+}
+
 FVector UHero_AnimInstance::GetFocusDodgeDirection() const
 {
 	switch (FocusDodgeDirection)
@@ -1281,6 +1486,37 @@ void UHero_AnimInstance::RecoverFromBeingHit(bool _bInterrupted)
 
 	mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = true;
 	mCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
+}
+
+/** Called When switch melee weapon and equip*/
+void UHero_AnimInstance::UpdateComboList(EGearType _gearType)
+{
+	switch (_gearType)
+	{
+	case EGearType::LongSword:
+		Current_AttackSectionName = &LongSwordAttack_Montage_SN;
+		Attack_Montage = LongSword_Montage;
+		break;
+	case EGearType::WarAxe:
+	case EGearType::Mace:
+		Current_AttackSectionName = &AxeMaceAttack_Montage_SN;
+		Attack_Montage = AxeMace_Montage;
+		break;
+	case EGearType::DoubleHandWeapon:
+		Current_AttackSectionName = &KatanaAttack_Montage_SN;
+		Attack_Montage = Katana_Montage;
+		break;
+	case EGearType::BattleAxe:
+		Current_AttackSectionName = &BattleAxeAttack_Montage_SN;
+		Attack_Montage = BattleAxe_Montage;
+		break;
+	case EGearType::GreatSword:
+	case EGearType::Hammer:
+		Current_AttackSectionName = &GSHammerAttack_Montage_SN;
+		Attack_Montage = GreatSwordHammer_Montage;
+		break;
+	}
+	CurrentComboIndex = 0;
 }
 
 void UHero_AnimInstance::HeadTrack()

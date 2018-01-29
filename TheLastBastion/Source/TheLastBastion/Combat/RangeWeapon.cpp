@@ -27,6 +27,11 @@ ARangeWeapon::ARangeWeapon()
 	MaxHorizontalAimOffset = 100.0f;
 }
 
+USceneComponent * ARangeWeapon::GetMesh() const
+{
+	return MeshComp;
+}
+
 void ARangeWeapon::BeginPlay()
 {
 	Super::BeginPlay();

@@ -48,30 +48,46 @@ void UInventoryUI::OnOpenTradeMenu(UHeroStatsComponent * _heroStats)
 	// Check WeaponSlot
 	AGear* weapon = nullptr;
 	
-	//int numOfSlot = _heroStats->GetMaxNumOfWeaponSlot();
-
-	// Use constant 2 for now
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i <  _heroStats->GetMaxNumOfWeaponSlot(); i++)
 	{
+		TSubclassOf<AGear> weaponClass = _heroStats->GetWeaponSlotAt(i).WeaponClass;
 		weapon = _heroStats->GetWeaponSlotAt(i).RightHand;
 		if (weapon)
 		{
 			switch (weapon->GetGearType())
 			{
-				case EGearType::SingleHandWeapon:
+				case EGearType::WarAxe:
+				case EGearType::LongSword:
+				case EGearType::Mace:
+					SHWeapon->SetGearBp(weaponClass);
 					SHWeapon->SetActionImage(weapon->GetThumbNailImage());
 					break;
-				case EGearType::CrossBow:
-					THWeapon->SetActionImage(weapon->GetThumbNailImage());
+				case EGearType::BattleAxe:
+				case EGearType::Hammer:
+				case EGearType::GreatSword:
+					HeavyWeapon->SetGearBp(weaponClass);
+					HeavyWeapon->SetActionImage(weapon->GetThumbNailImage());
 					break;
-				case EGearType::DoubleHandWeapon:
+				case EGearType::CrossBow:
+					RangeWeapon->SetGearBp(weaponClass);
 					RangeWeapon->SetActionImage(weapon->GetThumbNailImage());
 					break;
+				case EGearType::DoubleHandWeapon:
+					THWeapon->SetGearBp(weaponClass);
+					THWeapon->SetActionImage(weapon->GetThumbNailImage());
+					break;
 			}
-
 		}
 	}
 
+}
+
+TSubclassOf<class AGear> UInventoryUI::GetGearClassAt(int _index) const
+{
+	UActionSlot* slot  = Cast<UActionSlot>(GearRow->GetChildAt(_index));
+	if (slot)
+		return slot->GetGearClass();
+	return nullptr;
 }
 
 TSubclassOf<class AGear> UInventoryUI::GetCurrentSHWeapon() const

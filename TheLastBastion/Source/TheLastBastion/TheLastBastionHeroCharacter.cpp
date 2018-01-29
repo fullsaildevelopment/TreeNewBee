@@ -6,7 +6,7 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "Animation/MeleeHero_AnimInstance.h"
+#include "Animation/Hero_AnimInstance.h"
 #include "CustomType.h"
 #include "Combat/Weapon.h"
 #include "Combat/Armor.h"
@@ -124,6 +124,13 @@ void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputCompone
 	PlayerInputComponent->BindAction("RMB", IE_Released, this, &ATheLastBastionHeroCharacter::OnRightMouseButtonReleased);
 
 	PlayerInputComponent->BindAction("TabMeleeRange", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnTABPressed);
+
+	PlayerInputComponent->BindAction("UseRangeWeapon", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnUseRangeWeapon);
+	PlayerInputComponent->BindAction("UseSHWeapon",    IE_Pressed, this, &ATheLastBastionHeroCharacter::OnUseSHWeapon);
+	PlayerInputComponent->BindAction("UseTHWeapon",    IE_Pressed, this, &ATheLastBastionHeroCharacter::OnUseTHWeapon);
+	PlayerInputComponent->BindAction("UseHeavyWeapon", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnUseHeavyWeapon);
+
+	PlayerInputComponent->BindAction("Pause", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnPause);
 
 
 }
@@ -255,13 +262,41 @@ void ATheLastBastionHeroCharacter::AddControllerYaw(float _yaw)
 	}
 }
 
+void ATheLastBastionHeroCharacter::OnUseRangeWeapon()
+{
+	mAnimInstanceRef->OnChangeWeapon(EEquipType::CrossBow);
+}
+
+void ATheLastBastionHeroCharacter::OnUseSHWeapon()
+{
+	mAnimInstanceRef->OnChangeWeapon(EEquipType::ShieldSword);
+}
+
+void ATheLastBastionHeroCharacter::OnUseTHWeapon()
+{
+	mAnimInstanceRef->OnChangeWeapon(EEquipType::TwoHandSword);
+}
+
+void ATheLastBastionHeroCharacter::OnUseHeavyWeapon()
+{
+	mAnimInstanceRef->OnChangeWeapon(EEquipType::HeavyWeapon);
+}
+
+void ATheLastBastionHeroCharacter::OnPause()
+{
+	ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(GetController());
+	if (pc)
+	{
+		pc->OnPauseButtonIsPressed();
+	}
+}
+
 void ATheLastBastionHeroCharacter::OnTABPressed()
 {
 	mAnimInstanceRef->OnSwapBetweenMeleeAndRange();
 }
 
 #pragma endregion
-
 
 void ATheLastBastionHeroCharacter::OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType, FName _boneName, const FVector & _shotFromDirection, const FVector & _hitLocation)
 {
@@ -271,7 +306,6 @@ void ATheLastBastionHeroCharacter::OnHealthChangedHandle(const UPawnStatsCompone
 	// Animation
 	mAnimInstanceRef->OnBeingHit(_damage, _boneName, _shotFromDirection, _hitLocation, _pawnStatsComp);
 }
-
 
 FVector ATheLastBastionHeroCharacter::GetPawnViewLocation() const
 {
@@ -284,3 +318,7 @@ FVector ATheLastBastionHeroCharacter::GetPawnViewLocation() const
 
 }
 
+void ATheLastBastionHeroCharacter::ToggleFireMode(bool _val)
+{
+	mInGameHUD->ToggleFireMode(_val);
+}

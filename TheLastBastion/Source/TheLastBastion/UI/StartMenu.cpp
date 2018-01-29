@@ -55,9 +55,15 @@ bool UStartMenu::Initialize()
 
 	// Init Button
 	SteamButton->SetIsEnabled(false);
+	LanButton->SetIsEnabled(false);
 	ListSwitcher->SetActiveWidgetIndex(0);
 	BackButton->SetVisibility(ESlateVisibility::Hidden);
 	return true;
+}
+
+void UStartMenu::UseFirstSlide()
+{
+	ListSwitcher->SetActiveWidgetIndex(ListToSwitch::MainList);
 }
 
 void UStartMenu::OnHostButtonClick()
@@ -75,13 +81,11 @@ void UStartMenu::OnJoinButtonClick()
 
 void UStartMenu::OnSinglePlayerButtonClick()
 {
-	AGameModeBase* gm = UGameplayStatics::GetGameMode(GetWorld());
-	gm->bUseSeamlessTravel = true;
-	
+	AGameModeBase* gm = UGameplayStatics::GetGameMode(GetWorld());	
 	this->RemoveFromParent();
+	mGameInstanceRef->DisplayLoadingScreen();
 	GetWorld()->ServerTravel(SinglePlayerMap);
 }
-
 
 void UStartMenu::OnSteamButtonClick()
 {	

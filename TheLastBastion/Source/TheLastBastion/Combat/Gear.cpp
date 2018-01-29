@@ -32,11 +32,19 @@ void AGear::Equip(class USkeletalMeshComponent* const _skeletonMeshComponent)
 	case EGearType::Shield:
 		SlotName = TEXT("Shield");
 		break;
-	case EGearType::SingleHandWeapon:
+	case EGearType::LongSword:
+	case EGearType::WarAxe:
+	case EGearType::Mace:
+
 		SlotName = TEXT("SHSwordEquip");
 		break;
 	case EGearType::DoubleHandWeapon:
 		SlotName = TEXT("DHSwordEquip");
+		break;
+	case EGearType::BattleAxe:
+	case EGearType::GreatSword:
+	case EGearType::Hammer:
+		SlotName = TEXT("HeavyEquip");
 		break;
 	case EGearType::CrossBow:
 		SlotName = TEXT("CrossBowEquip");
@@ -52,6 +60,8 @@ void AGear::Equip(class USkeletalMeshComponent* const _skeletonMeshComponent)
 		SlotName = TEXT("Root");
 		break;
 	}
+	
+
 	this->AttachToComponent(_skeletonMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, SlotName);
 
 }
@@ -74,11 +84,13 @@ void AGear::Arm(USkeletalMeshComponent * const _skeletonMeshComponent)
 	case EGearType::Shield:
 		SlotName = TEXT("Shield");
 		break;
-	case EGearType::SingleHandWeapon:
+	case EGearType::LongSword:
+	case EGearType::WarAxe:
+	case EGearType::Mace:
 		SlotName = TEXT("SingleHandWeapon");
 		break;
 	case EGearType::DoubleHandWeapon:
-		SlotName = TEXT("DHSwordEquip");
+		SlotName = TEXT("TwoHandWeapon");
 		break;
 	case EGearType::CrossBow:
 		SlotName = TEXT("CrossBow");
@@ -89,10 +101,15 @@ void AGear::Arm(USkeletalMeshComponent * const _skeletonMeshComponent)
 	case EGearType::TwinBlade:
 		SlotName = TEXT("ik_hand_r");
 		break;
+	case EGearType::GreatSword:
+	case EGearType::Hammer:
+	case EGearType::BattleAxe:
+		SlotName = TEXT("HeavyWeapon");
+		break;
 	default:
 		break;
-
 	}
+	ToggleVisibilty(true);
 	this->AttachToComponent(_skeletonMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, SlotName);
 }
 

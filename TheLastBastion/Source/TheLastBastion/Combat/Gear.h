@@ -9,19 +9,21 @@
 UENUM(BlueprintType)
 enum class EGearType : uint8
 {
-	Armor = 0            UMETA(DisplayName = "Armor"),
-	Shield = 1           UMETA(DisplayName = "Shield"),
-	SingleHandWeapon = 2 UMETA(DisplayName = "SingleHandWeapon"),
-	DoubleHandWeapon = 3 UMETA(DisplayName = "DoubleHandWeapon"),
-	CrossBow = 4         UMETA(DisplayName = "CrossBow"),
-	CrossBowBolt = 5     UMETA(DisplayName = "CrossBowBolt"),
-	TwinBlade = 6        UMETA(DisplayName = "TwinBlade"),
-	HeavyWeapon = 7      UMETA(DisplayName = "HeavyWeapon"),
-	Bow = 8              UMETA(DisplayName = "Bow"),
-	Arrow = 9            UMETA(DisplayName = "Arrow"),
+	Armor = 0                  UMETA(DisplayName = "Armor"),
+	Shield = 1                 UMETA(DisplayName = "Shield"),
+	LongSword = 2              UMETA(DisplayName = "LongSword"),
+	DoubleHandWeapon = 3       UMETA(DisplayName = "Katana"),
+	CrossBow = 4               UMETA(DisplayName = "CrossBow"),
+	CrossBowBolt = 5           UMETA(DisplayName = "CrossBowBolt"),
+	TwinBlade = 6              UMETA(DisplayName = "TwinBlade"),
+	GreatSword = 7             UMETA(DisplayName = "GreatSword"),
+	Bow = 8                    UMETA(DisplayName = "Bow"),
+	Arrow = 9                  UMETA(DisplayName = "Arrow"),
+	WarAxe = 10                UMETA(DisplayName = "WarAxe"),
+	Mace = 11                  UMETA(DisplayName = "Mace"),
+	BattleAxe = 12             UMETA(DisplayName = "BattleAxe"),
+	Hammer = 13                UMETA(DisplayName = "Hammer"),
 };
-
-
 
 
 UCLASS()
@@ -135,7 +137,7 @@ public:
 
 
 	virtual void Equip(class USkeletalMeshComponent* const _skeletonMeshComponent);
-	virtual void Arm(class USkeletalMeshComponent* const _skeletonMeshComponent);
+	void Arm(class USkeletalMeshComponent* const _skeletonMeshComponent);
 	void ToggleVisibilty(bool _val);
 	void CombineDamage(const AGear* _other);
 

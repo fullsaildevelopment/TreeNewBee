@@ -21,6 +21,10 @@ protected:
 
 	virtual bool Initialize();
 
+public:
+
+	void UseFirstSlide();
+
 private:
 
 	UPROPERTY()

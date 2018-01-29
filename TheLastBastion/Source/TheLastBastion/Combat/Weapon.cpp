@@ -33,7 +33,7 @@ void AWeapon::BeginPlay()
 void AWeapon::SetDamageIsEnabled(bool _val)
 {
 	bDamageIsEnable = _val;
-	if (!bDamageIsEnable)
+	if (bDamageIsEnable)
 	{
 		// clear the ignore list for next attack
 		IgnoredActors.Empty();
@@ -123,7 +123,9 @@ void AWeapon::GetRayCastPosition(FVector & _start, FVector & _end)
 
 	switch (GearType)
 	{
-	case EGearType::SingleHandWeapon:
+	case EGearType::LongSword:
+	case EGearType::WarAxe:
+	case EGearType::Mace:
 	{
 		_start = GetActorLocation() + GetActorUpVector() * DamageEdgeOffset_start.Z;
 		_end = GetActorLocation() + GetActorUpVector() * DamageEdgeOffset_end.Z;
@@ -135,7 +137,9 @@ void AWeapon::GetRayCastPosition(FVector & _start, FVector & _end)
 		_end = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_end.Y;
 		break;
 	}
-	case EGearType::HeavyWeapon:
+	case EGearType::GreatSword:
+	case EGearType::BattleAxe:
+	case EGearType::Hammer:
 	{
 		_start = GetActorLocation() - GetActorRightVector() * DamageEdgeOffset_start.Y   + GetActorForwardVector() * DamageEdgeOffset_start;
 		_end = GetActorLocation()   - GetActorRightVector() * DamageEdgeOffset_end.Y     + GetActorForwardVector() * DamageEdgeOffset_end;

@@ -22,7 +22,6 @@
 
 const float RangerInitHp = 230.0f;
 const float BuilderInitHp = 180.0f;
-static const int MaxWeaponSlot = 2;
 
 static TSubclassOf<class UUserWidget> FloatingText_WBP;
 
@@ -38,7 +37,6 @@ UPawnStatsComponent::UPawnStatsComponent()
 		UCustomType::FindClass<UUserWidget>(FloatingText_WBP, TEXT("/Game/UI/In-Game/WBP_FloatingNumber"));
 	
 }
-
 
 // Called when the game starts
 void UPawnStatsComponent::BeginPlay()
@@ -107,10 +105,12 @@ void UPawnStatsComponent::OnEquipWeapon()
 
 void UPawnStatsComponent::OnSheathWeapon()
 {
-	//RightHandWeapon->Equip(mCharacter->GetMesh());
-	WeaponSlots[CurrentWeapon_Index].RightHand->Equip(mCharacter->GetMesh());
 	if (WeaponSlots[CurrentWeapon_Index].RightHand)
+	{
 		WeaponSlots[CurrentWeapon_Index].RightHand->Equip(mCharacter->GetMesh());
+		if (WeaponSlots[CurrentWeapon_Index].bHideWhenEquip)
+			WeaponSlots[CurrentWeapon_Index].RightHand->ToggleVisibilty(false);
+	}
 
 }
 
@@ -141,7 +141,6 @@ bool UPawnStatsComponent::OnSwapBetweenMeleeAndRange()
 {
 	return false;
 }
-
 
 #pragma region Stats Generatrion
 void UPawnStatsComponent::GenerateRawStatsByLevel(int _level)
@@ -247,6 +246,68 @@ void UPawnStatsComponent::Born()
 	StaminaCurrent = StaminaMax;
 }
 
+void UPawnStatsComponent::GenerateStatsAtBeginPlay()
+{
+	if (bGenerateRawStatsAtBeginPlay)
+	{
+		GenerateRawStatsByLevel(Level);
+	}
+
+	UWorld* world = GetWorld();
+	// Equip the owner character
+	if (world)
+	{
+		FActorSpawnParameters spawnParam;
+		spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		spawnParam.Owner = mCharacter;
+
+		// use the weapon at the first slot at the beginning
+		CurrentWeapon_Index = 0;	
+		if (WeaponSlots.Num() > 0)
+		{
+			for (int i = 0; i < WeaponSlots.Num(); i++)
+			{
+				// check if we have any weapon type on this slot
+				TSubclassOf<AGear> RightHandWeapon_Class = WeaponSlots[i].WeaponClass;
+				if (RightHandWeapon_Class)
+				{
+					WeaponSlots[i].RightHand = world->SpawnActor<AGear>(RightHandWeapon_Class, spawnParam);
+					TSubclassOf<AGear> LeftHandWeapon_Class = WeaponSlots[i].RightHand->GetLeftHandGear();
+					if (LeftHandWeapon_Class)
+						WeaponSlots[i].LeftHand = world->SpawnActor<AGear>(LeftHandWeapon_Class, spawnParam);
+
+					if (bArmedFromBeginPlay && i == CurrentWeapon_Index)
+					{
+						// Arm the first weapon if we try to arm this character from beginning
+						WeaponSlots[i].RightHand->Arm(mCharacter->GetMesh());
+						if (WeaponSlots[i].LeftHand)
+							WeaponSlots[i].LeftHand->Arm(mCharacter->GetMesh());
+					}
+					else
+					{
+						// Equip the rest of other weapon, and toggle visibility
+						WeaponSlots[i].RightHand->Equip(mCharacter->GetMesh());
+						if (WeaponSlots[i].bHideWhenEquip)
+							WeaponSlots[i].RightHand->ToggleVisibilty(false);
+						if (WeaponSlots[i].LeftHand)
+							WeaponSlots[i].LeftHand->Equip(mCharacter->GetMesh());
+					}
+				}
+			}
+		}
+		else
+			UE_LOG(LogTemp, Warning, TEXT("%s does not equip with anyweapon - UPawnStatsComponent::GenerateStatsAtBeginPlay"), *mCharacter->GetName())
+
+		if (Armor_ClassBp)
+		{
+			Armor = world->SpawnActor<AArmor>(Armor_ClassBp, spawnParam);
+			Armor->Equip(mCharacter->GetMesh());
+		}
+
+		GenerateMaxStats();
+	}
+}
+
 #pragma endregion
 
 #pragma region  Damage Calculation
@@ -280,84 +341,7 @@ float UPawnStatsComponent::GetBaseDamage()
 #pragma endregion
 
 
-
-///*** OnAuthority
 /** Generate Raw Stats, equip geat, and Add Gear buff on raw stats*/
-void UPawnStatsComponent::GenerateStatsAtBeginPlay()
-{
-	if (bGenerateRawStatsAtBeginPlay)
-	{
-		GenerateRawStatsByLevel(Level);
-	}
-
-	UWorld* world = GetWorld();
-	// Equip the owner character
-	if (world)
-	{
-
-		FActorSpawnParameters spawnParam;
-		spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		spawnParam.Owner = mCharacter;
-
-		// use the weapon at the first slot at the beginning
-		CurrentWeapon_Index = 0;
-		if (WeaponWheels.Num() > 0)
-		{
-			TSubclassOf<AGear> RightHandWeapon_Class = WeaponWheels[CurrentWeapon_Index];
-			if (RightHandWeapon_Class)
-			{
-				WeaponSlots[CurrentWeapon_Index].RightHand = world->SpawnActor<AGear>(RightHandWeapon_Class, spawnParam);
-				TSubclassOf<AGear> LeftHandWeapon_Class = WeaponSlots[CurrentWeapon_Index].RightHand->GetLeftHandGear();
-				if (LeftHandWeapon_Class)
-					WeaponSlots[CurrentWeapon_Index].LeftHand = world->SpawnActor<AGear>(LeftHandWeapon_Class, spawnParam);
-
-				if (bArmedFromBeginPlay)
-				{
-					WeaponSlots[CurrentWeapon_Index].RightHand->Arm(mCharacter->GetMesh());
-					if (WeaponSlots[CurrentWeapon_Index].LeftHand)
-						WeaponSlots[CurrentWeapon_Index].LeftHand->Arm(mCharacter->GetMesh());
-				}
-				else
-				{
-					WeaponSlots[CurrentWeapon_Index].RightHand->Equip(mCharacter->GetMesh());
-					if (WeaponSlots[CurrentWeapon_Index].LeftHand)
-						WeaponSlots[CurrentWeapon_Index].LeftHand->Equip(mCharacter->GetMesh());
-				}
-			}
-			
-			int NextWeaponIndex = CurrentWeapon_Index + 1;
-			// Equip our SecondHand Weapon
-			if (WeaponWheels.Num() > 1)
-			{
-				TSubclassOf<AGear> SecRightHandWeapon_Class = WeaponWheels[NextWeaponIndex];
-				if (SecRightHandWeapon_Class)
-				{
-					WeaponSlots[NextWeaponIndex].RightHand = world->SpawnActor<AGear>(SecRightHandWeapon_Class, spawnParam);
-					TSubclassOf<AGear> SecLeftHandWeapon_Class = WeaponSlots[NextWeaponIndex].RightHand->GetLeftHandGear();
-					if (SecLeftHandWeapon_Class)
-						WeaponSlots[NextWeaponIndex].LeftHand = world->SpawnActor<AGear>(SecLeftHandWeapon_Class, spawnParam);
-
-						WeaponSlots[NextWeaponIndex].RightHand->Equip(mCharacter->GetMesh());
-						if (WeaponSlots[NextWeaponIndex].LeftHand)
-							WeaponSlots[NextWeaponIndex].LeftHand->Equip(mCharacter->GetMesh());
-				}
-			}
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("%s does not equip with anyweapon - UPawnStatsComponent::GenerateStatsAtBeginPlay"), *mCharacter->GetName())
-		}
-
-		if (Armor_ClassBp)
-		{
-			Armor = world->SpawnActor<AArmor>(Armor_ClassBp, spawnParam);
-			Armor->Equip(mCharacter->GetMesh());
-		}
-		GenerateMaxStats();
-	}
-}
-
-
 UInGameFloatingText* UPawnStatsComponent::GenerateFloatingText(const FVector& _worldPos)
 {
 	FVector2D screenPos;
@@ -468,11 +452,6 @@ void UPawnStatsComponent::OnTakePointDamageHandle(AActor * DamagedActor, float D
 		floatingDamage->SetInGameFTProperty(FText::AsNumber((int)totalDamage));
 		floatingDamage->AddToViewport();
 	}
-}
-
-int UPawnStatsComponent::GetMaxWeaponSlot()
-{
-	return MaxWeaponSlot;
 }
 
 AGear * UPawnStatsComponent::GetCurrentArmor() const

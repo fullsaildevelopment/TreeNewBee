@@ -31,6 +31,12 @@ private:
 	UPROPERTY()
 		class UTradeMenu*                 mTradeMenu;
 
+	UPROPERTY()
+		TSubclassOf<UUserWidget> InGameMenu_WBPClass;
+	UPROPERTY()
+		class UInGameMenu*                mInGameMenu;
+
+	//bool bIsGamePaused;
 	
 	struct FPlayerProfile   playerProfile;
 
@@ -41,6 +47,9 @@ public:
 
 	UFUNCTION()
 		void OnFinishSeamlessTravel();
+
+	UFUNCTION()
+		void OnPauseButtonIsPressed();
 
 	UFUNCTION()
 		void InitUIOnBeginPlay(const class UHeroStatsComponent* _heroStats);
@@ -57,6 +66,7 @@ public:
 	/** Update the stats based on the change of gears*/
 	void OnTradeMenuAccept(class UHeroStatsComponent* _heroStats);
 
+public:
 
 	FORCEINLINE class UInGameHUD* GetInGameHUD() const { return mInGameHUD; }
 
@@ -65,6 +75,9 @@ private:
 	void SaveGameCheck();
 
 	void CreateInGameHUD();
+
+	void OpenInGameMenu();
+
 
 
 };

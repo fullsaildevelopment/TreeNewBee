@@ -1,29 +1,28 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "HeroStatsComponent.h"
-#include "Net/UnrealNetwork.h"
 
 #include "TheLastBastionHeroCharacter.h"
 #include "UI/InGameHUD.h"
 #include "PCs/SinglePlayerPC.h"
 #include "Kismet/GameplayStatics.h"
-
 #include "GameFramework/Character.h"
 #include "Components/SphereComponent.h"
 #include "Camera/CameraComponent.h"
-
 #include "Combat/Weapon.h"
 #include "Combat/Armor.h"
 #include "CustomType.h"
-
+#include "Animation/Hero_AnimInstance.h"
 #include "AICharacters/TheLastBastionEnemyCharacter.h"
 #include "UI/Gameplay/InventoryUI.h"
+
 
 UHeroStatsComponent::UHeroStatsComponent()
 {	
 	// Just some init armor for our melee hero
 	UCustomType::FindClass<AArmor>(Armor_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun/Tsun_Armor"));
 	Level = 1;
+
 }
 
 void UHeroStatsComponent::BeginPlay()
@@ -68,6 +67,9 @@ void UHeroStatsComponent::BeginPlay()
 		if (pc)
 			pc->InitUIOnBeginPlay(this);
 	}
+
+	//UE_LOG(LogTemp, Warning, TEXT("UHeroStatsComponent::BeginPlay()"));
+
 }
 
 void UHeroStatsComponent::OnFocus()
@@ -105,45 +107,137 @@ void UHeroStatsComponent::OnFocus()
 
 bool UHeroStatsComponent::OnSwapBetweenMeleeAndRange()
 {
-	bool accept = WeaponSlots[0].RightHand && WeaponSlots[1].RightHand;
+
+	int cBIndex = (int)EEquipType::CrossBow - 1;
+
+	bool accept = WeaponSlots[cBIndex].RightHand && WeaponSlots[LastMeleeWeapon_Index].RightHand;
 
 	if (accept)
 	{
-		AGear* leftWeapon =  WeaponSlots[CurrentWeapon_Index].LeftHand;
+
+		bool currentUseCB = mHeroCharacter->GetAnimInstanceRef()->GetCurrentEquipmentType()
+			== EEquipType::CrossBow;
+		if (currentUseCB)
+		{
+			// use last melee
+			EEquipType nextWeapon = (EEquipType)(LastMeleeWeapon_Index + 1);
+			OnSwitchWeapon(nextWeapon);
+		}
+		else
+		{
+			OnSwitchWeapon(EEquipType::CrossBow);
+		}
+
+	}
+	return accept;
+}
+
+bool UHeroStatsComponent::OnSwitchWeapon(EEquipType _nextEquip)
+{
+	// index for the next equip
+	int nextEquip = (int)(_nextEquip) - 1;
+
+	bool accept = false;
+
+	// check the current index is valid or not to avoid crash
+	if (nextEquip < 0 || nextEquip > GetMaxNumOfWeaponSlot())
+	{
+		UE_LOG(LogTemp, Error,
+			TEXT("CurrentWeapon_Index is corrupted - UHeroStatsComponent::OnSwitchWeapon "));
+		return accept;
+	}
+
+	// Swap Weapon
+	accept = WeaponSlots[nextEquip].RightHand != nullptr;
+	if (accept)
+	{
+		/// ***  put current weapon back to equip slot
 		AGear* rightWeapon = WeaponSlots[CurrentWeapon_Index].RightHand;
+		AGear* leftWeapon = WeaponSlots[CurrentWeapon_Index].LeftHand;
 
-		switch (mHeroCharacter->GetAnimInstanceRef()->GetCurrentEquipmentType())
+		if (rightWeapon == nullptr)
 		{
-			// hide the shield, equip sword
-		case EEquipType::ShieldSword:
-		{
-			if (leftWeapon)
-				leftWeapon->ToggleVisibilty(false);
-			rightWeapon->Equip(mCharacter->GetMesh());
-			break;
-		}
-		case EEquipType::CrossBow:
-		{
-			rightWeapon->Equip(mCharacter->GetMesh());
-			mHeroCharacter->GetInGameHUD()->ToggleFireMode(false);
-			break;
-		}
+			accept = false;
+			UE_LOG(LogTemp, Error, 
+				TEXT("Current Main Weapon is null - UHeroStatsComponent::OnSwitchWeapon"));
+			return accept;
 		}
 
-		// Get the next weapon slot
-		CurrentWeapon_Index++;
-		if (CurrentWeapon_Index >= GetMaxWeaponSlot())
-			CurrentWeapon_Index =0;
+		rightWeapon->Equip(mCharacter->GetMesh());
+		if (WeaponSlots[CurrentWeapon_Index].bHideWhenEquip)
+			rightWeapon->ToggleVisibilty(false);
+
+		// Handle some special toggling based on current weapon type
+		switch (rightWeapon->GetGearType())
+		{
+			case EGearType::LongSword:
+			case EGearType::Mace:
+			case EGearType::WarAxe:
+			{
+				if (leftWeapon)
+					leftWeapon->ToggleVisibilty(false);
+				break;
+			}
+			case EGearType::CrossBow:
+			{
+				mHeroCharacter->ToggleFireMode(false);
+				break;
+			}
+			default:
+				break;		
+		}
+		//switch (mHeroCharacter->GetAnimInstanceRef()->GetCurrentEquipmentType())
+		//{
+		//	// hide the shield, equip sword
+		//case EEquipType::ShieldSword:
+		//{
+		//	if (leftWeapon)
+		//		leftWeapon->ToggleVisibilty(false);
+		//	rightWeapon->Equip(mCharacter->GetMesh());
+		//	if (bHideSHWhenEquip)
+		//		rightWeapon->ToggleVisibilty(false);
+		//	break;
+		//}
+		//case EEquipType::CrossBow:
+		//{
+		//	rightWeapon->Equip(mCharacter->GetMesh());
+		//	if (bHideCBWhenEquip)
+		//		rightWeapon->ToggleVisibilty(false);
+		//	mHeroCharacter->ToggleFireMode(false);
+		//	break;
+		//}
+		//case EEquipType::HeavyWeapon:
+		//	rightWeapon->Equip(mCharacter->GetMesh());
+		//	if (bHideHVWhenEquip)
+		//		rightWeapon->ToggleVisibilty(false);
+		//	break;
+		//case EEquipType::TwoHandSword:
+		//	rightWeapon->Equip(mCharacter->GetMesh());
+		//	if (bHideTHWhenEquip)
+		//		rightWeapon->ToggleVisibilty(false);
+		//	break;
+		//}
+
+		/// ***  put next weapon on arm slot
 
 		// Toggle Visiblity for next weapon
-		leftWeapon = WeaponSlots[CurrentWeapon_Index].LeftHand;
+		leftWeapon = WeaponSlots[nextEquip].LeftHand;
 		if (leftWeapon)
 			leftWeapon->ToggleVisibilty(true);
 
-		rightWeapon = WeaponSlots[CurrentWeapon_Index].RightHand;
-		if (rightWeapon->GetGearType() == EGearType::CrossBow)
-			mHeroCharacter->GetInGameHUD()->ToggleFireMode(true);
-		rightWeapon->ToggleVisibilty(true);
+		rightWeapon = WeaponSlots[nextEquip].RightHand;
+
+		if (_nextEquip == EEquipType::CrossBow)
+			mHeroCharacter->ToggleFireMode(true);
+
+		/// ***  Finish
+		// Hold the last melee weapon Index for fast switch between range and melee;
+		int EquipTypeInt = CurrentWeapon_Index + 1;
+		if (EquipTypeInt != (int)EEquipType::CrossBow)
+		{
+			LastMeleeWeapon_Index = CurrentWeapon_Index;
+		}
+		CurrentWeapon_Index = nextEquip;
 	}
 
 	return accept;
@@ -152,14 +246,16 @@ bool UHeroStatsComponent::OnSwapBetweenMeleeAndRange()
 void UHeroStatsComponent::OnTradeMenuAccept(UInventoryUI * _inventoryMenu)
 {
 	UWorld* world = GetWorld();
-	if (world == nullptr)
+	UHero_AnimInstance* animRef = mHeroCharacter->GetAnimInstanceRef();
+
+	if (world == nullptr || animRef == nullptr)
 		return;
 
 	FActorSpawnParameters spawnParam;
 	spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	spawnParam.Owner = mCharacter;
 
-	// Check Armor
+	/// Check Armor
 	if (Armor_ClassBp != _inventoryMenu->GetCurrentArmor())
 	{
 		Armor_ClassBp = _inventoryMenu->GetCurrentArmor();
@@ -171,33 +267,88 @@ void UHeroStatsComponent::OnTradeMenuAccept(UInventoryUI * _inventoryMenu)
 		}
 	}
 	
-	// Check Weapon
-
-	if (WeaponWheels[0] != _inventoryMenu->GetCurrentSHWeapon())
+	/// Check Weapon
+	for (int i = 0; i < GetMaxNumOfWeaponSlot(); i++)
 	{
-		WeaponWheels[0] = _inventoryMenu->GetCurrentSHWeapon();
-		if (WeaponWheels[0])
+		TSubclassOf<AGear> weaponClass = _inventoryMenu->GetGearClassAt(i);
+		// if the weapon class on this slot is changed
+		if (WeaponSlots[i].WeaponClass != weaponClass)
 		{
-			AGear* rightHand = WeaponSlots[0].RightHand;
-			AGear* leftHand = WeaponSlots[0].LeftHand;
+			// destory the old class instance
+			WeaponSlots[i].WeaponClass = weaponClass;
+			AGear* rightHand = WeaponSlots[i].RightHand;
+			AGear* leftHand = WeaponSlots[i].LeftHand;
 
-			if (WeaponSlots[0].RightHand)
+			if (rightHand)
+			{
 				rightHand->Destroy();
-			if (WeaponSlots[0].LeftHand)
+				rightHand = nullptr;
+			}
+			if (leftHand)
+			{
 				leftHand->Destroy();
+				leftHand = nullptr;
+			}
 
-			WeaponSlots[0].RightHand = world->SpawnActor<AGear>(WeaponWheels[0], spawnParam);
-			TSubclassOf<AGear> LeftHandClass = WeaponSlots[0].RightHand->GetLeftHandGear();
+			// spawn the new weapon by the new class
+			rightHand = world->SpawnActor<AGear>(weaponClass, spawnParam);
+			rightHand->Equip(mCharacter->GetMesh());
+			if (WeaponSlots[i].bHideWhenEquip)
+				rightHand->ToggleVisibilty(false);
+
+			TSubclassOf<AGear> LeftHandClass = rightHand->GetLeftHandGear();
 			if (LeftHandClass)
-				WeaponSlots[0].LeftHand = world->SpawnActor<AGear>(LeftHandClass, spawnParam);
+			{
+				leftHand = world->SpawnActor<AGear>(LeftHandClass, spawnParam);
+				leftHand->Equip(mCharacter->GetMesh());
+			}
 
-			WeaponSlots[0].RightHand->Equip(mCharacter->GetMesh());
-			WeaponSlots[0].LeftHand->Equip(mCharacter->GetMesh());
-
+			WeaponSlots[i].RightHand = rightHand;
+			WeaponSlots[i].LeftHand = leftHand;
 		}
 	}
 
+	/// Check if we should arm any weapon?
+	if (animRef->GetActivatedEquipmentType() != EEquipType::Travel)
+	{
+		GetCurrentRightHandWeapon()->Arm(mCharacter->GetMesh());
+	}
+	if (animRef->GetCurrentEquipmentType() != EEquipType::ShieldSword)
+	{
+		// Hide Shield if we are not dont armed with SH weapon
+		AGear* shield = WeaponSlots[int(EEquipType::ShieldSword) - 1].LeftHand;
+		if (shield)
+			shield->ToggleVisibilty(false);
+	}
+
+
+
+	animRef->UpdateComboList(GetCurrentRightHandWeapon()->GetGearType());
 	GenerateMaxStats();
+}
+
+void UHeroStatsComponent::UpdateEquipHideOption()
+{
+	
+	bool inTravel = mHeroCharacter->GetAnimInstanceRef()->GetActivatedEquipmentType() == EEquipType::Travel;
+
+	if (inTravel)
+	{
+		for (int i = 0; i < GetMaxNumOfWeaponSlot(); i++)
+		{
+			if (WeaponSlots[i].RightHand)
+				WeaponSlots[i].RightHand->ToggleVisibilty(!WeaponSlots[i].bHideWhenEquip);
+		}
+	}
+	else
+	{
+		// if it is not in travel, we are hide the weapon we are armming
+		for (int i = 0; i < GetMaxNumOfWeaponSlot(); i++)
+		{
+			if (WeaponSlots[i].RightHand  && i != CurrentWeapon_Index)
+				WeaponSlots[i].RightHand->ToggleVisibilty(!WeaponSlots[i].bHideWhenEquip);
+		}
+	}
 }
 
 void UHeroStatsComponent::OnEnemyEnter(UPrimitiveComponent * _overlappedComponent, AActor * _otherActor, UPrimitiveComponent * _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult & _SweepResult)
@@ -290,11 +441,4 @@ void UHeroStatsComponent::MeleeFocus()
 	}
 	else
 		UE_LOG(LogTemp, Warning, TEXT("No Availble Target"));
-}
-
-void UHeroStatsComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(UHeroStatsComponent, mHeroCharacter);
 }

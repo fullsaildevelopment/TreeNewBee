@@ -166,21 +166,13 @@ public:
 
 #pragma endregion
 
-#pragma region Character Class Getter
-
-	//UFUNCTION(BlueprintPure)
-	//	FORCEINLINE TSubclassOf<ACharacter> GetRanger_Class() const { return Ranger_Class; }
-
-#pragma endregion
 
 #pragma region Vfx Getter
+
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE class UParticleSystem* GetVFX_BloodImpact() const { return BloodImpact_vfx; }
 
 #pragma endregion
-
-
-
 
 	void SetIsLan(bool _val);
 
@@ -215,6 +207,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void DisplayLoadingScreen();
 
+	UFUNCTION(BlueprintCallable)
+		void RemoveLoadingScreen();
+
 #pragma endregion
 
 #pragma region Lobby && Server
@@ -232,7 +227,6 @@ public:
 		void BackToMainMenu();
 
 #pragma endregion
-
 
 private:
 

@@ -15,7 +15,9 @@ enum class EEquipType : uint8
 	Travel = 0 	    UMETA(DisplayName = "Travel"),
 	ShieldSword 	UMETA(DisplayName = "ShieldSword"),
 	TwoHandSword	UMETA(DisplayName = "TwoHandSword"),
-	CrossBow        UMETA(DisplayName = "CrossBow")
+	CrossBow        UMETA(DisplayName = "CrossBow"),
+	HeavyWeapon     UMETA(DisplayName = "HeavyWeapon")
+
 };
 
 UENUM(BlueprintType)
@@ -35,7 +37,9 @@ enum class EAttackState : uint8
 	/** Player speed and direction still override by Dodging anim, but can perform next action, but not dodge*/
 	PostDodging = 5 UMETA(DisplayName = "PostDodging"),
 	/** Player has no control */
-	BeingHit = 6 UMETA(DisplayName = "BeingHit")
+	BeingHit = 6        UMETA(DisplayName = "BeingHit"),
+	//AirAttacking = 7    UMETA(DisplayName = "AirAttacking"),
+	//AirReadyForNext = 8 UMETA(DisplayName = "AirReadyForNext")
 };
 
 UENUM(BlueprintType)
@@ -60,6 +64,8 @@ enum class EFocusDodgeDirection :uint8
 	Left90 = 7    UMETA(DisplayName = "Left90"),
 	Left45 = 8    UMETA(DisplayName = "Left45")
 };
+
+enum class EGearType : uint8;
 
 UCLASS()
 class THELASTBASTION_API UHero_AnimInstance : public UBase_AnimInstance
@@ -169,6 +175,31 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 		/** which section I am going play next in Attack_Montage*/
 		int CurrentComboIndex;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = MeleeCombo)
+		class UAnimMontage*  LongSword_Montage;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly ,Category = MeleeCombo)
+		class UAnimMontage*  AxeMace_Montage;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = MeleeCombo)
+		class UAnimMontage*  Katana_Montage;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly,Category = MeleeCombo)
+		class UAnimMontage*  GreatSwordHammer_Montage;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = MeleeCombo)
+		class UAnimMontage*  BattleAxe_Montage;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = MeleeCombo)
+		class UAnimMontage*  KatanaAirAttack_Montage;
+
+	/** A pointer point to the combo list for current melee weapon, 
+	    when change weapon and equip to determine which combo list we used for melee attack */
+	const TArray<FName>* Current_AttackSectionName;
+
+
+
 #pragma endregion
 
 #pragma region MeleeFocus
@@ -217,7 +248,6 @@ protected:
 #pragma endregion
 
 
-	
 protected:
 
 	UFUNCTION(BlueprintCallable)
@@ -233,22 +263,18 @@ protected:
 	UFUNCTION()
 		void OnMontageBlendOutStartHandle(class UAnimMontage* _animMontage, bool _bInterruptted) override;
 
-
 public:
 
 #pragma region Action Mapping
 
-
 	/** Called when attack button is called*/
-	virtual void OnAttack();
+	void OnAttack();
 	/** Called when equip button is pressed*/
-	virtual bool OnEquip();
-	/** Called when TAB button pressed*/
-	void OnSwapBetweenMeleeAndRange();
+	bool OnEquip();
 	/** Called when Jump button is pressed*/
-	virtual void OnJumpStart();
+	void OnJumpStart();
 	/** Called when Jump button is released*/
-	virtual void OnJumpStop();
+	void OnJumpStop();
 	/** Called when Sprint Button is pressed*/
 	void OnSprintPressed();
 	/** Called when Sprint Button is released*/
@@ -259,35 +285,44 @@ public:
 	///** Custom Binding based on Character type
 
 	/** Called when middle mouse button is pressed*/
-	virtual void OnMiddleMouseButtonPressed();
+	void OnMiddleMouseButtonPressed();
 
 	/** Called when C or LAlt (Crouch / Dodge) is pressed*/
-	virtual void OnCorLAltPressed();
+	void OnCorLAltPressed();
 
 	/** Called when RMB is pressed*/
-	virtual void OnRightMouseButtonPressed();
+	void OnRightMouseButtonPressed();
 
 	/** Called when RMB is released*/
-	virtual void OnRightMouseButtonReleased();
+	void OnRightMouseButtonReleased();
+
+	/** Called when TAB button pressed*/
+	void OnSwapBetweenMeleeAndRange();
+
+	void OnChangeWeapon(EEquipType _next);
+
+	/** Called to end Change Weapon event*/
+	void OnChangeWeaponFinsh();
 
 #pragma endregion
 
-	virtual void OnBeingHit
+	void OnBeingHit
 	( float _damage, FName boneName, const FVector& _shotFromDirection, const FVector& _hitLocation, const class UPawnStatsComponent* _pawnStats) override;
+
+	/** Called When switch melee weapon and equip*/
+	void UpdateComboList(EGearType _gearType);
 
 private:
 
-
+	/** Update the Yaw and Pitch for head track based on Control rotation between mesh forward vector*/
 	void HeadTrack();
+
 	/** Called when player try to attack and dodge and use skill without equip at the first place
 	    Simply attach a weapon on the slot without play the animation, disable jump, change movement rules to strafe*/
-
-
 	void SkipEquip();
+
 	/** Similar to SkipEquip, without change movement rules*/
 	void AttachWeapon();
-
-
 
 	void ResetOnBeingHit();
 
@@ -295,18 +330,16 @@ private:
 
 
 
-
-
-
 	///*** Melee Function ***///
 
 	void MeleeUpdate(class UCharacterMovementComponent* movementComp, float _deltaTime);
+	void MeleeRotateRateAndMaxSpeedUpdate(class UCharacterMovementComponent* movementComp);
+
 	/** Called OnAttack is called and Player's current Equipment is melee weapon*/
 	void OnMeleeAttack();
 
 	//void OnDefendOn();
 	//void OnDefendOff();
-
 
 	void LaunchCombo();
 	/** Reset Combo when attack montage gets blended out without any interrupt*/
@@ -315,6 +348,12 @@ private:
 	void OnDodge();
 	void LaunchDodge();
 	void OnDodgeFinish(bool _bInterruptted);
+
+	FName GetForwardDodgeSection() const;
+	FName GetRightDodgeSection() const;
+	FName GetLeftDodgeSection() const;
+	FName GetBackDodgeSection() const;
+
 	FVector GetFocusDodgeDirection() const;
 	/** Toggle Focus mode on and off*/
 	void ToggleFocusMode(bool _IsOn);
@@ -388,7 +427,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		/** Called when before attack state enter the DodgePost Stage,
 		*   Trigger the catched action (except for dodge), if the next action is not None */
-		virtual void OnDodgePost();
+		void OnDodgePost();
 
 
 

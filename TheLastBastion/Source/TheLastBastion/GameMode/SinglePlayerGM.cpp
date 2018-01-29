@@ -13,6 +13,7 @@ ASinglePlayerGM::ASinglePlayerGM(const FObjectInitializer & _objectInitilizer) :
 {
 	PlayerControllerClass = ASinglePlayerPC::StaticClass();
 	UCustomType::FindClass<APawn>(DefaultPawnClass, TEXT("/Game/Blueprints/Heros/SinglePlayer_Bp"));
+	bUseSeamlessTravel = true;
 	
 	GetAllCharacterClass();
 	EnemyAmount = 0;

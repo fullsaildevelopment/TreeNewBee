@@ -6,8 +6,10 @@
 #include "Kismet/GameplayStatics.h"
 #include "SaveGame/SaveGame_TheLastBastion.h"
 #include "UI/InGameHUD.h"
-#include "TheLastBastionHeroCharacter.h"
 #include "UI/Gameplay/TradeMenu.h"
+#include "UI/Gameplay/InGameMenu.h"
+
+#include "TheLastBastionHeroCharacter.h"
 #include "CustomType.h"
 
 
@@ -20,6 +22,10 @@ ASinglePlayerPC::ASinglePlayerPC(const FObjectInitializer & _objInit) : Super(_o
 	if (!TradeMenu_WBPClass)
 		UCustomType::FindClass<UUserWidget>(TradeMenu_WBPClass, TEXT("/Game/UI/In-Game/WBP_TradeMenu"));
 
+	if (!InGameMenu_WBPClass)
+		UCustomType::FindClass<UUserWidget>(InGameMenu_WBPClass, TEXT("/Game/UI/In-Game/WBP_InGameMenu"));
+
+	//bIsGamePaused = false;
 }
 
 void ASinglePlayerPC::OnPostLogin()
@@ -28,6 +34,13 @@ void ASinglePlayerPC::OnPostLogin()
 	SetInputMode(inputMode);
 	SaveGameCheck();
 
+	// Turn off loading screen
+
+	UGI_TheLastBastion* gi = Cast<UGI_TheLastBastion>(GetGameInstance());
+	if (gi)
+	{
+		gi->RemoveLoadingScreen();
+	}
 
 	// ask server to spawn a hero class depend on player's previous choice, and ask this server version pc to poccess
 	APawn* pawn = this->GetPawn();
@@ -64,6 +77,59 @@ void ASinglePlayerPC::OnFinishSeamlessTravel()
 	OnPostLogin();
 }
 
+void ASinglePlayerPC::OnPauseButtonIsPressed()
+{
+	//if (bIsGamePaused)
+	//{
+	//	bIsGamePaused = false;
+	//	mInGameMenu->RemoveFromParent();
+	//	this->SetPause(bIsGamePaused);
+	//}
+	//else
+	//{
+	//	bIsGamePaused = true;
+	//	OpenInGameMenu();
+	//	this->SetPause(bIsGamePaused);
+	//}
+
+	OpenInGameMenu();
+}
+
+void ASinglePlayerPC::OpenInGameMenu()
+{
+	if (mInGameMenu)
+	{
+		mInGameMenu->AddToViewport();
+	}
+	else
+	{
+		if (InGameMenu_WBPClass)
+		{
+			mInGameMenu = CreateWidget <UInGameMenu>(this, InGameMenu_WBPClass);
+			if (mInGameMenu != nullptr)
+			{
+				mInGameMenu->AddToViewport();
+				// set input mode
+			}
+		}
+		else
+			UE_LOG(LogTemp, Warning, TEXT("Widget Class not Set - ASinglePlayerPC::OpenInGameMenu"));
+
+	}
+
+	if (mInGameMenu)
+	{
+		bShowMouseCursor = true;
+		FInputModeUIOnly InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		InputMode.SetWidgetToFocus(mInGameMenu->TakeWidget());
+		SetInputMode(InputMode);
+		mInGameMenu->OpenPauseMenu();
+		this->SetPause(true);
+	}
+
+}
+
 void ASinglePlayerPC::InitUIOnBeginPlay(const UHeroStatsComponent * _heroStats)
 {
 	if (mInGameHUD)
@@ -98,7 +164,7 @@ void ASinglePlayerPC::OpenTradeMenu()
 			}
 		}
 		else
-			UE_LOG(LogTemp, Warning, TEXT("Widget Class not Set - ASinglePlayerPC::ShowSmithShop"));
+			UE_LOG(LogTemp, Warning, TEXT("Widget Class not Set - ASinglePlayerPC::OpenTradeMenu"));
 	}
 
 
@@ -133,7 +199,6 @@ void ASinglePlayerPC::OnTradeMenuAccept(UHeroStatsComponent * _heroStats)
 {
 	mInGameHUD->ResetStats(_heroStats);
 }
-
 
 void ASinglePlayerPC::SaveGameCheck()
 {

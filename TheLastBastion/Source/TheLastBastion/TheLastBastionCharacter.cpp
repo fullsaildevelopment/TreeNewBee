@@ -46,7 +46,7 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	GetCharacterMovement()->MaxWalkSpeed = JogSpeed; // ...at this rotation rate
-	GetCharacterMovement()->JumpZVelocity = 1500.0f;
+	GetCharacterMovement()->JumpZVelocity = 800.0f;
 	GetCharacterMovement()->AirControl = 0.2f;
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);

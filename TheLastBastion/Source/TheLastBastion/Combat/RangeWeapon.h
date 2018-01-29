@@ -45,6 +45,8 @@ public:
 	// Sets default values for this actor's properties
 	ARangeWeapon();
 
+	class USceneComponent* GetMesh() const override;
+
 	// 
 	UFUNCTION(BlueprintCallable)
 	virtual void Fire();

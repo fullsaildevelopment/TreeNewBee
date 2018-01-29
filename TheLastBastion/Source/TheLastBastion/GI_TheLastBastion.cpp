@@ -10,6 +10,7 @@
 #include "Blueprint/UserWidget.h"
 #include "GameFramework/PlayerState.h"
 #include "UI/JoinMenu.h"
+#include "UI/StartMenu.h"
 #include "CustomType.h"
 #include "UI/InGameHUD.h"
 
@@ -98,6 +99,13 @@ void UGI_TheLastBastion::Init()
 void UGI_TheLastBastion::ShowMainMenu()
 {
 	ShowMenu(mStartMenu_Widget, StartMenu_Class);
+	UStartMenu* startMenu = Cast<UStartMenu>(mStartMenu_Widget);
+
+	if (startMenu)
+	{
+		startMenu->UseFirstSlide();
+	}
+
 }
 
 void UGI_TheLastBastion::ShowCustomizeMenu()
@@ -122,6 +130,14 @@ void UGI_TheLastBastion::ShowJoinMenu()
 void UGI_TheLastBastion::DisplayLoadingScreen()
 {
 	ShowMenu(mLoadingScreen_Widget, LoadingScreen_Class);
+}
+
+void UGI_TheLastBastion::RemoveLoadingScreen()
+{
+	if (mLoadingScreen_Widget)
+	{
+		mLoadingScreen_Widget->RemoveFromParent();
+	}
 }
 
 void UGI_TheLastBastion::ShowMenu(UUserWidget* & _widget, const TSubclassOf<class UUserWidget>& _class, bool _showMouseCursor)

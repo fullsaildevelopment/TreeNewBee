@@ -54,9 +54,6 @@ protected:
 	UPROPERTY()
 		bool bIsRanger;
 
-
-
-
 public:
 
 	void AddTeamMember(const struct FMatchPlayer& _newTeamMember);

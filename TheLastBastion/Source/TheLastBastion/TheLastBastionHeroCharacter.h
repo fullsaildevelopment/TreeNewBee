@@ -9,6 +9,7 @@
 /**
  * 
  */
+
 UCLASS()
 class THELASTBASTION_API ATheLastBastionHeroCharacter : public ATheLastBastionCharacter
 {
@@ -80,6 +81,20 @@ protected:
 	/** Preserve the Yaw input from Pawn interface, and capatable with camera Lock - on*/
 	void AddControllerYaw(float _yaw);
 
+	/** Called When player try to use range weapon*/
+	void OnUseRangeWeapon();
+
+	/** Called When player try to Single hand weapon (Extra shield)*/
+	void OnUseSHWeapon();
+
+	/** Called When player try to Two Hand weapon (High speed, critical)*/
+	void OnUseTHWeapon();
+
+	/** Called When player try to Heavy weapon (High Damage, Bleed or Stun, Slow)*/
+	void OnUseHeavyWeapon();
+
+	/** Called When player pressed ESC, toggle the In game menu*/
+	void OnPause();
 
 #pragma endregion
 
@@ -87,6 +102,7 @@ private:
 
 	UFUNCTION()
 		void OnHealthChangedHandle(const class UPawnStatsComponent * _pawnStatsComp, float _damage, const class UDamageType * _damageType, FName _boneName, const FVector& _shotFromDirection, const FVector& _hitLocation) override;
+
 
 protected:
 
@@ -156,6 +172,8 @@ public:
 
 	// Override A Parent class function
 	FVector GetPawnViewLocation() const override;	
+	void ToggleFireMode(bool _val);
+
 	FORCEINLINE class USphereComponent* GetTargetDetector() const { return TargetDetector; }
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -169,6 +187,7 @@ public:
 	FORCEINLINE float GetNonLockOnCameraRotationLag() const { return Unfocus_CamRotationLagging; }
 
 	FORCEINLINE class UInGameHUD* GetInGameHUD() const { return mInGameHUD; }
+	
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE float GetMoveForwardAxis() const { return MoveForwardAxis; }

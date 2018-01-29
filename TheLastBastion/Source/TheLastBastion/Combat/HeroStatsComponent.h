@@ -10,6 +10,9 @@
  * Extension of Pawn Stats to help player for combat targetting
  * and manage mini inventory, skill tree
  */
+enum class EEquipType : uint8;
+
+
 UCLASS()
 class THELASTBASTION_API UHeroStatsComponent : public UPawnStatsComponent
 {
@@ -27,12 +30,12 @@ protected:
 
 protected:
 
-	UPROPERTY(Replicated)
-		class ATheLastBastionHeroCharacter* mHeroCharacter;
-
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Gear)
+		int LastMeleeWeapon_Index;
 private:
 
+	UPROPERTY()
+		class ATheLastBastionHeroCharacter* mHeroCharacter;
 	UPROPERTY()
 	    class ATheLastBastionEnemyCharacter* mCurrentTarget;
 	UPROPERTY()
@@ -42,6 +45,19 @@ private:
 	UPROPERTY()
 	TArray<class ATheLastBastionEnemyCharacter*> mPotentialTargets;
 
+
+public:
+
+	//bool bHideEquipOptions[4];
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Gear)
+	//	bool bHideSHWhenEquip;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Gear)
+	//	bool bHideHVWhenEquip;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Gear)
+	//	bool bHideTHWhenEquip;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Gear)
+	//	bool bHideCBWhenEquip;
+
 public:
 
 	// Called when Melee player enter Focus mode
@@ -49,14 +65,17 @@ public:
 
 	bool OnSwapBetweenMeleeAndRange() override;
 
+	bool OnSwitchWeapon(EEquipType _nextEquip);
+
 	/** Called when player update their gears, replace the gear with players'choice and update stats*/
 	void OnTradeMenuAccept(class UInventoryUI* _inventoryMenu);
+
+	/** Called when player apply the equip hide settings */
+	void UpdateEquipHideOption();
 
 public:
 
 	FORCEINLINE const class ATheLastBastionEnemyCharacter* GetCurrentTarget() const { return mCurrentTarget; }
-	FORCEINLINE int GetMaxNumOfWeaponSlot() const override { return 4; }
-
 
 private:
 	

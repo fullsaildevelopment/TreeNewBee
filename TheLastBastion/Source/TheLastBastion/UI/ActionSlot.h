@@ -26,10 +26,10 @@ UENUM(BlueprintType)
 enum class EInventoryGearType : uint8
 {
 	SHWeapon = 0,
-	RangeWeapon,
-	Armor,
 	THWeapon,
-	HeavyWeapon
+	RangeWeapon,
+	HeavyWeapon,
+	Armor
 };
 
 UENUM(BlueprintType)
@@ -86,9 +86,6 @@ protected:
 		// Image to tell what this action does
 		FGearUI GearUI;
 
-	UPROPERTY()
-		TSubclassOf<class AGear> Gear_Bp;
-
 	UPROPERTY(meta = (BindWidget))
 		class USizeBox* SlotSize;
 
@@ -110,6 +107,8 @@ protected:
 public:
 
 	void SetSize(float _width, float _height);
+
+	FORCEINLINE void SetGearBp(TSubclassOf<class AGear> _val) { GearUI.Gear_Bp = _val; }
 
 	/** Called on Inventory UI init, index the action slot for later condition check */
 	void OnInventoryInit(int _index);
