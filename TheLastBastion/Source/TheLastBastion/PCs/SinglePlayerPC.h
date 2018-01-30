@@ -63,6 +63,15 @@ public:
 	UFUNCTION(Exec)
 		void CloseTradeMenu();
 
+	UFUNCTION(Exec)
+		void TurnOnRagDoll();
+
+	UFUNCTION(Exec)
+		void RecoverImmediate();
+
+	UFUNCTION(Exec)
+		void RecoverByGettingUp();
+
 	/** Update the stats based on the change of gears*/
 	void OnTradeMenuAccept(class UHeroStatsComponent* _heroStats);
 

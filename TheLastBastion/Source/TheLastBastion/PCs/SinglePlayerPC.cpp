@@ -195,6 +195,10 @@ void ASinglePlayerPC::CloseTradeMenu()
 	}
 }
 
+void ASinglePlayerPC::TurnOnRagDoll()
+{
+}
+
 void ASinglePlayerPC::OnTradeMenuAccept(UHeroStatsComponent * _heroStats)
 {
 	mInGameHUD->ResetStats(_heroStats);
