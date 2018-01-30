@@ -37,7 +37,7 @@ protected:
 
 public:
 	virtual void OnBeingHit
-	(float _damage, FName boneName ,const FVector& _shotFromDirection, const FVector& _hitLocation, const class UPawnStatsComponent* _pawnStats);
+	(FName boneName ,const FVector& _shotFromDirection, const FVector& _hitLocation);
 
 
 protected:

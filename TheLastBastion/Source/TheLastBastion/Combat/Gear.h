@@ -25,6 +25,14 @@ enum class EGearType : uint8
 	Hammer = 13                UMETA(DisplayName = "Hammer"),
 };
 
+UENUM()
+enum class EElementalType
+{
+	None = 0,
+	Fire,
+	Ice
+};
+
 
 UCLASS()
 class THELASTBASTION_API AGear : public AActor
@@ -103,6 +111,14 @@ private:
 		/** Additive Sp on the max Hp*/
 		float SpAdditive;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+		float CriticalChance;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+		float StunChance;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+		EElementalType ElementalType;
 
 
 
@@ -127,6 +143,9 @@ public:
 	FORCEINLINE float GetIceDefence() const { return IceDefence; }
 	FORCEINLINE float GetHpAdditive() const { return HpAdditive; }
 	FORCEINLINE float GetSpAdditive() const { return SpAdditive; }
+	FORCEINLINE float GetCriticalChance() const { return CriticalChance; }
+	FORCEINLINE float GetStunChance() const { return StunChance; }
+	FORCEINLINE EElementalType GetElementalType() const { return ElementalType; }
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE FText GetGearName() const { return Name; }

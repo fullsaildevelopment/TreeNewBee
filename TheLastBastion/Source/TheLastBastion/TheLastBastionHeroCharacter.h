@@ -98,10 +98,14 @@ protected:
 
 #pragma endregion
 
-private:
+	UFUNCTION()
+		void OnTakeAnyDamageHandle(AActor* DamagedActor, float Damage, const class UDamageType* DamageType
+			, class AController* InstigatedBy, AActor* DamageCauser) override;
 
 	UFUNCTION()
-		void OnHealthChangedHandle(const class UPawnStatsComponent * _pawnStatsComp, float _damage, const class UDamageType * _damageType, FName _boneName, const FVector& _shotFromDirection, const FVector& _hitLocation) override;
+		void OnTakePointDamageHandle(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation,
+			class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
+			const class UDamageType* DamageType, AActor* DamageCauser) override;
 
 
 protected:
@@ -188,11 +192,12 @@ public:
 
 	FORCEINLINE class UInGameHUD* GetInGameHUD() const { return mInGameHUD; }
 	
-
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE float GetMoveForwardAxis() const { return MoveForwardAxis; }
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE float GetMoveRightAxis() const { return MoveRightAxis; }
+
+	class AGear* GetCurrentWeapon() const;
 
 
 };

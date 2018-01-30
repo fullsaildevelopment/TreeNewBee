@@ -89,7 +89,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Gear)
 		TArray<FWeaponSlot> WeaponSlots;
-		//FWeaponSlot WeaponSlots[4];
 
 	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Gear)
 	//	TArray<TSubclassOf<class AGear>> WeaponWheels;
@@ -134,6 +133,18 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		float DivByStaminaMax;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+		float CriticalRow;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+		float StunRow;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+		float CriticalMax;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+		float StunMax;
+
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		int Level;
 
@@ -146,25 +157,27 @@ protected:
 
 private:
 
-	UFUNCTION()
-		void OnTakeAnyDamageHandle(AActor* DamagedActor, float Damage, const class UDamageType* DamageType
-		, class AController* InstigatedBy, AActor* DamageCauser);
+	//UFUNCTION()
+	//	void OnTakeAnyDamageHandle(AActor* DamagedActor, float Damage, const class UDamageType* DamageType
+	//	, class AController* InstigatedBy, AActor* DamageCauser);
 
-	UFUNCTION()
-		void OnTakePointDamageHandle(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation,
-			class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
-			const class UDamageType* DamageType, AActor* DamageCauser);
+	//UFUNCTION()
+	//	void OnTakePointDamageHandle(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation,
+	//		class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
+	//		const class UDamageType* DamageType, AActor* DamageCauser);
 
-	// Calculate the damage that this character cause as the attacker
-	virtual float CalculateDamage();
 
 	virtual float GetBaseDamage();
 
 	void GenerateStatsAtBeginPlay();
 
-	class UInGameFloatingText* GenerateFloatingText(const FVector& _worldPos);
 
 public:	
+
+	//void GenerateFloatingText(const FVector& _worldPos, bool _isCritical, bool _isStun, bool _isHeadHit);
+
+	// Calculate the damage, remain health that this character suffered
+	virtual float CalculateDamage(float baseDamage, AActor* _damageCauser, bool& _isCritical, bool& _isStun);
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -205,6 +218,9 @@ public:
 	FORCEINLINE float GetStaminaCurrent() const { return StaminaCurrent; }
 	FORCEINLINE float GetHpMax() const { return HpMax; }
 	FORCEINLINE float GetStaminaMax() const { return StaminaMax; }
+	FORCEINLINE float GetCriticalMax() const { return CriticalMax; }
+	FORCEINLINE float GetStunMax() const { return StunMax; }
+
 	FORCEINLINE float GetDivByHpMax() const { return DivByHpMax; }
 	FORCEINLINE float GetDivBySpMax() const { return DivByStaminaMax; }
 	FORCEINLINE int   GetLevel() const { return Level; }
@@ -213,10 +229,12 @@ public:
 	FORCEINLINE FWeaponSlot GetWeaponSlotAt(int _index) const { return WeaponSlots[_index]; }
 	FORCEINLINE void SetWeaponEquipVisibility(int _index, bool _val) { WeaponSlots[_index].bHideWhenEquip = _val; }
 
+	static TSubclassOf<class UUserWidget> GetFloatingText_WBP();
+
 protected:
 
-	// Calculate the health that this character left after being attacked
-	virtual float CalculateHealth(AActor* _otherActor);
+	//// Calculate the health that this character left after being attacked
+	//virtual float CalculateHealth(AActor* _otherActor);
 
 
 };

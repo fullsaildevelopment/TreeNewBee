@@ -46,8 +46,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void StopFire() override;
 
-	void OnBeingHit(float _damage, FName boneName,
-		const FVector& _shotFromDirection, const FVector& _hitLocation, const class UPawnStatsComponent* _pawnStats) override;
+	void OnBeingHit(FName boneName,
+		const FVector& _shotFromDirection, const FVector& _hitLocation) override;
 
 
 	//UFUNCTION(BlueprintCallable)

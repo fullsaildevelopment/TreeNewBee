@@ -5,6 +5,8 @@
 #include "Animation/WidgetAnimation.h"
 
 
+
+
 UInGameFloatingText::UInGameFloatingText(const FObjectInitializer & ObjectInit) : Super(ObjectInit)
 {
 
@@ -21,16 +23,53 @@ bool UInGameFloatingText::Initialize()
 		UE_LOG(LogTemp, Error, TEXT("InGameFT is NULL --  UInGameFloatingText::Initialize"));
 		return false;
 	}
-	else
-		return false;
-
 	
+
+	InGameFT->Font.Size = 20;
+
+	return true;
 
 }
 
 void UInGameFloatingText::SetInGameFTProperty(FText _val)
 {
 	InGameFT->SetText(_val);
+	
+	//InGameFT->
+	//InGameFT->SetColorAndOpacity()
+}
+
+void UInGameFloatingText::SetStyle(EFloatingTextStyle _val)
+{
+	switch (_val)
+	{
+	case EFloatingTextStyle::Default:
+	default:
+		break;
+	case EFloatingTextStyle::Enemy:
+		InGameFT->SetColorAndOpacity(Enemy);
+		break;
+	case EFloatingTextStyle::Fire:
+		InGameFT->SetColorAndOpacity(Fire);
+		break;
+	case EFloatingTextStyle::Ice:
+		InGameFT->SetColorAndOpacity(Ice);
+		break;
+	case EFloatingTextStyle::Critical:
+		InGameFT->SetColorAndOpacity(Critical);
+		break;
+	case EFloatingTextStyle::Stun:
+		InGameFT->SetColorAndOpacity(Stun);
+		break;
+	}
+}
+
+void UInGameFloatingText::SetFontSize(float _val)
+{
+	FSlateFontInfo font = InGameFT->Font;
+	font.Size = _val;
+
+	InGameFT->SetFont(font);
 }
 
 

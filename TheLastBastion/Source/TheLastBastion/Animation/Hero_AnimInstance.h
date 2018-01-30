@@ -307,7 +307,7 @@ public:
 #pragma endregion
 
 	void OnBeingHit
-	( float _damage, FName boneName, const FVector& _shotFromDirection, const FVector& _hitLocation, const class UPawnStatsComponent* _pawnStats) override;
+	(FName boneName, const FVector& _shotFromDirection, const FVector& _hitLocation) override;
 
 	/** Called When switch melee weapon and equip*/
 	void UpdateComboList(EGearType _gearType);

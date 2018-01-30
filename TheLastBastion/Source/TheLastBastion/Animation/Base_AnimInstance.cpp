@@ -24,7 +24,7 @@ void UBase_AnimInstance::OnPostEvaluate()
 {
 }
 
-void UBase_AnimInstance::OnBeingHit(float _damage, FName boneName, const FVector & _shotFromDirection, const FVector & _hitLocation, const UPawnStatsComponent * _pawnStats)
+void UBase_AnimInstance::OnBeingHit(FName boneName, const FVector & _shotFromDirection, const FVector & _hitLocation)
 {
 }
 

@@ -238,6 +238,7 @@ bool UHeroStatsComponent::OnSwitchWeapon(EEquipType _nextEquip)
 			LastMeleeWeapon_Index = CurrentWeapon_Index;
 		}
 		CurrentWeapon_Index = nextEquip;
+		GenerateMaxStats();
 	}
 
 	return accept;

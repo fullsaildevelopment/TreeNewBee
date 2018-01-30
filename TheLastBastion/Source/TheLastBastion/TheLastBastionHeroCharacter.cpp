@@ -18,6 +18,10 @@
 #include "UI/InGameHUD.h"
 #include "PCs/SinglePlayerPC.h"
 
+#include "Kismet/GameplayStatics.h"
+#include "UI/InGameFloatingText.h"
+
+
 ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 {
 	// Create a camera boom (pulls in towards the player if there is a collision)
@@ -291,6 +295,7 @@ void ATheLastBastionHeroCharacter::OnPause()
 	}
 }
 
+
 void ATheLastBastionHeroCharacter::OnTABPressed()
 {
 	mAnimInstanceRef->OnSwapBetweenMeleeAndRange();
@@ -298,14 +303,6 @@ void ATheLastBastionHeroCharacter::OnTABPressed()
 
 #pragma endregion
 
-void ATheLastBastionHeroCharacter::OnHealthChangedHandle(const UPawnStatsComponent * _pawnStatsComp, float _damage, const UDamageType * _damageType, FName _boneName, const FVector & _shotFromDirection, const FVector & _hitLocation)
-{
-
-	mInGameHUD->SetHpOnHealthChange(_pawnStatsComp);
-
-	// Animation
-	mAnimInstanceRef->OnBeingHit(_damage, _boneName, _shotFromDirection, _hitLocation, _pawnStatsComp);
-}
 
 FVector ATheLastBastionHeroCharacter::GetPawnViewLocation() const
 {
@@ -321,4 +318,56 @@ FVector ATheLastBastionHeroCharacter::GetPawnViewLocation() const
 void ATheLastBastionHeroCharacter::ToggleFireMode(bool _val)
 {
 	mInGameHUD->ToggleFireMode(_val);
+}
+
+AGear * ATheLastBastionHeroCharacter::GetCurrentWeapon() const
+{
+	return HeroStats->GetCurrentRightHandWeapon();
+}
+
+void ATheLastBastionHeroCharacter::OnTakeAnyDamageHandle(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
+{
+}
+
+void ATheLastBastionHeroCharacter::OnTakePointDamageHandle(AActor * DamagedActor, float Damage, AController * InstigatedBy, FVector HitLocation, UPrimitiveComponent * FHitComponent, FName BoneName, FVector ShotFromDirection, const UDamageType * DamageType, AActor * DamageCauser)
+{
+
+	if (bIsDead)
+		return;
+
+	bool isCritical = false, isStun = false;
+
+	float totalDamage = HeroStats->CalculateDamage(Damage, DamageCauser, isCritical, isStun);
+
+	/// update HUD hp bar
+	mInGameHUD->SetHpOnHealthChange(HeroStats);
+
+	/// pop floating number
+	TSubclassOf<UUserWidget> fT_WBP = HeroStats->GetFloatingText_WBP();
+
+	if (fT_WBP == nullptr)
+	{
+		UE_LOG(LogTemp, Error,
+			TEXT("fT_WBP == nullptr - ATheLastBastionEnemyCharacter::OnTakePointDamageHandle"));
+	}
+
+	FVector2D screenPos;
+	UGameplayStatics::ProjectWorldToScreen(UGameplayStatics::GetPlayerController(this, 0), HitLocation, screenPos);
+	UWorld* world = GetWorld();
+	if (world && fT_WBP)
+	{
+		UInGameFloatingText* damageFT = Cast<UInGameFloatingText>(CreateWidget<UUserWidget>(world, fT_WBP));
+		if (damageFT)
+		{
+			damageFT->SetInGameFTProperty(FText::AsNumber((int)totalDamage));
+			damageFT->SetRenderTranslation(screenPos);
+			if (isCritical)
+				damageFT->SetFontSize(FontSize_Critical);
+			damageFT->SetStyle(EFloatingTextStyle::Enemy);
+			damageFT->AddToViewport();
+		}
+
+	}
+
+	mAnimInstanceRef->OnBeingHit(BoneName, ShotFromDirection, HitLocation);
 }

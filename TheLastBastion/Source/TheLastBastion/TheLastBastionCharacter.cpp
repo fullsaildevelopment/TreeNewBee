@@ -19,9 +19,6 @@
 //////////////////////////////////////////////////////////////////////////
 // ATheLastBastionCharacter
 
-#define TLB_CHARACTER_NUM  4
-static TSubclassOf<class ACharacter> TLBCharacterClass[TLB_CHARACTER_NUM];
-
 
 ATheLastBastionCharacter::ATheLastBastionCharacter()
 {	
@@ -61,44 +58,25 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->bGenerateOverlapEvents = true;
 
-	//LocateAllCharacterClass();
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
 
-void ATheLastBastionCharacter::OnHealthChangedHandle(const class UPawnStatsComponent * _pawnStatsComp, float _damage, const class UDamageType * _damageType, FName _boneNmame, const FVector& _shotFromDirection, const FVector& _hitLocation)
-{
-
-}
-
-TSubclassOf<class ACharacter> ATheLastBastionCharacter::GetCharacterClass(ECharacterType _characterType)
-{
-	return TLBCharacterClass[(int)(_characterType)];
-}
-/** Find All Character Blueprint Class*/
-void ATheLastBastionCharacter::LocateAllCharacterClass()
-{
-	//if (TLBCharacterClass[(int)(ECharacterType::Ranger)] == nullptr)
-	//	UCustomType::FindClass<ACharacter>(TLBCharacterClass[(int)(ECharacterType::Ranger)], TEXT("/Game/Blueprints/Heros/Ranger_Bp"));
-
-	//if (TLBCharacterClass[(int)(ECharacterType::Builder)] == nullptr)
-	//	UCustomType::FindClass<ACharacter>(TLBCharacterClass[(int)(ECharacterType::Builder)], TEXT("/Game/Blueprints/Heros/Builder_Bp"));
-
-	//if (TLBCharacterClass[(int)(ECharacterType::LanTrooper_T0)] == nullptr)
-	//	UCustomType::FindClass<ACharacter>(TLBCharacterClass[(int)(ECharacterType::LanTrooper_T0)],
-	//		TEXT("/Game/Blueprints/AI/Lannester/Lan_Trooper_T0"));
-}
 
 void ATheLastBastionCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (PawnStats)
-	{
-		PawnStats->OnHealthChanged.AddDynamic(this, &ATheLastBastionCharacter::OnHealthChangedHandle);
-	}
+	//if (PawnStats)
+	//{
+	//	PawnStats->OnHealthChanged.AddDynamic(this, &ATheLastBastionCharacter::OnHealthChangedHandle);
+	//}
 
 	CharacterCustomInit();
+
+	OnTakeAnyDamage.AddDynamic(this, &ATheLastBastionCharacter::OnTakeAnyDamageHandle);
+	OnTakePointDamage.AddDynamic(this, &ATheLastBastionCharacter::OnTakePointDamageHandle);
+
 }
 
 void ATheLastBastionCharacter::CharacterCustomInit()
@@ -114,6 +92,17 @@ void ATheLastBastionCharacter::CharacterCustomInit()
 	default:
 		break;
 	}
+}
+
+void ATheLastBastionCharacter::OnTakeAnyDamageHandle(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
+{
+}
+
+void ATheLastBastionCharacter::OnTakePointDamageHandle(AActor * DamagedActor, float Damage, AController * InstigatedBy, FVector HitLocation, UPrimitiveComponent * FHitComponent, FName BoneName, FVector ShotFromDirection, const UDamageType * DamageType, AActor * DamageCauser)
+{
+
+	//UE_LOG(LogTemp, Log, TEXT("Take Point Damage - ATheLastBastionCharacter::OnTakePointDamageHandle"));
+
 }
 
 

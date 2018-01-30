@@ -135,7 +135,7 @@ void UAIMelee_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMon
 }
 
 
-void UAIMelee_AnimInstance::OnBeingHit(float _damage, FName boneName, const FVector & _shotFromDirection, const FVector & _hitLocation, const UPawnStatsComponent * _pawnStats)
+void UAIMelee_AnimInstance::OnBeingHit(FName boneName, const FVector & _shotFromDirection, const FVector & _hitLocation)
 {
 
 	if (Hit_Montage == nullptr)

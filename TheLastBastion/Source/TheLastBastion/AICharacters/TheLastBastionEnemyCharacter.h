@@ -53,8 +53,14 @@ protected:
 
 	void BeginPlay() override;	
 
- 	UFUNCTION()
-		void OnHealthChangedHandle(const class UPawnStatsComponent * _pawnStatsComp, float _damage, const class UDamageType * _damageType, FName _boneName, const FVector& _shotFromDirection, const FVector& _hitLocation) override;
+
+	UFUNCTION()
+		void OnTakeAnyDamageHandle(AActor* DamagedActor, float Damage, const class UDamageType* DamageType
+			, class AController* InstigatedBy, AActor* DamageCauser) override;
+	UFUNCTION()
+		void OnTakePointDamageHandle(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation,
+			class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
+			const class UDamageType* DamageType, AActor* DamageCauser) override;
 
 public:
 

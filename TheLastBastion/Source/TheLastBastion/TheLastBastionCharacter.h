@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "TheLastBastionCharacter.generated.h"
 
+#define FontSize_Regular 22
+#define FontSize_Critical 26
 
 
 
@@ -85,8 +87,18 @@ protected:
 	/** Config character based on character type during beginplay*/
 	void CharacterCustomInit();
 
+
 	UFUNCTION()
-		virtual void OnHealthChangedHandle(const class UPawnStatsComponent * _pawnStatsComp, float _damage, const class UDamageType * _damageType, FName _boneNmame, const FVector& _shotFromDirection, const FVector& _hitLocation);
+		virtual void OnTakeAnyDamageHandle(AActor* DamagedActor, float Damage, const class UDamageType* DamageType
+			, class AController* InstigatedBy, AActor* DamageCauser);
+
+	UFUNCTION()
+		virtual void OnTakePointDamageHandle(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation,
+			class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
+			const class UDamageType* DamageType, AActor* DamageCauser);
+
+public:
+	
 
 public:
 
@@ -107,10 +119,5 @@ public:
 	FORCEINLINE bool GetIsDead() const { return bIsDead; }
 	FORCEINLINE bool GetIsGodMode() const { return bIsGodMode; }
 
-	static TSubclassOf<class ACharacter> GetCharacterClass(ECharacterType _characterType);
-
-private:
-
-	void LocateAllCharacterClass();
 };
 

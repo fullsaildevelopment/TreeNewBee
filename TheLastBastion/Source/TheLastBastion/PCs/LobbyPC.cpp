@@ -201,12 +201,12 @@ void ALobbyPC::SetCharacterClass(ECharacterType _characterType)
 	{
 	case ECharacterType::Ranger:
 		playerProfile.mCharacterImage = USaveGame_TheLastBastion::GetRangerAvatarImage();
-		playerProfile.mCharacterClass = ATheLastBastionCharacter::GetCharacterClass(_characterType);
+		//playerProfile.mCharacterClass = ATheLastBastionCharacter::GetCharacterClass(_characterType);
 		playerProfile.bIsRangerClass = true;
 		break;
 	case ECharacterType::Builder:
 		playerProfile.mCharacterImage = USaveGame_TheLastBastion::GetBuilderAvatarImage();
-		playerProfile.mCharacterClass = ATheLastBastionCharacter::GetCharacterClass(_characterType);
+		//playerProfile.mCharacterClass = ATheLastBastionCharacter::GetCharacterClass(_characterType);
 		playerProfile.bIsRangerClass = false;
 		break;
 	default:
