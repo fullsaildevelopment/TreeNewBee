@@ -199,6 +199,14 @@ void ASinglePlayerPC::TurnOnRagDoll()
 {
 }
 
+void ASinglePlayerPC::RecoverImmediate()
+{
+}
+
+void ASinglePlayerPC::RecoverByGettingUp()
+{
+}
+
 void ASinglePlayerPC::OnTradeMenuAccept(UHeroStatsComponent * _heroStats)
 {
 	mInGameHUD->ResetStats(_heroStats);

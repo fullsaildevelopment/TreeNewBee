@@ -115,10 +115,30 @@ void UInGameMenu::OnAcceptClicked_Option()
 	}
 
 
-	heroStats->SetWeaponEquipVisibility(0, (bool)HideSH->GetCheckedState());
-	heroStats->SetWeaponEquipVisibility(1, (bool)HideTH->GetCheckedState());
-	heroStats->SetWeaponEquipVisibility(2, (bool)HideCB->GetCheckedState());
-	heroStats->SetWeaponEquipVisibility(3, (bool)HideHV->GetCheckedState());
+	if (HideSH->GetCheckedState() == ECheckBoxState::Checked)
+		heroStats->SetWeaponEquipVisibility(0, true);
+	else
+		heroStats->SetWeaponEquipVisibility(0, false);
+
+	if (HideTH->GetCheckedState() == ECheckBoxState::Checked)
+		heroStats->SetWeaponEquipVisibility(1, true);
+	else
+		heroStats->SetWeaponEquipVisibility(1, false);
+
+	if (HideCB->GetCheckedState() == ECheckBoxState::Checked)
+		heroStats->SetWeaponEquipVisibility(2, true);
+	else
+		heroStats->SetWeaponEquipVisibility(2, false);
+
+	if (HideHV->GetCheckedState() == ECheckBoxState::Checked)
+		heroStats->SetWeaponEquipVisibility(3, true);
+	else
+		heroStats->SetWeaponEquipVisibility(3, false);
+
+	//heroStats->SetWeaponEquipVisibility(0, (bool)HideSH->GetCheckedState());
+	//heroStats->SetWeaponEquipVisibility(1, (bool)HideTH->GetCheckedState());
+	//heroStats->SetWeaponEquipVisibility(2, (bool)HideCB->GetCheckedState());
+	//heroStats->SetWeaponEquipVisibility(3, (bool)HideHV->GetCheckedState());
 	heroStats->UpdateEquipHideOption();
 }
 
