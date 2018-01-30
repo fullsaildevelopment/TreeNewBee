@@ -358,9 +358,9 @@ void UHeroStatsComponent::OnEnemyEnter(UPrimitiveComponent * _overlappedComponen
 	if (newPotentialTarget)
 	{
 		mPotentialTargets.Add(newPotentialTarget);
-		UE_LOG(LogTemp, Warning, 
-			TEXT("Detect Enemy Enter, %s, %d left in list "), 
-			*_otherActor->GetName(), mPotentialTargets.Num());
+		//UE_LOG(LogTemp, Warning, 
+		//	TEXT("Detect Enemy Enter, %s, %d left in list "), 
+		//	*_otherActor->GetName(), mPotentialTargets.Num());
 	}
 	
 }

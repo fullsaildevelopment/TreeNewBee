@@ -4,6 +4,8 @@
 #include "Components/BoxComponent.h"
 #include "TheLastBastionCharacter.h"
 
+
+#define SIDEPADDING 200.0f
 // Sets default values
 AAIGroupBase::AAIGroupBase()
 {
@@ -14,11 +16,15 @@ AAIGroupBase::AAIGroupBase()
 	RootComponent = RootComp;
 
 	//
+	float halfHeight = 100.0f;
+
 	GroupVolumn = CreateDefaultSubobject<UBoxComponent>(TEXT("GroupSpawnVolumn"));
 	GroupVolumn->SetupAttachment(RootComponent);
 	GroupVolumn->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GroupVolumn->bGenerateOverlapEvents = false;
 	GroupVolumn->SetCanEverAffectNavigation(false);
+	GroupVolumn->InitBoxExtent(FVector(halfHeight, halfHeight, halfHeight));
+	GroupVolumn->RelativeLocation = FVector(0, 0, halfHeight);
 
 	//
 	bActivated = true;
@@ -51,6 +57,7 @@ void AAIGroupBase::SpawnAGroup()
 				// track max width for trigger volumn bounding calculation
 				float maxWidth = -1.0f;
 				float maxLength = 0.0f;
+				// offset on forward direction
 				float xOffset = 0.0f;
 
 				for (int iClass = 0; iClass < AIToSpawn.Num(); iClass++)
@@ -80,12 +87,14 @@ void AAIGroupBase::SpawnAGroup()
 						// calculate the relative x offset base on center root
 						for (int i = 0; i < AICountInThisRow; i++)
 						{
+							// offset on right vector direction
 							float yOffset = i * colPadding - centerOffset;
 							FAICharacterInfo newCharacterInfo;
 
 							FVector myLocation = this->GetActorLocation();
-							newCharacterInfo.GroupRelativeLocation = FVector(yOffset, xOffset, 0.0f);
-							newCharacterInfo.AICharacter = world->SpawnActor<ATheLastBastionCharacter>(ClassToSpawn,myLocation + newCharacterInfo.GroupRelativeLocation, this->GetActorRotation(), spawnParam);
+							newCharacterInfo.GroupRelativeLocation = FVector(xOffset, yOffset, 0.0f);
+							FVector spawnLocation = myLocation - xOffset * GetActorForwardVector() + yOffset * GetActorRightVector();
+							newCharacterInfo.AICharacter = world->SpawnActor<ATheLastBastionCharacter>(ClassToSpawn, spawnLocation, this->GetActorRotation(), spawnParam);
 							newCharacterInfo.AICharacter->SpawnDefaultController();
 							AICharactersInfo.Add(newCharacterInfo);
 
@@ -102,6 +111,8 @@ void AAIGroupBase::SpawnAGroup()
 						maxWidth = maxRowWidth;
 				}
 				maxLength *= 2.0f;
+				// extend take half width, add padding on the side
+				maxWidth = 0.5f * maxWidth + SIDEPADDING;
 				
 				UE_LOG(LogTemp, Log, TEXT("maxWidth in this group %f"), maxWidth);
 				GroupVolumn->SetBoxExtent(FVector(maxLength, maxWidth, GroupVolumn->GetUnscaledBoxExtent().Z), true);
