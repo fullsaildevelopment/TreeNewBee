@@ -38,14 +38,14 @@ void UBTService_SharedService::UpdateSqrDistanceToTarget(UBehaviorTreeComponent 
 
 	if (enemyC == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UpdateSqrDistanceToTarget get controller failed"));
+		//UE_LOG(LogTemp, Warning, TEXT("UpdateSqrDistanceToTarget get controller failed"));
 		return;
 	}
 
 	const AActor* const targetActor = Cast<AActor>(bbc->GetValue<UBlackboardKeyType_Object>(enemyC->GetKeyID_TargetActor()));
 	if (targetActor == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UpdateSqrDistanceToTarget get target actor failed"));
+		//UE_LOG(LogTemp, Warning, TEXT("UpdateSqrDistanceToTarget get target actor failed"));
 		return;
 	}
 
@@ -53,7 +53,7 @@ void UBTService_SharedService::UpdateSqrDistanceToTarget(UBehaviorTreeComponent 
 
 	if (me == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("enemyC->GetPawn() is NULL - UBTService_SharedService::UpdateSqrDistanceToTarget"));
+		//UE_LOG(LogTemp, Error, TEXT("enemyC->GetPawn() is NULL - UBTService_SharedService::UpdateSqrDistanceToTarget"));
 		return;
 	}
 

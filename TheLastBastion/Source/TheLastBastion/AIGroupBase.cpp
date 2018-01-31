@@ -2,7 +2,16 @@
 
 #include "AIGroupBase.h"
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/RotatingMovementComponent.h"
+
 #include "TheLastBastionCharacter.h"
+#include "AI/TheLastBastionGroupAIController.h"
+#include "AI/TheLastBastionBaseAIController.h"
+
+
+#include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
 
 
 #define SIDEPADDING 200.0f
@@ -12,19 +21,23 @@ AAIGroupBase::AAIGroupBase()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
-	RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("RootComp"));
-	RootComponent = RootComp;
+	//RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("RootComp"));
+	//RootComponent = RootComp;
 
 	//
-	float halfHeight = 100.0f;
+	float halfHeight = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
 
 	GroupVolumn = CreateDefaultSubobject<UBoxComponent>(TEXT("GroupSpawnVolumn"));
-	GroupVolumn->SetupAttachment(RootComponent);
 	GroupVolumn->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GroupVolumn->bGenerateOverlapEvents = false;
 	GroupVolumn->SetCanEverAffectNavigation(false);
 	GroupVolumn->InitBoxExtent(FVector(halfHeight, halfHeight, halfHeight));
-	GroupVolumn->RelativeLocation = FVector(0, 0, halfHeight);
+
+	GroupVolumn->SetupAttachment(GetCapsuleComponent());
+
+	//moveComp = CreateDefaultSubobject<URotatingMovementComponent>(TEXT("MovementComp"));
+
+	AIControllerClass = ATheLastBastionGroupAIController::StaticClass();
 
 	//
 	bActivated = true;
@@ -81,8 +94,8 @@ void AAIGroupBase::SpawnAGroup()
 
 						Remain -= AICountInThisRow;
 						float centerOffset = 0.5f * rowWidth;
-						UE_LOG(LogTemp, Log, TEXT("AICount in this Row %d"), AICountInThisRow);
-						UE_LOG(LogTemp, Log, TEXT("center offset %f"), centerOffset);
+						//UE_LOG(LogTemp, Log, TEXT("AICount in this Row %d"), AICountInThisRow);
+						//UE_LOG(LogTemp, Log, TEXT("center offset %f"), centerOffset);
 
 						// calculate the relative x offset base on center root
 						for (int i = 0; i < AICountInThisRow; i++)
@@ -98,14 +111,14 @@ void AAIGroupBase::SpawnAGroup()
 							newCharacterInfo.AICharacter->SpawnDefaultController();
 							AICharactersInfo.Add(newCharacterInfo);
 
-							UE_LOG(LogTemp, Log, TEXT("xOffset %f"), xOffset);
+							//UE_LOG(LogTemp, Log, TEXT("xOffset %f"), xOffset);
 						}
 
 						xOffset += rowPadding;
 					}
 
 
-					UE_LOG(LogTemp, Log, TEXT("maxRowWidth in this Row %f"), maxRowWidth);
+					//UE_LOG(LogTemp, Log, TEXT("maxRowWidth in this Row %f"), maxRowWidth);
 
 					if (maxRowWidth > maxWidth)
 						maxWidth = maxRowWidth;
@@ -114,33 +127,16 @@ void AAIGroupBase::SpawnAGroup()
 				// extend take half width, add padding on the side
 				maxWidth = 0.5f * maxWidth + SIDEPADDING;
 				
-				UE_LOG(LogTemp, Log, TEXT("maxWidth in this group %f"), maxWidth);
+				//UE_LOG(LogTemp, Log, TEXT("maxWidth in this group %f"), maxWidth);
 				GroupVolumn->SetBoxExtent(FVector(maxLength, maxWidth, GroupVolumn->GetUnscaledBoxExtent().Z), true);
 			}
 
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("%s NO AI to Spawn - AAIGroupBase::SpawnAGroup"), *this->GetName());
+			//UE_LOG(LogTemp, Error, TEXT("%s NO AI to Spawn - AAIGroupBase::SpawnAGroup"), *this->GetName());
 		}
 	}
-
-	//if (AIClassBP != nullptr && bActivated)
-	//{
-	//	UWorld* const world = GetWorld();
-	//	if (world)
-	//	{
-	//		SetGroupSpawingLocations();
-	//		//FActorSpawnParameters spawnParam;
-	//		//spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-	//		//for (int32 i = 0; i < NumOfAICharacters; i++)
-	//		//{
-	//		//	ATheLastBastionCharacter* SingleAIPawn = world->SpawnActor<ATheLastBastionCharacter>(AIClassBP, GroupSpawningLocations[i], FRotator::ZeroRotator, spawnParam);
-	//		//	SingleAIPawn->SpawnDefaultController();
-	//		//	AICharacters.Add(SingleAIPawn);
-	//		}
-	//	}
-	//}
 }
 
 void AAIGroupBase::SetGroupSpawingLocations()
@@ -163,10 +159,43 @@ void AAIGroupBase::Tick(float DeltaTime)
 
 }
 
-// Called to bind functionality to input
-void AAIGroupBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AAIGroupBase::SetChildPathLocation()
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	FVector myLocation = GetActorLocation();
+	FVector forward = GetActorForwardVector();
+	FVector right = GetActorRightVector();
+	FVector targetLocation;
+	FVector locationOffset;
 
+	UBlackboardComponent* bbc = nullptr;
+	ATheLastBastionBaseAIController* enemyC = nullptr;
+
+	for (int i = 0; i < AICharactersInfo.Num(); i++)
+	{
+		enemyC = Cast<ATheLastBastionBaseAIController>(AICharactersInfo[i].AICharacter->GetController());
+		if (enemyC == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("enemyC == nullptr - AAIGroupBase::SetChildPathLocation"));
+			return;
+		}
+
+		bbc = enemyC->GetBlackboardComponent();
+		if (bbc == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("bbc == nullptr - AAIGroupBase::SetChildPathLocation"));
+			return;
+		}
+
+		locationOffset = AICharactersInfo[i].GroupRelativeLocation;
+		targetLocation = myLocation - forward * locationOffset.X + right * locationOffset.Y;
+		bbc->SetValue<UBlackboardKeyType_Vector>(enemyC->GetKeyID_TargetLocation(), targetLocation);
+	}
 }
+
+// Called to bind functionality to input
+//void AAIGroupBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+//{
+//	Super::SetupPlayerInputComponent(PlayerInputComponent);
+//
+//}
 

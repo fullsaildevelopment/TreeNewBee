@@ -303,7 +303,6 @@ void ATheLastBastionHeroCharacter::OnTABPressed()
 
 #pragma endregion
 
-
 FVector ATheLastBastionHeroCharacter::GetPawnViewLocation() const
 {
 	if (FollowCamera != nullptr)

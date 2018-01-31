@@ -20,11 +20,9 @@ ATheLastBastionBaseAIController::ATheLastBastionBaseAIController(const FObjectIn
 	
 }
 
-
-
 void ATheLastBastionBaseAIController::Possess(APawn* _possPawn)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ATheLastBastionBaseAIController possess on %s"), *_possPawn->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("ATheLastBastionBaseAIController possess on %s"), *_possPawn->GetName());
 
 	Super::Possess(_possPawn);
 	mCharacter = Cast<ATheLastBastionEnemyCharacter>(_possPawn);
@@ -63,12 +61,14 @@ void ATheLastBastionBaseAIController::Possess(APawn* _possPawn)
 
 	// Fetch the Keys
 	targetActor_KeyID = mBBComp->GetKeyID("targetActor");
+	targetLocation_KeyID = mBBComp->GetKeyID("targetLocation");
 	ToTargetActorDistanceSqr_KeyId = mBBComp->GetKeyID("ToTargetActorDistanceSqr");
 	CurrentActionState_KeyID = mBBComp->GetKeyID("CurrentActionState");
 
 	mBBComp->SetValue<UBlackboardKeyType_Float>(ToTargetActorDistanceSqr_KeyId, MAX_FLT);
+	mBBComp->SetValue<UBlackboardKeyType_Vector>(targetLocation_KeyID, _possPawn->GetActorLocation());
 	mBBComp->SetValue<UBlackboardKeyType_Enum>(CurrentActionState_KeyID, static_cast<UBlackboardKeyType_Enum::FDataType>(EAIActionState::None));
-	UE_LOG(LogTemp, Warning, TEXT("Possess, %s"), *_possPawn->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("Possess, %s"), *_possPawn->GetName());
 
 	// Launch behavior Tree
 	mBTComp->StartTree(*bt);

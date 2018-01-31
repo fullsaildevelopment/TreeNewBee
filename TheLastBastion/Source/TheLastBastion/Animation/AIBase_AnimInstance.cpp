@@ -23,7 +23,7 @@ void UAIBase_AnimInstance::OnBeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("The AIBase_AnimInstance can only assigned to ATheLastBastionEnemyCharacter - UAIBase_AnimInstance "));
 		return;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("AIBase_AnimInstance Call OnBeginPlay"));
+	//UE_LOG(LogTemp, Warning, TEXT("AIBase_AnimInstance Call OnBeginPlay"));
 }
 
 void UAIBase_AnimInstance::OnInit()

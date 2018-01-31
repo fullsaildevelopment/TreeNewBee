@@ -23,21 +23,21 @@ EBTNodeResult::Type UBTTask_HitReaction::ExecuteTask(UBehaviorTreeComponent & Ow
 	ATheLastBastionBaseAIController* const enemyC = Cast<ATheLastBastionBaseAIController>(OwnerComp.GetAIOwner());
 	if (enemyC == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("AIOwner is not an enemyC - UBTTask_NKAttack::ExecuteTask"));
+		//UE_LOG(LogTemp, Error, TEXT("AIOwner is not an enemyC - UBTTask_NKAttack::ExecuteTask"));
 		return NodeResult;
 	}
 
 	UAIBase_AnimInstance* animRef = enemyC->GetAnimInstance();
 	if (animRef == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("animRef is NULL - UBTTask_NKAttack::ExecuteTask"));
+		//UE_LOG(LogTemp, Error, TEXT("animRef is NULL - UBTTask_NKAttack::ExecuteTask"));
 		return NodeResult;
 	}
 
 	const AActor* const targetActor = Cast<AActor>(bbc->GetValue<UBlackboardKeyType_Object>(enemyC->GetKeyID_TargetActor()));
 	if (targetActor == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UpdateSqrDistanceToTarget get target actor failed"));
+		//UE_LOG(LogTemp, Warning, TEXT("UpdateSqrDistanceToTarget get target actor failed"));
 		return NodeResult;
 	}
 

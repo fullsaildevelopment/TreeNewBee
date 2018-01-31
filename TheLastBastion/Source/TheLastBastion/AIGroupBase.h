@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
+#include "GameFramework/Character.h"
 #include "AIGroupBase.generated.h"
 
 USTRUCT(BlueprintType)
@@ -47,7 +47,7 @@ struct FAICharacterInfo
 };
 
 UCLASS(BlueprintType)
-class THELASTBASTION_API AAIGroupBase : public APawn
+class THELASTBASTION_API AAIGroupBase : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -61,16 +61,19 @@ protected:
 		/** The class and the number we about to spawn*/
 		TArray<FAISpawnInfo> AIToSpawn;
 
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	class USceneComponent* RootComp;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	//	class USceneComponent* RootComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		/** Trigger volumn to present the group size and trigger group combat*/
-	class UBoxComponent* GroupVolumn;
+		class UBoxComponent* GroupVolumn;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Behavior)
+		class UBehaviorTree* BehaviorTree;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 	bool bActivated;
+
 
 public:
 	// Sets default values for this pawn's properties
@@ -91,7 +94,12 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	FORCEINLINE class UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
+
+	/** Update the children location during move to*/
+	UFUNCTION(BlueprintCallable, Category = GroupBehavior)
+	void SetChildPathLocation();
 	
 };

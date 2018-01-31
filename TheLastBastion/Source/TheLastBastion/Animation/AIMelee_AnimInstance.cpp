@@ -13,7 +13,7 @@ void UAIMelee_AnimInstance::OnBeginPlay()
 {
 	Super::OnBeginPlay();
 	attackChoice = EAIMeleeAttackType::None;
-	UE_LOG(LogTemp, Log, TEXT("UAIMelee_AnimInstance::OnBeginPlay is Called"));
+	//UE_LOG(LogTemp, Log, TEXT("UAIMelee_AnimInstance::OnBeginPlay is Called"));
 
 	OnMontageStarted.AddDynamic(this, &UAIMelee_AnimInstance::OnMontageStartHandle);
 	OnMontageBlendingOut.AddDynamic(this, &UAIMelee_AnimInstance::OnMontageBlendOutStartHandle);
