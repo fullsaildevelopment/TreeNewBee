@@ -96,6 +96,11 @@ protected:
 	/** Called When player pressed ESC, toggle the In game menu*/
 	void OnPause();
 
+	void OnMarchCommand();
+
+	void OnCommandPressed();
+
+	void OnCommandReleased();
 #pragma endregion
 
 	UFUNCTION()
@@ -143,6 +148,11 @@ public:
 		/** Disable the update the control yaw input*/
 		bool bIsYawControllDisabled = false;
 
+	UPROPERTY()
+		/** swat under player command */
+		class AAIGroupBase* CommandedGroup;
+
+
 private:
 
 	/** Animation Bp Reference */
@@ -172,6 +182,9 @@ private:
 #pragma endregion
 
 
+
+	bool bIsInCommandMode;
+
 public:
 
 	// Override A Parent class function
@@ -196,6 +209,8 @@ public:
 		FORCEINLINE float GetMoveForwardAxis() const { return MoveForwardAxis; }
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE float GetMoveRightAxis() const { return MoveRightAxis; }
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE bool IsInCommandMode() const { return bIsInCommandMode; }
 
 	class AGear* GetCurrentWeapon() const;
 

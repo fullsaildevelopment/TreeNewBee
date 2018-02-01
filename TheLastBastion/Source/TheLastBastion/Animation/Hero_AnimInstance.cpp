@@ -244,8 +244,12 @@ void UHero_AnimInstance::MeleeUpdate(UCharacterMovementComponent * movementComp,
 	spineAngleOverrideAlpha = FMath::Clamp(spineAngleOverrideAlpha, 0.0f, .8f);
 	spineAngleRotator = FRotator(0, 0, -15.f - HeadTrackPitch);
 
-	// Set camera back to origional
-	mCharacter->GetFollowCamera()->RelativeLocation
+	// Set camera back to origional, if it is not in command mode
+	if (mCharacter->IsInCommandMode())
+		mCharacter->GetFollowCamera()->RelativeLocation
+		= UKismetMathLibrary::VInterpTo(mCharacter->GetFollowCamera()->RelativeLocation, CameraEquipOffset, _deltaTime, CameraShiftRate);
+	else
+		mCharacter->GetFollowCamera()->RelativeLocation
 		= UKismetMathLibrary::VInterpTo(mCharacter->GetFollowCamera()->RelativeLocation, FVector::ZeroVector, _deltaTime, CameraShiftRate);
 
 }
@@ -977,13 +981,20 @@ void UHero_AnimInstance::OnRangeAttack()
 	{
 		ARangeWeapon* rangeWeapon = Cast<ARangeWeapon>(heroStats->GetCurrentRightHandWeapon());
 
-		if (rangeWeapon)
+		if (rangeWeapon == nullptr)
 		{
-			rangeWeapon->Fire();
-			PlayMontage(Fire_Montage, 1.0f, MONTAGE_SN_HERO_FireOnce);
-		}
-		else
 			UE_LOG(LogTemp, Error, TEXT("Current Weapon is not a range weapon - UHero_AnimInstance::OnRangeAttack"));
+			return;
+		}
+
+		// Full sprint can not fire
+		if (bIsSprinting && !bTryToZoomIn)
+			return;
+
+
+		rangeWeapon->Fire();
+		PlayMontage(Fire_Montage, 1.0f, MONTAGE_SN_HERO_FireOnce);
+
 	}
 
 }

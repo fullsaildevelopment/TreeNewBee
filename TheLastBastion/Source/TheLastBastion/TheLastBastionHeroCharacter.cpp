@@ -19,8 +19,12 @@
 #include "PCs/SinglePlayerPC.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "AIGroupBase.h"
 #include "UI/InGameFloatingText.h"
+#include "DrawDebugHelpers.h"
 
+
+#define  COMMANDRANGE 10000
 
 ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 {
@@ -61,6 +65,7 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 	bUsePreviousMovementAxis = false;
 	bIsYawControllDisabled = false;
 	bIsMovementDisabled = false;
+	bIsInCommandMode = false;
 
 	Focus_CamRotationLagging = 15.0f;
 	Unfocus_CamRotationLagging = 30.0f;
@@ -92,7 +97,6 @@ void ATheLastBastionHeroCharacter::BeginPlay()
 	}
 	else
 		UE_LOG(LogTemp, Error, TEXT("pc is NULL - ATheLastBastionHeroCharacter::BeginPlay"));
-
 }
 
 void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -135,6 +139,11 @@ void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputCompone
 	PlayerInputComponent->BindAction("UseHeavyWeapon", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnUseHeavyWeapon);
 
 	PlayerInputComponent->BindAction("Pause", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnPause);
+
+	PlayerInputComponent->BindAction("Command", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnCommandPressed);
+	PlayerInputComponent->BindAction("Command", IE_Released, this, &ATheLastBastionHeroCharacter::OnCommandReleased);
+
+	PlayerInputComponent->BindAction("MarchCommand", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnMarchCommand);
 
 
 }
@@ -295,6 +304,52 @@ void ATheLastBastionHeroCharacter::OnPause()
 	}
 }
 
+void ATheLastBastionHeroCharacter::OnMarchCommand()
+{
+	FVector EyesLocation;
+	FRotator EyesRotation;
+	GetActorEyesViewPoint(EyesLocation, EyesRotation);
+
+	FVector ShotDirection = EyesRotation.Vector();
+	FVector TraceEnd = EyesLocation + (ShotDirection * COMMANDRANGE);
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	FHitResult Hit;
+	bool const IsHit = GetWorld()->LineTraceSingleByChannel(Hit, EyesLocation, TraceEnd, ECollisionChannel::ECC_Visibility);
+	if (IsHit)
+	{
+		FVector ImpactLocation = Hit.ImpactPoint;
+		DrawDebugSphere(GetWorld(), ImpactLocation, 50.0f, 8, FColor::Blue, false, 5.0f);
+		if (CommandedGroup)
+		{
+			CommandedGroup->SetMarchLocation(ImpactLocation);
+		}
+	}
+
+
+
+}
+
+void ATheLastBastionHeroCharacter::OnCommandPressed()
+{
+	if (mAnimInstanceRef->GetActivatedEquipmentType() != EEquipType::CrossBow)
+	{
+		mInGameHUD->ToggleFireMode(true);
+	}
+	bIsInCommandMode = true;
+
+}
+
+void ATheLastBastionHeroCharacter::OnCommandReleased()
+{
+	if (mAnimInstanceRef->GetActivatedEquipmentType() != EEquipType::CrossBow)
+	{
+		mInGameHUD->ToggleFireMode(false);
+	}
+	bIsInCommandMode = false;
+}
 
 void ATheLastBastionHeroCharacter::OnTABPressed()
 {

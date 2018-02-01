@@ -64,9 +64,11 @@ void ATheLastBastionBaseAIController::Possess(APawn* _possPawn)
 	targetLocation_KeyID = mBBComp->GetKeyID("targetLocation");
 	ToTargetActorDistanceSqr_KeyId = mBBComp->GetKeyID("ToTargetActorDistanceSqr");
 	CurrentActionState_KeyID = mBBComp->GetKeyID("CurrentActionState");
+	NewCommandIndex_KeyID = mBBComp->GetKeyID("NewCommandIndex");
 
 	mBBComp->SetValue<UBlackboardKeyType_Float>(ToTargetActorDistanceSqr_KeyId, MAX_FLT);
 	mBBComp->SetValue<UBlackboardKeyType_Vector>(targetLocation_KeyID, _possPawn->GetActorLocation());
+	mBBComp->SetValue<UBlackboardKeyType_Int>(NewCommandIndex_KeyID, 0);
 	mBBComp->SetValue<UBlackboardKeyType_Enum>(CurrentActionState_KeyID, static_cast<UBlackboardKeyType_Enum::FDataType>(EAIActionState::None));
 	//UE_LOG(LogTemp, Warning, TEXT("Possess, %s"), *_possPawn->GetName());
 

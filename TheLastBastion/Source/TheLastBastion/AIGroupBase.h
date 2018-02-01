@@ -86,8 +86,6 @@ protected:
 	//
 	void SpawnAGroup();
 	
-	//
-	void SetGroupSpawingLocations();
 
 public:	
 	// Called every frame
@@ -101,5 +99,8 @@ public:
 	/** Update the children location during move to*/
 	UFUNCTION(BlueprintCallable, Category = GroupBehavior)
 	void SetChildPathLocation();
+
+	UFUNCTION()
+		void SetMarchLocation(const FVector& _location);
 	
 };

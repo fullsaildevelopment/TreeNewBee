@@ -8,13 +8,13 @@
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
 
 
+
 ATheLastBastionGroupAIController::ATheLastBastionGroupAIController(const FObjectInitializer& objectInitializer) : Super(objectInitializer)
 {
 	mBTComp = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviorTreeComp"));
 	mBBComp = CreateDefaultSubobject<UBlackboardComponent>(TEXT("BlackBoardComp"));
 
 }
-
 
 void ATheLastBastionGroupAIController::Possess(APawn * _possPawn)
 {
@@ -50,9 +50,15 @@ void ATheLastBastionGroupAIController::Possess(APawn * _possPawn)
 	// Fetch the Keys
 	targetActor_KeyID = mBBComp->GetKeyID("targetActor");
 	targetLocation_KeyID = mBBComp->GetKeyID("targetLocation");
+	newCommandIndex_KeyID = mBBComp->GetKeyID("NewCommandIndex");
+	oldCommandIndex_KeyID = mBBComp->GetKeyID("OldCommandIndex");
 
 	//UE_LOG(LogTemp, Warning, TEXT("Possess, %s"), *_possPawn->GetName());
 	mBBComp->SetValue<UBlackboardKeyType_Vector>(targetLocation_KeyID, FVector::ZeroVector);
+	mBBComp->SetValue<UBlackboardKeyType_Int>(oldCommandIndex_KeyID, 0);
+	mBBComp->SetValue<UBlackboardKeyType_Int>(newCommandIndex_KeyID, 0);
+
+
 
 	// Launch behavior Tree
 	mBTComp->StartTree(*bt);
@@ -62,4 +68,5 @@ void ATheLastBastionGroupAIController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// temp code, put myself under player commmand
 }

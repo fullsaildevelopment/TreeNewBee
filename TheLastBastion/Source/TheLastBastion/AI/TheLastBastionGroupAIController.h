@@ -32,7 +32,9 @@ private:
 
 	uint8
 		targetActor_KeyID,
-		targetLocation_KeyID;
+		targetLocation_KeyID,
+		newCommandIndex_KeyID,
+		oldCommandIndex_KeyID;
 
 public:
 
@@ -41,5 +43,15 @@ public:
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE uint8 GetKeyID_TargetActor() const { return targetActor_KeyID; }
+
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE uint8 GetKeyID_TargetLocation() const { return targetLocation_KeyID; }
+
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE uint8 GetKeyID_NewCommandIndex() const { return newCommandIndex_KeyID; }
+
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE uint8 GetKeyID_OldCommandIndex() const { return oldCommandIndex_KeyID; }
+
 
 };

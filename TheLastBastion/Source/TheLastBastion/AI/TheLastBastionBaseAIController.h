@@ -41,6 +41,7 @@ private:
 		targetActor_KeyID,
 		targetLocation_KeyID,
 		CurrentActionState_KeyID,
+		NewCommandIndex_KeyID,
 		ToTargetLocationDistanceSqr_KeyId,
 		ToTargetActorDistanceSqr_KeyId;
 
@@ -61,6 +62,8 @@ public:
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE uint8 GetKeyID_TargetLocation() const { return targetLocation_KeyID; }
 
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE uint8 GetKeyID_NewCommandIndex() const { return NewCommandIndex_KeyID; }
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE uint8 GetKeyID_ToTargetActorDistanceSqr() const { return ToTargetActorDistanceSqr_KeyId; }

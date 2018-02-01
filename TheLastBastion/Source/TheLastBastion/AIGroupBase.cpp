@@ -8,10 +8,12 @@
 #include "TheLastBastionCharacter.h"
 #include "AI/TheLastBastionGroupAIController.h"
 #include "AI/TheLastBastionBaseAIController.h"
-
-
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
+
+
+#include "Kismet/GameplayStatics.h"
+#include "TheLastBastionHeroCharacter.h"
 
 
 #define SIDEPADDING 200.0f
@@ -50,6 +52,13 @@ void AAIGroupBase::BeginPlay()
 	Super::BeginPlay();
 
 	SpawnAGroup();
+
+	ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if (hero)
+		hero->CommandedGroup = this;
+	else
+		UE_LOG(LogTemp, Error, TEXT("Can find hero - AAIGroupBase::BeginPlay"));
+
 }
 
 void AAIGroupBase::SpawnAGroup()
@@ -139,18 +148,6 @@ void AAIGroupBase::SpawnAGroup()
 	}
 }
 
-void AAIGroupBase::SetGroupSpawingLocations()
-{
-	//FVector BoxSize = BoxComp->GetScaledBoxExtent();
-	//float DistanceBetweenEachPoint = BoxSize.Y / NumOfAICharacters;
-	//float BoxWidth = BoxSize.X;
-	//for (int32 i = 0; i < NumOfAICharacters; i++)
-	//{
-	//	FVector CurrentSpawnLocation = FVector(BoxWidth * 0.5f, 0.0f, 0.0f);
-	//	CurrentSpawnLocation.Y += DistanceBetweenEachPoint * i;
-	//	GroupSpawningLocations.Add(CurrentSpawnLocation);
-	//}
-}
 
 // Called every frame
 void AAIGroupBase::Tick(float DeltaTime)
@@ -159,16 +156,34 @@ void AAIGroupBase::Tick(float DeltaTime)
 
 }
 
+
+
 void AAIGroupBase::SetChildPathLocation()
 {
-	FVector myLocation = GetActorLocation();
 	FVector forward = GetActorForwardVector();
 	FVector right = GetActorRightVector();
-	FVector targetLocation;
+	FVector childtargetLocation;
 	FVector locationOffset;
 
-	UBlackboardComponent* bbc = nullptr;
+	UBlackboardComponent* bbcGroup = nullptr;
+	UBlackboardComponent* bbcChild = nullptr;
+
 	ATheLastBastionBaseAIController* enemyC = nullptr;
+
+	ATheLastBastionGroupAIController* groupC = Cast<ATheLastBastionGroupAIController>(GetController());
+	bbcGroup = groupC->GetBlackboardComponent();
+	if (bbcGroup == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT(" groupC bbc == nullptr - AAIGroupBase::SetChildPathLocation"));
+		return;
+	}
+
+	FVector targetLocation = bbcGroup->GetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetLocation());
+
+	//FVector targetFwd = (targetLocation - GetActorLocation()).GetSafeNormal();
+	//FVector targetRight = 
+
+
 
 	for (int i = 0; i < AICharactersInfo.Num(); i++)
 	{
@@ -179,17 +194,72 @@ void AAIGroupBase::SetChildPathLocation()
 			return;
 		}
 
-		bbc = enemyC->GetBlackboardComponent();
-		if (bbc == nullptr)
+		bbcChild = enemyC->GetBlackboardComponent();
+		if (bbcChild == nullptr)
 		{
 			UE_LOG(LogTemp, Error, TEXT("bbc == nullptr - AAIGroupBase::SetChildPathLocation"));
 			return;
 		}
 
 		locationOffset = AICharactersInfo[i].GroupRelativeLocation;
-		targetLocation = myLocation - forward * locationOffset.X + right * locationOffset.Y;
-		bbc->SetValue<UBlackboardKeyType_Vector>(enemyC->GetKeyID_TargetLocation(), targetLocation);
+		childtargetLocation = targetLocation - forward * locationOffset.X + right * locationOffset.Y;
+		bbcChild->SetValue<UBlackboardKeyType_Vector>(enemyC->GetKeyID_TargetLocation(), childtargetLocation);
+		bbcChild->SetValue<UBlackboardKeyType_Int>(enemyC->GetKeyID_NewCommandIndex(), 0);
+
 	}
+
+	// Clear the command
+	bbcGroup->SetValue<UBlackboardKeyType_Int>(groupC->GetKeyID_NewCommandIndex(), 0);
+}
+
+void AAIGroupBase::SetMarchLocation(const FVector & _location)
+{
+	ATheLastBastionGroupAIController* groupC = Cast<ATheLastBastionGroupAIController>(GetController());
+	if (groupC == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("groupC == nullptr - AAIGroupBase::SetMarchLocation"));
+		return;
+	}
+
+	UBlackboardComponent* bbc = groupC->GetBlackboardComponent();
+	if (bbc == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("bbc == nullptr - AAIGroupBase::SetMarchLocation"));
+		return;
+	}
+
+	// Set new command index to 1
+	// Set Target location
+
+	bbc->SetValue<UBlackboardKeyType_Int>(groupC->GetKeyID_NewCommandIndex(), 1);
+	bbc->SetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetLocation(), _location);
+
+	// Set childTarget location
+	ATheLastBastionBaseAIController* enemyC = nullptr;
+	UBlackboardComponent* bbcChild = nullptr;
+
+
+	for (int i = 0; i < AICharactersInfo.Num(); i++)
+	{
+		enemyC = Cast<ATheLastBastionBaseAIController>(AICharactersInfo[i].AICharacter->GetController());
+		if (enemyC == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("enemyC == nullptr - AAIGroupBase::SetMarchLocation"));
+			return;
+		}
+
+		bbcChild = enemyC->GetBlackboardComponent();
+		if (bbcChild == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("bbc == nullptr - AAIGroupBase::SetMarchLocation"));
+			return;
+		}
+
+		bbcChild->SetValue<UBlackboardKeyType_Int>(enemyC->GetKeyID_NewCommandIndex(), 1);
+	}
+
+
+
 }
 
 // Called to bind functionality to input
@@ -198,4 +268,6 @@ void AAIGroupBase::SetChildPathLocation()
 //	Super::SetupPlayerInputComponent(PlayerInputComponent);
 //
 //}
+
+
 
