@@ -3,7 +3,7 @@
 #include "AIGroupBase.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "GameFramework/RotatingMovementComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 #include "TheLastBastionCharacter.h"
 #include "AI/TheLastBastionGroupAIController.h"
@@ -14,6 +14,7 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "TheLastBastionHeroCharacter.h"
+#include "DrawDebugHelpers.h"
 
 
 #define SIDEPADDING 200.0f
@@ -34,8 +35,9 @@ AAIGroupBase::AAIGroupBase()
 	GroupVolumn->bGenerateOverlapEvents = false;
 	GroupVolumn->SetCanEverAffectNavigation(false);
 	GroupVolumn->InitBoxExtent(FVector(halfHeight, halfHeight, halfHeight));
-
 	GroupVolumn->SetupAttachment(GetCapsuleComponent());
+
+	GetCharacterMovement()->RotationRate.Yaw = 1440.0f;
 
 	//moveComp = CreateDefaultSubobject<URotatingMovementComponent>(TEXT("MovementComp"));
 
@@ -180,8 +182,20 @@ void AAIGroupBase::SetChildPathLocation()
 
 	FVector targetLocation = bbcGroup->GetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetLocation());
 
-	//FVector targetFwd = (targetLocation - GetActorLocation()).GetSafeNormal();
-	//FVector targetRight = 
+	FVector targetFwd = targetLocation - GetActorLocation();
+	FVector2D targetFwd2D = FVector2D(targetFwd.X, targetFwd.Y).GetSafeNormal();
+	targetFwd = FVector(targetFwd2D.X, targetFwd2D.Y, 0);
+	FVector targetRight = FVector(-targetFwd2D.Y, targetFwd2D.X, 0);
+
+	// check for going backward
+	float dir = FVector::DotProduct(GetActorForwardVector(), targetFwd);
+
+	if (dir < 0)
+	{
+		// swap index
+		SwapChildenOrder();
+	}
+
 
 
 
@@ -202,7 +216,13 @@ void AAIGroupBase::SetChildPathLocation()
 		}
 
 		locationOffset = AICharactersInfo[i].GroupRelativeLocation;
-		childtargetLocation = targetLocation - forward * locationOffset.X + right * locationOffset.Y;
+
+		//childtargetLocation = targetLocation - forward * locationOffset.X + right * locationOffset.Y;
+		childtargetLocation = targetLocation - targetFwd * locationOffset.X + targetRight * locationOffset.Y;
+
+
+		DrawDebugSphere(GetWorld(), childtargetLocation, 50.0f, 8, FColor::Blue, false, 5.0f);
+
 		bbcChild->SetValue<UBlackboardKeyType_Vector>(enemyC->GetKeyID_TargetLocation(), childtargetLocation);
 		bbcChild->SetValue<UBlackboardKeyType_Int>(enemyC->GetKeyID_NewCommandIndex(), 0);
 
@@ -260,6 +280,26 @@ void AAIGroupBase::SetMarchLocation(const FVector & _location)
 
 
 
+}
+
+void AAIGroupBase::SwapChildenOrder()
+{
+	int swapTimes = 0;
+	int totalAmount = 0;
+	for (int iClass = 0; iClass < AIToSpawn.Num(); iClass++)
+	{
+		totalAmount += AIToSpawn[iClass].TotalNumber;
+	}
+	swapTimes = totalAmount * 0.5f;
+	FVector offsetTemp;
+	int indexToSwap = 0;
+	for (int iSwap = 0; iSwap < swapTimes; iSwap++)
+	{
+		indexToSwap = totalAmount - 1 - iSwap;
+		offsetTemp = AICharactersInfo[iSwap].GroupRelativeLocation;
+		AICharactersInfo[iSwap].GroupRelativeLocation = AICharactersInfo[indexToSwap].GroupRelativeLocation;
+		AICharactersInfo[indexToSwap].GroupRelativeLocation = offsetTemp;
+	}
 }
 
 // Called to bind functionality to input

@@ -21,7 +21,7 @@
 ATheLastBastionEnemyCharacter::ATheLastBastionEnemyCharacter()
 {
 	// Set size for collision capsule
-	GetCapsuleComponent()->InitCapsuleSize(70.0f, 90.0f);
+	GetCapsuleComponent()->InitCapsuleSize(50.0f, 90.0f);
 	GetCapsuleComponent()->SetCollisionProfileName("Enemy");
 
 	GetMesh()->SetCollisionProfileName("EnemyBody");

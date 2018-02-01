@@ -102,5 +102,10 @@ public:
 
 	UFUNCTION()
 		void SetMarchLocation(const FVector& _location);
+
+private:
+	
+	// Call when group go to the opposite direction
+	void SwapChildenOrder();
 	
 };

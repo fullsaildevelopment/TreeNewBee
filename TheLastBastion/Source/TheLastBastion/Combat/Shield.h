@@ -23,7 +23,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Shield)
 		class UBoxComponent* ShieldBox;
 
+public:
 
-	
-	
+	void Equip(class USkeletalMeshComponent* const _skeletonMeshComponent);
+	void Arm(class USkeletalMeshComponent* const _skeletonMeshComponent);
 };

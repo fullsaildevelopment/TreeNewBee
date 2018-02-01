@@ -156,7 +156,7 @@ public:
 
 
 	virtual void Equip(class USkeletalMeshComponent* const _skeletonMeshComponent);
-	void Arm(class USkeletalMeshComponent* const _skeletonMeshComponent);
+	virtual void Arm(class USkeletalMeshComponent* const _skeletonMeshComponent);
 	void ToggleVisibilty(bool _val);
 	void CombineDamage(const AGear* _other);
 
