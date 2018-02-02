@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/DragDropOperation.h"
+#include "UI/ActionSlot.h"
 #include "ItemDrag.generated.h"
 
 /**
@@ -18,8 +19,8 @@ class THELASTBASTION_API UItemDrag : public UDragDropOperation
 
 public:
 
-	UPROPERTY(BlueprintReadOnly)
-		struct FGearUI GearUI;
+	UPROPERTY(BlueprintReadOnly)		
+	struct FGearUI GearUI;
 
 	EUpgradeGearType UpgradeGearType;
 

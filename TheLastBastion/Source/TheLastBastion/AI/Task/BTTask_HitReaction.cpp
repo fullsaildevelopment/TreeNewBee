@@ -20,28 +20,28 @@ EBTNodeResult::Type UBTTask_HitReaction::ExecuteTask(UBehaviorTreeComponent & Ow
 	EBTNodeResult::Type NodeResult = EBTNodeResult::Failed;
 
 	UBlackboardComponent* const bbc = OwnerComp.GetBlackboardComponent();
-	ATheLastBastionBaseAIController* const enemyC = Cast<ATheLastBastionBaseAIController>(OwnerComp.GetAIOwner());
-	if (enemyC == nullptr)
+	ATheLastBastionBaseAIController* const baseAICtrl = Cast<ATheLastBastionBaseAIController>(OwnerComp.GetAIOwner());
+	if (baseAICtrl == nullptr)
 	{
 		//UE_LOG(LogTemp, Error, TEXT("AIOwner is not an enemyC - UBTTask_NKAttack::ExecuteTask"));
 		return NodeResult;
 	}
 
-	UAIBase_AnimInstance* animRef = enemyC->GetAnimInstance();
+	UAIBase_AnimInstance* animRef = baseAICtrl->GetAnimInstance();
 	if (animRef == nullptr)
 	{
 		//UE_LOG(LogTemp, Error, TEXT("animRef is NULL - UBTTask_NKAttack::ExecuteTask"));
 		return NodeResult;
 	}
 
-	const AActor* const targetActor = Cast<AActor>(bbc->GetValue<UBlackboardKeyType_Object>(enemyC->GetKeyID_TargetActor()));
+	const AActor* const targetActor = Cast<AActor>(bbc->GetValue<UBlackboardKeyType_Object>(baseAICtrl->GetKeyID_TargetActor()));
 	if (targetActor == nullptr)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("UpdateSqrDistanceToTarget get target actor failed"));
 		return NodeResult;
 	}
 
-	const APawn* const me = enemyC->GetPawn();
+	const APawn* const me = baseAICtrl->GetPawn();
 
 	if (animRef->GetCurrentActionState()== EAIActionState::GettingHurt)
 	{
@@ -87,15 +87,15 @@ void UBTTask_HitReaction::OnRecoverFromHitHandle(UBehaviorTreeComponent* OwnerCo
 	EBTNodeResult::Type NodeResult = EBTNodeResult::Failed;
 
 	UBlackboardComponent* const bbc = OwnerComp->GetBlackboardComponent();
-	ATheLastBastionBaseAIController* const enemyC = Cast<ATheLastBastionBaseAIController>(OwnerComp->GetAIOwner());
-	if (enemyC == nullptr)
+	ATheLastBastionBaseAIController* const baseAICtrl = Cast<ATheLastBastionBaseAIController>(OwnerComp->GetAIOwner());
+	if (baseAICtrl == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("AIOwner is not an enemyC - UBTTask_NKAttack::ExecuteTask"));
 		return;
 	}
 
 
-	bbc->SetValue<UBlackboardKeyType_Enum>(enemyC->GetKeyID_CurrentActionState(),
+	bbc->SetValue<UBlackboardKeyType_Enum>(baseAICtrl->GetKeyID_CurrentActionState(),
 		static_cast<UBlackboardKeyType_Enum::FDataType>(EAIActionState::None));
 
 	FinishLatentTask(*OwnerComp, EBTNodeResult::Failed);

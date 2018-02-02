@@ -52,12 +52,15 @@ void ATheLastBastionGroupAIController::Possess(APawn * _possPawn)
 	targetLocation_KeyID = mBBComp->GetKeyID("targetLocation");
 	newCommandIndex_KeyID = mBBComp->GetKeyID("NewCommandIndex");
 	oldCommandIndex_KeyID = mBBComp->GetKeyID("OldCommandIndex");
+	targetForward_KeyID = mBBComp->GetKeyID("TargetForward");
+	targetRight_KeyID = mBBComp->GetKeyID("TargetRight");
 
 	//UE_LOG(LogTemp, Warning, TEXT("Possess, %s"), *_possPawn->GetName());
 	mBBComp->SetValue<UBlackboardKeyType_Vector>(targetLocation_KeyID, FVector::ZeroVector);
 	mBBComp->SetValue<UBlackboardKeyType_Int>(oldCommandIndex_KeyID, 0);
 	mBBComp->SetValue<UBlackboardKeyType_Int>(newCommandIndex_KeyID, 0);
-
+	mBBComp->SetValue<UBlackboardKeyType_Vector>(targetForward_KeyID, this->GetActorForwardVector());
+	mBBComp->SetValue<UBlackboardKeyType_Vector>(targetRight_KeyID, this->GetActorRightVector());
 
 
 	// Launch behavior Tree

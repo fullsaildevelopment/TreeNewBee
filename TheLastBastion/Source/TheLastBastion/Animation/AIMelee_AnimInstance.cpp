@@ -150,6 +150,15 @@ void UAIMelee_AnimInstance::OnBeingHit(FName boneName, const FVector & _shotFrom
 	OnDisableWeapon(false, true);
 
 
+	ATheLastBastionBaseAIController* enemyC = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
+	if (enemyC == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("enemyC is nullptr - UAIRange_AnimInstance"));
+		return;
+	}
+
+	enemyC->OnBeingHit(mCharacter->GetCharacterType());
+
 	FName sectionToPlay;
 	ECharacterType Type = mCharacter->GetCharacterType();
 	switch (Type)

@@ -20,11 +20,13 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "AIGroupBase.h"
+#include "AI/TheLastBastionGroupAIController.h"
 #include "UI/InGameFloatingText.h"
 #include "DrawDebugHelpers.h"
 
 
 #define  COMMANDRANGE 10000
+#define  HOLD_POSITION_BWD_OFFSET 100
 
 ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 {
@@ -143,7 +145,13 @@ void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputCompone
 	PlayerInputComponent->BindAction("Command", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnCommandPressed);
 	PlayerInputComponent->BindAction("Command", IE_Released, this, &ATheLastBastionHeroCharacter::OnCommandReleased);
 
-	PlayerInputComponent->BindAction("MarchCommand", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnMarchCommand);
+	PlayerInputComponent->BindAction("MarchCommand", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnCommandMarch);
+	PlayerInputComponent->BindAction("Command_Hold", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnCommandHold);
+	PlayerInputComponent->BindAction("Command_Follow", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnCommandFollowing);
+	PlayerInputComponent->BindAction("Command_Reform", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnCommandReform);
+	PlayerInputComponent->BindAction("Command_Distribute", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnCommandDistribute);
+	PlayerInputComponent->BindAction("Command_Forward", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnCommandForward);
+	PlayerInputComponent->BindAction("Command_Backward", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnCommandBackward);
 
 
 }
@@ -304,7 +312,7 @@ void ATheLastBastionHeroCharacter::OnPause()
 	}
 }
 
-void ATheLastBastionHeroCharacter::OnMarchCommand()
+void ATheLastBastionHeroCharacter::OnCommandMarch()
 {
 	FVector EyesLocation;
 	FRotator EyesRotation;
@@ -322,15 +330,63 @@ void ATheLastBastionHeroCharacter::OnMarchCommand()
 	{
 		FVector ImpactLocation = Hit.ImpactPoint;
 		UE_LOG(LogTemp, Log, TEXT("%s"), *Hit.GetActor()->GetName())
-		DrawDebugSphere(GetWorld(), ImpactLocation, 50.0f, 8, FColor::Blue, false, 5.0f);
+		DrawDebugSphere(GetWorld(), ImpactLocation, 50.0f, 8, FColor::Green, false, 5.0f);
 		if (CommandedGroup)
 		{
-			CommandedGroup->SetMarchLocation(ImpactLocation);
+			CommandedGroup->SetMarchLocation(ImpactLocation, GC_GOTOLOCATION);
 		}
 	}
 
 
 
+}
+
+void ATheLastBastionHeroCharacter::OnCommandHold()
+{
+	if (CommandedGroup)
+	{
+		FVector targetLocation = GetActorLocation() - GetActorForwardVector() * HOLD_POSITION_BWD_OFFSET;
+		CommandedGroup->SetMarchLocation(targetLocation, GC_HOLDLOCATION);
+
+		DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
+
+	}
+
+}
+
+/** Switch from between scatter and compact */
+void ATheLastBastionHeroCharacter::OnCommandDistribute()
+{
+	if (CommandedGroup)
+	{
+		FVector targetLocation = CommandedGroup->GetActorLocation();// +CommandedGroup->GetActorForwardVector() * 500.0f;
+		CommandedGroup->SetMarchLocation(targetLocation, GC_DISTRIBUTE);
+		DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
+	}
+}
+
+void ATheLastBastionHeroCharacter::OnCommandReform()
+{
+
+}
+
+void ATheLastBastionHeroCharacter::OnCommandForward()
+{
+	if (CommandedGroup)
+	{
+		FVector targetLocation = CommandedGroup->GetActorLocation() + CommandedGroup->GetActorForwardVector() * 500.0f;
+		CommandedGroup->SetMarchLocation(targetLocation, GC_FORWARD);
+		DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
+	}
+
+}
+
+void ATheLastBastionHeroCharacter::OnCommandBackward()
+{
+}
+
+void ATheLastBastionHeroCharacter::OnCommandFollowing()
+{
 }
 
 void ATheLastBastionHeroCharacter::OnCommandPressed()

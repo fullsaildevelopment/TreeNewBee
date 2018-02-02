@@ -9,6 +9,15 @@
 /**
  * 
  */
+
+#define GC_GOTOLOCATION 1
+#define GC_HOLDLOCATION 2
+#define GC_FOLLOW 3
+#define GC_REFORM 4
+#define GC_DISTRIBUTE 5
+#define GC_FORWARD 6
+#define GC_BACKWARD 7
+
 UCLASS()
 class THELASTBASTION_API ATheLastBastionGroupAIController : public AAIController
 {
@@ -33,6 +42,8 @@ private:
 	uint8
 		targetActor_KeyID,
 		targetLocation_KeyID,
+		targetForward_KeyID,
+		targetRight_KeyID,
 		newCommandIndex_KeyID,
 		oldCommandIndex_KeyID;
 
@@ -52,6 +63,12 @@ public:
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE uint8 GetKeyID_OldCommandIndex() const { return oldCommandIndex_KeyID; }
+
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE uint8 GetKeyID_TargetForward() const { return targetForward_KeyID; }
+
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE uint8 GetKeyID_TargetRight() const { return targetRight_KeyID; }
 
 
 };

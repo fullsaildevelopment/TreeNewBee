@@ -96,7 +96,21 @@ protected:
 	/** Called When player pressed ESC, toggle the In game menu*/
 	void OnPause();
 
-	void OnMarchCommand();
+	void OnCommandMarch();
+
+	void OnCommandHold();
+
+	// Set group to be scatter or compact
+	void OnCommandDistribute();
+
+	// Set group to be square or row
+	void OnCommandReform();
+
+	void OnCommandForward();
+
+	void OnCommandBackward();
+
+	void OnCommandFollowing();
 
 	void OnCommandPressed();
 

@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "TheLastBastionCharacter.h"
+#include "AICharacters/TheLastBastionAIBase.h"
 #include "TheLastBastionEnemyCharacter.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class THELASTBASTION_API ATheLastBastionEnemyCharacter : public ATheLastBastionCharacter
+class THELASTBASTION_API ATheLastBastionEnemyCharacter : public ATheLastBastionAIBase
 {
 	GENERATED_BODY()
 	
@@ -18,40 +18,9 @@ public:
 
 	ATheLastBastionEnemyCharacter();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
-		class UPawnStatsComponent* EnemyStats;
-
 protected:
 
-	UPROPERTY(VisibleAnywhere, Category = AiHud)
-		bool  bAIHUDisDisplayedForLockedOn;
-
-	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
-		FText AiName;
-
-	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
-		int AILevel;
-
-	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
-		int AITier;
-
-	UPROPERTY(EditDefaultsOnly, Category = Behavior)
-		class UBehaviorTree* BehaviorTree;
-
-	UPROPERTY(VisibleAnywhere, Category = AiHud)
-		class UWidgetComponent* InfoHUD;
-
-	UPROPERTY()
-		FTimerHandle mKillTimer;
-
-private:
-
-	UPROPERTY()
-		class UAIBase_AnimInstance* mAnimInstanceRef;
-
-protected:
-
-	void BeginPlay() override;	
+	//void BeginPlay() override;	
 
 
 	UFUNCTION()
@@ -65,26 +34,12 @@ protected:
 public:
 
 	/** Toggle the AI hud to screen*/
-	void ToggleAIHUD(bool _val);
-
-public:
-
-	UFUNCTION(BlueprintPure)
-		FORCEINLINE class UPawnStatsComponent* GetEnemyStatsComponent() const { return EnemyStats; }
-
-	UFUNCTION(BlueprintPure)
-		FORCEINLINE class UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
-
-	UFUNCTION(BlueprintPure)
-		FORCEINLINE class UAIBase_AnimInstance* GetAnimInstanceRef() const { return mAnimInstanceRef; }
+	void ToggleAIHUD(bool _val) override;
 
 
 private:
 
 	// Called on Hp = 0;
-	void OnDead();
-
-	// Called on actor destroyed
-	void Kill();
+	void OnDead() override;
 
 };

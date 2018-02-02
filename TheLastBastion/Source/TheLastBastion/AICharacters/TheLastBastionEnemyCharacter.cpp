@@ -21,78 +21,13 @@
 ATheLastBastionEnemyCharacter::ATheLastBastionEnemyCharacter()
 {
 	// Set size for collision capsule
-	GetCapsuleComponent()->InitCapsuleSize(50.0f, 90.0f);
 	GetCapsuleComponent()->SetCollisionProfileName("Enemy");
-
 	GetMesh()->SetCollisionProfileName("EnemyBody");
 
-	TSubclassOf<UUserWidget> aiHUD_Class;
-	UCustomType::FindClass<UUserWidget>(aiHUD_Class, TEXT("/Game/UI/In-Game/WBP_AIHealthHUD"));
-	InfoHUD = CreateDefaultSubobject<UWidgetComponent>(TEXT("AIHUD"));
-	InfoHUD->SetWidgetClass(aiHUD_Class);
-	InfoHUD->SetWidgetSpace(EWidgetSpace::Screen);
-	FVector2D size = FVector2D(120.0f, 30.0f);
-	InfoHUD->SetDrawSize(size);
-	InfoHUD->bGenerateOverlapEvents = false;
-	InfoHUD->SetCollisionProfileName("HUD");
-	
-
-	EnemyStats = CreateDefaultSubobject<UPawnStatsComponent>(TEXT("Stats"));
-	PawnStats = EnemyStats;
-
-	AiName = FText::FromString(TEXT("Base AI"));
+	AiName = FText::FromString(TEXT("Base Enemy AI"));
 	AILevel = 1;
 }
 
-void ATheLastBastionEnemyCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-	mAnimInstanceRef = Cast<UAIBase_AnimInstance>(this->GetMesh()->GetAnimInstance());
-	if (mAnimInstanceRef == nullptr) 
-	{ 
-		UE_LOG(LogTemp, Error,
-			TEXT("ATheLastBastionEnemyCharacter can not take other AnimInstance other than AIBase_AnimInstance, - ATheLastBastionEnemyCharacter")); 
-		return; 
-	}
-
-	if (EnemyStats == nullptr)
-	{
-		UE_LOG(LogTemp, Error,
-			TEXT("PawnStats is NULL, - ATheLastBastionEnemyCharacter"));
-		return;
-	}
-
-	//EnemyStats->OnHealthChanged.AddDynamic(this, &ATheLastBastionEnemyCharacter::OnHealthChangedHandle);
-
-	// Init HUD
-	if (InfoHUD == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("HUD is null - ATheLastBastionEnemyCharacter"));
-		return;
-	}	
-
-	InfoHUD->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("head"));
-	InfoHUD->AddLocalOffset(FVector(30, 0, 0));
-
-	UInGameAIHUD* aiHUD = Cast<UInGameAIHUD>(InfoHUD->GetUserWidgetObject());
-	if (aiHUD == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("aiHUD must be a UInGameAIHUD - ATheLastBastionEnemyCharacter"));
-		return;
-	}
-	
-	FAIHUDInitializer initializer; 
-	initializer.AIName = AiName;
-	initializer.AILevel = AILevel;
-	
-	aiHUD->InitRowHeader(initializer);
-	aiHUD->SetVisibility(ESlateVisibility::Hidden);
-
-	if (bIsWalking)
-		GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
-	else
-		GetCharacterMovement()->MaxWalkSpeed = JogSpeed;
-}
 
 void ATheLastBastionEnemyCharacter::OnTakeAnyDamageHandle(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
 {
@@ -219,7 +154,6 @@ void ATheLastBastionEnemyCharacter::OnTakePointDamageHandle(AActor * DamagedActo
 		mAnimInstanceRef->OnBeingHit(BoneName, ShotFromDirection, HitLocation);
 	}
 
-
 }
 
 void ATheLastBastionEnemyCharacter::ToggleAIHUD(bool _val)
@@ -265,22 +199,5 @@ void ATheLastBastionEnemyCharacter::OnDead()
 	
 }
 
-void ATheLastBastionEnemyCharacter::Kill()
-{
-	
-	// Destroy all the actor attach on our mesh
-	TArray<USceneComponent*> children = GetMesh()->GetAttachChildren();
-
-	for (int i = 0; i < children.Num(); i++)
-	{
-		children[i]->GetOwner()->Destroy();
-	}
-
-
-	
-
-
-	Destroy();
-}
 
 

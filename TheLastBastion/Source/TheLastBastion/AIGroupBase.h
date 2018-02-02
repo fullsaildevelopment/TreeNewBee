@@ -3,8 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "GameFramework/Pawn.h"
+//#include "GameFramework/Character.h"
 #include "AIGroupBase.generated.h"
+
+
+#define SIDEPADDING 200.0f
+#define GroupFormation_ScatterPadding_Square 500.0f
+#define GroupFormation_CompactPadding_Square 250.0f
+
+#define GroupFormation_ScatterPadding_Row  400.0f
+#define GroupFormation_CompactPadding_Row  150.0f
+
 
 USTRUCT(BlueprintType)
 struct FAISpawnInfo 
@@ -13,7 +23,7 @@ struct FAISpawnInfo
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
-	TSubclassOf<class ATheLastBastionCharacter> AIClassBP;
+	TSubclassOf<class ATheLastBastionAIBase> AIClassBP;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		/** the number of this ai class in group*/
@@ -25,13 +35,12 @@ struct FAISpawnInfo
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		/** the distance between each ai in same row */
-	float ColumnPadding = 150.0f;
+	float ColumnPadding = GroupFormation_CompactPadding_Square;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		/** the distance between each ai in same column */
-	float RowPadding = 150.0f;
+	float RowPadding = GroupFormation_CompactPadding_Square;
 };
-
 
 USTRUCT(BlueprintType)
 struct FAICharacterInfo
@@ -39,15 +48,19 @@ struct FAICharacterInfo
 	GENERATED_BODY()
 
 	UPROPERTY()
-		class ATheLastBastionCharacter* AICharacter;
+		class ATheLastBastionAIBase* AICharacter;
 
 	UPROPERTY()
-		FVector GroupRelativeLocation;
+		FVector GroupRelativeOffset;
 
+	UPROPERTY()
+		/** the row - column index of the this character of same class*/
+		FVector2D GroupIndexOffset;
 };
 
+
 UCLASS(BlueprintType)
-class THELASTBASTION_API AAIGroupBase : public ACharacter
+class THELASTBASTION_API AAIGroupBase : public APawn
 {
 	GENERATED_BODY()
 
@@ -61,19 +74,29 @@ protected:
 		/** The class and the number we about to spawn*/
 		TArray<FAISpawnInfo> AIToSpawn;
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	//	class USceneComponent* RootComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		class USceneComponent* RootComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		/** Trigger volumn to present the group size and trigger group combat*/
 		class UBoxComponent* GroupVolumn;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		/** Trigger volumn to present the group size and trigger group combat*/
+		class UFloatingPawnMovement* MoveComp;
+
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Behavior)
 		class UBehaviorTree* BehaviorTree;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
-	bool bActivated;
+		bool bActivated;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Formation)
+		bool bUseSquareFormation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Formation)
+		bool bUseScatterFormation;
 
 public:
 	// Sets default values for this pawn's properties
@@ -96,16 +119,23 @@ public:
 
 	FORCEINLINE class UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
 
+	FORCEINLINE FVector GetGroupRelativeOffsetAt(int _index) const { return AICharactersInfo[_index].GroupRelativeOffset; }
+
 	/** Update the children location during move to*/
 	UFUNCTION(BlueprintCallable, Category = GroupBehavior)
 	void SetChildPathLocation();
 
 	UFUNCTION()
-		void SetMarchLocation(const FVector& _location);
+		void SetMarchLocation(const FVector& _location, int _commandIndex);
+
 
 private:
 	
 	// Call when group go to the opposite direction
 	void SwapChildenOrder();
+
+	void SwitchToScatter();
+
+	void SwitchToCompact();
 	
 };
