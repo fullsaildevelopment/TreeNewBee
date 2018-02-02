@@ -128,9 +128,10 @@ void AAIGroupBase::SpawnAGroup()
 							FVector spawnLocation = myLocation - xOffset * GetActorForwardVector() + yOffset * GetActorRightVector();
 							newCharacterInfo.AICharacter = world->SpawnActor<ATheLastBastionAIBase>(ClassToSpawn, spawnLocation, this->GetActorRotation(), spawnParam);
 							newCharacterInfo.AICharacter->SpawnDefaultController();
-							AICharactersInfo.Add(newCharacterInfo);
 							GroupIndex = AICharactersInfo.Num();
 							newCharacterInfo.AICharacter->SetParent(this, GroupIndex);
+
+							AICharactersInfo.Add(newCharacterInfo);
 							//UE_LOG(LogTemp, Log, TEXT("xOffset %f"), xOffset);
 						}
 
