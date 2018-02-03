@@ -46,6 +46,10 @@ AAIGroupBase::AAIGroupBase()
 	GroupVolumn->SetCollisionProfileName("GroupTrigger");
 
 	MoveComp = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("MoveComp"));
+	if (MoveComp)
+	{
+		MoveComp->UpdatedComponent = RootComp;
+	}
 
 	
 	AIControllerClass = ATheLastBastionGroupAIController::StaticClass();
@@ -72,6 +76,9 @@ void AAIGroupBase::BeginPlay()
 	{
 		GroupVolumn->OnComponentBeginOverlap.AddDynamic(this, &AAIGroupBase::OnGroupVolumnOverrlapBegin);
 		GroupVolumn->OnComponentEndOverlap.AddDynamic(this, &AAIGroupBase::OnGroupVolumnOverrlapEnd);
+		
+		//float xOffset = GroupVolumn->GetNavigationBounds().GetExtent().X;
+		//GroupVolumn->SetRelativeLocation(FVector(xOffset, 0, 0));
 	}
 
 }
@@ -219,7 +226,7 @@ void AAIGroupBase::SetMarchLocation(const FVector & _targetLocation, int _comman
 	// Set new command index to _commandIndex
 	// Set Target location
 
-	FVector targetFwd, targetRight;
+	FVector targetFwd, targetRight;// , targetLocation;
 
 
 	/// command pre-execute
@@ -253,6 +260,7 @@ void AAIGroupBase::SetMarchLocation(const FVector & _targetLocation, int _comman
 	}
 	}
 
+	//targetLocation = targetFwd * GroupVolumn->GetUnscaledBoxExtent().X + _targetLocation;
 
 	// check for going backward
 	float dir = FVector::DotProduct(GetActorForwardVector(), targetFwd);
