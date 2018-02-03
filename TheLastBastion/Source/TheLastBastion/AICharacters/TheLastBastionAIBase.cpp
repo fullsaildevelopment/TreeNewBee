@@ -32,7 +32,7 @@ ATheLastBastionAIBase::ATheLastBastionAIBase()
 	FVector2D size = FVector2D(120.0f, 30.0f);
 	InfoHUD->SetDrawSize(size);
 	InfoHUD->bGenerateOverlapEvents = false;
-	InfoHUD->SetCollisionProfileName("HUD");
+	InfoHUD->SetCollisionProfileName("UI");
 	
 
 	EnemyStats = CreateDefaultSubobject<UPawnStatsComponent>(TEXT("Stats"));
@@ -148,28 +148,28 @@ void ATheLastBastionAIBase::CalculateMarchTargetPosition()
 	FVector groupRelativeOffset = mGroup->GetGroupRelativeOffsetAt(mGroupIndex);
 	FVector childtargetLocation = groupTargetLocation - 
 		groupTargetForward * groupRelativeOffset.X + groupTargetRight * groupRelativeOffset.Y;
-	DrawDebugSphere(GetWorld(), childtargetLocation, 50.0f, 8, FColor::Blue, false, 5.0f);
+	//DrawDebugSphere(GetWorld(), childtargetLocation, 50.0f, 8, FColor::Blue, false, 5.0f);
 
 
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
 	
-	//FCollisionObjectQueryParams objQueryParams;
-	//objQueryParams.AddObjectTypesToQuery(ECollisionChannel::ECC_WorldStatic);
+	FCollisionObjectQueryParams objQueryParams;
+	objQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
 
 	FHitResult Hit;
 	FVector heightOffset = FVector::UpVector * NavPointHeightAdjustLimit;
 
 	// Shot a top - down ray
-	bool const IsHit = GetWorld()->LineTraceSingleByChannel (Hit, childtargetLocation + heightOffset,
-		childtargetLocation - heightOffset, ECollisionChannel::ECC_Visibility, QueryParams);
+	bool const IsHit = GetWorld()->LineTraceSingleByObjectType (Hit, childtargetLocation + heightOffset,
+		childtargetLocation - heightOffset, objQueryParams, QueryParams);
 
-	DrawDebugLine(GetWorld(), childtargetLocation + heightOffset, childtargetLocation - heightOffset,FColor::Red, false, 6.0f);
+	//DrawDebugLine(GetWorld(), childtargetLocation + heightOffset, childtargetLocation - heightOffset,FColor::Red, false, 6.0f);
 
 
 	if (IsHit)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Hit %s"), *Hit.GetActor()->GetName())
+		//UE_LOG(LogTemp, Log, TEXT("Hit %s"), *Hit.GetActor()->GetName())
 		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 50.0f, 8, FColor::Red, false, 6.0f);
 		childtargetLocation = Hit.ImpactPoint;
 	}

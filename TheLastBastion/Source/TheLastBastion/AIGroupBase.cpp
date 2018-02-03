@@ -37,15 +37,16 @@ AAIGroupBase::AAIGroupBase()
 
 
 	float halfHeight = 200.0f;
-	GroupVolumn = CreateDefaultSubobject<UBoxComponent>(TEXT("GroupSpawnVolumn"));
+	GroupVolumn = CreateDefaultSubobject<UBoxComponent>(TEXT("GroupVolumn"));
 	GroupVolumn->SetupAttachment(RootComp);
-	GroupVolumn->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GroupVolumn->bGenerateOverlapEvents = false;
+	GroupVolumn->bGenerateOverlapEvents = true;
 	GroupVolumn->SetCanEverAffectNavigation(false);
 	GroupVolumn->InitBoxExtent(FVector(halfHeight, halfHeight, halfHeight));
 
+	GroupVolumn->SetCollisionProfileName("GroupTrigger");
 
-	MoveComp = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("MovementComponent"));
+	MoveComp = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("MoveComp"));
+
 	
 	AIControllerClass = ATheLastBastionGroupAIController::StaticClass();
 
@@ -64,10 +65,14 @@ void AAIGroupBase::BeginPlay()
 	SpawnAGroup();
 
 	ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	if (hero)
+	if (hero && hero->CommandedGroup == nullptr)
 		hero->CommandedGroup = this;
-	else
-		UE_LOG(LogTemp, Error, TEXT("Can find hero - AAIGroupBase::BeginPlay"));
+
+	if (GroupVolumn)
+	{
+		GroupVolumn->OnComponentBeginOverlap.AddDynamic(this, &AAIGroupBase::OnGroupVolumnOverrlapBegin);
+		GroupVolumn->OnComponentEndOverlap.AddDynamic(this, &AAIGroupBase::OnGroupVolumnOverrlapEnd);
+	}
 
 }
 
@@ -159,6 +164,17 @@ void AAIGroupBase::SpawnAGroup()
 	}
 }
 
+void AAIGroupBase::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+{
+	UE_LOG(LogTemp, Warning, TEXT("overrlap with %s"), *OtherActor->GetName())
+
+}
+
+void AAIGroupBase::OnGroupVolumnOverrlapEnd(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
+{
+	UE_LOG(LogTemp, Warning, TEXT("overrlap end with %s"), *OtherActor->GetName());
+
+}
 
 // Called every frame
 void AAIGroupBase::Tick(float DeltaTime)
