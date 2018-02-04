@@ -130,19 +130,6 @@ void ASinglePlayerPC::OpenInGameMenu()
 
 }
 
-void ASinglePlayerPC::InitUIOnBeginPlay(const UHeroStatsComponent * _heroStats)
-{
-	if (mInGameHUD)
-	{
-		mInGameHUD->InitStats(_heroStats);
-
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("mInGameHUD is NULL - AGamePC::CLIENT_InitUI_Implementation"));
-	}
-}
-
 void ASinglePlayerPC::OnHealthChange(const UPawnStatsComponent * _heroStats)
 {
 	if (mInGameHUD)

@@ -59,17 +59,6 @@ void UHeroStatsComponent::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("mCharacter is NULL - UHeroStatsComponent::BeginPlay"));
 	}
 
-
-	// Let Server to call client to Init UI
-	if (mHeroCharacter)
-	{
-		ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(mHeroCharacter->GetController());
-		if (pc)
-			pc->InitUIOnBeginPlay(this);
-	}
-
-	//UE_LOG(LogTemp, Warning, TEXT("UHeroStatsComponent::BeginPlay()"));
-
 }
 
 void UHeroStatsComponent::OnFocus()
@@ -186,37 +175,6 @@ bool UHeroStatsComponent::OnSwitchWeapon(EEquipType _nextEquip)
 			default:
 				break;		
 		}
-		//switch (mHeroCharacter->GetAnimInstanceRef()->GetCurrentEquipmentType())
-		//{
-		//	// hide the shield, equip sword
-		//case EEquipType::ShieldSword:
-		//{
-		//	if (leftWeapon)
-		//		leftWeapon->ToggleVisibilty(false);
-		//	rightWeapon->Equip(mCharacter->GetMesh());
-		//	if (bHideSHWhenEquip)
-		//		rightWeapon->ToggleVisibilty(false);
-		//	break;
-		//}
-		//case EEquipType::CrossBow:
-		//{
-		//	rightWeapon->Equip(mCharacter->GetMesh());
-		//	if (bHideCBWhenEquip)
-		//		rightWeapon->ToggleVisibilty(false);
-		//	mHeroCharacter->ToggleFireMode(false);
-		//	break;
-		//}
-		//case EEquipType::HeavyWeapon:
-		//	rightWeapon->Equip(mCharacter->GetMesh());
-		//	if (bHideHVWhenEquip)
-		//		rightWeapon->ToggleVisibilty(false);
-		//	break;
-		//case EEquipType::TwoHandSword:
-		//	rightWeapon->Equip(mCharacter->GetMesh());
-		//	if (bHideTHWhenEquip)
-		//		rightWeapon->ToggleVisibilty(false);
-		//	break;
-		//}
 
 		/// ***  put next weapon on arm slot
 
@@ -239,6 +197,7 @@ bool UHeroStatsComponent::OnSwitchWeapon(EEquipType _nextEquip)
 		}
 		CurrentWeapon_Index = nextEquip;
 		GenerateMaxStats();
+		mHeroCharacter->GetInGameHUD()->SetCurrentWeaponImage(rightWeapon);
 	}
 
 	return accept;

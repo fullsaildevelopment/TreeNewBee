@@ -8,6 +8,7 @@
 #include "Combat/HeroStatsComponent.h"
 #include "UI/InGamePlayerRow.h"
 #include "UI/InGameTeamRow.h"
+#include "UI/Gameplay/WeaponSlotsUI.h"
 
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
@@ -38,7 +39,7 @@ bool UInGameHUD::Initialize()
 	bool bAllWidgetAreGood =
 		PlayerRow != nullptr && TeamWindow != nullptr
 		&& GoldValue != nullptr && WoodValue != nullptr && MetalValue != nullptr && RockValue != nullptr && CrossHair != nullptr
-		&& ProjectileCount_Text && CrossHair;
+		&& CrossHair && WeaponSlots;
 
 	if (!bAllWidgetAreGood)
 	{
@@ -73,7 +74,7 @@ void UInGameHUD::LoadPlayerProfile(const FPlayerProfile & _profile)
 	if (bIsRanger)
 	{		
 		CrossHair->SetVisibility(ESlateVisibility::Hidden);
-		ProjectileCount_Text->SetVisibility(ESlateVisibility::Hidden);
+		//ProjectileCount_Text->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
@@ -82,7 +83,7 @@ void UInGameHUD::LoadPlayerProfile_Sp(const FPlayerProfile & _profile)
 	PlayerRow->InitByPlayerProfile(_profile);
 
 	CrossHair->SetVisibility(ESlateVisibility::Hidden);
-	ProjectileCount_Text->SetVisibility(ESlateVisibility::Hidden);
+	//ProjectileCount_Text->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UInGameHUD::InitStats(const UHeroStatsComponent * _heroStats)
@@ -90,6 +91,8 @@ void UInGameHUD::InitStats(const UHeroStatsComponent * _heroStats)
 	PlayerRow->SetHpValue(_heroStats->GetHpCurrent(), _heroStats->GetHpMax());
 	PlayerRow->SetSpValue(_heroStats->GetStaminaCurrent(), _heroStats->GetStaminaMax());
 	PlayerRow->SetLevel(_heroStats->GetLevel());
+
+	WeaponSlots->OnInitStats(_heroStats);
 }
 
 void UInGameHUD::ResetStats(const UHeroStatsComponent * _heroStats)
@@ -97,6 +100,9 @@ void UInGameHUD::ResetStats(const UHeroStatsComponent * _heroStats)
 	PlayerRow->SetHp(_heroStats->GetHpCurrent(), _heroStats->GetHpMax(), _heroStats->GetDivByHpMax());
 	PlayerRow->SetSp(_heroStats->GetStaminaCurrent(), _heroStats->GetStaminaMax(), _heroStats->GetDivBySpMax());
 	PlayerRow->SetLevel(_heroStats->GetLevel());
+
+	WeaponSlots->OnInitStats(_heroStats);
+
 }
 
 void UInGameHUD::SetHpOnHealthChange(const UPawnStatsComponent * _pawnStats)
@@ -112,15 +118,21 @@ void UInGameHUD::ToggleFireMode(bool _val)
 	if (_val == true)
 	{
 		CrossHair->SetVisibility(ESlateVisibility::Visible);
-		ProjectileCount_Text->SetVisibility(ESlateVisibility::Visible);
+		//ProjectileCount_Text->SetVisibility(ESlateVisibility::Visible);
 	}
 	else
 	{
 		CrossHair->SetVisibility(ESlateVisibility::Hidden);
-		ProjectileCount_Text->SetVisibility(ESlateVisibility::Hidden);
+		//ProjectileCount_Text->SetVisibility(ESlateVisibility::Hidden);
 
 	}
 }
+
+void UInGameHUD::SetCurrentWeaponImage(const AGear * _gear)
+{
+	WeaponSlots->SetCurrentWeaponImage(_gear);
+}
+
 
 
 

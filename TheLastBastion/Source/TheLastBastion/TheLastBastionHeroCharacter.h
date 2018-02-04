@@ -164,7 +164,7 @@ public:
 
 	UPROPERTY()
 		/** swat under player command */
-		class AAIGroupBase* CommandedGroup;
+		class AAllyGroup* CommandedGroup;
 
 
 private:

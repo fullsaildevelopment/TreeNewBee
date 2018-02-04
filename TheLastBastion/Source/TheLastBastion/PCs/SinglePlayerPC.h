@@ -52,9 +52,6 @@ public:
 		void OnPauseButtonIsPressed();
 
 	UFUNCTION()
-		void InitUIOnBeginPlay(const class UHeroStatsComponent* _heroStats);
-
-	UFUNCTION()
 		void OnHealthChange(const class UPawnStatsComponent* _heroStats);
 
 	UFUNCTION(Exec)

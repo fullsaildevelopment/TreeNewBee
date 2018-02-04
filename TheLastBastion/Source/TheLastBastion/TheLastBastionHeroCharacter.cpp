@@ -19,7 +19,7 @@
 #include "PCs/SinglePlayerPC.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "AIGroupBase.h"
+#include "AI/AllyGroup.h"
 #include "AI/TheLastBastionGroupAIController.h"
 #include "UI/InGameFloatingText.h"
 #include "DrawDebugHelpers.h"
@@ -359,7 +359,7 @@ void ATheLastBastionHeroCharacter::OnCommandDistribute()
 {
 	if (CommandedGroup)
 	{
-		FVector targetLocation = CommandedGroup->GetActorLocation();// +CommandedGroup->GetActorForwardVector() * 500.0f;
+		FVector targetLocation = CommandedGroup->GetActorLocation() + CommandedGroup->GetActorForwardVector() * 100.0f; 
 		CommandedGroup->SetMarchLocation(targetLocation, GC_DISTRIBUTE);
 		DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
 	}
@@ -367,6 +367,12 @@ void ATheLastBastionHeroCharacter::OnCommandDistribute()
 
 void ATheLastBastionHeroCharacter::OnCommandReform()
 {
+	if (CommandedGroup)
+	{
+		FVector targetLocation = CommandedGroup->GetActorLocation() + CommandedGroup->GetActorForwardVector() * 300.0f;
+		CommandedGroup->SetMarchLocation(targetLocation, GC_REFORM);
+		DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
+	}
 
 }
 
@@ -374,7 +380,7 @@ void ATheLastBastionHeroCharacter::OnCommandForward()
 {
 	if (CommandedGroup)
 	{
-		FVector targetLocation = CommandedGroup->GetActorLocation() + CommandedGroup->GetActorForwardVector() * 500.0f;
+		FVector targetLocation = CommandedGroup->GetActorLocation() + CommandedGroup->GetActorForwardVector() * 1000.0f;
 		CommandedGroup->SetMarchLocation(targetLocation, GC_FORWARD);
 		DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
 	}
@@ -383,6 +389,12 @@ void ATheLastBastionHeroCharacter::OnCommandForward()
 
 void ATheLastBastionHeroCharacter::OnCommandBackward()
 {
+	if (CommandedGroup)
+	{
+		FVector targetLocation = CommandedGroup->GetActorLocation() - CommandedGroup->GetActorForwardVector() * 1000.0f;
+		CommandedGroup->SetMarchLocation(targetLocation, GC_BACKWARD);
+		DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
+	}
 }
 
 void ATheLastBastionHeroCharacter::OnCommandFollowing()

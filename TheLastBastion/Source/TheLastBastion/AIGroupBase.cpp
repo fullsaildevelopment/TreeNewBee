@@ -4,22 +4,15 @@
 #include "Components/BoxComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 
-
-//#include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/GameplayStatics.h"
-
 #include "AI/TheLastBastionGroupAIController.h"
 #include "AI/TheLastBastionBaseAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
 
-
-#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "TheLastBastionHeroCharacter.h"
 #include "AICharacters/TheLastBastionAIBase.h"
 #include "DrawDebugHelpers.h"
-//#include "Camera/CameraComponent.h"
+#include "UObject/ConstructorHelpers.h"
 
 
 
@@ -51,14 +44,18 @@ AAIGroupBase::AAIGroupBase()
 		MoveComp->UpdatedComponent = RootComp;
 	}
 
-	
 	AIControllerClass = ATheLastBastionGroupAIController::StaticClass();
+
+	ConstructorHelpers::FObjectFinder<UBehaviorTree> bt(TEXT("/Game/Blueprints/AI/GroupPreset/BT_GroupAI"));
+	if (bt.Succeeded())
+		BehaviorTree = bt.Object;
+	else
+		UE_LOG(LogTemp, Error, TEXT("Can not find behaviorTree - AAIGroupBase::AAIGroupBase"));
+
 
 	//
 	bActivated = true;
 
-	bUseSquareFormation = false;
-	bUseScatterFormation = false;
 }
 
 // Called when the game starts or when spawned
@@ -66,26 +63,21 @@ void AAIGroupBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SpawnAGroup();
 
-	ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	if (hero && hero->CommandedGroup == nullptr)
-		hero->CommandedGroup = this;
+	SpawnChildGroup();
 
 	if (GroupVolumn)
 	{
 		GroupVolumn->OnComponentBeginOverlap.AddDynamic(this, &AAIGroupBase::OnGroupVolumnOverrlapBegin);
 		GroupVolumn->OnComponentEndOverlap.AddDynamic(this, &AAIGroupBase::OnGroupVolumnOverrlapEnd);
-		
-		//float xOffset = GroupVolumn->GetNavigationBounds().GetExtent().X;
-		//GroupVolumn->SetRelativeLocation(FVector(xOffset, 0, 0));
 	}
+
+	
 
 }
 
-void AAIGroupBase::SpawnAGroup()
+void AAIGroupBase::SpawnChildGroup()
 {
-
 	if (bActivated)
 	{
 		if (AIToSpawn.Num()>0)
@@ -159,7 +151,7 @@ void AAIGroupBase::SpawnAGroup()
 				maxLength *= 2.0f;
 				// extend take half width, add padding on the side
 				maxWidth = 0.5f * maxWidth + SIDEPADDING;
-				
+
 				//UE_LOG(LogTemp, Log, TEXT("maxWidth in this group %f"), maxWidth);
 				GroupVolumn->SetBoxExtent(FVector(maxLength, maxWidth, GroupVolumn->GetUnscaledBoxExtent().Z), true);
 			}
@@ -169,6 +161,7 @@ void AAIGroupBase::SpawnAGroup()
 			//UE_LOG(LogTemp, Error, TEXT("%s NO AI to Spawn - AAIGroupBase::SpawnAGroup"), *this->GetName());
 		}
 	}
+
 }
 
 void AAIGroupBase::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
@@ -190,7 +183,7 @@ void AAIGroupBase::Tick(float DeltaTime)
 
 }
 
-void AAIGroupBase::SetChildPathLocation()
+void AAIGroupBase::CheckGroupCommand()
 {
 	UBlackboardComponent* bbcGroup = nullptr;
 	UBlackboardComponent* bbcChild = nullptr;
@@ -234,33 +227,24 @@ void AAIGroupBase::SetMarchLocation(const FVector & _targetLocation, int _comman
 	switch (_commandIndex)
 	{
 	case GC_GOTOLOCATION:
-	default:
 	{
 		targetFwd = _targetLocation - GetActorLocation();
 		FVector2D targetFwd2D = FVector2D(targetFwd.X, targetFwd.Y).GetSafeNormal();
 		targetFwd = FVector(targetFwd2D.X, targetFwd2D.Y, 0);
 		targetRight = FVector(-targetFwd2D.Y, targetFwd2D.X, 0);
-		//this->SetActorRotation(UKismetMathLibrary::FindLookAtRotation(_targetLocation, _targetLocation + 10 * targetFwd));
 		break;
 	}
 	case GC_HOLDLOCATION:
-	{
-		ATheLastBastionHeroCharacter * player = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-		targetFwd = player->GetActorForwardVector();
-		targetRight = player->GetActorRightVector();
-		//this->SetActorRotation(player->GetActorRotation());
-		break;
-	}
-	case GC_FORWARD:
 	case GC_DISTRIBUTE:
+	default:
+		break;
+	case GC_FORWARD:
 	{
 		targetFwd = this->GetActorForwardVector();
 		targetRight = this->GetActorRightVector();
 		break;
 	}
 	}
-
-	//targetLocation = targetFwd * GroupVolumn->GetUnscaledBoxExtent().X + _targetLocation;
 
 	// check for going backward
 	float dir = FVector::DotProduct(GetActorForwardVector(), targetFwd);
@@ -282,22 +266,9 @@ void AAIGroupBase::SetMarchLocation(const FVector & _targetLocation, int _comman
 		break;
 	}
 	case GC_HOLDLOCATION:
-	{
-		ATheLastBastionHeroCharacter * player = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-		this->SetActorRotation(player->GetActorRotation());
-		break;
-	}
 	case GC_FORWARD:
-	{
-		break;
-	}
-
 	case GC_DISTRIBUTE:
 	{
-		if (bUseScatterFormation)
-			SwitchToCompact();
-		else
-			SwitchToScatter();
 		break;
 	}
 	}
@@ -360,33 +331,13 @@ void AAIGroupBase::SwapChildenOrder()
 	//int iClassToSwap = 0;
 	//int timeToSwapForClass = AIToSpawn.Num() * 0.5f;
 	//FAISpawnInfo AISpawnTemp;
-
 	//for (int iClass = 0; iClass < timeToSwapForClass; iClass++)
 	//{
-
 	//	iClassToSwap = AIToSpawn.Num() - 1 - iClass;
 	//	AISpawnTemp = AIToSpawn[iClass];
 	//	AIToSpawn[iClass] = AIToSpawn[iClassToSwap];
 	//	AIToSpawn[iClassToSwap] = AISpawnTemp;
-
 	//	int iChildToSwap = 0;
 	//	int timeToSwapForClass
 	//}
-
-
 }
-
-void AAIGroupBase::SwitchToScatter()
-{
-	bUseScatterFormation = true;
-
-}
-
-void AAIGroupBase::SwitchToCompact()
-{
-	bUseScatterFormation = false;
-
-}
-
-
-

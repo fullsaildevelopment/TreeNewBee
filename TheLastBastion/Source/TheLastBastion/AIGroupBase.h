@@ -9,12 +9,6 @@
 
 
 #define SIDEPADDING 200.0f
-#define GroupFormation_ScatterPadding_Square 500.0f
-#define GroupFormation_CompactPadding_Square 250.0f
-
-#define GroupFormation_ScatterPadding_Row  400.0f
-#define GroupFormation_CompactPadding_Row  150.0f
-
 
 USTRUCT(BlueprintType)
 struct FAISpawnInfo 
@@ -35,11 +29,11 @@ struct FAISpawnInfo
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		/** the distance between each ai in same row */
-	float ColumnPadding = GroupFormation_CompactPadding_Square;
+	float ColumnPadding = 250;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		/** the distance between each ai in same column */
-	float RowPadding = GroupFormation_CompactPadding_Square;
+	float RowPadding = 250;
 };
 
 USTRUCT(BlueprintType)
@@ -64,11 +58,10 @@ class THELASTBASTION_API AAIGroupBase : public APawn
 {
 	GENERATED_BODY()
 
+protected:
 
 	UPROPERTY()
-	TArray<FAICharacterInfo> AICharactersInfo;
-
-protected:
+		TArray<FAICharacterInfo> AICharactersInfo;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		/** The class and the number we about to spawn*/
@@ -92,12 +85,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		bool bActivated;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Formation)
-		bool bUseSquareFormation;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Formation)
-		bool bUseScatterFormation;
-
 public:
 	// Sets default values for this pawn's properties
 	AAIGroupBase();
@@ -106,8 +93,10 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	//
-	void SpawnAGroup();
+	virtual void SpawnChildGroup();
+
+	// Call when group go to the opposite direction
+	void SwapChildenOrder();
 
 	UFUNCTION()
 		virtual void OnGroupVolumnOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
@@ -116,7 +105,6 @@ protected:
 	UFUNCTION()
 		virtual void OnGroupVolumnOverrlapEnd(UPrimitiveComponent* OverlappedComponent, 
 			AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
 
 public:	
 	// Called every frame
@@ -131,19 +119,8 @@ public:
 
 	/** Update the children location during move to*/
 	UFUNCTION(BlueprintCallable, Category = GroupBehavior)
-	void SetChildPathLocation();
+	void CheckGroupCommand();
 
 	UFUNCTION()
-		void SetMarchLocation(const FVector& _location, int _commandIndex);
-
-
-private:
-	
-	// Call when group go to the opposite direction
-	void SwapChildenOrder();
-
-	void SwitchToScatter();
-
-	void SwitchToCompact();
-	
+	virtual void SetMarchLocation(const FVector& _location, int _commandIndex);
 };

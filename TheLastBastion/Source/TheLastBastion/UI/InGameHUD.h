@@ -44,12 +44,8 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UWidget* CrossHair;
 
-	UPROPERTY(BlueprintReadOnly, meta = (BlueprintProtected))
-		class UTexture2D* WeaponThumbNail;
-
 	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* ProjectileCount_Text;
-
+		class UWeaponSlotsUI* WeaponSlots;
 
 	UPROPERTY()
 		bool bIsRanger;
@@ -71,4 +67,7 @@ public:
 	void SetHpOnHealthChange(const UPawnStatsComponent * _pawnStats);
 
 	void ToggleFireMode(bool _val);
+
+	void SetCurrentWeaponImage(const class AGear* _gear);
+
 };
