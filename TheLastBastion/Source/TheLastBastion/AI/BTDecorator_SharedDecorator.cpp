@@ -88,7 +88,7 @@ bool UBTDecorator_SharedDecorator::AttackConditionCheck_CalculateRawConidtionVal
 	}
 	
 	bool enableToAttack
-		= ctrl->GetBaseEnemyCharacter()->GetAnimInstanceRef()->GetCurrentActionState() == EAIActionState::None &&
+		= ctrl->GetBaseAICharacter()->GetAnimInstanceRef()->GetCurrentActionState() == EAIActionState::None &&
 		bbc->GetValue<UBlackboardKeyType_Float>(ctrl->GetKeyID_ToTargetActorDistanceSqr()) <= 50000;
 
 	return enableToAttack;

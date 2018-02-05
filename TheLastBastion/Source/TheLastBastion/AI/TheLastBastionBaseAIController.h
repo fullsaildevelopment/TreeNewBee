@@ -26,7 +26,7 @@ private:
 
 	/** Reference to our enemy blueprint */
 	UPROPERTY()
-	     class ATheLastBastionEnemyCharacter* mCharacter;
+	     class ATheLastBastionAIBase* mCharacter;
 
 	UPROPERTY()
 		class UAIBase_AnimInstance* mAnimInstanceRef;
@@ -48,7 +48,7 @@ private:
 public:
 
 	UFUNCTION(BlueprintPure)
-		FORCEINLINE ATheLastBastionEnemyCharacter* GetBaseEnemyCharacter() const { return mCharacter; }
+		FORCEINLINE ATheLastBastionAIBase* GetBaseAICharacter() const { return mCharacter; }
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE class UAIBase_AnimInstance* GetAnimInstance() const { return mAnimInstanceRef; }

@@ -25,8 +25,6 @@
 #include "DrawDebugHelpers.h"
 
 
-#define  COMMANDRANGE 10000
-#define  HOLD_POSITION_BWD_OFFSET 100
 
 ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 {
@@ -324,32 +322,53 @@ void ATheLastBastionHeroCharacter::OnCommandMarch()
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
 
+	FCollisionObjectQueryParams objQueryParams;
+	objQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
+	objQueryParams.AddObjectTypesToQuery(ECC_EnemyBody);
+
 	FHitResult Hit;
-	bool const IsHit = GetWorld()->LineTraceSingleByChannel(Hit, EyesLocation, TraceEnd, ECollisionChannel::ECC_Visibility);
+	bool const IsHit = GetWorld()->LineTraceSingleByObjectType(Hit, EyesLocation, TraceEnd, objQueryParams, QueryParams);
+	//LineTraceSingleByChannel(Hit, EyesLocation, TraceEnd, ECollisionChannel::ECC_Visibility);
 	if (IsHit)
 	{
 		FVector ImpactLocation = Hit.ImpactPoint;
-		UE_LOG(LogTemp, Log, TEXT("%s"), *Hit.GetActor()->GetName())
+		UE_LOG(LogTemp, Log, TEXT("%s"), *Hit.GetActor()->GetName());
 		DrawDebugSphere(GetWorld(), ImpactLocation, 50.0f, 8, FColor::Green, false, 5.0f);
+
 		if (CommandedGroup)
 		{
-			CommandedGroup->SetMarchLocation(ImpactLocation, GC_GOTOLOCATION);
+			if (CommandedGroup->IsFollowing())
+			{
+				CommandedGroup->OnStopFollowing();
+				CommandedGroup->SetMarchLocation(ImpactLocation, GC_GOTOLOCATION);
+			}
+		}// Temp code
+		if (EnemyGroupTemp)
+		{
+			EnemyGroupTemp->SetMarchLocation(ImpactLocation, GC_GOTOLOCATION);
 		}
 	}
-
-
-
 }
 
 void ATheLastBastionHeroCharacter::OnCommandHold()
 {
 	if (CommandedGroup)
 	{
+		if (CommandedGroup ->IsFollowing())
+			CommandedGroup->OnStopFollowing();
+
 		FVector targetLocation = GetActorLocation() - GetActorForwardVector() * HOLD_POSITION_BWD_OFFSET;
 		CommandedGroup->SetMarchLocation(targetLocation, GC_HOLDLOCATION);
-
 		DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
+	}
 
+}
+
+void ATheLastBastionHeroCharacter::OnCommandFollowing()
+{
+	if (CommandedGroup)
+	{
+		CommandedGroup->OnStartFollowing();
 	}
 
 }
@@ -359,6 +378,9 @@ void ATheLastBastionHeroCharacter::OnCommandDistribute()
 {
 	if (CommandedGroup)
 	{
+		if (CommandedGroup->IsFollowing())
+			CommandedGroup->OnStopFollowing();
+
 		FVector targetLocation = CommandedGroup->GetActorLocation() + CommandedGroup->GetActorForwardVector() * 100.0f; 
 		CommandedGroup->SetMarchLocation(targetLocation, GC_DISTRIBUTE);
 		DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
@@ -369,6 +391,9 @@ void ATheLastBastionHeroCharacter::OnCommandReform()
 {
 	if (CommandedGroup)
 	{
+		if (CommandedGroup->IsFollowing())
+			CommandedGroup->OnStopFollowing();
+
 		FVector targetLocation = CommandedGroup->GetActorLocation() + CommandedGroup->GetActorForwardVector() * 300.0f;
 		CommandedGroup->SetMarchLocation(targetLocation, GC_REFORM);
 		DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
@@ -380,6 +405,9 @@ void ATheLastBastionHeroCharacter::OnCommandForward()
 {
 	if (CommandedGroup)
 	{
+		if (CommandedGroup->IsFollowing())
+			CommandedGroup->OnStopFollowing();
+
 		FVector targetLocation = CommandedGroup->GetActorLocation() + CommandedGroup->GetActorForwardVector() * 1000.0f;
 		CommandedGroup->SetMarchLocation(targetLocation, GC_FORWARD);
 		DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
@@ -391,14 +419,13 @@ void ATheLastBastionHeroCharacter::OnCommandBackward()
 {
 	if (CommandedGroup)
 	{
+		if (CommandedGroup->IsFollowing())
+			CommandedGroup->OnStopFollowing();
+
 		FVector targetLocation = CommandedGroup->GetActorLocation() - CommandedGroup->GetActorForwardVector() * 1000.0f;
 		CommandedGroup->SetMarchLocation(targetLocation, GC_BACKWARD);
 		DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
 	}
-}
-
-void ATheLastBastionHeroCharacter::OnCommandFollowing()
-{
 }
 
 void ATheLastBastionHeroCharacter::OnCommandPressed()
@@ -408,7 +435,7 @@ void ATheLastBastionHeroCharacter::OnCommandPressed()
 		mInGameHUD->ToggleFireMode(true);
 	}
 	bIsInCommandMode = true;
-
+	mInGameHUD->ToggleCommandList(true);
 }
 
 void ATheLastBastionHeroCharacter::OnCommandReleased()
@@ -418,6 +445,7 @@ void ATheLastBastionHeroCharacter::OnCommandReleased()
 		mInGameHUD->ToggleFireMode(false);
 	}
 	bIsInCommandMode = false;
+	mInGameHUD->ToggleCommandList(false);
 }
 
 void ATheLastBastionHeroCharacter::OnTABPressed()

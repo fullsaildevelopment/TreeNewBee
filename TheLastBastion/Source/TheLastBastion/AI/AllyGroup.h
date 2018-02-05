@@ -26,6 +26,7 @@ public:
 	AAllyGroup();
 	
 protected:
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Formation)
 		bool bUseSquareFormation;
 
@@ -33,15 +34,30 @@ protected:
 		bool bUseScatterFormation;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Formation)
-		// size of array means the number of row, each entry is the number of col in current row
-	TArray<int> FormationInfo;
+		bool bIsFollowing;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Formation)
+		float FollowingFrq;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Formation)
+		float CurrentPadding;
+
+private:
+
+	FTimerHandle mFollowingTimer;
+	FVector mFollowingLocation;
+
 
 protected:
 	// Called when the game starts or when spawned
 	void BeginPlay() override;
 
 	void SpawnChildGroup() override;
+
+	void OnReform() override;
 	
+	void SwapChildenOrder() override;
+
 
 	UFUNCTION()
 		void OnGroupVolumnOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -70,5 +86,16 @@ public:
 
 	UFUNCTION()
 		void SetMarchLocation(const FVector& _location, int _commandIndex) override;
+
+	void OnChildDeath(int _childIndex) override;
+
+	UFUNCTION()
+		void SetFollowingLocation();
+
+	void OnStartFollowing();
+
+	void OnStopFollowing();
+
+	FORCEINLINE bool IsFollowing() const { return bIsFollowing; }
 
 };

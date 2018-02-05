@@ -8,8 +8,8 @@
 #include "Kismet/KismetSystemLibrary.h"
 
 
-#define ECC_EnemyBody ECollisionChannel::ECC_GameTraceChannel3
-#define ECC_HeroBody  ECollisionChannel::ECC_GameTraceChannel1
+//#define ECC_EnemyBody ECollisionChannel::ECC_GameTraceChannel3
+//#define ECC_HeroBody  ECollisionChannel::ECC_GameTraceChannel1
 
 AWeapon::AWeapon() 
 {

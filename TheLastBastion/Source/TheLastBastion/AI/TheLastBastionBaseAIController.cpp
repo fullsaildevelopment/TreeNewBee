@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TheLastBastionBaseAIController.h"
-#include "AICharacters/TheLastBastionEnemyCharacter.h"
+#include "AICharacters/TheLastBastionAIBase.h"
 #include "Animation/AIBase_AnimInstance.h"
 #include "Components/SkeletalMeshComponent.h"
 
@@ -25,7 +25,7 @@ void ATheLastBastionBaseAIController::Possess(APawn* _possPawn)
 	//UE_LOG(LogTemp, Warning, TEXT("ATheLastBastionBaseAIController possess on %s"), *_possPawn->GetName());
 
 	Super::Possess(_possPawn);
-	mCharacter = Cast<ATheLastBastionEnemyCharacter>(_possPawn);
+	mCharacter = Cast<ATheLastBastionAIBase>(_possPawn);
 	if (mCharacter == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("ATheLastBastionBaseAIController possess non - ATheLastBastionEnemyCharacter type, %s"), *_possPawn->GetName());

@@ -20,7 +20,6 @@ public:
 
 protected:
 
-
 	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
 		FText AiName;
 
@@ -28,7 +27,7 @@ protected:
 		FTimerHandle mKillTimer;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
-		class UPawnStatsComponent* EnemyStats;
+		class UPawnStatsComponent* AIStats;
 
 	UPROPERTY()
 		class UAIBase_AnimInstance* mAnimInstanceRef;
@@ -51,13 +50,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
 		int AITier;
 
-	UPROPERTY(VisibleAnywhere, Category = AiHud)
-		bool  bAIHUDisDisplayedForLockedOn;
-
-
 protected:
 
 	void BeginPlay() override;
+
 
 public:
 
@@ -67,7 +63,7 @@ public:
 public:
 
 	UFUNCTION(BlueprintPure)
-		FORCEINLINE class UPawnStatsComponent* GetEnemyStatsComponent() const { return EnemyStats; }
+		FORCEINLINE class UPawnStatsComponent* GetEnemyStatsComponent() const { return AIStats; }
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE class UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
@@ -75,7 +71,9 @@ public:
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE class UAIBase_AnimInstance* GetAnimInstanceRef() const { return mAnimInstanceRef; }
 
-	FORCEINLINE void SetParent(class AAIGroupBase* _Group, int _groupIndex); 
+	void SetParent(class AAIGroupBase* _Group, int _groupIndex); 
+
+	FORCEINLINE void SetGroupIndex(int _groupIndex) { mGroupIndex = _groupIndex; }
 
 		UFUNCTION(BlueprintCallable)
 			void CalculateMarchTargetPosition();
@@ -83,9 +81,9 @@ public:
 protected:
 
 	// Called on Hp = 0;
-	virtual void OnDead();
+	void OnDead();
 
 	// Called on actor destroyed
 	void Kill();
-	
+
 };

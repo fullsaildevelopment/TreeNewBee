@@ -20,8 +20,10 @@ public:
 
 protected:
 
-	//void BeginPlay() override;	
+	UPROPERTY(VisibleAnywhere, Category = AiHud)
+		bool  bAIHUDisDisplayedForLockedOn;
 
+protected:
 
 	UFUNCTION()
 		void OnTakeAnyDamageHandle(AActor* DamagedActor, float Damage, const class UDamageType* DamageType
@@ -37,9 +39,5 @@ public:
 	void ToggleAIHUD(bool _val) override;
 
 
-private:
-
-	// Called on Hp = 0;
-	void OnDead() override;
 
 };

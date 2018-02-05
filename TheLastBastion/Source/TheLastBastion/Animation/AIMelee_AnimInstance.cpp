@@ -30,6 +30,7 @@ void UAIMelee_AnimInstance::OnUpdate(float _deltaTime)
 
 	if (mCharacter == nullptr)
 		return;
+
 	switch (CurrentActionState)
 	{
 	case EAIActionState::MeleeAttack:
@@ -38,7 +39,9 @@ void UAIMelee_AnimInstance::OnUpdate(float _deltaTime)
 	case EAIActionState::GettingHurt:
 		SyncMotionForGettingHurt();
 		break;
-
+	case EAIActionState::None:
+		
+		break;
 	default:
 		break;
 	}

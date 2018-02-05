@@ -9,6 +9,7 @@
 
 
 #define SIDEPADDING 200.0f
+#define GroupVolumnZ 10000.0f
 
 USTRUCT(BlueprintType)
 struct FAISpawnInfo 
@@ -41,13 +42,13 @@ struct FAICharacterInfo
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		class ATheLastBastionAIBase* AICharacter;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		FVector GroupRelativeOffset;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		/** the row - column index of the this character of same class*/
 		FVector2D GroupIndexOffset;
 };
@@ -60,8 +61,11 @@ class THELASTBASTION_API AAIGroupBase : public APawn
 
 protected:
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Formation)
 		TArray<FAICharacterInfo> AICharactersInfo;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Formation)
+		// size of array means the number of row, each entry is the number of col in current row
+		TArray<int> FormationInfo;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		/** The class and the number we about to spawn*/
@@ -78,12 +82,23 @@ protected:
 		/** Trigger volumn to present the group size and trigger group combat*/
 		class UFloatingPawnMovement* MoveComp;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		/** Trigger volumn to present the group size and trigger group combat*/
+		class UArrowComponent* ArrowComp;
+
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Behavior)
 		class UBehaviorTree* BehaviorTree;
 
+	UPROPERTY()
+		class ATheLastBastionHeroCharacter* Hero;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
-		bool bActivated;
+		bool bDisabled;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Formation)
+		bool bReformPending;
+
 
 public:
 	// Sets default values for this pawn's properties
@@ -95,8 +110,11 @@ protected:
 
 	virtual void SpawnChildGroup();
 
+	/** Called when the number of group member get changed */
+	virtual void OnReform();
+
 	// Call when group go to the opposite direction
-	void SwapChildenOrder();
+	virtual void SwapChildenOrder();
 
 	UFUNCTION()
 		virtual void OnGroupVolumnOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
@@ -123,4 +141,8 @@ public:
 
 	UFUNCTION()
 	virtual void SetMarchLocation(const FVector& _location, int _commandIndex);
+
+	UFUNCTION()
+		virtual void OnChildDeath(int _childIndex);
+	
 };

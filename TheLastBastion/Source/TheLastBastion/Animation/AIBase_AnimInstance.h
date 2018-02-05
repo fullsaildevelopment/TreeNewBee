@@ -65,7 +65,7 @@ protected:
 
 
 	UPROPERTY()
-	    class ATheLastBastionEnemyCharacter* mCharacter;
+	    class ATheLastBastionAIBase* mCharacter;
 
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 		EAIActionState CurrentActionState;
@@ -118,6 +118,8 @@ protected:
 	void SyncMotionForMeleeAttack();
 
 	void SyncMotionForGettingHurt();
+
+	void SyncMotionForNone();
 
 	FName HitReaction_SHSword(FName boneName, const FVector & _shotFromDirection, const FVector& _hitLocation);
 

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AIBase_AnimInstance.h"
-#include "AICharacters/TheLastBastionEnemyCharacter.h"
+#include "AICharacters/TheLastBastionAIBase.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 
@@ -17,7 +17,7 @@ UAIBase_AnimInstance::UAIBase_AnimInstance(const FObjectInitializer& _objectInit
 
 void UAIBase_AnimInstance::OnBeginPlay()
 {
-	mCharacter = Cast<ATheLastBastionEnemyCharacter>(TryGetPawnOwner());
+	mCharacter = Cast<ATheLastBastionAIBase>(TryGetPawnOwner());
 	if (mCharacter == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("The AIBase_AnimInstance can only assigned to ATheLastBastionEnemyCharacter - UAIBase_AnimInstance "));
@@ -37,8 +37,12 @@ void UAIBase_AnimInstance::OnUpdate(float _deltaTime)
 		return;
 
 	UCharacterMovementComponent* movementComp = mCharacter->GetCharacterMovement();
-	currentSpeed = movementComp->Velocity.SizeSquared();	
-
+	FVector velocity = movementComp->Velocity;
+	currentSpeed = velocity.SizeSquared();
+	FVector velocityLocalDir = UKismetMathLibrary::InverseTransformDirection(mCharacter->GetTransform(), velocity);
+	velocityLocalDir = FVector(velocityLocalDir.X, velocityLocalDir.Y, 0).GetSafeNormal();
+	MoveForwardAxis = velocityLocalDir.X;
+	MoveRightAxis = velocityLocalDir.Y;
 }
 
 void UAIBase_AnimInstance::OnPostEvaluate()
@@ -60,8 +64,6 @@ void UAIBase_AnimInstance::StopFire()
 void UAIBase_AnimInstance::FinishAttack()
 {
 }
-
-
 
 void UAIBase_AnimInstance::SyncMotionForMeleeAttack()
 {
@@ -94,6 +96,11 @@ void UAIBase_AnimInstance::SyncMotionForGettingHurt()
 	FVector Velocity = movementComp->Velocity;
 	movementComp->Velocity = damageMomentum * speed;
 	movementComp->Velocity.Z = Velocity.Z;
+
+}
+
+void UAIBase_AnimInstance::SyncMotionForNone()
+{
 
 }
 

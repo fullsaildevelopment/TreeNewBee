@@ -12,12 +12,6 @@
 
 #define SPHERERADIUS 1.5f
 
-#define ECC_EnemyBody ECollisionChannel::ECC_GameTraceChannel3
-#define ECC_HeroBody  ECollisionChannel::ECC_GameTraceChannel1
-
-#define ECC_EnemyWeapon ECollisionChannel::ECC_GameTraceChannel4
-#define ECC_HeroWeapon  ECollisionChannel::ECC_GameTraceChannel2
-
 
 // Sets default values
 AProjectile::AProjectile()

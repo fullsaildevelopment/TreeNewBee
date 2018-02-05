@@ -47,12 +47,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
 		bool bIsWalking;
 
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (BlueprintProtected))
-	//	float CapHalfSize;
-
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (BlueprintProtected))
-	//	float CapRadius;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (BlueprintProtected))
 		float SprintSpeed = 850.0f;
 
@@ -118,6 +112,8 @@ public:
 	FORCEINLINE void SetCharacterType(ECharacterType _val) { CharacterType = _val; }
 	FORCEINLINE bool GetIsDead() const { return bIsDead; }
 	FORCEINLINE bool GetIsGodMode() const { return bIsGodMode; }
+
+	float GetCurrentMaxSpeed() const;
 
 };
 

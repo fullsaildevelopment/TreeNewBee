@@ -2,6 +2,7 @@
 
 #include "AIGroupBase.h"
 #include "Components/BoxComponent.h"
+#include "Components/ArrowComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 
 #include "AI/TheLastBastionGroupAIController.h"
@@ -10,6 +11,8 @@
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
 
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
+
 #include "AICharacters/TheLastBastionAIBase.h"
 #include "DrawDebugHelpers.h"
 #include "UObject/ConstructorHelpers.h"
@@ -31,17 +34,27 @@ AAIGroupBase::AAIGroupBase()
 
 	float halfHeight = 200.0f;
 	GroupVolumn = CreateDefaultSubobject<UBoxComponent>(TEXT("GroupVolumn"));
-	GroupVolumn->SetupAttachment(RootComp);
-	GroupVolumn->bGenerateOverlapEvents = true;
-	GroupVolumn->SetCanEverAffectNavigation(false);
-	GroupVolumn->InitBoxExtent(FVector(halfHeight, halfHeight, halfHeight));
-
-	GroupVolumn->SetCollisionProfileName("GroupTrigger");
+	if (GroupVolumn)
+	{
+		GroupVolumn->SetupAttachment(RootComp);
+		GroupVolumn->bGenerateOverlapEvents = true;
+		GroupVolumn->SetCanEverAffectNavigation(false);
+		GroupVolumn->InitBoxExtent(FVector(halfHeight, halfHeight, halfHeight));
+		GroupVolumn->SetCollisionProfileName("GroupTrigger");
+	}
 
 	MoveComp = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("MoveComp"));
 	if (MoveComp)
 	{
 		MoveComp->UpdatedComponent = RootComp;
+	}
+
+	ArrowComp = CreateDefaultSubobject<UArrowComponent>(TEXT("Arrow"));
+	if (ArrowComp)
+	{
+		ArrowComp->SetupAttachment(GroupVolumn);
+		ArrowComp->bHiddenInGame = false;
+		ArrowComp->ArrowSize = 5.0f;
 	}
 
 	AIControllerClass = ATheLastBastionGroupAIController::StaticClass();
@@ -54,8 +67,8 @@ AAIGroupBase::AAIGroupBase()
 
 
 	//
-	bActivated = true;
-
+	bDisabled = false;
+	bReformPending = false;
 }
 
 // Called when the game starts or when spawned
@@ -63,105 +76,23 @@ void AAIGroupBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-
-	SpawnChildGroup();
-
-	if (GroupVolumn)
+	if (GroupVolumn && MoveComp)
 	{
+		SpawnChildGroup();
 		GroupVolumn->OnComponentBeginOverlap.AddDynamic(this, &AAIGroupBase::OnGroupVolumnOverrlapBegin);
 		GroupVolumn->OnComponentEndOverlap.AddDynamic(this, &AAIGroupBase::OnGroupVolumnOverrlapEnd);
 	}
 
-	
-
+	Hero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 }
 
 void AAIGroupBase::SpawnChildGroup()
 {
-	if (bActivated)
-	{
-		if (AIToSpawn.Num()>0)
-		{
-			UWorld* const world = GetWorld();
 
-			if (world)
-			{
-				FActorSpawnParameters spawnParam;
-				spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+}
 
-				// track max width for trigger volumn bounding calculation
-				float maxWidth = -1.0f;
-				float maxLength = 0.0f;
-				// offset on forward direction
-				float xOffset = 0.0f;
-				int GroupIndex = 0;
-
-				for (int iClass = 0; iClass < AIToSpawn.Num(); iClass++)
-				{
-					TSubclassOf<ATheLastBastionAIBase> ClassToSpawn = AIToSpawn[iClass].AIClassBP;
-
-					int Remain = AIToSpawn[iClass].TotalNumber;
-					int maxRow = AIToSpawn[iClass].NumOfRow;
-					float colPadding = AIToSpawn[iClass].ColumnPadding;
-					float rowPadding = AIToSpawn[iClass].RowPadding;
-
-					float maxRowWidth = -1.0f;//(maxAIRowAICount - 1) * colPadding;
-					maxLength += rowPadding * (maxRow - 1);
-					for (int iRow = 0; iRow < maxRow; iRow++)
-					{
-						// calculate how many ai in current row
-						int AICountInThisRow = Remain / (maxRow - iRow);
-						float rowWidth = (AICountInThisRow - 1) * colPadding;
-						if (rowWidth > maxRowWidth)
-							maxRowWidth = rowWidth;
-
-						Remain -= AICountInThisRow;
-						float centerOffset = 0.5f * rowWidth;
-						//UE_LOG(LogTemp, Log, TEXT("AICount in this Row %d"), AICountInThisRow);
-						//UE_LOG(LogTemp, Log, TEXT("center offset %f"), centerOffset);
-
-						// calculate the relative x offset base on center root
-						for (int i = 0; i < AICountInThisRow; i++)
-						{
-							// offset on right vector direction
-							float yOffset = i * colPadding - centerOffset;
-							FAICharacterInfo newCharacterInfo;
-
-							FVector myLocation = this->GetActorLocation();
-							newCharacterInfo.GroupRelativeOffset = FVector(xOffset, yOffset, 0.0f);
-							FVector spawnLocation = myLocation - xOffset * GetActorForwardVector() + yOffset * GetActorRightVector();
-							newCharacterInfo.AICharacter = world->SpawnActor<ATheLastBastionAIBase>(ClassToSpawn, spawnLocation, this->GetActorRotation(), spawnParam);
-							newCharacterInfo.AICharacter->SpawnDefaultController();
-							GroupIndex = AICharactersInfo.Num();
-							newCharacterInfo.AICharacter->SetParent(this, GroupIndex);
-
-							AICharactersInfo.Add(newCharacterInfo);
-							//UE_LOG(LogTemp, Log, TEXT("xOffset %f"), xOffset);
-						}
-
-						xOffset += rowPadding;
-					}
-
-
-					//UE_LOG(LogTemp, Log, TEXT("maxRowWidth in this Row %f"), maxRowWidth);
-
-					if (maxRowWidth > maxWidth)
-						maxWidth = maxRowWidth;
-				}
-				maxLength *= 2.0f;
-				// extend take half width, add padding on the side
-				maxWidth = 0.5f * maxWidth + SIDEPADDING;
-
-				//UE_LOG(LogTemp, Log, TEXT("maxWidth in this group %f"), maxWidth);
-				GroupVolumn->SetBoxExtent(FVector(maxLength, maxWidth, GroupVolumn->GetUnscaledBoxExtent().Z), true);
-			}
-		}
-		else
-		{
-			//UE_LOG(LogTemp, Error, TEXT("%s NO AI to Spawn - AAIGroupBase::SpawnAGroup"), *this->GetName());
-		}
-	}
-
+void AAIGroupBase::OnReform()
+{
 }
 
 void AAIGroupBase::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
@@ -192,7 +123,7 @@ void AAIGroupBase::CheckGroupCommand()
 	bbcGroup = groupC->GetBlackboardComponent();
 	if (bbcGroup == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT(" groupC bbc == nullptr - AAIGroupBase::SetChildPathLocation"));
+		UE_LOG(LogTemp, Error, TEXT(" groupC bbc == nullptr - AAIGroupBase::CheckGroupCommand"));
 		return;
 	}
 
@@ -307,6 +238,11 @@ void AAIGroupBase::SetMarchLocation(const FVector & _targetLocation, int _comman
 	}
 }
 
+void AAIGroupBase::OnChildDeath(int _childIndex)
+{
+
+}
+
 void AAIGroupBase::SwapChildenOrder()
 {
 
@@ -317,16 +253,22 @@ void AAIGroupBase::SwapChildenOrder()
 		totalAmount += AIToSpawn[iClass].TotalNumber;
 	}
 	swapTimes = totalAmount * 0.5f;
-	FVector offsetTemp;
+	//FVector offsetTemp;
+	ATheLastBastionAIBase* AITemp = nullptr;
+
 	int indexToSwap = 0;
 	for (int iSwap = 0; iSwap < swapTimes; iSwap++)
 	{
 		indexToSwap = totalAmount - 1 - iSwap;
-		offsetTemp = AICharactersInfo[iSwap].GroupRelativeOffset;
-		AICharactersInfo[iSwap].GroupRelativeOffset = AICharactersInfo[indexToSwap].GroupRelativeOffset;
-		AICharactersInfo[indexToSwap].GroupRelativeOffset = offsetTemp;
+		AITemp = AICharactersInfo[iSwap].AICharacter;
+		AICharactersInfo[iSwap].AICharacter = AICharactersInfo[indexToSwap].AICharacter;
+		AICharactersInfo[indexToSwap].AICharacter = AITemp;
+		AICharactersInfo[iSwap].AICharacter->SetParent(this, iSwap);
+		AICharactersInfo[indexToSwap].AICharacter->SetParent(this, indexToSwap);
+		//offsetTemp = AICharactersInfo[iSwap].GroupRelativeOffset;
+		//AICharactersInfo[iSwap].GroupRelativeOffset = AICharactersInfo[indexToSwap].GroupRelativeOffset;
+		//AICharactersInfo[indexToSwap].GroupRelativeOffset = offsetTemp;
 	}
-
 
 	//int iClassToSwap = 0;
 	//int timeToSwapForClass = AIToSpawn.Num() * 0.5f;

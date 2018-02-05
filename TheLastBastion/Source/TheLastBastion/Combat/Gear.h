@@ -34,6 +34,15 @@ enum class EElementalType
 };
 
 
+
+#define ECC_EnemyBody ECollisionChannel::ECC_GameTraceChannel3
+#define ECC_HeroBody  ECollisionChannel::ECC_GameTraceChannel1
+
+#define ECC_EnemyWeapon ECollisionChannel::ECC_GameTraceChannel4
+#define ECC_HeroWeapon  ECollisionChannel::ECC_GameTraceChannel2
+
+
+
 UCLASS()
 class THELASTBASTION_API AGear : public AActor
 {

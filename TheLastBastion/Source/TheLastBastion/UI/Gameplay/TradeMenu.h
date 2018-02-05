@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "UI/ActionSlot.h"
 #include "TradeMenu.generated.h"
+
 
 /**
  * 

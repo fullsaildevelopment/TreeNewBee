@@ -44,14 +44,14 @@ void ATheLastBastionEnemyCharacter::OnTakePointDamageHandle(AActor * DamagedActo
 
 	bool isCritical = false, isStun = false;
 
-	float totalDamage = EnemyStats->CalculateDamage(Damage, DamageCauser, isCritical, isStun);
+	float totalDamage = AIStats->CalculateDamage(Damage, DamageCauser, isCritical, isStun);
 
 	/// if the attack is our hero, we will render the hp bar, the floating text for this AI
 	const ATheLastBastionHeroCharacter* heroAttacker = Cast<ATheLastBastionHeroCharacter>(DamageCauser);
 	if (heroAttacker)
 	{
 		UInGameAIHUD* aiHUD = Cast<UInGameAIHUD>(InfoHUD->GetUserWidgetObject());
-		aiHUD->UpdateHealthBar(EnemyStats);
+		aiHUD->UpdateHealthBar(AIStats);
 
 		// if this AI is not being locked on, 
 		// we will display UI temporary with a opacity animation
@@ -59,7 +59,7 @@ void ATheLastBastionEnemyCharacter::OnTakePointDamageHandle(AActor * DamagedActo
 			aiHUD->ToggleUI(true, true);
 
 		// pop up some floating text
-		TSubclassOf<UUserWidget> fT_WBP = EnemyStats->GetFloatingText_WBP();
+		TSubclassOf<UUserWidget> fT_WBP = AIStats->GetFloatingText_WBP();
 		if (fT_WBP == nullptr)
 		{
 			UE_LOG(LogTemp, Error,
@@ -134,7 +134,7 @@ void ATheLastBastionEnemyCharacter::OnTakePointDamageHandle(AActor * DamagedActo
 		}		
 	}
 
-	if (EnemyStats->GetHpCurrent() <= 0)
+	if (AIStats->GetHpCurrent() <= 0)
 	{
 		OnDead();
 		return;
@@ -174,30 +174,6 @@ void ATheLastBastionEnemyCharacter::ToggleAIHUD(bool _val)
 	}
 }
 
-void ATheLastBastionEnemyCharacter::OnDead()
-{
-	bIsDead = true;
-	UInGameAIHUD* aiHUD = Cast<UInGameAIHUD>(InfoHUD->GetUserWidgetObject());
-	aiHUD->ToggleUI(false, false);
-
-	// condition for ragdoll
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetMesh()->SetSimulatePhysics(true);
-	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
-	// disable BT
-	ATheLastBastionBaseAIController* enemyC = Cast<ATheLastBastionBaseAIController>(GetController());
-	enemyC->UnPossess();
-	enemyC->Destroy();
-	
-	GetWorldTimerManager().SetTimer(mKillTimer, this, &ATheLastBastionEnemyCharacter::Kill, 1.0f, false, 10.0f);
-
-	// Tell GM that I am dead
-	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
-	gm->UpdateEnemyAmount(-1);
-	
-}
 
 
 

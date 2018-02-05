@@ -6,28 +6,42 @@
 #include "AI/TheLastBastionBaseAIController.h"
 
 #include "TheLastBastionHeroCharacter.h"
-#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
 
+
+#include "GameFramework/FloatingPawnMovement.h"
+#include "Components/BoxComponent.h"
+#include "Components/ArrowComponent.h"
+
+#include "DrawDebugHelpers.h"
+
+
 AAllyGroup::AAllyGroup()
 {
 	bUseSquareFormation = false;
 	bUseScatterFormation = false;
+	bIsFollowing = false;
+
+	FollowingFrq = 1.0f;
+	CurrentPadding = GroupFormation_CompactPadding_Square;
+	
+	if (ArrowComp)
+	{
+		ArrowComp->ArrowColor = FColor::Green;
+	}
 }
 
 void AAllyGroup::BeginPlay()
 {
 	Super::BeginPlay();
-	ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	if (hero && hero->CommandedGroup == nullptr)
-		hero->CommandedGroup = this;
+	if (Hero && Hero->CommandedGroup == nullptr)
+		Hero->CommandedGroup = this;
 
+	mFollowingLocation = GetActorLocation();
 }
-
-
 
 TSubclassOf<class ATheLastBastionAIBase> AAllyGroup::GetClassDuringAllySpawn(int _currentIndex) const
 {
@@ -47,10 +61,9 @@ TSubclassOf<class ATheLastBastionAIBase> AAllyGroup::GetClassDuringAllySpawn(int
 
 }
 
-
 void AAllyGroup::SpawnChildGroup()
 {
-	if (bActivated == false)
+	if (bDisabled == true)
 		return;
 
 	UWorld* world = GetWorld();
@@ -85,21 +98,26 @@ void AAllyGroup::SpawnChildGroup()
 	FormationInfo.SetNum(maxRowCount);
 	int remain = totalAllyCount;
 	float xOffset = 0;
+
+	// Grab the minimum speed from group member as group speed
+	float groupSpeed = FLT_MAX;
+
 	for (int iRow = 0; iRow < maxRowCount; iRow++)
 	{
 		int curColCount = (remain >= maxColCount) ? maxColCount : remain;
-		float currentRowWidth = (curColCount - 1) * GroupFormation_CompactPadding_Square;
+		float currentRowWidth = (curColCount - 1) * CurrentPadding;
 		float centerOffset = currentRowWidth * 0.5f;
 		float yOffset = 0;
 		int GroupIndex = 0;
+		float characterMaxSpeed = 0;
 		// keep information of the formation layout for reform and redistribute
 		FormationInfo[iRow] = curColCount;
 
 		for (int iCol = 0; iCol < curColCount; iCol++)
 		{
 			// always Start with Square Compact formation
-			float rowWidth = (curColCount - 1) * GroupFormation_CompactPadding_Square;
-			yOffset = iCol * GroupFormation_CompactPadding_Square - centerOffset;
+			float rowWidth = (curColCount - 1) * CurrentPadding;
+			yOffset = iCol * CurrentPadding - centerOffset;
 
 			FAICharacterInfo newCharacterInfo;
 
@@ -116,14 +134,98 @@ void AAllyGroup::SpawnChildGroup()
 
 			AICharactersInfo.Add(newCharacterInfo);
 
+			// check if this should be the group speed
+			characterMaxSpeed = newCharacterInfo.AICharacter->GetCurrentMaxSpeed();
+			if (characterMaxSpeed < groupSpeed)
+				groupSpeed = characterMaxSpeed;
 		}
-		xOffset += GroupFormation_CompactPadding_Square;
+		xOffset += CurrentPadding;
 		remain -= curColCount;
 	}
 
-	float maxGroupWidth = (maxColCount - 1) * GroupFormation_CompactPadding_Square;
-	float maxGroupLength = (maxRowCount - 1) * GroupFormation_CompactPadding_Square;
+	float maxGroupWidth = (maxColCount - 1) * CurrentPadding;
+	float maxGroupLength = (maxRowCount - 1) * CurrentPadding;
 
+	GroupVolumn->SetBoxExtent(FVector(maxGroupLength, maxGroupWidth, GroupVolumnZ), true);
+	MoveComp->MaxSpeed = groupSpeed;
+}
+
+void AAllyGroup::OnReform()
+{
+	int totalAllyCount = AICharactersInfo.Num();
+	int maxColCount;
+
+	if (totalAllyCount > 16)
+		maxColCount = 5;
+	else if (totalAllyCount > 9)
+		maxColCount = 4;
+	else if (totalAllyCount >= 3)
+		maxColCount = 3;
+	else
+		maxColCount = totalAllyCount;
+
+	int maxRowCount = FMath::CeilToInt((float)totalAllyCount / maxColCount);
+	FormationInfo.Empty();
+	FormationInfo.SetNum(maxRowCount);
+
+	int remain = totalAllyCount;
+
+	float xOffset = 0;
+
+	// Grab the minimum speed from group member as group speed
+	float groupSpeed = FLT_MAX;
+
+	int CurrentCharacterIndex = 0;
+
+	// Update the FormationInfo On Reform
+	for (int iRow = 0; iRow < maxRowCount; iRow++)
+	{
+		int curColCount = (remain >= maxColCount) ? maxColCount : remain;
+		// keep information of the formation layout for reform and redistribute
+		FormationInfo[iRow] = curColCount;
+		remain -= curColCount;
+	}
+
+	if (bUseSquareFormation && totalAllyCount > 3)
+		SwitchToSquare();
+	else
+		SwitchToRow();
+
+
+	// Find Slowest Speed
+	float speed = 0.0f;
+	for (int iCharacter = 0; iCharacter < totalAllyCount; iCharacter++)
+	{
+		speed = AICharactersInfo[iCharacter].AICharacter->GetCurrentMaxSpeed();
+		groupSpeed = (speed < groupSpeed) ? speed : groupSpeed;
+	}
+
+	float maxGroupWidth = (maxColCount - 1) * CurrentPadding;
+	float maxGroupLength = (maxRowCount - 1) * CurrentPadding;
+
+	GroupVolumn->SetBoxExtent(FVector(maxGroupLength, maxGroupWidth, GroupVolumnZ), true);
+	MoveComp->MaxSpeed = groupSpeed;
+	bReformPending = false;
+}
+
+void AAllyGroup::SwapChildenOrder()
+{
+	int totalAmount = AICharactersInfo.Num();
+
+	int swapTimes = totalAmount * 0.5f;
+	//FVector offsetTemp;
+	ATheLastBastionAIBase* AITemp = nullptr;
+
+	int indexToSwap = 0;
+	for (int iSwap = 0; iSwap < swapTimes; iSwap++)
+	{
+		indexToSwap = totalAmount - 1 - iSwap;
+		AITemp = AICharactersInfo[iSwap].AICharacter;
+		AICharactersInfo[iSwap].AICharacter = AICharactersInfo[indexToSwap].AICharacter;
+		AICharactersInfo[indexToSwap].AICharacter = AITemp;
+		AICharactersInfo[iSwap].AICharacter->SetParent(this, iSwap);
+		AICharactersInfo[indexToSwap].AICharacter->SetParent(this, indexToSwap);
+	}
 
 }
 
@@ -134,8 +236,6 @@ void AAllyGroup::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * OverlappedComp
 void AAllyGroup::OnGroupVolumnOverrlapEnd(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
 {
 }
-
-
 
 void AAllyGroup::RedistributeBy(int _cenMeters)
 {
@@ -149,7 +249,7 @@ void AAllyGroup::RedistributeBy(int _cenMeters)
 			for (int iRow = 0; iRow < maxRow; iRow++)
 			{
 				int curNumOfCol = FormationInfo[iRow];
-				float rowWidth = curNumOfCol * _cenMeters;
+				float rowWidth = (curNumOfCol - 1) * _cenMeters;
 				float centerOffset = 0.5f * rowWidth;
 				float yOffset;
 				for (int iCol = 0; iCol < curNumOfCol; iCol++)
@@ -190,20 +290,28 @@ void AAllyGroup::RedistributeBy(int _cenMeters)
 void AAllyGroup::SwitchToScatter()
 {
 	bUseScatterFormation = true;
-	RedistributeBy(GroupFormation_ScatterPadding_Square);
+
+	CurrentPadding = (bUseSquareFormation) ? GroupFormation_ScatterPadding_Square : GroupFormation_ScatterPadding_Row;
+
+	RedistributeBy(CurrentPadding);
 }
 
 void AAllyGroup::SwitchToCompact()
 {
 	bUseScatterFormation = false;
-	RedistributeBy(GroupFormation_CompactPadding_Square);
+	CurrentPadding = (bUseSquareFormation) ? GroupFormation_CompactPadding_Square : GroupFormation_CompactPadding_Row;
+
+	RedistributeBy(CurrentPadding);
 }
 
 void AAllyGroup::SwitchToSquare()
 {
+	if (AICharactersInfo.Num() <= 3)
+		return;
+
 	bUseSquareFormation = true;
 
-	float padingGap
+	CurrentPadding
 		= bUseScatterFormation ? GroupFormation_ScatterPadding_Square : GroupFormation_CompactPadding_Square;
 
 	// use Formation info to recreate the square formation
@@ -216,16 +324,16 @@ void AAllyGroup::SwitchToSquare()
 	for (int iRow = 0; iRow < FormationInfo.Num(); iRow++)
 	{
 		curColCount = FormationInfo[iRow];
-		rowWidth = (curColCount - 1) * padingGap;
+		rowWidth = (curColCount - 1) * CurrentPadding;
 		centerOffset = rowWidth * 0.5f;
 
 		for (int iCol = 0; iCol < curColCount; iCol++)
 		{
 			int CurrentCharacterIndex = iRow * maxColSize + iCol;
-			yOffset = iCol * padingGap - centerOffset;
+			yOffset = iCol * CurrentPadding - centerOffset;
 			AICharactersInfo[CurrentCharacterIndex].GroupRelativeOffset = FVector(xOffset, yOffset, 0);
 		}
-		xOffset += padingGap;
+		xOffset += CurrentPadding;
 	}
 
 }
@@ -244,17 +352,17 @@ void AAllyGroup::SwitchToRow()
 	//FormationInfo.Empty();
 	//FormationInfo.Add(totalNumber);
 
-	float padingGap 
+	CurrentPadding
 		= bUseScatterFormation ? GroupFormation_ScatterPadding_Row : GroupFormation_CompactPadding_Row;
 
 	float xOffset = 0;
 	float yOffset = 0;
-	float rowWidth = (totalNumber - 1) * padingGap;
+	float rowWidth = (totalNumber - 1) * CurrentPadding;
 	float centerOffset = rowWidth * 0.5f;
 
 	for (int i = 0; i < totalNumber; i++)
 	{
-		yOffset = i * padingGap - centerOffset;
+		yOffset = i * CurrentPadding - centerOffset;
 		AICharactersInfo[i].GroupRelativeOffset = FVector(xOffset, yOffset, 0);
 	}
 
@@ -281,9 +389,11 @@ void AAllyGroup::SetMarchLocation(const FVector & _targetLocation, int _commandI
 
 	FVector targetFwd, targetRight;// , targetLocation;
 
+	if (bReformPending)
+		OnReform();
 
-								   /// command pre-execute
-								   // calculate the desired forward and right vector for child location padding
+	/// command pre-execute
+	// calculate the desired forward and right vector for child location padding
 	switch (_commandIndex)
 	{
 	case GC_GOTOLOCATION:
@@ -296,10 +406,10 @@ void AAllyGroup::SetMarchLocation(const FVector & _targetLocation, int _commandI
 		break;
 	}
 	case GC_HOLDLOCATION:
+	case GC_FOLLOW:
 	{
-		ATheLastBastionHeroCharacter * player = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-		targetFwd = player->GetActorForwardVector();
-		targetRight = player->GetActorRightVector();
+		targetFwd = Hero->GetActorForwardVector();
+		targetRight = Hero->GetActorRightVector();
 		break;
 	}
 	case GC_FORWARD:
@@ -330,10 +440,9 @@ void AAllyGroup::SetMarchLocation(const FVector & _targetLocation, int _commandI
 		break;
 	}
 	case GC_HOLDLOCATION:
+	case GC_FOLLOW:
 	{
-		ATheLastBastionHeroCharacter * player 
-			= Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-		this->SetActorRotation(player->GetActorRotation());
+		this->SetActorRotation(Hero->GetActorRotation());
 		break;
 	}
 	case GC_FORWARD:
@@ -390,4 +499,54 @@ void AAllyGroup::SetMarchLocation(const FVector & _targetLocation, int _commandI
 			bbcChild->SetValue<UBlackboardKeyType_Int>(baseAICtrl->GetKeyID_NewCommandIndex(), _commandIndex);
 		}
 	}
+}
+
+void AAllyGroup::OnChildDeath(int _childIndex)
+{
+	AICharactersInfo.RemoveAt(_childIndex);
+	int totalCharacterCount = AICharactersInfo.Num();
+	if (totalCharacterCount == 0)
+	{
+		Destroy();
+	}
+	else
+	{
+		bReformPending = true;
+		for (int i = 0; i < totalCharacterCount; i++)
+		{
+			AICharactersInfo[i].AICharacter->SetGroupIndex(i);
+		}
+	}
+}
+
+void AAllyGroup::SetFollowingLocation()
+{
+	FVector targetLocation = Hero->GetActorLocation() - Hero->GetActorForwardVector() * 100.0f;
+
+	float distanceSqr = FVector::DistSquared(targetLocation, mFollowingLocation);
+
+	if (distanceSqr < 100.0f)
+	{
+		return;
+	}
+
+	mFollowingLocation = targetLocation;
+	SetMarchLocation(targetLocation, GC_FOLLOW);
+	DrawDebugSphere(GetWorld(), mFollowingLocation, 50.0f, 8, FColor::Magenta, false, 5.0f);
+	UE_LOG(LogTemp, Log, TEXT("Set Following location - AAllyGroup::SetFollowingLocation"));
+}
+
+void AAllyGroup::OnStartFollowing()
+{
+
+	GetWorldTimerManager().SetTimer(mFollowingTimer, this, &AAllyGroup::SetFollowingLocation, FollowingFrq, true, 0.1f);
+	bIsFollowing = true;
+
+}
+
+void AAllyGroup::OnStopFollowing()
+{
+	GetWorldTimerManager().ClearTimer(mFollowingTimer);
+	bIsFollowing = false;
+
 }

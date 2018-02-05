@@ -47,6 +47,9 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UWeaponSlotsUI* WeaponSlots;
 
+	UPROPERTY(meta = (BindWidget))
+		class UWidgetSwitcher* GroupCommandList;
+
 	UPROPERTY()
 		bool bIsRanger;
 
@@ -55,18 +58,20 @@ public:
 	void AddTeamMember(const struct FMatchPlayer& _newTeamMember);
 
 	/** Initialize the HUD during creation by player profile*/
-	void LoadPlayerProfile(const FPlayerProfile& _profile);
+	void LoadPlayerProfile(const struct FPlayerProfile& _profile);
 
-	void LoadPlayerProfile_Sp(const FPlayerProfile& _profile);
+	void LoadPlayerProfile_Sp(const struct FPlayerProfile& _profile);
 
 	void InitStats(const class UHeroStatsComponent* _heroStats);
 
     /** Called On ReEquip, Level Up*/
 	void ResetStats(const class UHeroStatsComponent* _heroStats);
 
-	void SetHpOnHealthChange(const UPawnStatsComponent * _pawnStats);
+	void SetHpOnHealthChange(const class UPawnStatsComponent * _pawnStats);
 
 	void ToggleFireMode(bool _val);
+
+	void ToggleCommandList(bool _val);
 
 	void SetCurrentWeaponImage(const class AGear* _gear);
 

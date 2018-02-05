@@ -35,8 +35,9 @@ ATheLastBastionAIBase::ATheLastBastionAIBase()
 	InfoHUD->SetCollisionProfileName("UI");
 	
 
-	EnemyStats = CreateDefaultSubobject<UPawnStatsComponent>(TEXT("Stats"));
-	PawnStats = EnemyStats;
+	AIStats = CreateDefaultSubobject<UPawnStatsComponent>(TEXT("Stats"));
+	AIControllerClass = ATheLastBastionBaseAIController::StaticClass();
+	PawnStats = AIStats;
 
 }
 
@@ -51,7 +52,7 @@ void ATheLastBastionAIBase::BeginPlay()
 		return;
 	}
 
-	if (EnemyStats == nullptr)
+	if (AIStats == nullptr)
 	{
 		UE_LOG(LogTemp, Error,
 			TEXT("AIStats is NULL, - ATheLastBastionAIBase"));
@@ -97,6 +98,7 @@ void ATheLastBastionAIBase::SetParent(AAIGroupBase * _Group, int _groupIndex)
 {
 	mGroup = _Group;
 	mGroupIndex = _groupIndex;
+
 }
 
 void ATheLastBastionAIBase::CalculateMarchTargetPosition()
@@ -134,13 +136,13 @@ void ATheLastBastionAIBase::CalculateMarchTargetPosition()
 
 	if (baseAICtrl == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("enemyC == nullptr - AAIGroupBase::SetChildPathLocation"));
+		UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr - AAIGroupBase::CalculateMarchTargetPosition"));
 		return;
 	}
 	bbcChild = baseAICtrl->GetBlackboardComponent();
 	if (bbcChild == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("bbc == nullptr - AAIGroupBase::SetChildPathLocation"));
+		UE_LOG(LogTemp, Error, TEXT("bbc == nullptr - AAIGroupBase::CalculateMarchTargetPosition"));
 		return;
 	}
 
@@ -148,7 +150,6 @@ void ATheLastBastionAIBase::CalculateMarchTargetPosition()
 	FVector groupRelativeOffset = mGroup->GetGroupRelativeOffsetAt(mGroupIndex);
 	FVector childtargetLocation = groupTargetLocation - 
 		groupTargetForward * groupRelativeOffset.X + groupTargetRight * groupRelativeOffset.Y;
-	//DrawDebugSphere(GetWorld(), childtargetLocation, 50.0f, 8, FColor::Blue, false, 5.0f);
 
 
 	FCollisionQueryParams QueryParams;
@@ -174,6 +175,30 @@ void ATheLastBastionAIBase::CalculateMarchTargetPosition()
 		childtargetLocation = Hit.ImpactPoint;
 	}
 
+	// Handle focus
+	int groupCommand = bbcChild->GetValue<UBlackboardKeyType_Int>(baseAICtrl->GetKeyID_NewCommandIndex());
+	FVector focusPoint = FVector::ZeroVector;
+
+	switch (groupCommand)
+	{
+	case GC_GOTOLOCATION:
+	case GC_FOLLOW:
+		baseAICtrl->ClearFocus(EAIFocusPriority::Gameplay);
+		break;
+	case GC_HOLDLOCATION:
+	case GC_BACKWARD:
+	case GC_DISTRIBUTE:
+	case GC_REFORM:
+	case GC_FORWARD:
+		focusPoint = mGroup->GetActorLocation() + mGroup->GetActorForwardVector() * 1000000.0f;
+		baseAICtrl->SetFocalPoint(focusPoint, EAIFocusPriority::Gameplay);
+		break;
+
+	default:
+		break;
+	}
+
+	
 
 	bbcChild->SetValue<UBlackboardKeyType_Vector>(baseAICtrl->GetKeyID_TargetLocation(), childtargetLocation);
 	bbcChild->SetValue<UBlackboardKeyType_Int>(baseAICtrl->GetKeyID_NewCommandIndex(), 0);
@@ -182,6 +207,32 @@ void ATheLastBastionAIBase::CalculateMarchTargetPosition()
 
 void ATheLastBastionAIBase::OnDead()
 {
+
+	bIsDead = true;
+	UInGameAIHUD* aiHUD = Cast<UInGameAIHUD>(InfoHUD->GetUserWidgetObject());
+	aiHUD->ToggleUI(false, false);
+
+	// condition for ragdoll
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+	// disable BT
+	ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(GetController());
+	baseAICtrl->UnPossess();
+	baseAICtrl->Destroy();
+
+	// Tell my Group that I am dead
+	mGroup->OnChildDeath(mGroupIndex);
+
+	// Launch kill timer
+	GetWorldTimerManager().SetTimer(mKillTimer, this, &ATheLastBastionAIBase::Kill, 1.0f, false, 10.0f);
+
+	//// Tell GM that I am dead
+	//ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	//gm->UpdateEnemyAmount(-1);
+
 }
 
 void ATheLastBastionAIBase::Kill()
@@ -196,4 +247,8 @@ void ATheLastBastionAIBase::Kill()
 
 	Destroy();
 }
+
+
+
+
 

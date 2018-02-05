@@ -105,4 +105,9 @@ void ATheLastBastionCharacter::OnTakePointDamageHandle(AActor * DamagedActor, fl
 
 }
 
+float ATheLastBastionCharacter::GetCurrentMaxSpeed() const
+{
+	return GetCharacterMovement()->MaxWalkSpeed;
+}
+
 

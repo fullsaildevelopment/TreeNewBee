@@ -10,6 +10,10 @@
  * 
  */
 
+#define  COMMANDRANGE 50000
+#define  HOLD_POSITION_BWD_OFFSET 100
+
+
 UCLASS()
 class THELASTBASTION_API ATheLastBastionHeroCharacter : public ATheLastBastionCharacter
 {
@@ -165,6 +169,9 @@ public:
 	UPROPERTY()
 		/** swat under player command */
 		class AAllyGroup* CommandedGroup;
+
+	UPROPERTY()
+	    class AAIGroupBase* EnemyGroupTemp;
 
 
 private:

@@ -13,6 +13,7 @@
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
+#include "Components/WidgetSwitcher.h"
 
 
 static TSubclassOf<UUserWidget> InGameTeamRow_WBPClass;
@@ -39,7 +40,7 @@ bool UInGameHUD::Initialize()
 	bool bAllWidgetAreGood =
 		PlayerRow != nullptr && TeamWindow != nullptr
 		&& GoldValue != nullptr && WoodValue != nullptr && MetalValue != nullptr && RockValue != nullptr && CrossHair != nullptr
-		&& CrossHair && WeaponSlots;
+		&& CrossHair && WeaponSlots && GroupCommandList;
 
 	if (!bAllWidgetAreGood)
 	{
@@ -48,6 +49,8 @@ bool UInGameHUD::Initialize()
 	}
 	else
 		return false;
+
+	GroupCommandList->SetVisibility(ESlateVisibility::Hidden);
 
 	return true;
 }
@@ -125,6 +128,18 @@ void UInGameHUD::ToggleFireMode(bool _val)
 		CrossHair->SetVisibility(ESlateVisibility::Hidden);
 		//ProjectileCount_Text->SetVisibility(ESlateVisibility::Hidden);
 
+	}
+}
+
+void UInGameHUD::ToggleCommandList(bool _val)
+{
+	if (_val)
+	{
+		GroupCommandList->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		GroupCommandList->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
