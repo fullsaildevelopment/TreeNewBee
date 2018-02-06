@@ -9,9 +9,15 @@
 #include "UI/Gameplay/TradeMenu.h"
 #include "UI/Gameplay/InGameMenu.h"
 
+
 #include "TheLastBastionHeroCharacter.h"
+
 #include "CustomType.h"
 
+
+// temp
+#include "AI/AllyGroup.h"
+#include "DrawDebugHelpers.h"
 
 
 ASinglePlayerPC::ASinglePlayerPC(const FObjectInitializer & _objInit) : Super(_objInit)
@@ -192,6 +198,33 @@ void ASinglePlayerPC::RecoverImmediate()
 
 void ASinglePlayerPC::RecoverByGettingUp()
 {
+}
+
+void ASinglePlayerPC::ShowFrontLine()
+{
+	ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(GetCharacter());
+	if (hero)
+	{
+		TArray<ATheLastBastionAIBase*> frontLine = hero->GetCommandGroup()->GetFrontLine();
+		for (int iChar = 0; iChar < frontLine.Num(); iChar++)
+		{
+			DrawDebugSphere(GetWorld(), frontLine[iChar]->GetActorLocation(), 50.0f, 8, FColor::Red, false, 6.0f);
+		}
+	}
+}
+
+void ASinglePlayerPC::ShowColumnAt(int _index)
+{
+	ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(GetCharacter());
+	if (hero)
+	{
+		TArray<ATheLastBastionAIBase*> frontLine = hero->GetCommandGroup()->GetColumnAt(_index);
+		for (int iChar = 0; iChar < frontLine.Num(); iChar++)
+		{
+			DrawDebugSphere(GetWorld(), frontLine[iChar]->GetActorLocation(), 50.0f, 8, FColor::Red, false, 6.0f);
+		}
+	}
+
 }
 
 void ASinglePlayerPC::OnTradeMenuAccept(UHeroStatsComponent * _heroStats)

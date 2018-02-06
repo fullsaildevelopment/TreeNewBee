@@ -73,10 +73,17 @@ public:
 
 	void SetParent(class AAIGroupBase* _Group, int _groupIndex); 
 
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE class AAIGroupBase* GetGroup() const { return mGroup; }
+
 	FORCEINLINE void SetGroupIndex(int _groupIndex) { mGroupIndex = _groupIndex; }
 
-		UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable)
 			void CalculateMarchTargetPosition();
+
+	void SetTarget(AActor* _target);
+
+
 
 protected:
 

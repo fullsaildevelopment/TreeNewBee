@@ -11,6 +11,12 @@
 #define SIDEPADDING 200.0f
 #define GroupVolumnZ 10000.0f
 
+
+#define COS22_5 0.9f
+#define COS67_5 0.4f
+#define COS112_5 -0.4f
+#define COS157_5 -0.9f
+
 USTRUCT(BlueprintType)
 struct FAISpawnInfo 
 {
@@ -26,7 +32,7 @@ struct FAISpawnInfo
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		/** the max number of Col this ai class has in group*/
-	int32 MaxNumOfCol;
+	int32 MaxNumOfCol = 1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
 	int32 NumOfRow;
@@ -118,6 +124,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		bool bDisabled;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Behavior)
+		bool bIsAgreesive;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Formation)
 		bool bReformPending;
 
@@ -138,6 +147,9 @@ protected:
 	// Call when group go to the opposite direction
 	virtual void SwapChildenOrder();
 
+
+	
+
 	UFUNCTION()
 		virtual void OnGroupVolumnOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
 			UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
@@ -149,6 +161,10 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	void PairColumn(AAIGroupBase* const _enemyGroup, int _myColumn, int _theirColumn);
+	void AssignColumn(AAIGroupBase* const _targetGroup, int _myColumn, int _theirColumn);
+
 
 	// Called to bind functionality to input
 	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -166,5 +182,32 @@ public:
 
 	UFUNCTION()
 		virtual void OnChildDeath(int _childIndex);
-	
+
+	virtual int GetMaxColoumnCount() const;
+
+
+	UFUNCTION()
+		TArray<class ATheLastBastionAIBase*> GetFrontLine() const;
+
+
+	UFUNCTION()
+		TArray<class ATheLastBastionAIBase*> GetColumnAt(int _index) const;
+
+
+
+	//UFUNCTION()
+	//	TArray<class ATheLastBastionCharacter*> GetFrontLine() const;
+
+	//UFUNCTION()
+	//	TArray<class ATheLastBastionCharacter*> GetFrontLine() const;
+
+	//UFUNCTION()
+	//	TArray<class ATheLastBastionCharacter*> GetFrontLine() const;
+
+	//UFUNCTION()
+	//	TArray<class ATheLastBastionCharacter*> GetFrontLine() const;
+
+	//UFUNCTION()
+	//	TArray<class ATheLastBastionCharacter*> GetFrontLine() const;
+
 };

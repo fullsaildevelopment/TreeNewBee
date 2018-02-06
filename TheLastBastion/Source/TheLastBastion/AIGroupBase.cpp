@@ -69,6 +69,7 @@ AAIGroupBase::AAIGroupBase()
 	//
 	bDisabled = false;
 	bReformPending = false;
+	bIsAgreesive = false;
 }
 
 // Called when the game starts or when spawned
@@ -97,8 +98,7 @@ void AAIGroupBase::OnReform()
 
 void AAIGroupBase::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("overrlap with %s"), *OtherActor->GetName())
-
+	UE_LOG(LogTemp, Warning, TEXT("overrlap with %s"), *OtherActor->GetName());
 }
 
 void AAIGroupBase::OnGroupVolumnOverrlapEnd(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
@@ -133,96 +133,7 @@ void AAIGroupBase::CheckGroupCommand()
 
 void AAIGroupBase::SetMarchLocation(const FVector & _targetLocation, int _commandIndex)
 {
-	//ATheLastBastionGroupAIController* groupC = Cast<ATheLastBastionGroupAIController>(GetController());
-	//if (groupC == nullptr)
-	//{
-	//	UE_LOG(LogTemp, Error, TEXT("groupC == nullptr - AAIGroupBase::SetMarchLocation"));
-	//	return;
-	//}
-	//UBlackboardComponent* bbcGroup = groupC->GetBlackboardComponent();
-	//if (bbcGroup == nullptr)
-	//{
-	//	UE_LOG(LogTemp, Error, TEXT("bbc == nullptr - AAIGroupBase::SetMarchLocation"));
-	//	return;
-	//}
-	//// Set new command index to _commandIndex
-	//// Set Target location
-	//FVector targetFwd, targetRight;// , targetLocation;
-	///// command pre-execute
-	//// calculate the desired forward and right vector for child location padding
-	//switch (_commandIndex)
-	//{
-	//case GC_GOTOLOCATION:
-	//{
-	//	targetFwd = _targetLocation - GetActorLocation();
-	//	FVector2D targetFwd2D = FVector2D(targetFwd.X, targetFwd.Y).GetSafeNormal();
-	//	targetFwd = FVector(targetFwd2D.X, targetFwd2D.Y, 0);
-	//	targetRight = FVector(-targetFwd2D.Y, targetFwd2D.X, 0);
-	//	break;
-	//}
-	//case GC_HOLDLOCATION:
-	//case GC_DISTRIBUTE:
-	//default:
-	//	break;
-	//case GC_FORWARD:
-	//{
-	//	targetFwd = this->GetActorForwardVector();
-	//	targetRight = this->GetActorRightVector();
-	//	break;
-	//}
-	//}
-	//// check for going backward
-	//float dir = FVector::DotProduct(GetActorForwardVector(), targetFwd);
-	//// swap group offset if moving backward
-	//if (dir < 0)
-	//{
-	//	SwapChildenOrder();
-	//}
-	///// Command post - execure
-	//// Immediate Change the rotation or reformat the group relative offset information based on command
-	//switch (_commandIndex)
-	//{
-	//case GC_GOTOLOCATION:
-	//default:
-	//{
-	//	this->SetActorRotation(UKismetMathLibrary::FindLookAtRotation(_targetLocation, _targetLocation + 10 * targetFwd));
-	//	break;
-	//}
-	//case GC_HOLDLOCATION:
-	//case GC_FORWARD:
-	//case GC_DISTRIBUTE:
-	//{
-	//	break;
-	//}
-	//}
-	//bbcGroup->SetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetLocation(), _targetLocation);
-	//bbcGroup->SetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetForward(), targetFwd);
-	//bbcGroup->SetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetRight(), targetRight);
-	//// give group march command
-	//bbcGroup->SetValue<UBlackboardKeyType_Int>(groupC->GetKeyID_NewCommandIndex(), _commandIndex);
-	//// give each child an march command
-	//ATheLastBastionBaseAIController* baseAICtrl = nullptr;
-	//UBlackboardComponent* bbcChild = nullptr;
-	//for (int i = 0; i < AICharactersInfo.Num(); i++)
-	//{
-	//	ATheLastBastionAIBase* baseAI = AICharactersInfo[i].AICharacter;
-	//	if (baseAI && !baseAI->GetIsDead())
-	//	{
-	//		baseAICtrl = Cast<ATheLastBastionBaseAIController>(AICharactersInfo[i].AICharacter->GetController());
-	//		if (baseAICtrl == nullptr)
-	//		{
-	//			UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr - AAIGroupBase::SetMarchLocation"));
-	//			continue;
-	//		}
-	//		bbcChild = baseAICtrl->GetBlackboardComponent();
-	//		if (bbcChild == nullptr)
-	//		{
-	//			UE_LOG(LogTemp, Error, TEXT("bbc == nullptr - AAIGroupBase::SetMarchLocation"));
-	//			continue;
-	//		}
-	//		bbcChild->SetValue<UBlackboardKeyType_Int>(baseAICtrl->GetKeyID_NewCommandIndex(), _commandIndex);
-	//	}
-	//}
+
 }
 
 void AAIGroupBase::OnChildDeath(int _childIndex)
@@ -230,43 +141,139 @@ void AAIGroupBase::OnChildDeath(int _childIndex)
 
 }
 
+int AAIGroupBase::GetMaxColoumnCount() const
+{
+	return 0;
+}
+
+
+TArray<class ATheLastBastionAIBase*> AAIGroupBase::GetFrontLine() const
+{
+
+	TArray<ATheLastBastionAIBase*> out;
+	int outSize = 0;
+	if (FormationInfo.IsValidIndex(0))
+		outSize = FormationInfo[0];
+
+	out.SetNum(outSize);
+
+	for (int iCharacter = 0; iCharacter < outSize; iCharacter++)
+	{
+		out[iCharacter] = AICharactersInfo[iCharacter].AICharacter;
+	}
+	return out;
+}
+
+TArray<class ATheLastBastionAIBase*> AAIGroupBase::GetColumnAt(int _index) const
+{
+	TArray<class ATheLastBastionAIBase*> out;
+
+	// check validation
+
+	int maxRowSize = FormationInfo[0];
+	int maxRow = FormationInfo.Num();
+
+	ensure(_index <= maxRowSize - 1 && _index >= 0);
+
+	int FormationSlotIndex;
+	for (int iRow = 0; iRow < maxRow; iRow++)
+	{
+		FormationSlotIndex = iRow * maxRowSize + _index;
+		if (AICharactersInfo.IsValidIndex(FormationSlotIndex))
+		{
+			out.Add(AICharactersInfo[FormationSlotIndex].AICharacter);
+		}
+	}
+
+	return out;
+}
+
 void AAIGroupBase::SwapChildenOrder()
 {
 
-	int swapTimes = 0;
-	int totalAmount = 0;
-	for (int iClass = 0; iClass < AIToSpawn.Num(); iClass++)
-	{
-		totalAmount += AIToSpawn[iClass].TotalNumber;
-	}
-	swapTimes = totalAmount * 0.5f;
-	//FVector offsetTemp;
-	ATheLastBastionAIBase* AITemp = nullptr;
+}
 
-	int indexToSwap = 0;
-	for (int iSwap = 0; iSwap < swapTimes; iSwap++)
+void AAIGroupBase::PairColumn(AAIGroupBase * const _enemyGroup, int _myColumn, int _theirColumn)
+{
+
+	TArray<ATheLastBastionAIBase*> ourColGroup = GetColumnAt(_myColumn);
+	TArray<ATheLastBastionAIBase*> theirColGroup = _enemyGroup->GetColumnAt(_theirColumn);
+	int ourColSize = ourColGroup.Num();
+	int theirColSize = theirColGroup.Num();
+	int randomIndex;
+
+	if (ourColSize > theirColSize)
 	{
-		indexToSwap = totalAmount - 1 - iSwap;
-		AITemp = AICharactersInfo[iSwap].AICharacter;
-		AICharactersInfo[iSwap].AICharacter = AICharactersInfo[indexToSwap].AICharacter;
-		AICharactersInfo[indexToSwap].AICharacter = AITemp;
-		AICharactersInfo[iSwap].AICharacter->SetParent(this, iSwap);
-		AICharactersInfo[indexToSwap].AICharacter->SetParent(this, indexToSwap);
-		//offsetTemp = AICharactersInfo[iSwap].GroupRelativeOffset;
-		//AICharactersInfo[iSwap].GroupRelativeOffset = AICharactersInfo[indexToSwap].GroupRelativeOffset;
-		//AICharactersInfo[indexToSwap].GroupRelativeOffset = offsetTemp;
+		for (int iRow = 0; iRow < ourColSize; iRow++)
+		{
+			if (iRow <= theirColSize - 1)
+			{
+				ourColGroup[iRow]->SetTarget(theirColGroup[iRow]);
+				theirColGroup[iRow]->SetTarget(ourColGroup[iRow]);
+			}
+			else
+			{
+				randomIndex = FMath::RandRange(0, theirColSize - 1);
+				ourColGroup[iRow]->SetTarget(theirColGroup[randomIndex]);
+			}
+
+		}
+	}
+	else
+	{
+		for (int iRow = 0; iRow < theirColSize; iRow++)
+		{
+			if (iRow <= ourColSize - 1)
+			{
+				ourColGroup[iRow]->SetTarget(theirColGroup[iRow]);
+				theirColGroup[iRow]->SetTarget(ourColGroup[iRow]);
+			}
+			else
+			{
+				randomIndex = FMath::RandRange(0, ourColSize - 1);
+				theirColGroup[iRow]->SetTarget(ourColGroup[randomIndex]);
+			}
+
+		}
+	}
+}
+
+void AAIGroupBase::AssignColumn(AAIGroupBase * const _targetGroup, int _myColumn, int _theirColumn)
+{
+
+	TArray<ATheLastBastionAIBase*> ourColGroup = GetColumnAt(_myColumn);
+	TArray<ATheLastBastionAIBase*> theirColGroup = _targetGroup->GetColumnAt(_theirColumn);
+	int ourColSize = ourColGroup.Num();
+	int theirColSize = theirColGroup.Num();
+	int randomIndex;
+
+
+	if (ourColSize > theirColSize)
+	{
+		for (int iRow = 0; iRow < ourColSize; iRow++)
+		{
+			if (iRow <= theirColSize - 1)
+			{
+				ourColGroup[iRow]->SetTarget(theirColGroup[iRow]);
+			}
+			else
+			{
+				randomIndex = FMath::RandRange(0, theirColSize - 1);
+				ourColGroup[iRow]->SetTarget(theirColGroup[randomIndex]);
+			}
+
+		}
+	}
+	else
+	{
+		for (int iRow = 0; iRow < theirColSize; iRow++)
+		{
+			if (iRow <= ourColSize - 1)
+			{
+				ourColGroup[iRow]->SetTarget(theirColGroup[iRow]);
+			}
+
+		}
 	}
 
-	//int iClassToSwap = 0;
-	//int timeToSwapForClass = AIToSpawn.Num() * 0.5f;
-	//FAISpawnInfo AISpawnTemp;
-	//for (int iClass = 0; iClass < timeToSwapForClass; iClass++)
-	//{
-	//	iClassToSwap = AIToSpawn.Num() - 1 - iClass;
-	//	AISpawnTemp = AIToSpawn[iClass];
-	//	AIToSpawn[iClass] = AIToSpawn[iClassToSwap];
-	//	AIToSpawn[iClassToSwap] = AISpawnTemp;
-	//	int iChildToSwap = 0;
-	//	int timeToSwapForClass
-	//}
 }

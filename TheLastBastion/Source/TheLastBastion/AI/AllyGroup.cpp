@@ -2,10 +2,12 @@
 
 #include "AllyGroup.h"
 #include "AICharacters/TheLastBastionAIBase.h"
+#include "AI/EnemyGroup.h"
 #include "AI/TheLastBastionGroupAIController.h"
 #include "AI/TheLastBastionBaseAIController.h"
 
 #include "TheLastBastionHeroCharacter.h"
+#include "AICharacters/TheLastBastionEnemyCharacter.h"
 #include "Kismet/KismetMathLibrary.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
@@ -231,6 +233,117 @@ void AAllyGroup::SwapChildenOrder()
 
 void AAllyGroup::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
+
+	// Get Enemy Group
+	//AAIGroupBase* EnemyGroup = Enemy->GetGroup();
+	AEnemyGroup* EnemyGroup = Cast<AEnemyGroup>(OtherActor);
+
+
+	if (EnemyGroup)
+	{
+
+		// Assign Targets
+		FVector ourForwardVector = GetActorForwardVector();
+		FVector theirForwardVector = EnemyGroup->GetActorForwardVector();
+
+		float dotProduct = FVector::DotProduct(ourForwardVector, theirForwardVector);
+		if (dotProduct < -COS22_5)
+		{
+			// check number of column for two group
+			int ourColCount = FormationInfo[0];
+			int theirColCount = EnemyGroup->GetMaxColoumnCount();
+
+			// find middle column
+			int ourMiddleColumn = ourColCount * 0.5f;
+			int theirMiddleColumn = theirColCount * 0.5f;
+
+			int maxOffsetTimeFromMiddle;
+			if (ourColCount > theirColCount)
+				maxOffsetTimeFromMiddle = UKismetMathLibrary::Max(ourMiddleColumn, ourColCount - 1 - ourMiddleColumn);
+			else
+				maxOffsetTimeFromMiddle = UKismetMathLibrary::Max(theirMiddleColumn, theirColCount - 1 - theirMiddleColumn);
+
+
+
+			for (int iOffset = 0; iOffset <= maxOffsetTimeFromMiddle; iOffset++)
+			{
+				int ourCurrrentColumn, theirCurrentColumn;
+				if (iOffset == 0)
+				{
+					ourCurrrentColumn = iOffset + ourMiddleColumn;
+					theirCurrentColumn = iOffset + theirMiddleColumn;
+
+					PairColumn(EnemyGroup, ourCurrrentColumn, theirCurrentColumn);
+
+				}
+				else
+				{
+					ourCurrrentColumn = iOffset + ourMiddleColumn;
+					theirCurrentColumn = -iOffset + theirMiddleColumn;
+
+					if (ourCurrrentColumn < ourColCount && theirCurrentColumn >= 0 )
+					{
+						PairColumn(EnemyGroup, ourCurrrentColumn, theirCurrentColumn);
+					}
+					else
+					{
+
+						if (ourCurrrentColumn >= ourColCount && theirCurrentColumn < 0)
+						{
+							// do nothing, both invalid
+						}
+						else if(ourCurrrentColumn >= ourColCount)
+						{
+							// their attack our nearest column
+							EnemyGroup->AssignColumn(this, theirCurrentColumn, ourColCount - 1);
+						}
+						else if (theirCurrentColumn < 0)
+						{
+							this->AssignColumn(EnemyGroup, ourCurrrentColumn, 0);
+
+						}
+
+					}
+
+
+					ourCurrrentColumn = -iOffset + ourMiddleColumn;
+					theirCurrentColumn = +iOffset + theirMiddleColumn;
+
+
+					if (ourCurrrentColumn >= 0 && theirCurrentColumn < theirColCount)
+					{
+						PairColumn(EnemyGroup, ourCurrrentColumn, theirCurrentColumn);
+					}
+					else
+					{
+
+						if (ourCurrrentColumn < 0 && theirCurrentColumn >= theirColCount)
+						{
+							// do nothing, both invalid
+						}
+						else if (ourCurrrentColumn < 0)
+						{
+							// their attack our nearest column
+							EnemyGroup->AssignColumn(this, theirCurrentColumn, 0);
+						}
+						else if (theirCurrentColumn >= theirColCount)
+						{
+							this->AssignColumn(EnemyGroup, ourCurrrentColumn, theirColCount - 1);
+
+						}
+
+					}
+
+				}
+			}
+
+
+
+
+		}
+
+	}
+
 }
 
 void AAllyGroup::OnGroupVolumnOverrlapEnd(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
@@ -550,4 +663,9 @@ void AAllyGroup::OnStopFollowing()
 	GetWorldTimerManager().ClearTimer(mFollowingTimer);
 	bIsFollowing = false;
 
+}
+
+int AAllyGroup::GetMaxColoumnCount() const
+{
+	return FormationInfo[0];
 }

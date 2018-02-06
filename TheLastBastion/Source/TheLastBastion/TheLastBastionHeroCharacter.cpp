@@ -338,10 +338,10 @@ void ATheLastBastionHeroCharacter::OnCommandMarch()
 		if (CommandedGroup)
 		{
 			if (CommandedGroup->IsFollowing())
-			{
 				CommandedGroup->OnStopFollowing();
-				CommandedGroup->SetMarchLocation(ImpactLocation, GC_GOTOLOCATION);
-			}
+
+			CommandedGroup->SetMarchLocation(ImpactLocation, GC_GOTOLOCATION);
+
 		}// Temp code
 		if (EnemyGroupTemp)
 		{

@@ -84,21 +84,20 @@ void UBTTask_HitReaction::OnTaskFinished(UBehaviorTreeComponent & OwnerComp, uin
 
 void UBTTask_HitReaction::OnRecoverFromHitHandle(UBehaviorTreeComponent* OwnerComp)
 {
+
+	//UBlackboardComponent* const bbc = OwnerComp->GetBlackboardComponent();
+	//ATheLastBastionBaseAIController* const baseAICtrl = Cast<ATheLastBastionBaseAIController>(OwnerComp->GetAIOwner());
+	//if (baseAICtrl == nullptr)
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("baseAICtrl is not an enemyC - UBTTask_NKAttack::ExecuteTask"));
+	//	return;
+	//}
+
+	//bbc->SetValue<UBlackboardKeyType_Enum>(baseAICtrl->GetKeyID_CurrentActionState(),
+	//	static_cast<UBlackboardKeyType_Enum::FDataType>(EAIActionState::None));
+
 	EBTNodeResult::Type NodeResult = EBTNodeResult::Failed;
-
-	UBlackboardComponent* const bbc = OwnerComp->GetBlackboardComponent();
-	ATheLastBastionBaseAIController* const baseAICtrl = Cast<ATheLastBastionBaseAIController>(OwnerComp->GetAIOwner());
-	if (baseAICtrl == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("AIOwner is not an enemyC - UBTTask_NKAttack::ExecuteTask"));
-		return;
-	}
-
-
-	bbc->SetValue<UBlackboardKeyType_Enum>(baseAICtrl->GetKeyID_CurrentActionState(),
-		static_cast<UBlackboardKeyType_Enum::FDataType>(EAIActionState::None));
-
-	FinishLatentTask(*OwnerComp, EBTNodeResult::Failed);
+	FinishLatentTask(*OwnerComp, NodeResult);
 }
 
 

@@ -69,6 +69,15 @@ public:
 	UFUNCTION(Exec)
 		void RecoverByGettingUp();
 
+
+	UFUNCTION(Exec)
+		void ShowFrontLine();
+
+	UFUNCTION(Exec)
+		void ShowColumnAt(int _index);
+
+
+
 	/** Update the stats based on the change of gears*/
 	void OnTradeMenuAccept(class UHeroStatsComponent* _heroStats);
 

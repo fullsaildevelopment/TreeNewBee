@@ -96,6 +96,9 @@ public:
 
 	void OnStopFollowing();
 
+	int GetMaxColoumnCount() const override;
+
+
 	FORCEINLINE bool IsFollowing() const { return bIsFollowing; }
 
 };

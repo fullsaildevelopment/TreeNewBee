@@ -66,6 +66,7 @@ void AEnemyGroup::SpawnChildGroup()
 					TSubclassOf<ATheLastBastionAIBase> ClassToSpawn = AIToSpawn[iClass].AIClassBP;
 					int Remain = AIToSpawn[iClass].TotalNumber;
 					int maxRowSize = AIToSpawn[iClass].MaxNumOfCol;
+					ensure(maxRowSize > 0);
 					colPadding = AIToSpawn[iClass].ColumnPadding;
 					rowPadding = AIToSpawn[iClass].RowPadding;
 
@@ -402,5 +403,16 @@ void AEnemyGroup::OnChildDeath(int _childIndex)
 		AICharactersInfo[iChildren].AICharacter->SetGroupIndex(iChildren);
 	}
 	bReformPending = true;
+}
+
+int AEnemyGroup::GetMaxColoumnCount() const
+{
+	int NumberOfSection = AIToSpawn.Num();
+	if (NumberOfSection == 1)
+	{
+		return AIToSpawn[0].MaxNumOfCol;
+	}
+
+	return 0;
 }
 

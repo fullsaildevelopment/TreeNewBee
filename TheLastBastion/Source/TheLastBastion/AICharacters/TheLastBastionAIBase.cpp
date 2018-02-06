@@ -205,6 +205,30 @@ void ATheLastBastionAIBase::CalculateMarchTargetPosition()
 
 }
 
+void ATheLastBastionAIBase::SetTarget(AActor * _target)
+{
+	ATheLastBastionBaseAIController *baseAICtrl = Cast<ATheLastBastionBaseAIController>(GetController());
+
+	UBlackboardComponent* bbcChild = nullptr;
+
+	if (baseAICtrl == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr - AAIGroupBase::CalculateMarchTargetPosition"));
+		return;
+	}
+
+	bbcChild = baseAICtrl->GetBlackboardComponent();
+	if (bbcChild == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("bbc == nullptr - AAIGroupBase::CalculateMarchTargetPosition"));
+		return;
+	}
+
+	bbcChild->SetValue<UBlackboardKeyType_Object>(baseAICtrl->GetKeyID_TargetActor(), _target);
+	baseAICtrl->ClearFocus(EAIFocusPriority::Gameplay);
+	baseAICtrl->SetFocus(_target, EAIFocusPriority::Gameplay);
+}
+
 void ATheLastBastionAIBase::OnDead()
 {
 

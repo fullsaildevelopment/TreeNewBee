@@ -56,4 +56,6 @@ public:
 
 	void OnChildDeath(int _childIndex) override;
 
+	int GetMaxColoumnCount() const override;
+
 };

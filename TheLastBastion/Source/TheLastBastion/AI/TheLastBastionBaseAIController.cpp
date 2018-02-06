@@ -113,3 +113,9 @@ void ATheLastBastionBaseAIController::OnBeingHit(ECharacterType _characterType)
 		break;
 	}
 }
+
+void ATheLastBastionBaseAIController::SetAIActionState_BBC(EAIActionState _aiState)
+{
+	Blackboard->SetValue<UBlackboardKeyType_Enum>(GetKeyID_CurrentActionState(),
+		static_cast<UBlackboardKeyType_Enum::FDataType>(EAIActionState::None));
+}

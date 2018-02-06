@@ -10,6 +10,7 @@
  * 
  */
 enum class ECharacterType : uint8;
+enum class EAIActionState : uint8;
 
 UCLASS()
 class THELASTBASTION_API ATheLastBastionBaseAIController : public AAIController
@@ -75,4 +76,7 @@ public:
 		FORCEINLINE uint8 GetKeyID_CurrentActionState() const { return CurrentActionState_KeyID; }
 
 	void OnBeingHit(ECharacterType _characterType);
+
+	void SetAIActionState_BBC(EAIActionState _aiState);
+
 };

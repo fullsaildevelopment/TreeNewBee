@@ -233,6 +233,9 @@ public:
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE bool IsInCommandMode() const { return bIsInCommandMode; }
 
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE class AAllyGroup* GetCommandGroup() const { return CommandedGroup; }
+
 	class AGear* GetCurrentWeapon() const;
 
 

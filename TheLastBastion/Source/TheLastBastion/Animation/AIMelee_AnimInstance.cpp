@@ -121,14 +121,17 @@ void UAIMelee_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMon
 		// Tell BT that this attack is done
 		if (mCharacter)
 		{
-			ATheLastBastionBaseAIController* enemyC = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
+			ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
 			// recover the rotation rate from melee attack motion sync
 			mCharacter->GetCharacterMovement()->RotationRate.Yaw = 540.0f;
-			if (enemyC)
+			if (baseAICtrl)
 			{
-				UBehaviorTreeComponent* btc = enemyC->GetBTComp();
+				baseAICtrl->SetAIActionState_BBC(CurrentActionState);
+				UBehaviorTreeComponent* btc = baseAICtrl->GetBTComp();
 				if (btc)
 				{
+
+
 					OnRecoverFromHitSignature.ExecuteIfBound(btc);
 					//OnRecoverFromHitSignature.Unbind();
 				}
