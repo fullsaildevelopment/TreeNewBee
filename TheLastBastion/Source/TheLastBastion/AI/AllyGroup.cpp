@@ -504,6 +504,7 @@ void AAllyGroup::SetMarchLocation(const FVector & _targetLocation, int _commandI
 void AAllyGroup::OnChildDeath(int _childIndex)
 {
 	AICharactersInfo.RemoveAt(_childIndex);
+
 	int totalCharacterCount = AICharactersInfo.Num();
 	if (totalCharacterCount == 0)
 	{

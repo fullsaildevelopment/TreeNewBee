@@ -25,7 +25,10 @@ struct FAISpawnInfo
 	int32 TotalNumber;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
-		/** the number of row this ai class occupied in group*/
+		/** the max number of Col this ai class has in group*/
+	int32 MaxNumOfCol;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
 	int32 NumOfRow;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
@@ -53,6 +56,18 @@ struct FAICharacterInfo
 		FVector2D GroupIndexOffset;
 };
 
+USTRUCT(BlueprintType)
+struct FThreat
+{
+	GENERATED_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class ATheLastBastionCharacter* AICharacter;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		float Threat;
+};
+
 
 UCLASS(BlueprintType)
 class THELASTBASTION_API AAIGroupBase : public APawn
@@ -63,9 +78,17 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Formation)
 		TArray<FAICharacterInfo> AICharactersInfo;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Formation)
 		// size of array means the number of row, each entry is the number of col in current row
 		TArray<int> FormationInfo;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Formation)
+		// the dead group member should be remove from the character list, before execute the next command
+		TArray<int> RemovePendingList;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
+		TArray<FThreat> ThreatList;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		/** The class and the number we about to spawn*/
@@ -85,7 +108,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		/** Trigger volumn to present the group size and trigger group combat*/
 		class UArrowComponent* ArrowComp;
-
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Behavior)
 		class UBehaviorTree* BehaviorTree;

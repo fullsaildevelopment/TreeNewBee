@@ -75,6 +75,7 @@ void ATheLastBastionBaseAIController::Possess(APawn* _possPawn)
 	// Launch behavior Tree
 	mBTComp->StartTree(*bt);
 
+	
 
 }
 

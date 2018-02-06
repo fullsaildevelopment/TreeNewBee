@@ -48,6 +48,12 @@ protected:
 		virtual void OnGroupVolumnOverrlapEnd(UPrimitiveComponent* OverlappedComponent,
 			AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+
+public:
+
 	UFUNCTION()
-		virtual void SetMarchLocation(const FVector& _location, int _commandIndex);	
+		void SetMarchLocation(const FVector& _location, int _commandIndex) override;
+
+	void OnChildDeath(int _childIndex) override;
+
 };

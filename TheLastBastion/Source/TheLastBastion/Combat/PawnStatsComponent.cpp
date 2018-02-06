@@ -329,23 +329,6 @@ TSubclassOf<class UUserWidget> UPawnStatsComponent::GetFloatingText_WBP()
 	return FloatingText_WBP;
 }
 
-//float UPawnStatsComponent::CalculateHealth(AActor * _otherActor)
-//{
-//
-//	AGear* const AttackerWeapon = Cast<AGear>(_otherActor);
-//	if (AttackerWeapon == nullptr)
-//	{
-//		UE_LOG(LogTemp, Warning, TEXT("AttackerWeapon is not a gear - UPawnStatsComponent::CalculateHealth "));
-//		return 0.0f;
-//	}
-//	UPawnStatsComponent* const AttackerStats = AttackerWeapon->GetGearOwner()->GetPawnStatsComp();
-//	float damage = 0.0f;
-//	HpCurrent = HpCurrent - damage;
-//	
-//	float damagePercentage = damage * DivByHpMax;
-//	return damagePercentage;
-//}
-
 float UPawnStatsComponent::CalculateDamage(float baseDamage, AActor * _damageCauser, bool & _isCritical, bool & _isStun)
 {
 
@@ -366,8 +349,20 @@ float UPawnStatsComponent::CalculateDamage(float baseDamage, AActor * _damageCau
 	_isCritical = criticalRate< dCPawnStats->GetCriticalMax() * 0.01f;
 	_isStun = stunRate < dCPawnStats->GetStunMax() * 0.01f;
 
-	float totalDamage = baseDamage + FMath::RandRange(10, 100);
+	const AGear* dcRightHandWeapon = dCPawnStats->GetCurrentRightHandWeapon();
+	const AGear* dcLeftHandWeapon = dCPawnStats->GetCurrentLeftHandWeapon();
+	if (dcRightHandWeapon == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("dcRightHandWeapon == nullptr - UPawnStatsComponent::CalculateDamage"));
+		return 0;
+	}
 
+	float weaponDamage = dcRightHandWeapon->GetPhysicalDamage();
+
+	if (dcLeftHandWeapon)
+		weaponDamage += dcLeftHandWeapon->GetPhysicalDamage();
+
+	float totalDamage = baseDamage + FMath::RandRange(10, 100) + weaponDamage;
 
 	if (!mCharacter->GetIsGodMode())
 		HpCurrent = HpCurrent - totalDamage;
@@ -384,29 +379,6 @@ float UPawnStatsComponent::GetBaseDamage()
 	return 5.0f;
 }
 #pragma endregion
-
-
-///** Generate Raw Stats, equip geat, and Add Gear buff on raw stats*/
-//void UPawnStatsComponent::GenerateFloatingText(const FVector& _worldPos, bool _isCritical, bool _isStun, bool _isHeadHit)
-//{
-//	FVector2D screenPos;
-//	UGameplayStatics::ProjectWorldToScreen(
-//		UGameplayStatics::GetPlayerController(this, 0),
-//		_worldPos, screenPos);
-//
-//	UInGameFloatingText* damageFT = nullptr;
-//	UWorld* world = GetWorld();
-//
-//	if (world)
-//		damageFT = Cast<UInGameFloatingText>(CreateWidget<UUserWidget>(world, FloatingText_WBP));
-//
-//	if (damageFT == nullptr)
-//	{
-//		UE_LOG(LogTemp, Error, TEXT("Create Floating Text Failed"));
-//		return;
-//	}
-//	damageFT->SetRenderTranslation(screenPos);
-//}
 
 void UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 {

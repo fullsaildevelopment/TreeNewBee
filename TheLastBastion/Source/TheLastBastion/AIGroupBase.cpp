@@ -133,109 +133,96 @@ void AAIGroupBase::CheckGroupCommand()
 
 void AAIGroupBase::SetMarchLocation(const FVector & _targetLocation, int _commandIndex)
 {
-	ATheLastBastionGroupAIController* groupC = Cast<ATheLastBastionGroupAIController>(GetController());
-	if (groupC == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("groupC == nullptr - AAIGroupBase::SetMarchLocation"));
-		return;
-	}
-
-	UBlackboardComponent* bbcGroup = groupC->GetBlackboardComponent();
-	if (bbcGroup == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("bbc == nullptr - AAIGroupBase::SetMarchLocation"));
-		return;
-	}
-
-	// Set new command index to _commandIndex
-	// Set Target location
-
-	FVector targetFwd, targetRight;// , targetLocation;
-
-
-	/// command pre-execute
-	// calculate the desired forward and right vector for child location padding
-	switch (_commandIndex)
-	{
-	case GC_GOTOLOCATION:
-	{
-		targetFwd = _targetLocation - GetActorLocation();
-		FVector2D targetFwd2D = FVector2D(targetFwd.X, targetFwd.Y).GetSafeNormal();
-		targetFwd = FVector(targetFwd2D.X, targetFwd2D.Y, 0);
-		targetRight = FVector(-targetFwd2D.Y, targetFwd2D.X, 0);
-		break;
-	}
-	case GC_HOLDLOCATION:
-	case GC_DISTRIBUTE:
-	default:
-		break;
-	case GC_FORWARD:
-	{
-		targetFwd = this->GetActorForwardVector();
-		targetRight = this->GetActorRightVector();
-		break;
-	}
-	}
-
-	// check for going backward
-	float dir = FVector::DotProduct(GetActorForwardVector(), targetFwd);
-
-	// swap group offset if moving backward
-	if (dir < 0)
-	{
-		SwapChildenOrder();
-	}
-
-	/// Command post - execure
-	// Immediate Change the rotation or reformat the group relative offset information based on command
-	switch (_commandIndex)
-	{
-	case GC_GOTOLOCATION:
-	default:
-	{
-		this->SetActorRotation(UKismetMathLibrary::FindLookAtRotation(_targetLocation, _targetLocation + 10 * targetFwd));
-		break;
-	}
-	case GC_HOLDLOCATION:
-	case GC_FORWARD:
-	case GC_DISTRIBUTE:
-	{
-		break;
-	}
-	}
-
-	bbcGroup->SetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetLocation(), _targetLocation);
-	bbcGroup->SetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetForward(), targetFwd);
-	bbcGroup->SetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetRight(), targetRight);
-
-	// give group march command
-	bbcGroup->SetValue<UBlackboardKeyType_Int>(groupC->GetKeyID_NewCommandIndex(), _commandIndex);
-
-	// give each child an march command
-	ATheLastBastionBaseAIController* baseAICtrl = nullptr;
-	UBlackboardComponent* bbcChild = nullptr;
-	for (int i = 0; i < AICharactersInfo.Num(); i++)
-	{
-		ATheLastBastionAIBase* baseAI = AICharactersInfo[i].AICharacter;
-		if (baseAI && !baseAI->GetIsDead())
-		{
-			baseAICtrl = Cast<ATheLastBastionBaseAIController>(AICharactersInfo[i].AICharacter->GetController());
-			if (baseAICtrl == nullptr)
-			{
-				UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr - AAIGroupBase::SetMarchLocation"));
-				continue;
-			}
-
-			bbcChild = baseAICtrl->GetBlackboardComponent();
-			if (bbcChild == nullptr)
-			{
-				UE_LOG(LogTemp, Error, TEXT("bbc == nullptr - AAIGroupBase::SetMarchLocation"));
-				continue;
-			}
-
-			bbcChild->SetValue<UBlackboardKeyType_Int>(baseAICtrl->GetKeyID_NewCommandIndex(), _commandIndex);
-		}
-	}
+	//ATheLastBastionGroupAIController* groupC = Cast<ATheLastBastionGroupAIController>(GetController());
+	//if (groupC == nullptr)
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("groupC == nullptr - AAIGroupBase::SetMarchLocation"));
+	//	return;
+	//}
+	//UBlackboardComponent* bbcGroup = groupC->GetBlackboardComponent();
+	//if (bbcGroup == nullptr)
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("bbc == nullptr - AAIGroupBase::SetMarchLocation"));
+	//	return;
+	//}
+	//// Set new command index to _commandIndex
+	//// Set Target location
+	//FVector targetFwd, targetRight;// , targetLocation;
+	///// command pre-execute
+	//// calculate the desired forward and right vector for child location padding
+	//switch (_commandIndex)
+	//{
+	//case GC_GOTOLOCATION:
+	//{
+	//	targetFwd = _targetLocation - GetActorLocation();
+	//	FVector2D targetFwd2D = FVector2D(targetFwd.X, targetFwd.Y).GetSafeNormal();
+	//	targetFwd = FVector(targetFwd2D.X, targetFwd2D.Y, 0);
+	//	targetRight = FVector(-targetFwd2D.Y, targetFwd2D.X, 0);
+	//	break;
+	//}
+	//case GC_HOLDLOCATION:
+	//case GC_DISTRIBUTE:
+	//default:
+	//	break;
+	//case GC_FORWARD:
+	//{
+	//	targetFwd = this->GetActorForwardVector();
+	//	targetRight = this->GetActorRightVector();
+	//	break;
+	//}
+	//}
+	//// check for going backward
+	//float dir = FVector::DotProduct(GetActorForwardVector(), targetFwd);
+	//// swap group offset if moving backward
+	//if (dir < 0)
+	//{
+	//	SwapChildenOrder();
+	//}
+	///// Command post - execure
+	//// Immediate Change the rotation or reformat the group relative offset information based on command
+	//switch (_commandIndex)
+	//{
+	//case GC_GOTOLOCATION:
+	//default:
+	//{
+	//	this->SetActorRotation(UKismetMathLibrary::FindLookAtRotation(_targetLocation, _targetLocation + 10 * targetFwd));
+	//	break;
+	//}
+	//case GC_HOLDLOCATION:
+	//case GC_FORWARD:
+	//case GC_DISTRIBUTE:
+	//{
+	//	break;
+	//}
+	//}
+	//bbcGroup->SetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetLocation(), _targetLocation);
+	//bbcGroup->SetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetForward(), targetFwd);
+	//bbcGroup->SetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetRight(), targetRight);
+	//// give group march command
+	//bbcGroup->SetValue<UBlackboardKeyType_Int>(groupC->GetKeyID_NewCommandIndex(), _commandIndex);
+	//// give each child an march command
+	//ATheLastBastionBaseAIController* baseAICtrl = nullptr;
+	//UBlackboardComponent* bbcChild = nullptr;
+	//for (int i = 0; i < AICharactersInfo.Num(); i++)
+	//{
+	//	ATheLastBastionAIBase* baseAI = AICharactersInfo[i].AICharacter;
+	//	if (baseAI && !baseAI->GetIsDead())
+	//	{
+	//		baseAICtrl = Cast<ATheLastBastionBaseAIController>(AICharactersInfo[i].AICharacter->GetController());
+	//		if (baseAICtrl == nullptr)
+	//		{
+	//			UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr - AAIGroupBase::SetMarchLocation"));
+	//			continue;
+	//		}
+	//		bbcChild = baseAICtrl->GetBlackboardComponent();
+	//		if (bbcChild == nullptr)
+	//		{
+	//			UE_LOG(LogTemp, Error, TEXT("bbc == nullptr - AAIGroupBase::SetMarchLocation"));
+	//			continue;
+	//		}
+	//		bbcChild->SetValue<UBlackboardKeyType_Int>(baseAICtrl->GetKeyID_NewCommandIndex(), _commandIndex);
+	//	}
+	//}
 }
 
 void AAIGroupBase::OnChildDeath(int _childIndex)
