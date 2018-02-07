@@ -65,40 +65,24 @@ void ATheLastBastionBaseAIController::Possess(APawn* _possPawn)
 	ToTargetActorDistanceSqr_KeyId = mBBComp->GetKeyID("ToTargetActorDistanceSqr");
 	CurrentActionState_KeyID = mBBComp->GetKeyID("CurrentActionState");
 	NewCommandIndex_KeyID = mBBComp->GetKeyID("NewCommandIndex");
+	OldCommandIndex_KeyID = mBBComp->GetKeyID("OldCommandIndex");
 
 	mBBComp->SetValue<UBlackboardKeyType_Float>(ToTargetActorDistanceSqr_KeyId, MAX_FLT);
 	mBBComp->SetValue<UBlackboardKeyType_Vector>(targetLocation_KeyID, _possPawn->GetActorLocation());
 	mBBComp->SetValue<UBlackboardKeyType_Int>(NewCommandIndex_KeyID, 0);
+	mBBComp->SetValue<UBlackboardKeyType_Int>(OldCommandIndex_KeyID, 0);
 	mBBComp->SetValue<UBlackboardKeyType_Enum>(CurrentActionState_KeyID, static_cast<UBlackboardKeyType_Enum::FDataType>(EAIActionState::None));
 	//UE_LOG(LogTemp, Warning, TEXT("Possess, %s"), *_possPawn->GetName());
-
+	
 	// Launch behavior Tree
 	mBTComp->StartTree(*bt);
 
-	
 
 }
 
 void ATheLastBastionBaseAIController::BeginPlay()
 {
 	Super::BeginPlay();
-
-
-	// Init BlackBoard Value, set player is my target for now
-	// if (bSetInitTargetToHost)
-	//	mBBComp->SetValue<UBlackboardKeyType_Object>(targetActor_KeyID,
-	//		UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-
-	//if (mCharacter)
-	//{
-	//	mAnimInstanceRef = Cast<UAIBase_AnimInstance>(mCharacter->GetMesh()->GetAnimInstance());
-	//	if (mAnimInstanceRef == nullptr)
-	//	{
-	//		UE_LOG(LogTemp, Error, 
-	//			TEXT("mAnimInstanceRef is NUll -- ATheLastBastionBaseAIController::BeginPlay"));
-	//		return;
-	//	}
-	//}
 }
 
 void ATheLastBastionBaseAIController::OnBeingHit(ECharacterType _characterType)
@@ -106,16 +90,84 @@ void ATheLastBastionBaseAIController::OnBeingHit(ECharacterType _characterType)
 
 	switch (_characterType)
 	{
+	case ECharacterType::LanTrooper_T0:
 	case ECharacterType::LanCB_T0:
 	default:
-		mBBComp->SetValue<UBlackboardKeyType_Enum>(CurrentActionState_KeyID, 
-			static_cast<UBlackboardKeyType_Enum::FDataType>(EAIActionState::GettingHurt));
+		SetAICurrentActionState_BBC(EAIActionState::GettingHurt);
 		break;
 	}
 }
 
-void ATheLastBastionBaseAIController::SetAIActionState_BBC(EAIActionState _aiState)
+void ATheLastBastionBaseAIController::SetTargetActor_BBC(AActor* _target)
+{
+	Blackboard->SetValue<UBlackboardKeyType_Object>(targetActor_KeyID, _target);
+}
+
+void ATheLastBastionBaseAIController::SetTargetLocation_BBC(const FVector& _targetLocation) 
+{
+	Blackboard->SetValue<UBlackboardKeyType_Vector>(targetLocation_KeyID, _targetLocation);
+}
+
+void ATheLastBastionBaseAIController::SetAICurrentActionState_BBC(EAIActionState _aiState)
 {
 	Blackboard->SetValue<UBlackboardKeyType_Enum>(GetKeyID_CurrentActionState(),
-		static_cast<UBlackboardKeyType_Enum::FDataType>(EAIActionState::None));
+		static_cast<UBlackboardKeyType_Enum::FDataType>(_aiState));
+}
+
+void ATheLastBastionBaseAIController::SetNewCommandIndex_BBC(int _newCommand)
+{
+	Blackboard->SetValue<UBlackboardKeyType_Int>(NewCommandIndex_KeyID, _newCommand);
+}
+
+void ATheLastBastionBaseAIController::SetOldCommandIndex_BBC(int _oldCommand)
+{
+	Blackboard->SetValue<UBlackboardKeyType_Int>(OldCommandIndex_KeyID, _oldCommand);
+}
+
+void ATheLastBastionBaseAIController::SetToTargetLocationDistanceSqr(float _disTanceSqr)
+{
+	Blackboard->SetValue<UBlackboardKeyType_Float>(ToTargetLocationDistanceSqr_KeyId, _disTanceSqr);
+}
+
+void ATheLastBastionBaseAIController::SetToTargetActorDistanceSqr(float _disTanceSqr)
+{
+	Blackboard->SetValue<UBlackboardKeyType_Float>(ToTargetActorDistanceSqr_KeyId, _disTanceSqr);
+}
+
+AActor * ATheLastBastionBaseAIController::GetTargetActor_BBC() const
+{
+	AActor* targetActor = Cast<AActor>(Blackboard->GetValue<UBlackboardKeyType_Object>(targetActor_KeyID));
+	return targetActor;
+}
+
+FVector ATheLastBastionBaseAIController::GetTargetLocation_BBC() const
+{
+	return Blackboard->GetValue<UBlackboardKeyType_Vector>(targetLocation_KeyID);
+}
+
+EAIActionState ATheLastBastionBaseAIController::GetAICurrentActionState_BBC() const
+{
+	return static_cast<EAIActionState>(Blackboard->GetValue<UBlackboardKeyType_Enum>(GetKeyID_CurrentActionState()));
+}
+
+int ATheLastBastionBaseAIController::GetNewCommandIndex_BBC() const
+{
+	return Blackboard->GetValue<UBlackboardKeyType_Int>(NewCommandIndex_KeyID);
+}
+
+int ATheLastBastionBaseAIController::GetOldCommandIndex_BBC() const
+{
+	return Blackboard->GetValue<UBlackboardKeyType_Int>(OldCommandIndex_KeyID);
+
+}
+
+float ATheLastBastionBaseAIController::GetToTargetLocationDistanceSqr() const
+{
+	return Blackboard->GetValue < UBlackboardKeyType_Float > (ToTargetLocationDistanceSqr_KeyId);
+}
+
+float ATheLastBastionBaseAIController::GetToTargetActorDistanceSqr() const
+{
+	return Blackboard->GetValue < UBlackboardKeyType_Float >(ToTargetActorDistanceSqr_KeyId);
+
 }

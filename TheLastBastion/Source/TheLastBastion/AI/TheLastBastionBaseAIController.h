@@ -43,6 +43,7 @@ private:
 		targetLocation_KeyID,
 		CurrentActionState_KeyID,
 		NewCommandIndex_KeyID,
+		OldCommandIndex_KeyID,
 		ToTargetLocationDistanceSqr_KeyId,
 		ToTargetActorDistanceSqr_KeyId;
 
@@ -67,6 +68,9 @@ public:
 		FORCEINLINE uint8 GetKeyID_NewCommandIndex() const { return NewCommandIndex_KeyID; }
 
 	UFUNCTION(BlueprintPure)
+		FORCEINLINE uint8 GetKeyID_OldCommandIndex() const { return OldCommandIndex_KeyID; }
+
+	UFUNCTION(BlueprintPure)
 		FORCEINLINE uint8 GetKeyID_ToTargetActorDistanceSqr() const { return ToTargetActorDistanceSqr_KeyId; }
 
 	UFUNCTION(BlueprintPure)
@@ -77,6 +81,33 @@ public:
 
 	void OnBeingHit(ECharacterType _characterType);
 
-	void SetAIActionState_BBC(EAIActionState _aiState);
 
+	void SetTargetActor_BBC(AActor* _target);
+
+	void SetTargetLocation_BBC(const FVector& _targetLocation);
+
+	void SetAICurrentActionState_BBC(EAIActionState _aiState);
+
+	void SetNewCommandIndex_BBC(int _newCommand);
+
+	void SetOldCommandIndex_BBC(int _oldCommand);
+
+	void SetToTargetLocationDistanceSqr(float _disTanceSqr);
+
+	void SetToTargetActorDistanceSqr(float _disTanceSqr);
+
+
+	AActor* GetTargetActor_BBC() const;
+
+	FVector GetTargetLocation_BBC() const;
+
+	EAIActionState GetAICurrentActionState_BBC() const;
+
+	int GetNewCommandIndex_BBC() const;
+
+	int GetOldCommandIndex_BBC() const;
+
+	float GetToTargetLocationDistanceSqr() const;
+
+	float GetToTargetActorDistanceSqr()const;
 };

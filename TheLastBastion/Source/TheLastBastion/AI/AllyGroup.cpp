@@ -337,9 +337,6 @@ void AAllyGroup::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * OverlappedComp
 				}
 			}
 
-
-
-
 		}
 
 	}
@@ -490,17 +487,7 @@ void AAllyGroup::SetMarchLocation(const FVector & _targetLocation, int _commandI
 		return;
 	}
 
-	UBlackboardComponent* bbcGroup = groupC->GetBlackboardComponent();
-	if (bbcGroup == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("bbc == nullptr - AAllyGroup::SetMarchLocation"));
-		return;
-	}
-
-	// Set new command index to _commandIndex
-	// Set Target location
-
-	FVector targetFwd, targetRight;// , targetLocation;
+	GroupTargetLocation = _targetLocation;
 
 	if (bReformPending)
 		OnReform();
@@ -511,18 +498,18 @@ void AAllyGroup::SetMarchLocation(const FVector & _targetLocation, int _commandI
 	{
 	case GC_GOTOLOCATION:
 	default:
-	{
-		targetFwd = _targetLocation - GetActorLocation();
-		FVector2D targetFwd2D = FVector2D(targetFwd.X, targetFwd.Y).GetSafeNormal();
-		targetFwd = FVector(targetFwd2D.X, targetFwd2D.Y, 0);
-		targetRight = FVector(-targetFwd2D.Y, targetFwd2D.X, 0);
+	{	
+		GroupTargetForward = _targetLocation - GetActorLocation();
+		FVector2D targetFwd2D = FVector2D(GroupTargetForward.X, GroupTargetForward.Y).GetSafeNormal();
+		GroupTargetForward = FVector(targetFwd2D.X, targetFwd2D.Y, 0);
+		GroupTargetRight = FVector(-targetFwd2D.Y, targetFwd2D.X, 0);
 		break;
 	}
 	case GC_HOLDLOCATION:
 	case GC_FOLLOW:
 	{
-		targetFwd = Hero->GetActorForwardVector();
-		targetRight = Hero->GetActorRightVector();
+		GroupTargetForward = Hero->GetActorForwardVector();
+		GroupTargetRight = Hero->GetActorRightVector();
 		break;
 	}
 	case GC_FORWARD:
@@ -530,14 +517,14 @@ void AAllyGroup::SetMarchLocation(const FVector & _targetLocation, int _commandI
 	case GC_DISTRIBUTE:
 	case GC_REFORM:
 	{
-		targetFwd = this->GetActorForwardVector();
-		targetRight = this->GetActorRightVector();
+		GroupTargetForward = this->GetActorForwardVector();
+		GroupTargetRight = this->GetActorRightVector();
 		break;
 	}
 	}
 
 	// check for going backward
-	float dir = FVector::DotProduct(GetActorForwardVector(), targetFwd);
+	float dir = FVector::DotProduct(GetActorForwardVector(), GroupTargetForward);
 
 	// swap group offset if moving backward
 	if (dir < 0)
@@ -549,7 +536,8 @@ void AAllyGroup::SetMarchLocation(const FVector & _targetLocation, int _commandI
 	{
 	case GC_GOTOLOCATION:
 	{
-		this->SetActorRotation(UKismetMathLibrary::FindLookAtRotation(_targetLocation, _targetLocation + 10 * targetFwd));
+		this->SetActorRotation(UKismetMathLibrary::
+			FindLookAtRotation(GroupTargetLocation, GroupTargetLocation + 10 * GroupTargetForward));
 		break;
 	}
 	case GC_HOLDLOCATION:
@@ -580,38 +568,11 @@ void AAllyGroup::SetMarchLocation(const FVector & _targetLocation, int _commandI
 	}
 	}
 
-	bbcGroup->SetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetLocation(), _targetLocation);
-	bbcGroup->SetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetForward(), targetFwd);
-	bbcGroup->SetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetRight(), targetRight);
-
 	// give group march command
-	bbcGroup->SetValue<UBlackboardKeyType_Int>(groupC->GetKeyID_NewCommandIndex(), _commandIndex);
+	groupC->SetTargetLocation_BBC(GroupTargetLocation);
+	groupC->SetNewCommandIndex_BBC(_commandIndex);
 
-	// give each child an march command
-	ATheLastBastionBaseAIController* baseAICtrl = nullptr;
-	UBlackboardComponent* bbcChild = nullptr;
-	for (int i = 0; i < AICharactersInfo.Num(); i++)
-	{
-		ATheLastBastionAIBase* baseAI = AICharactersInfo[i].AICharacter;
-		if (baseAI && !baseAI->GetIsDead())
-		{
-			baseAICtrl = Cast<ATheLastBastionBaseAIController>(AICharactersInfo[i].AICharacter->GetController());
-			if (baseAICtrl == nullptr)
-			{
-				UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr - AAIGroupBase::SetMarchLocation"));
-				continue;
-			}
-
-			bbcChild = baseAICtrl->GetBlackboardComponent();
-			if (bbcChild == nullptr)
-			{
-				UE_LOG(LogTemp, Error, TEXT("bbc == nullptr - AAIGroupBase::SetMarchLocation"));
-				continue;
-			}
-
-			bbcChild->SetValue<UBlackboardKeyType_Int>(baseAICtrl->GetKeyID_NewCommandIndex(), _commandIndex);
-		}
-	}
+	SendGroupCommand(_commandIndex);
 }
 
 void AAllyGroup::OnChildDeath(int _childIndex)

@@ -109,42 +109,50 @@ void ATheLastBastionAIBase::CalculateMarchTargetPosition()
 			TEXT("%s is not in a group -- ATheLastBastionAIBase::CalculateMarchTargetPosition"));
 		return;
 	}
-	
-	ATheLastBastionGroupAIController* groupC = Cast<ATheLastBastionGroupAIController>(mGroup->GetController());
-	if (groupC == nullptr)
-	{
-		UE_LOG(LogTemp, Warning,
-			TEXT("groupC is null -- ATheLastBastionAIBase::CalculateMarchTargetPosition"));
-		return;
-	}
-
-	UBlackboardComponent* bbcGroup = groupC->GetBlackboardComponent();
-	if (bbcGroup == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("bbcGroup == nullptr - ATheLastBastionAIBase::CalculateMarchTargetPosition"));
-		return;
-	}
-
-	// Get group location from its blackboard
-	FVector groupTargetLocation = bbcGroup->GetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetLocation()),
-		groupTargetForward = bbcGroup->GetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetForward()),
-		groupTargetRight = bbcGroup->GetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetRight());
-
 
 	ATheLastBastionBaseAIController *baseAICtrl = Cast<ATheLastBastionBaseAIController>(this->GetController());
-	UBlackboardComponent* bbcChild = nullptr;
-
+	//UBlackboardComponent* bbcChild = nullptr;
 	if (baseAICtrl == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr - AAIGroupBase::CalculateMarchTargetPosition"));
 		return;
 	}
-	bbcChild = baseAICtrl->GetBlackboardComponent();
-	if (bbcChild == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("bbc == nullptr - AAIGroupBase::CalculateMarchTargetPosition"));
+	//bbcChild = baseAICtrl->GetBlackboardComponent();
+	//if (bbcChild == nullptr)
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("bbc == nullptr - AAIGroupBase::CalculateMarchTargetPosition"));
+	//	return;
+	//}
+
+	int OldGroupCommand = baseAICtrl->GetOldCommandIndex_BBC();
+	//int OldGroupCommand = bbcChild->GetValue<UBlackboardKeyType_Int>(baseAICtrl->GetKeyID_OldCommandIndex());
+	if (OldGroupCommand > 0)
 		return;
-	}
+
+	//ATheLastBastionGroupAIController* groupC = Cast<ATheLastBastionGroupAIController>(mGroup->GetController());
+	//if (groupC == nullptr)
+	//{
+	//	UE_LOG(LogTemp, Warning,
+	//		TEXT("groupC is null -- ATheLastBastionAIBase::CalculateMarchTargetPosition"));
+	//	return;
+	//}
+
+	//UBlackboardComponent* bbcGroup = groupC->GetBlackboardComponent();
+	//if (bbcGroup == nullptr)
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("bbcGroup == nullptr - ATheLastBastionAIBase::CalculateMarchTargetPosition"));
+	//	return;
+	//}
+
+	// Get group location from its blackboard
+	//FVector groupTargetLocation = bbcGroup->GetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetLocation()),
+	//	groupTargetForward = bbcGroup->GetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetForward()),
+	//	groupTargetRight = bbcGroup->GetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetRight());
+
+
+	FVector groupTargetLocation = mGroup->GetGroupTargetLocation(),
+		groupTargetForward = mGroup->GetGroupTargetForward(),
+		groupTargetRight = mGroup->GetGroupTargetRight();
 
 	// Calculate the nav location point based on group offset
 	FVector groupRelativeOffset = mGroup->GetGroupRelativeOffsetAt(mGroupIndex);
@@ -176,9 +184,9 @@ void ATheLastBastionAIBase::CalculateMarchTargetPosition()
 	}
 
 	// Handle focus
-	int groupCommand = bbcChild->GetValue<UBlackboardKeyType_Int>(baseAICtrl->GetKeyID_NewCommandIndex());
-	FVector focusPoint = FVector::ZeroVector;
+	int groupCommand = baseAICtrl->GetNewCommandIndex_BBC();//bbcChild->GetValue<UBlackboardKeyType_Int>(baseAICtrl->GetKeyID_NewCommandIndex());
 
+	FVector focusPoint = FVector::ZeroVector;
 	switch (groupCommand)
 	{
 	case GC_GOTOLOCATION:
@@ -191,6 +199,7 @@ void ATheLastBastionAIBase::CalculateMarchTargetPosition()
 	case GC_REFORM:
 	case GC_FORWARD:
 		focusPoint = mGroup->GetActorLocation() + mGroup->GetActorForwardVector() * 1000000.0f;
+		baseAICtrl->ClearFocus(EAIFocusPriority::Gameplay);
 		baseAICtrl->SetFocalPoint(focusPoint, EAIFocusPriority::Gameplay);
 		break;
 
@@ -198,11 +207,12 @@ void ATheLastBastionAIBase::CalculateMarchTargetPosition()
 		break;
 	}
 
-	
-
-	bbcChild->SetValue<UBlackboardKeyType_Vector>(baseAICtrl->GetKeyID_TargetLocation(), childtargetLocation);
-	bbcChild->SetValue<UBlackboardKeyType_Int>(baseAICtrl->GetKeyID_NewCommandIndex(), 0);
-
+	baseAICtrl->SetTargetLocation_BBC(childtargetLocation);
+	baseAICtrl->SetNewCommandIndex_BBC(0);
+	baseAICtrl->SetOldCommandIndex_BBC(groupCommand);
+	//bbcChild->SetValue<UBlackboardKeyType_Vector>(baseAICtrl->GetKeyID_TargetLocation(), childtargetLocation);
+	//bbcChild->SetValue<UBlackboardKeyType_Int>(baseAICtrl->GetKeyID_NewCommandIndex(), 0);
+	//bbcChild->SetValue<UBlackboardKeyType_Int>(baseAICtrl->GetKeyID_OldCommandIndex(), groupCommand);
 }
 
 void ATheLastBastionAIBase::SetTarget(AActor * _target)
@@ -225,6 +235,7 @@ void ATheLastBastionAIBase::SetTarget(AActor * _target)
 	}
 
 	bbcChild->SetValue<UBlackboardKeyType_Object>(baseAICtrl->GetKeyID_TargetActor(), _target);
+
 	baseAICtrl->ClearFocus(EAIFocusPriority::Gameplay);
 	baseAICtrl->SetFocus(_target, EAIFocusPriority::Gameplay);
 }

@@ -34,13 +34,6 @@ EBTNodeResult::Type UBTTask_HitReaction::ExecuteTask(UBehaviorTreeComponent & Ow
 		return NodeResult;
 	}
 
-	const AActor* const targetActor = Cast<AActor>(bbc->GetValue<UBlackboardKeyType_Object>(baseAICtrl->GetKeyID_TargetActor()));
-	if (targetActor == nullptr)
-	{
-		//UE_LOG(LogTemp, Warning, TEXT("UpdateSqrDistanceToTarget get target actor failed"));
-		return NodeResult;
-	}
-
 	const APawn* const me = baseAICtrl->GetPawn();
 
 	if (animRef->GetCurrentActionState()== EAIActionState::GettingHurt)
@@ -64,38 +57,14 @@ EBTNodeResult::Type UBTTask_HitReaction::AbortTask(UBehaviorTreeComponent & Owne
 
 void UBTTask_HitReaction::TickTask(UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory, float DeltaSeconds)
 {
-	// empty in base class
-
-	//UE_LOG(LogTemp, Log, TEXT("UBTTask_NKAttack - TickTask"));
-	//mNodeResult = EBTNodeResult::Succeeded;
-	//FinishLatentTask(OwnerComp, mNodeResult);
 }
-
-//void UBTTask_NKAttack::OnMessage(UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory, FName Message, int32 RequestID, bool bSuccess)
-//{
-//	Super::OnMessage(OwnerComp, NodeMemory, Message, RequestID, bSuccess);
-//}
 
 void UBTTask_HitReaction::OnTaskFinished(UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory, EBTNodeResult::Type TaskResult)
 {
-	// empty in base class
-	// UE_LOG(LogTemp, Warning, TEXT("UBTTask_NKAttack - OnTaskFinished"));
 }
 
 void UBTTask_HitReaction::OnRecoverFromHitHandle(UBehaviorTreeComponent* OwnerComp)
 {
-
-	//UBlackboardComponent* const bbc = OwnerComp->GetBlackboardComponent();
-	//ATheLastBastionBaseAIController* const baseAICtrl = Cast<ATheLastBastionBaseAIController>(OwnerComp->GetAIOwner());
-	//if (baseAICtrl == nullptr)
-	//{
-	//	UE_LOG(LogTemp, Error, TEXT("baseAICtrl is not an enemyC - UBTTask_NKAttack::ExecuteTask"));
-	//	return;
-	//}
-
-	//bbc->SetValue<UBlackboardKeyType_Enum>(baseAICtrl->GetKeyID_CurrentActionState(),
-	//	static_cast<UBlackboardKeyType_Enum::FDataType>(EAIActionState::None));
-
 	EBTNodeResult::Type NodeResult = EBTNodeResult::Failed;
 	FinishLatentTask(*OwnerComp, NodeResult);
 }

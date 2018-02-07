@@ -87,18 +87,21 @@ public:
 	UFUNCTION()
 		void SetMarchLocation(const FVector& _location, int _commandIndex) override;
 
-	void OnChildDeath(int _childIndex) override;
 
 	UFUNCTION()
 		void SetFollowingLocation();
 
-	void OnStartFollowing();
+		void OnStartFollowing();
 
-	void OnStopFollowing();
+		void OnStopFollowing();
+
+
+	void OnChildDeath(int _childIndex) override;
 
 	int GetMaxColoumnCount() const override;
 
-
 	FORCEINLINE bool IsFollowing() const { return bIsFollowing; }
+
+
 
 };

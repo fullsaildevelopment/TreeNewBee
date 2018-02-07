@@ -126,12 +126,10 @@ void UAIMelee_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMon
 			mCharacter->GetCharacterMovement()->RotationRate.Yaw = 540.0f;
 			if (baseAICtrl)
 			{
-				baseAICtrl->SetAIActionState_BBC(CurrentActionState);
+				baseAICtrl->SetAICurrentActionState_BBC(CurrentActionState);
 				UBehaviorTreeComponent* btc = baseAICtrl->GetBTComp();
 				if (btc)
 				{
-
-
 					OnRecoverFromHitSignature.ExecuteIfBound(btc);
 					//OnRecoverFromHitSignature.Unbind();
 				}
@@ -155,18 +153,18 @@ void UAIMelee_AnimInstance::OnBeingHit(FName boneName, const FVector & _shotFrom
 	//UE_LOG(LogTemp, Log, TEXT("disable weapon on hit"));
 	OnDisableWeapon(false, true);
 
-
-	ATheLastBastionBaseAIController* enemyC = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
-	if (enemyC == nullptr)
+	ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
+	if (baseAICtrl == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("enemyC is nullptr - UAIRange_AnimInstance"));
 		return;
 	}
 
-	enemyC->OnBeingHit(mCharacter->GetCharacterType());
+	baseAICtrl->SetAICurrentActionState_BBC(CurrentActionState);
 
-	FName sectionToPlay;
 	ECharacterType Type = mCharacter->GetCharacterType();
+	FName sectionToPlay;
+
 	switch (Type)
 	{
 	case ECharacterType::LanTrooper_T0:

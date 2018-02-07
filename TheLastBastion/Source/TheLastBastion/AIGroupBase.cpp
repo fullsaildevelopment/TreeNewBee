@@ -64,8 +64,6 @@ AAIGroupBase::AAIGroupBase()
 		BehaviorTree = bt.Object;
 	else
 		UE_LOG(LogTemp, Error, TEXT("Can not find behaviorTree - AAIGroupBase::AAIGroupBase"));
-
-
 	//
 	bDisabled = false;
 	bReformPending = false;
@@ -128,7 +126,6 @@ void AAIGroupBase::CheckGroupCommand()
 	}
 
 	bbcGroup->SetValue<UBlackboardKeyType_Int>(groupC->GetKeyID_NewCommandIndex(), 0);
-
 }
 
 void AAIGroupBase::SetMarchLocation(const FVector & _targetLocation, int _commandIndex)
@@ -146,10 +143,8 @@ int AAIGroupBase::GetMaxColoumnCount() const
 	return 0;
 }
 
-
 TArray<class ATheLastBastionAIBase*> AAIGroupBase::GetFrontLine() const
 {
-
 	TArray<ATheLastBastionAIBase*> out;
 	int outSize = 0;
 	if (FormationInfo.IsValidIndex(0))
@@ -190,6 +185,30 @@ TArray<class ATheLastBastionAIBase*> AAIGroupBase::GetColumnAt(int _index) const
 
 void AAIGroupBase::SwapChildenOrder()
 {
+
+}
+
+void AAIGroupBase::SendGroupCommand(int _commandIndex)
+{
+	// give each child an group command
+	ATheLastBastionBaseAIController* baseAICtrl = nullptr;
+	for (int i = 0; i < AICharactersInfo.Num(); i++)
+	{
+		ATheLastBastionAIBase* baseAI = AICharactersInfo[i].AICharacter;
+		if (baseAI && !baseAI->GetIsDead())
+		{
+			baseAICtrl = Cast<ATheLastBastionBaseAIController>(AICharactersInfo[i].AICharacter->GetController());
+			if (baseAICtrl == nullptr)
+			{
+				UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr - AAIGroupBase::SetMarchLocation"));
+				continue;
+			}
+			// this command is given by players, 
+			// if we have unfinished command, clear them for new command
+			baseAICtrl->SetOldCommandIndex_BBC(0);
+			baseAICtrl->SetNewCommandIndex_BBC(_commandIndex);
+		}
+	}
 
 }
 

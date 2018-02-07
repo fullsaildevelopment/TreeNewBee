@@ -121,6 +121,7 @@ protected:
 	UPROPERTY()
 		class ATheLastBastionHeroCharacter* Hero;
 
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		bool bDisabled;
 
@@ -130,6 +131,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Formation)
 		bool bReformPending;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
+		FVector GroupTargetLocation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
+		FVector GroupTargetForward;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
+		FVector GroupTargetRight;
 
 public:
 	// Sets default values for this pawn's properties
@@ -147,8 +156,8 @@ protected:
 	// Call when group go to the opposite direction
 	virtual void SwapChildenOrder();
 
-
-	
+	// Send group command index to each group member BT 
+	void SendGroupCommand(int _commandIndex);
 
 	UFUNCTION()
 		virtual void OnGroupVolumnOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
@@ -166,15 +175,9 @@ public:
 	void AssignColumn(AAIGroupBase* const _targetGroup, int _myColumn, int _theirColumn);
 
 
-	// Called to bind functionality to input
-	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	FORCEINLINE class UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
-
-	FORCEINLINE FVector GetGroupRelativeOffsetAt(int _index) const { return AICharactersInfo[_index].GroupRelativeOffset; }
-
 	/** Update the children location during move to*/
-	UFUNCTION(BlueprintCallable, Category = GroupBehavior)
+	/** DEPRECATED */
+	UFUNCTION(BlueprintCallable, Category = Behavior)
 	void CheckGroupCommand();
 
 	UFUNCTION()
@@ -183,31 +186,21 @@ public:
 	UFUNCTION()
 		virtual void OnChildDeath(int _childIndex);
 
-	virtual int GetMaxColoumnCount() const;
 
+	FORCEINLINE class UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
+
+	FORCEINLINE FVector GetGroupRelativeOffsetAt(int _index) const { return AICharactersInfo[_index].GroupRelativeOffset; }
+
+	FORCEINLINE FVector GetGroupTargetLocation() const { return GroupTargetLocation; }
+	FORCEINLINE FVector GetGroupTargetForward() const { return GroupTargetForward; }
+	FORCEINLINE FVector GetGroupTargetRight() const { return GroupTargetRight; }
+
+
+	virtual int GetMaxColoumnCount() const;
 
 	UFUNCTION()
 		TArray<class ATheLastBastionAIBase*> GetFrontLine() const;
 
-
 	UFUNCTION()
 		TArray<class ATheLastBastionAIBase*> GetColumnAt(int _index) const;
-
-
-
-	//UFUNCTION()
-	//	TArray<class ATheLastBastionCharacter*> GetFrontLine() const;
-
-	//UFUNCTION()
-	//	TArray<class ATheLastBastionCharacter*> GetFrontLine() const;
-
-	//UFUNCTION()
-	//	TArray<class ATheLastBastionCharacter*> GetFrontLine() const;
-
-	//UFUNCTION()
-	//	TArray<class ATheLastBastionCharacter*> GetFrontLine() const;
-
-	//UFUNCTION()
-	//	TArray<class ATheLastBastionCharacter*> GetFrontLine() const;
-
 };
