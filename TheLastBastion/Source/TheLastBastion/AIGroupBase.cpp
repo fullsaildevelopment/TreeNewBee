@@ -82,17 +82,12 @@ void AAIGroupBase::BeginPlay()
 		GroupVolumn->OnComponentEndOverlap.AddDynamic(this, &AAIGroupBase::OnGroupVolumnOverrlapEnd);
 	}
 
-	Hero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	PlayerHero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 }
 
-void AAIGroupBase::SpawnChildGroup()
-{
+void AAIGroupBase::SpawnChildGroup() {}
 
-}
-
-void AAIGroupBase::OnReform()
-{
-}
+void AAIGroupBase::OnReform() {}
 
 void AAIGroupBase::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
@@ -128,13 +123,99 @@ void AAIGroupBase::CheckGroupCommand()
 	bbcGroup->SetValue<UBlackboardKeyType_Int>(groupC->GetKeyID_NewCommandIndex(), 0);
 }
 
-void AAIGroupBase::SetMarchLocation(const FVector & _targetLocation, int _commandIndex)
-{
+void AAIGroupBase::SetMarchLocation(const FVector & _targetLocation, int _commandIndex) {}
 
+void AAIGroupBase::OnChildDeath(int _childIndex) {}
+
+void AAIGroupBase::AddThreat(AActor * _character, float _threat)
+{
+	float* threat = ThreatMap.Find(_character);
+	if (threat == nullptr)
+	{
+		ThreatMap.Add(_character, _threat);
+	}
+	else
+	{
+		*threat += _threat;
+	}
 }
 
-void AAIGroupBase::OnChildDeath(int _childIndex)
+void AAIGroupBase::RemoveThreat(AActor * _character)
 {
+	ThreatMap.Remove(_character);
+}
+
+AActor * AAIGroupBase::OnTargetRequest(const AActor* _requestSender) const
+{
+
+	int ThreatCount = ThreatMap.Num();
+	if (ThreatCount == 0)
+		return nullptr;
+
+
+	// find the nearest target candidates use manhaton distance
+	TArray<FThreat> targetCandidates;
+	targetCandidates.SetNum(ThreatCount);
+	int currentIndex = 0;
+
+	AActor* currentThreat = nullptr;
+	for (auto& Elem : ThreatMap)
+	{
+		currentThreat = Elem.Key;
+		targetCandidates[currentIndex].Character = currentThreat;
+		targetCandidates[currentIndex].GroupThreat = Elem.Value;
+		FVector dir = currentThreat->GetActorLocation() - _requestSender->GetActorLocation();
+		targetCandidates[currentIndex].Manhaton = FMath::Abs(dir.X) + FMath::Abs(dir.Y);
+		currentIndex++;
+	}
+
+	QuickSortThreatListByManDistance(targetCandidates, 0, ThreatCount - 1);
+
+	// find the most threat among the nearest
+	int outIndex = 0;
+
+	int candidatesCount = ThreatCount;
+	if (candidatesCount > TARGETREQUEST_UpLimit)
+		candidatesCount = TARGETREQUEST_UpLimit;
+	else if (candidatesCount == 1)
+		return targetCandidates[0].Character;
+
+	for (int iCandi = 1; iCandi < candidatesCount; iCandi++)
+	{
+		if (targetCandidates[iCandi].GroupThreat > targetCandidates[outIndex].GroupThreat)
+			outIndex = iCandi;
+	}
+
+	return targetCandidates[outIndex].Character;
+}
+
+void AAIGroupBase::QuickSortThreatListByManDistance(TArray<FThreat>& _threatList, int _left, int _right) const
+{
+	int i = _left, j = _right;
+	FThreat temp;
+	float pivot = _threatList[(_left + _right)* 0.5f].Manhaton;
+
+	while (i <= j)
+	{
+		while (_threatList[i].Manhaton < pivot)
+			i++;
+		while (_threatList[j].Manhaton > pivot)
+			j--;
+		if (i <= j)
+		{
+			temp = _threatList[i];
+			_threatList[i] = _threatList[j];
+			_threatList[j] = temp;
+			i++;
+			j--;
+		}
+	}
+
+	if (_left < j)
+		QuickSortThreatListByManDistance(_threatList, _left, j);
+
+	if (i < _right)
+		QuickSortThreatListByManDistance(_threatList, i, _right);
 
 }
 
@@ -143,21 +224,6 @@ int AAIGroupBase::GetMaxColoumnCount() const
 	return 0;
 }
 
-TArray<class ATheLastBastionAIBase*> AAIGroupBase::GetFrontLine() const
-{
-	TArray<ATheLastBastionAIBase*> out;
-	int outSize = 0;
-	if (FormationInfo.IsValidIndex(0))
-		outSize = FormationInfo[0];
-
-	out.SetNum(outSize);
-
-	for (int iCharacter = 0; iCharacter < outSize; iCharacter++)
-	{
-		out[iCharacter] = AICharactersInfo[iCharacter].AICharacter;
-	}
-	return out;
-}
 
 TArray<class ATheLastBastionAIBase*> AAIGroupBase::GetColumnAt(int _index) const
 {
@@ -183,10 +249,65 @@ TArray<class ATheLastBastionAIBase*> AAIGroupBase::GetColumnAt(int _index) const
 	return out;
 }
 
-void AAIGroupBase::SwapChildenOrder()
+TArray<class ATheLastBastionAIBase*> AAIGroupBase::GetRowAt(int _index) const
 {
+	TArray<class ATheLastBastionAIBase*> out;
+
+	int maxRowSize = FormationInfo[0];
+	int maxRow = FormationInfo.Num();
+
+	ensure(_index <= maxRow - 1 && _index >= 0);
+
+	int outSize = 0;
+	int startIndex = 0;
+	
+	if (_index == maxRow - 1)
+	{
+		startIndex = _index * maxRowSize;
+		outSize = AICharactersInfo.Num() - startIndex;
+	}
+	else
+	{
+		startIndex = _index * maxRowSize;
+		outSize = maxRowSize;
+	}
+
+	out.SetNum(outSize);
+
+	for (int i = 0; i < outSize; i++)
+	{
+		out[i] = AICharactersInfo[i + startIndex].AICharacter;
+	}
+	return out;
 
 }
+
+TArray<class ATheLastBastionAIBase*> AAIGroupBase::GetFrontLine() const
+{
+	int frontLine = 0;
+	return GetRowAt(frontLine);
+}
+
+TArray<class ATheLastBastionAIBase*> AAIGroupBase::GetBackLine() const
+{
+	int backLine = FormationInfo.Num() - 1;
+	return GetRowAt(backLine);
+}
+
+TArray<class ATheLastBastionAIBase*> AAIGroupBase::GetRightLine() const
+{
+	int rightLine = FormationInfo[0] - 1;
+	return GetColumnAt(rightLine);
+}
+
+TArray<class ATheLastBastionAIBase*> AAIGroupBase::GetLeftLine() const
+{
+	int leftLine = 0;
+	return GetColumnAt(leftLine);
+}
+
+
+void AAIGroupBase::SwapChildenOrder() {}
 
 void AAIGroupBase::SendGroupCommand(int _commandIndex)
 {
@@ -210,6 +331,57 @@ void AAIGroupBase::SendGroupCommand(int _commandIndex)
 		}
 	}
 
+}
+
+int AAIGroupBase::CheckTargetRelativeWhereAbout(const AActor * const _target) const
+{
+
+	FVector targetLocation = _target->GetActorLocation();
+	FVector myLocation = GetActorLocation();
+	FVector away = (targetLocation - myLocation).GetUnsafeNormal();
+	
+	FVector myFWD = GetActorForwardVector();
+	
+	float dotFwd = FVector::DotProduct(myFWD, away);
+	if (dotFwd > COS45)
+	{	
+		// target is in front
+		FVector targetFWD = _target->GetActorForwardVector();
+		float dotHeading = FVector::DotProduct(myFWD, targetFWD);
+		if (dotHeading > 0)
+			return TargetAtFront_Chasing;
+		else
+			return TargetAtFront_Face2Face;
+
+	}
+	else if (dotFwd < -COS45)
+	{
+		// target is in back
+		FVector targetFWD = _target->GetActorForwardVector();
+		float dotHeading = FVector::DotProduct(myFWD, targetFWD);
+		if (dotHeading > 0)
+			return TargetFromBack_Chasing;
+		else
+			return TargetFromBack_Back2Back;
+	}
+	else
+	{
+		// target is on side
+		FVector myRight = GetActorRightVector();
+		float dotRight = FVector::DotProduct(myRight, away);
+		if (dotRight > 0)
+		{
+			// target is on right
+			return TargetFromRight;
+		}
+		else
+		{
+			// target in on left
+			return TargetFromLeft;
+		}
+	}
+
+	return 0;
 }
 
 void AAIGroupBase::PairColumn(AAIGroupBase * const _enemyGroup, int _myColumn, int _theirColumn)
@@ -293,6 +465,107 @@ void AAIGroupBase::AssignColumn(AAIGroupBase * const _targetGroup, int _myColumn
 			}
 
 		}
+	}
+
+}
+
+void AAIGroupBase::InitMeleeCombat(AAIGroupBase* _targetGroup)
+{
+
+
+	FVector ourForwardVector = GetActorForwardVector();
+	FVector theirForwardVector = _targetGroup->GetActorForwardVector();
+
+	float dotProduct = FVector::DotProduct(ourForwardVector, theirForwardVector);
+	if (dotProduct < -COS22_5)
+	{
+		// check number of column for two group
+		int ourColCount = this->GetMaxColoumnCount();
+		int theirColCount = _targetGroup->GetMaxColoumnCount();
+
+		// find middle column
+		int ourMiddleColumn = ourColCount * 0.5f;
+		int theirMiddleColumn = theirColCount * 0.5f;
+
+		int maxOffsetTimeFromMiddle;
+		if (ourColCount > theirColCount)
+			maxOffsetTimeFromMiddle = UKismetMathLibrary::Max(ourMiddleColumn, ourColCount - 1 - ourMiddleColumn);
+		else
+			maxOffsetTimeFromMiddle = UKismetMathLibrary::Max(theirMiddleColumn, theirColCount - 1 - theirMiddleColumn);
+
+
+
+		for (int iOffset = 0; iOffset <= maxOffsetTimeFromMiddle; iOffset++)
+		{
+			int ourCurrrentColumn, theirCurrentColumn;
+			if (iOffset == 0)
+			{
+				ourCurrrentColumn = iOffset + ourMiddleColumn;
+				theirCurrentColumn = iOffset + theirMiddleColumn;
+
+				PairColumn(_targetGroup, ourCurrrentColumn, theirCurrentColumn);
+			}
+			else
+			{
+				ourCurrrentColumn = iOffset + ourMiddleColumn;
+				theirCurrentColumn = -iOffset + theirMiddleColumn;
+
+				if (ourCurrrentColumn < ourColCount && theirCurrentColumn >= 0)
+				{
+					PairColumn(_targetGroup, ourCurrrentColumn, theirCurrentColumn);
+				}
+				else
+				{
+
+					if (ourCurrrentColumn >= ourColCount && theirCurrentColumn < 0)
+					{
+						// do nothing, both invalid
+					}
+					else if (ourCurrrentColumn >= ourColCount)
+					{
+						// their attack our nearest column
+						_targetGroup->AssignColumn(this, theirCurrentColumn, ourColCount - 1);
+					}
+					else if (theirCurrentColumn < 0)
+					{
+						this->AssignColumn(_targetGroup, ourCurrrentColumn, 0);
+
+					}
+
+				}
+
+
+				ourCurrrentColumn = -iOffset + ourMiddleColumn;
+				theirCurrentColumn = +iOffset + theirMiddleColumn;
+
+
+				if (ourCurrrentColumn >= 0 && theirCurrentColumn < theirColCount)
+				{
+					PairColumn(_targetGroup, ourCurrrentColumn, theirCurrentColumn);
+				}
+				else
+				{
+
+					if (ourCurrrentColumn < 0 && theirCurrentColumn >= theirColCount)
+					{
+						// do nothing, both invalid
+					}
+					else if (ourCurrrentColumn < 0)
+					{
+						// their attack our nearest column
+						_targetGroup->AssignColumn(this, theirCurrentColumn, 0);
+					}
+					else if (theirCurrentColumn >= theirColCount)
+					{
+						this->AssignColumn(_targetGroup, ourCurrrentColumn, theirColCount - 1);
+
+					}
+
+				}
+
+			}
+		}
+
 	}
 
 }

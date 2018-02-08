@@ -2,6 +2,8 @@
 
 #include "BTTast_StrafeAttack.h"
 #include "AI/TheLastBastionBaseAIController.h"
+#include "TheLastBastionCharacter.h"
+#include "AICharacters/TheLastBastionAIBase.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
 
 #include "Animation/AIMelee_AnimInstance.h"
@@ -20,14 +22,14 @@ EBTNodeResult::Type UBTTast_StrafeAttack::ExecuteTask(UBehaviorTreeComponent & O
 	EBTNodeResult::Type NodeResult = EBTNodeResult::Failed;
 
 	UBlackboardComponent* const bbc = OwnerComp.GetBlackboardComponent();
-	ATheLastBastionBaseAIController* const enemyC = Cast<ATheLastBastionBaseAIController>(OwnerComp.GetAIOwner());
-	if (enemyC == nullptr)
+	ATheLastBastionBaseAIController* const baseAICtrl = Cast<ATheLastBastionBaseAIController>(OwnerComp.GetAIOwner());
+	if (baseAICtrl == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("AIOwner is not an enemyC - UBTTast_StrafeAttack::ExecuteTask"));
+		UE_LOG(LogTemp, Error, TEXT("AIOwner is not an baseAICtrl - UBTTast_StrafeAttack::ExecuteTask"));
 		return NodeResult;
 	}
 
-	UAIBase_AnimInstance* animRef = enemyC->GetAnimInstance();
+	UAIBase_AnimInstance* animRef = baseAICtrl->GetAnimInstance();
 	if (animRef == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("animRef is NULL - UBTTast_StrafeAttack::ExecuteTask"));
@@ -35,35 +37,41 @@ EBTNodeResult::Type UBTTast_StrafeAttack::ExecuteTask(UBehaviorTreeComponent & O
 	}
 
 
-	const AActor* const targetActor = Cast<AActor>(bbc->GetValue<UBlackboardKeyType_Object>(enemyC->GetKeyID_TargetActor()));
+	const ATheLastBastionCharacter* const targetActor = Cast<ATheLastBastionCharacter>(bbc->GetValue<UBlackboardKeyType_Object>(baseAICtrl->GetKeyID_TargetActor()));
 	if (targetActor == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UpdateSqrDistanceToTarget get target actor failed"));
+		UE_LOG(LogTemp, Warning, TEXT("targetActor == nullptr - UBTTast_StrafeAttack::ExecuteTask"));
 		return NodeResult;
 	}
 
-	const APawn* const me = enemyC->GetPawn();
+	ATheLastBastionAIBase* const me = Cast<ATheLastBastionAIBase>(baseAICtrl->GetPawn());
 	if (me == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("enemyC->GetPawn() is NULL - UBTTast_StrafeAttack::ExecuteTask"));
+		UE_LOG(LogTemp, Error, TEXT("baseAICtrl->GetPawn() is NULL - UBTTast_StrafeAttack::ExecuteTask"));
 		return NodeResult;
 	}
 
 	if (animRef->GetCurrentActionState() != EAIActionState::None)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Is Attacking, failed this task, and move to next task"));
+		//UE_LOG(LogTemp, Log, TEXT("Is Attacking, failed this task, and move to next task"));
 		return NodeResult;
 	}
 	else
 	{
 		// check attack distance
 		float distanceSqr = (me->GetActorLocation() - targetActor->GetActorLocation()).SizeSquared();
-		bbc->SetValue<UBlackboardKeyType_Float>(enemyC->GetKeyID_ToTargetActorDistanceSqr(), distanceSqr);
+		bbc->SetValue<UBlackboardKeyType_Float>(baseAICtrl->GetKeyID_ToTargetActorDistanceSqr(), distanceSqr);
 
 		if (distanceSqr > meleeComboAttackDistanceSqr)
 		{
-			UE_LOG(LogTemp, Log, TEXT("Is too far too attack, failed this task, and move to next task"));
+			//UE_LOG(LogTemp, Log, TEXT("Is too far too attack, failed this task, and move to next task"));
 			return NodeResult;
+		}
+		else if (targetActor->GetIsDead())
+		{
+			UE_LOG(LogTemp, Log, TEXT("Target is Dead, find other target - UBTTast_StrafeAttack::ExecuteTask"));
+			me->RequestAnotherTarget();
+			return EBTNodeResult::Succeeded;
 		}
 		else
 		{
@@ -75,7 +83,6 @@ EBTNodeResult::Type UBTTast_StrafeAttack::ExecuteTask(UBehaviorTreeComponent & O
 				attackType = EAIMeleeAttackType::InPlace;
 			else
 				attackType = (FMath::RandBool()) ? EAIMeleeAttackType::Move : (EAIMeleeAttackType::Move_InPlace);
-
 
 			animRef->Attack(attackType);
 

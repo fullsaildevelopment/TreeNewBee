@@ -81,7 +81,6 @@ void UAIMelee_AnimInstance::Attack(EAIMeleeAttackType _attackType)
 	attackChoice = _attackType;
 }
 
-
 void UAIMelee_AnimInstance::FinishAttack()
 {
 	CurrentActionState = EAIActionState::None;
@@ -116,7 +115,7 @@ void UAIMelee_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMon
 {
 	if (_animMontage == Hit_Montage && !_bInterruptted)
 	{
-		UE_LOG(LogTemp, Log, TEXT("I am recover from being hit - OnMontageBlendOutStartHandle"));
+		//UE_LOG(LogTemp, Log, TEXT("I am recover from being hit - OnMontageBlendOutStartHandle"));
 		CurrentActionState = EAIActionState::None;
 		// Tell BT that this attack is done
 		if (mCharacter)
@@ -131,13 +130,11 @@ void UAIMelee_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMon
 				if (btc)
 				{
 					OnRecoverFromHitSignature.ExecuteIfBound(btc);
-					//OnRecoverFromHitSignature.Unbind();
 				}
 			}
 		}
 	}
 }
-
 
 void UAIMelee_AnimInstance::OnBeingHit(FName boneName, const FVector & _shotFromDirection, const FVector & _hitLocation)
 {
@@ -149,6 +146,7 @@ void UAIMelee_AnimInstance::OnBeingHit(FName boneName, const FVector & _shotFrom
 	}
 
 	FinishAttack();
+
 	CurrentActionState = EAIActionState::GettingHurt;
 	//UE_LOG(LogTemp, Log, TEXT("disable weapon on hit"));
 	OnDisableWeapon(false, true);

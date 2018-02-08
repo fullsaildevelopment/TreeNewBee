@@ -17,6 +17,7 @@
 #define GC_DISTRIBUTE 5 // Split up or centered
 #define GC_FORWARD 6
 #define GC_BACKWARD 7
+#define GC_FIGHT 8
 
 
 
@@ -71,6 +72,5 @@ public:
 	int GetNewCommandIndex_BBC() const;
 
 	int GetOldCommandIndex_BBC() const;
-
 
 };

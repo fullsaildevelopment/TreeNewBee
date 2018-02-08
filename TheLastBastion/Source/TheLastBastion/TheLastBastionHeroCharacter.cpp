@@ -20,6 +20,7 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "AI/AllyGroup.h"
+#include "AICharacters/TheLastBastionEnemyCharacter.h"
 #include "AI/TheLastBastionGroupAIController.h"
 #include "UI/InGameFloatingText.h"
 #include "DrawDebugHelpers.h"
@@ -61,11 +62,13 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(34.0f, 90.0f);
+	GetCapsuleComponent()->SetCollisionProfileName("Hero");
 
 	bUsePreviousMovementAxis = false;
 	bIsYawControllDisabled = false;
 	bIsMovementDisabled = false;
-	bIsInCommandMode = false;
+	bIsInCommandMode = false; 
+	bControlEnemyGroup = false;
 
 	Focus_CamRotationLagging = 15.0f;
 	Unfocus_CamRotationLagging = 30.0f;
@@ -328,9 +331,9 @@ void ATheLastBastionHeroCharacter::OnCommandMarch()
 
 	FHitResult Hit;
 	bool const IsHit = GetWorld()->LineTraceSingleByObjectType(Hit, EyesLocation, TraceEnd, objQueryParams, QueryParams);
-	//LineTraceSingleByChannel(Hit, EyesLocation, TraceEnd, ECollisionChannel::ECC_Visibility);
 	if (IsHit)
 	{
+
 		FVector ImpactLocation = Hit.ImpactPoint;
 		UE_LOG(LogTemp, Log, TEXT("%s"), *Hit.GetActor()->GetName());
 		DrawDebugSphere(GetWorld(), ImpactLocation, 50.0f, 8, FColor::Green, false, 5.0f);
@@ -343,10 +346,21 @@ void ATheLastBastionHeroCharacter::OnCommandMarch()
 			CommandedGroup->SetMarchLocation(ImpactLocation, GC_GOTOLOCATION);
 
 		}// Temp code
-		if (EnemyGroupTemp)
+		if (EnemyGroupTemp && bControlEnemyGroup)
 		{
 			EnemyGroupTemp->SetMarchLocation(ImpactLocation, GC_GOTOLOCATION);
 		}
+		//// this is this a enemy?
+		//ATheLastBastionEnemyCharacter* enemy = Cast<ATheLastBastionEnemyCharacter>(Hit.GetActor());
+		//if (enemy)
+		//{
+		//	AAIGroupBase* enemyGroup = enemy->GetGroup();
+		//	if (enemyGroup && CommandedGroup)
+		//		CommandedGroup->InitMeleeCombat(enemyGroup);
+		//}
+		//else
+		//{
+		//}
 	}
 }
 

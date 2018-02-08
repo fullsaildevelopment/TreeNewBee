@@ -6,13 +6,10 @@
 
 
 #include "AICharacters/TheLastBastionAIBase.h"
-
 #include "TheLastBastionHeroCharacter.h"
 
 #include "AI/TheLastBastionGroupAIController.h"
 #include "AI/TheLastBastionBaseAIController.h"
-#include "BehaviorTree/BlackboardComponent.h"
-#include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
 
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
@@ -28,8 +25,8 @@ void AEnemyGroup::BeginPlay()
 	Super::BeginPlay();
 
 	// temp code for testing
-	if (Hero && Hero->EnemyGroupTemp == nullptr)
-		Hero->EnemyGroupTemp = this;
+	if (PlayerHero && PlayerHero->EnemyGroupTemp == nullptr)
+		PlayerHero->EnemyGroupTemp = this;
 	// set up marching routine
 
 }
@@ -148,22 +145,21 @@ void AEnemyGroup::OnReform()
 		float yOffset = 0;
 		float groupSpeed = MAX_FLT;
 
-		FormationInfo.Empty();
-
-		while (Remain > 0)
-		{
-			int temp = Remain - maxRowSize;
-			if (temp > 0)
-			{
-				FormationInfo.Add(maxRowSize);
-				Remain = temp;
-			}
-			else
-			{
-				FormationInfo.Add(Remain);
-				break;
-			}
-		}
+		//FormationInfo.Empty();
+		//while (Remain > 0)
+		//{
+		//	int temp = Remain - maxRowSize;
+		//	if (temp > 0)
+		//	{
+		//		FormationInfo.Add(maxRowSize);
+		//		Remain = temp;
+		//	}
+		//	else
+		//	{
+		//		FormationInfo.Add(Remain);
+		//		break;
+		//	}
+		//}
 
 		int maxRow = FormationInfo.Num();
 
@@ -203,6 +199,22 @@ void AEnemyGroup::SwapChildenOrder()
 
 void AEnemyGroup::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
+	UE_LOG(LogTemp, Warning, TEXT("overrlap with %s"), *OtherActor->GetName());
+
+	// check if this is a hero character
+	ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(OtherActor);
+	if (hero)
+	{
+		bInBattle = true;
+		AddThreat(hero, ThreatGain_HeroInit);
+		int whereAbout = CheckTargetRelativeWhereAbout(hero);
+		AgainstPlayerInit(whereAbout);
+	}
+	else
+	{
+
+	}
+	
 }
 
 void AEnemyGroup::OnGroupVolumnOverrlapEnd(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
@@ -289,77 +301,63 @@ void AEnemyGroup::OnChildDeath(int _childIndex)
 	AICharactersInfo.RemoveAt(_childIndex);
 	int totalCharacterCount = AICharactersInfo.Num();
 	int totalNumOfSection = AIToSpawn.Num();
-	if (totalNumOfSection == 1)
+
+
+	// find out which section this casualty belong
+	// find out which row suffer this casualty
+
+	int sectionBaseOffset = 0;
+	int sufferedSection = 0;
+	int sectionRangeIndex = 0;
+	int sufferedRow = 0;
+
+	for (int iSection = 0; iSection < totalNumOfSection; iSection++)
 	{
-		if (AICharactersInfo.Num() == 0)
+		sectionRangeIndex = sectionBaseOffset + AIToSpawn[iSection].TotalNumber - 1;
+		if (_childIndex <= sectionRangeIndex)
 		{
+			sufferedSection = iSection;
+			sufferedRow = sufferedRow + AIToSpawn[iSection].NumOfRow - 1;
+			break;
+		}
+		else
+		{
+			sectionBaseOffset += AIToSpawn[iSection].TotalNumber;
+			sufferedRow += AIToSpawn[iSection].NumOfRow;
+		}
+	}
+
+	// update section, and formation info that has this casualty
+	AIToSpawn[sufferedSection].TotalNumber--;
+
+	// if this suffered section has no one left
+	if (AIToSpawn[sufferedSection].TotalNumber == 0)
+	{
+		// delete section
+		AIToSpawn.RemoveAt(sufferedSection);
+		// if there is no section left
+		if (AIToSpawn.Num() == 0)
+		{
+			// delete the group
 			Destroy();
 			return;
 		}
 		else
 		{
-			AIToSpawn[0].TotalNumber--;
+			// delete section will delete the last section row
+			FormationInfo.RemoveAt(sufferedRow);
 		}
-
 	}
 	else
 	{
-		// find out which section this casualty belong
-		// find out which row suffer this casualty
 
-		int sectionBaseOffset = 0;
-		int sufferedSection = 0;
-		int sectionRangeIndex = 0;
-		int sufferedRow = 0;
-
-		for (int iSection = 0; iSection < totalNumOfSection; iSection++)
+		FormationInfo[sufferedRow]--;
+		// if the suffer row has no one left
+		if (FormationInfo[sufferedRow] == 0)
 		{
-			sectionRangeIndex = sectionBaseOffset + AIToSpawn[iSection].TotalNumber - 1;
-			if (_childIndex <= sectionRangeIndex)
-			{
-				sufferedSection = iSection;
-				sufferedRow = sufferedRow + AIToSpawn[iSection].NumOfRow - 1;
-				break;
-			}
-			else
-			{
-				sectionBaseOffset += AIToSpawn[iSection].TotalNumber;
-				sufferedRow += AIToSpawn[iSection].NumOfRow;
-			}
-		}
-
-		// update section, and formation info that has this casualty
-		AIToSpawn[sufferedSection].TotalNumber--;
-
-		// if this suffered section has no one left
-		if (AIToSpawn[sufferedSection].TotalNumber == 0)
-		{
-			// delete section
-			AIToSpawn.RemoveAt(sufferedSection);
-			// if there is no section left
-			if (AIToSpawn.Num() == 0)
-			{
-				// delete the group
-				Destroy();
-				return;
-			}
-			else
-			{
-				// delete section will delete the last section row
-				FormationInfo.RemoveAt(sufferedRow);
-			}
-		}
-		else
-		{
-
-			FormationInfo[sufferedRow]--;
-			// if the suffer row has no one left
-			if (FormationInfo[sufferedRow] == 0)
-			{
-				// delete the row
-				AIToSpawn[sufferedSection].NumOfRow--;
-				FormationInfo.RemoveAt(sufferedRow);
-			}
+			// delete the row
+			AIToSpawn[sufferedSection].NumOfRow--;
+			FormationInfo.RemoveAt(sufferedRow);
 		}
 	}
 
@@ -380,5 +378,43 @@ int AEnemyGroup::GetMaxColoumnCount() const
 	}
 
 	return 0;
+}
+
+void AEnemyGroup::AgainstPlayerInit(int _whereAbout)
+{
+
+	TArray<ATheLastBastionAIBase* > ComingForPlayer;
+	switch (_whereAbout)
+	{
+	case TargetFromBack_Chasing:
+	case TargetFromBack_Back2Back:
+	{
+		ComingForPlayer = GetBackLine();
+		break;
+	}
+	case TargetFromLeft:
+	{
+		ComingForPlayer = GetLeftLine();
+		break;
+	}
+	case TargetFromRight:
+	{
+		ComingForPlayer = GetRightLine();
+		break;
+	}
+	case TargetAtFront_Chasing:
+	case TargetAtFront_Face2Face:
+	default:
+	{
+		ComingForPlayer = GetFrontLine();
+		break;
+	}
+	}
+
+	for (ATheLastBastionAIBase* aiCharacter : ComingForPlayer)
+	{
+		aiCharacter->SetTarget(PlayerHero);
+	}
+
 }
 

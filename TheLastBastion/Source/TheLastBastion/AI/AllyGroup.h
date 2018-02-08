@@ -69,7 +69,6 @@ protected:
 
 private:
 
-
 	void RedistributeBy(int _cenMeters);
 
 	void SwitchToScatter();

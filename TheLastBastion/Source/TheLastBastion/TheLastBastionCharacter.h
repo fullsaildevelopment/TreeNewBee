@@ -36,11 +36,19 @@ public:
 
 protected:
 
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GroupBehavior)
+		TArray<class AAIGroupBase*> ThreatingGroup;
+
 	UPROPERTY()
 	    class UPawnStatsComponent* PawnStats;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterType)
 		ECharacterType CharacterType;
+
+	UPROPERTY()
+		/** Timer Handle after death*/
+		FTimerHandle mKillTimer;
 
 #pragma region Movement Stats
 
@@ -76,7 +84,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BlueprintProtected))
 		bool bIsGodMode;
 
-
 protected:
 	/** Config character based on character type during beginplay*/
 	void CharacterCustomInit();
@@ -91,8 +98,18 @@ protected:
 			class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
 			const class UDamageType* DamageType, AActor* DamageCauser);
 
+	/** Unregister all the group that I am a threat to it
+	* put character to ragdoll, Called on Hp = 0 */
+	virtual void OnDead();
+
+	// Called on actor destroyed
+	virtual void Kill();
+
+
 public:
 	
+	// Mark a group that under my threat
+	void RegisterThreat(AAIGroupBase* _threatingGroup);
 
 public:
 
@@ -114,6 +131,5 @@ public:
 	FORCEINLINE bool GetIsGodMode() const { return bIsGodMode; }
 
 	float GetCurrentMaxSpeed() const;
-
 };
 

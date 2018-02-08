@@ -8,10 +8,9 @@
 #include "AI/TheLastBastionGroupAIController.h"
 #include "AIGroupBase.h"
 
-
 #include "DrawDebugHelpers.h"
-#include "BehaviorTree/BlackboardComponent.h"
-#include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
+
+#include "Combat/PawnStatsComponent.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
 #include "UI/InGameAIHUD.h"
@@ -101,55 +100,39 @@ void ATheLastBastionAIBase::SetParent(AAIGroupBase * _Group, int _groupIndex)
 
 }
 
-void ATheLastBastionAIBase::CalculateMarchTargetPosition()
+bool ATheLastBastionAIBase::OnGroupTaskStart()
 {
 	if (mGroup == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, 
 			TEXT("%s is not in a group -- ATheLastBastionAIBase::CalculateMarchTargetPosition"));
-		return;
+		return false;
 	}
 
 	ATheLastBastionBaseAIController *baseAICtrl = Cast<ATheLastBastionBaseAIController>(this->GetController());
-	//UBlackboardComponent* bbcChild = nullptr;
+
 	if (baseAICtrl == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr - AAIGroupBase::CalculateMarchTargetPosition"));
-		return;
+		return false;
 	}
-	//bbcChild = baseAICtrl->GetBlackboardComponent();
-	//if (bbcChild == nullptr)
-	//{
-	//	UE_LOG(LogTemp, Error, TEXT("bbc == nullptr - AAIGroupBase::CalculateMarchTargetPosition"));
-	//	return;
-	//}
 
+	int groupCommand = baseAICtrl->GetNewCommandIndex_BBC();
+	// if am asked to fight, 
+	// fail the group task, enter individual combat branch
+	if (groupCommand == GC_FIGHT)
+	{
+		baseAICtrl->SetNewCommandIndex_BBC(0);
+		baseAICtrl->SetOldCommandIndex_BBC(0);
+		return false;
+	}
+
+	// if my previous task get interrupt, get back to it
 	int OldGroupCommand = baseAICtrl->GetOldCommandIndex_BBC();
-	//int OldGroupCommand = bbcChild->GetValue<UBlackboardKeyType_Int>(baseAICtrl->GetKeyID_OldCommandIndex());
 	if (OldGroupCommand > 0)
-		return;
+		return true;
 
-	//ATheLastBastionGroupAIController* groupC = Cast<ATheLastBastionGroupAIController>(mGroup->GetController());
-	//if (groupC == nullptr)
-	//{
-	//	UE_LOG(LogTemp, Warning,
-	//		TEXT("groupC is null -- ATheLastBastionAIBase::CalculateMarchTargetPosition"));
-	//	return;
-	//}
-
-	//UBlackboardComponent* bbcGroup = groupC->GetBlackboardComponent();
-	//if (bbcGroup == nullptr)
-	//{
-	//	UE_LOG(LogTemp, Error, TEXT("bbcGroup == nullptr - ATheLastBastionAIBase::CalculateMarchTargetPosition"));
-	//	return;
-	//}
-
-	// Get group location from its blackboard
-	//FVector groupTargetLocation = bbcGroup->GetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetLocation()),
-	//	groupTargetForward = bbcGroup->GetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetForward()),
-	//	groupTargetRight = bbcGroup->GetValue<UBlackboardKeyType_Vector>(groupC->GetKeyID_TargetRight());
-
-
+	// if I have a new task ...
 	FVector groupTargetLocation = mGroup->GetGroupTargetLocation(),
 		groupTargetForward = mGroup->GetGroupTargetForward(),
 		groupTargetRight = mGroup->GetGroupTargetRight();
@@ -174,8 +157,6 @@ void ATheLastBastionAIBase::CalculateMarchTargetPosition()
 		childtargetLocation - heightOffset, objQueryParams, QueryParams);
 
 	//DrawDebugLine(GetWorld(), childtargetLocation + heightOffset, childtargetLocation - heightOffset,FColor::Red, false, 6.0f);
-
-
 	if (IsHit)
 	{
 		//UE_LOG(LogTemp, Log, TEXT("Hit %s"), *Hit.GetActor()->GetName())
@@ -184,7 +165,6 @@ void ATheLastBastionAIBase::CalculateMarchTargetPosition()
 	}
 
 	// Handle focus
-	int groupCommand = baseAICtrl->GetNewCommandIndex_BBC();//bbcChild->GetValue<UBlackboardKeyType_Int>(baseAICtrl->GetKeyID_NewCommandIndex());
 
 	FVector focusPoint = FVector::ZeroVector;
 	switch (groupCommand)
@@ -210,16 +190,12 @@ void ATheLastBastionAIBase::CalculateMarchTargetPosition()
 	baseAICtrl->SetTargetLocation_BBC(childtargetLocation);
 	baseAICtrl->SetNewCommandIndex_BBC(0);
 	baseAICtrl->SetOldCommandIndex_BBC(groupCommand);
-	//bbcChild->SetValue<UBlackboardKeyType_Vector>(baseAICtrl->GetKeyID_TargetLocation(), childtargetLocation);
-	//bbcChild->SetValue<UBlackboardKeyType_Int>(baseAICtrl->GetKeyID_NewCommandIndex(), 0);
-	//bbcChild->SetValue<UBlackboardKeyType_Int>(baseAICtrl->GetKeyID_OldCommandIndex(), groupCommand);
+	return true;
 }
 
 void ATheLastBastionAIBase::SetTarget(AActor * _target)
 {
 	ATheLastBastionBaseAIController *baseAICtrl = Cast<ATheLastBastionBaseAIController>(GetController());
-
-	UBlackboardComponent* bbcChild = nullptr;
 
 	if (baseAICtrl == nullptr)
 	{
@@ -227,31 +203,87 @@ void ATheLastBastionAIBase::SetTarget(AActor * _target)
 		return;
 	}
 
-	bbcChild = baseAICtrl->GetBlackboardComponent();
-	if (bbcChild == nullptr)
+	AActor* currentTarget = baseAICtrl->GetTargetActor_BBC();
+	if (_target != currentTarget)
 	{
-		UE_LOG(LogTemp, Error, TEXT("bbc == nullptr - AAIGroupBase::CalculateMarchTargetPosition"));
+		baseAICtrl->SetTargetActor_BBC(_target);
+		baseAICtrl->ClearFocus(EAIFocusPriority::Gameplay);
+		baseAICtrl->SetFocus(_target, EAIFocusPriority::Gameplay);
+	}
+	baseAICtrl->SetNewCommandIndex_BBC(GC_FIGHT);
+}
+
+void ATheLastBastionAIBase::RequestAnotherTarget()
+{
+	AActor* target = mGroup->OnTargetRequest(this);
+	SetTarget(target);
+}
+
+void ATheLastBastionAIBase::OnTakeAnyDamageHandle(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
+{
+}
+
+void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor, 
+	float Damage, AController * InstigatedBy, FVector HitLocation, 
+	UPrimitiveComponent * FHitComponent, FName BoneName, FVector ShotFromDirection, 
+	const UDamageType * DamageType, AActor * DamageCauser)
+{
+
+	if (bIsDead)
+		return;
+
+	bool isCritical = false, isStun = false;
+
+	float totalDamage = AIStats->CalculateDamage(Damage, DamageCauser, isCritical, isStun);
+	float currentHp = AIStats->GetHpCurrent();
+
+	const ATheLastBastionHeroCharacter* heroAttacker = Cast<ATheLastBastionHeroCharacter>(DamageCauser);
+	if (heroAttacker)
+		GenerateFloatingText(HitLocation, heroAttacker, totalDamage, isCritical, isStun);
+
+	EvaluateAttackerThreat(DamageCauser, currentHp);
+
+	if (currentHp <= 0)
+	{
+		OnDead();
 		return;
 	}
+	
+	// if this ai is alive, how he response to this hit
+	HitResponse(DamageCauser);
 
-	bbcChild->SetValue<UBlackboardKeyType_Object>(baseAICtrl->GetKeyID_TargetActor(), _target);
 
-	baseAICtrl->ClearFocus(EAIFocusPriority::Gameplay);
-	baseAICtrl->SetFocus(_target, EAIFocusPriority::Gameplay);
+
+	// if this ai is not get stunned, play hit animation
+	mAnimInstanceRef->OnBeingHit(BoneName, ShotFromDirection, HitLocation);
+
+	if (isStun)
+	{
+		// if this ai is not get simulate ragdoll physics, play hit animation
+	}
+	else
+	{
+		// if this ai is not get stunned, play hit animation
+		mAnimInstanceRef->OnBeingHit(BoneName, ShotFromDirection, HitLocation);
+	}
+}
+
+void ATheLastBastionAIBase::GenerateFloatingText(const FVector & HitLocation,
+	const ATheLastBastionHeroCharacter * heroAttacker, float totalDamage, bool isCritical, bool isStun) {}
+
+void ATheLastBastionAIBase::EvaluateAttackerThreat(AActor * DamageCauser, float hp) {}
+
+/** How I should response to damage causer */
+void ATheLastBastionAIBase::HitResponse(AActor* DamageCauser)
+{
+
 }
 
 void ATheLastBastionAIBase::OnDead()
 {
-
 	bIsDead = true;
 	UInGameAIHUD* aiHUD = Cast<UInGameAIHUD>(InfoHUD->GetUserWidgetObject());
 	aiHUD->ToggleUI(false, false);
-
-	// condition for ragdoll
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetMesh()->SetSimulatePhysics(true);
-	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
 	// disable BT
 	ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(GetController());
@@ -264,9 +296,7 @@ void ATheLastBastionAIBase::OnDead()
 	// Launch kill timer
 	GetWorldTimerManager().SetTimer(mKillTimer, this, &ATheLastBastionAIBase::Kill, 1.0f, false, 10.0f);
 
-	//// Tell GM that I am dead
-	//ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
-	//gm->UpdateEnemyAmount(-1);
+	Super::OnDead();
 
 }
 

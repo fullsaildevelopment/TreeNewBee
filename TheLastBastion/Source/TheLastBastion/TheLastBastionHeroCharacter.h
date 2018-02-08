@@ -152,6 +152,8 @@ protected:
 		float MoveRightAxis;
 
 
+
+
 public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Control, meta = (BlueprintProtected))
@@ -165,6 +167,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Control, meta = (BlueprintProtected))
 		/** Disable the update the control yaw input*/
 		bool bIsYawControllDisabled = false;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = GroupControl)
+		bool bControlEnemyGroup;
 
 	UPROPERTY()
 		/** swat under player command */

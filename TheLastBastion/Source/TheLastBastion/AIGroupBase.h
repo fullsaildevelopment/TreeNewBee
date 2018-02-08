@@ -10,12 +10,28 @@
 
 #define SIDEPADDING 200.0f
 #define GroupVolumnZ 10000.0f
+#define TARGETREQUEST_UpLimit 4
 
+#define ThreatGain_ByHit 1
+#define ThreatGain_ByKill 3
+#define ThreatGain_HeroInit 0
+#define ThreatGain_AIInit 0
 
 #define COS22_5 0.9f
 #define COS67_5 0.4f
 #define COS112_5 -0.4f
 #define COS157_5 -0.9f
+
+#define COS45 0.7f
+
+#define TargetAtFront_Chasing 1
+#define TargetAtFront_Face2Face 2
+#define TargetFromBack_Chasing 3
+#define TargetFromBack_Back2Back 4
+#define TargetFromLeft 5
+#define TargetFromRight 6
+
+
 
 USTRUCT(BlueprintType)
 struct FAISpawnInfo 
@@ -68,12 +84,14 @@ struct FThreat
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		class ATheLastBastionCharacter* AICharacter;
+		class AActor* Character;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		float Threat;
-};
+		float GroupThreat;
 
+	UPROPERTY()
+		float Manhaton;
+};
 
 UCLASS(BlueprintType)
 class THELASTBASTION_API AAIGroupBase : public APawn
@@ -94,7 +112,8 @@ protected:
 		TArray<int> RemovePendingList;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
-		TArray<FThreat> ThreatList;
+		// Look up map for check the individual character to this threat
+		TMap<AActor* , float> ThreatMap;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		/** The class and the number we about to spawn*/
@@ -119,17 +138,7 @@ protected:
 		class UBehaviorTree* BehaviorTree;
 
 	UPROPERTY()
-		class ATheLastBastionHeroCharacter* Hero;
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
-		bool bDisabled;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Behavior)
-		bool bIsAgreesive;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Formation)
-		bool bReformPending;
+		class ATheLastBastionHeroCharacter* PlayerHero;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
 		FVector GroupTargetLocation;
@@ -139,6 +148,20 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
 		FVector GroupTargetRight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
+		bool bDisabled;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Behavior)
+		/** The Group Already In Battle, group members already has target */
+		bool bInBattle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Behavior)
+		bool bIsAgreesive;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Formation)
+		bool bReformPending;
+
 
 public:
 	// Sets default values for this pawn's properties
@@ -159,6 +182,9 @@ protected:
 	// Send group command index to each group member BT 
 	void SendGroupCommand(int _commandIndex);
 
+	// Return a index that present target relative location and heading
+	int CheckTargetRelativeWhereAbout(const AActor* const _target ) const;
+
 	UFUNCTION()
 		virtual void OnGroupVolumnOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
 			UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
@@ -173,34 +199,53 @@ public:
 
 	void PairColumn(AAIGroupBase* const _enemyGroup, int _myColumn, int _theirColumn);
 	void AssignColumn(AAIGroupBase* const _targetGroup, int _myColumn, int _theirColumn);
+	void InitMeleeCombat(AAIGroupBase* _targetGroup);
 
-
-	/** Update the children location during move to*/
-	/** DEPRECATED */
-	UFUNCTION(BlueprintCallable, Category = Behavior)
-	void CheckGroupCommand();
 
 	UFUNCTION()
-	virtual void SetMarchLocation(const FVector& _location, int _commandIndex);
-
+		virtual void SetMarchLocation(const FVector& _location, int _commandIndex);
 	UFUNCTION()
 		virtual void OnChildDeath(int _childIndex);
 
 
+	void AddThreat(AActor* _character, float _threat);
+	void RemoveThreat(AActor* _character);
+	AActor* OnTargetRequest(const AActor* _requestSender) const;
+	void QuickSortThreatListByManDistance(TArray<FThreat>& _threatList, int _left, int _right) const;
+
+	/** Update the children location during move to*/
+	/** DEPRECATED */
+	UFUNCTION(BlueprintCallable, Category = Behavior)
+		void CheckGroupCommand();
+
+	virtual int GetMaxColoumnCount() const;
+
+	UFUNCTION()
+		/** Get Current most front line*/
+		TArray<class ATheLastBastionAIBase*> GetFrontLine() const;
+	UFUNCTION()
+		/** Get Current most Back line*/
+		TArray<class ATheLastBastionAIBase*> GetBackLine() const;
+
+	UFUNCTION()
+		/** Get Current most Right line*/
+		TArray<class ATheLastBastionAIBase*> GetRightLine() const;
+	UFUNCTION()
+		/** Get Current most Left line*/
+		TArray<class ATheLastBastionAIBase*> GetLeftLine() const;
+
+
+	UFUNCTION()
+		TArray<class ATheLastBastionAIBase*> GetColumnAt(int _index) const;
+	UFUNCTION()
+		TArray<class ATheLastBastionAIBase*> GetRowAt(int _index) const;
+
+	FORCEINLINE bool IsInBattle() const { return bInBattle; }
 	FORCEINLINE class UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
-
 	FORCEINLINE FVector GetGroupRelativeOffsetAt(int _index) const { return AICharactersInfo[_index].GroupRelativeOffset; }
-
 	FORCEINLINE FVector GetGroupTargetLocation() const { return GroupTargetLocation; }
 	FORCEINLINE FVector GetGroupTargetForward() const { return GroupTargetForward; }
 	FORCEINLINE FVector GetGroupTargetRight() const { return GroupTargetRight; }
 
 
-	virtual int GetMaxColoumnCount() const;
-
-	UFUNCTION()
-		TArray<class ATheLastBastionAIBase*> GetFrontLine() const;
-
-	UFUNCTION()
-		TArray<class ATheLastBastionAIBase*> GetColumnAt(int _index) const;
 };

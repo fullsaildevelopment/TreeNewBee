@@ -39,8 +39,8 @@ AAllyGroup::AAllyGroup()
 void AAllyGroup::BeginPlay()
 {
 	Super::BeginPlay();
-	if (Hero && Hero->CommandedGroup == nullptr)
-		Hero->CommandedGroup = this;
+	if (PlayerHero && PlayerHero->CommandedGroup == nullptr)
+		PlayerHero->CommandedGroup = this;
 
 	mFollowingLocation = GetActorLocation();
 }
@@ -145,9 +145,8 @@ void AAllyGroup::SpawnChildGroup()
 		remain -= curColCount;
 	}
 
-	float maxGroupWidth = (maxColCount - 1) * CurrentPadding;
-	float maxGroupLength = (maxRowCount - 1) * CurrentPadding;
-
+	float maxGroupWidth = (maxColCount - 1) * CurrentPadding * 0.5f + SIDEPADDING;
+	float maxGroupLength = (maxRowCount - 1) * CurrentPadding + 0.5 * SIDEPADDING;
 	GroupVolumn->SetBoxExtent(FVector(maxGroupLength, maxGroupWidth, GroupVolumnZ), true);
 	MoveComp->MaxSpeed = groupSpeed;
 }
@@ -202,10 +201,10 @@ void AAllyGroup::OnReform()
 		groupSpeed = (speed < groupSpeed) ? speed : groupSpeed;
 	}
 
-	float maxGroupWidth = (maxColCount - 1) * CurrentPadding;
-	float maxGroupLength = (maxRowCount - 1) * CurrentPadding;
-
+	float maxGroupWidth = (maxColCount - 1) * CurrentPadding * 0.5f + SIDEPADDING;
+	float maxGroupLength = (maxRowCount - 1) * CurrentPadding + 0.5 * SIDEPADDING;
 	GroupVolumn->SetBoxExtent(FVector(maxGroupLength, maxGroupWidth, GroupVolumnZ), true);
+
 	MoveComp->MaxSpeed = groupSpeed;
 	bReformPending = false;
 }
@@ -235,110 +234,11 @@ void AAllyGroup::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * OverlappedComp
 {
 
 	// Get Enemy Group
-	//AAIGroupBase* EnemyGroup = Enemy->GetGroup();
 	AEnemyGroup* EnemyGroup = Cast<AEnemyGroup>(OtherActor);
-
 
 	if (EnemyGroup)
 	{
-
-		// Assign Targets
-		FVector ourForwardVector = GetActorForwardVector();
-		FVector theirForwardVector = EnemyGroup->GetActorForwardVector();
-
-		float dotProduct = FVector::DotProduct(ourForwardVector, theirForwardVector);
-		if (dotProduct < -COS22_5)
-		{
-			// check number of column for two group
-			int ourColCount = FormationInfo[0];
-			int theirColCount = EnemyGroup->GetMaxColoumnCount();
-
-			// find middle column
-			int ourMiddleColumn = ourColCount * 0.5f;
-			int theirMiddleColumn = theirColCount * 0.5f;
-
-			int maxOffsetTimeFromMiddle;
-			if (ourColCount > theirColCount)
-				maxOffsetTimeFromMiddle = UKismetMathLibrary::Max(ourMiddleColumn, ourColCount - 1 - ourMiddleColumn);
-			else
-				maxOffsetTimeFromMiddle = UKismetMathLibrary::Max(theirMiddleColumn, theirColCount - 1 - theirMiddleColumn);
-
-
-
-			for (int iOffset = 0; iOffset <= maxOffsetTimeFromMiddle; iOffset++)
-			{
-				int ourCurrrentColumn, theirCurrentColumn;
-				if (iOffset == 0)
-				{
-					ourCurrrentColumn = iOffset + ourMiddleColumn;
-					theirCurrentColumn = iOffset + theirMiddleColumn;
-
-					PairColumn(EnemyGroup, ourCurrrentColumn, theirCurrentColumn);
-
-				}
-				else
-				{
-					ourCurrrentColumn = iOffset + ourMiddleColumn;
-					theirCurrentColumn = -iOffset + theirMiddleColumn;
-
-					if (ourCurrrentColumn < ourColCount && theirCurrentColumn >= 0 )
-					{
-						PairColumn(EnemyGroup, ourCurrrentColumn, theirCurrentColumn);
-					}
-					else
-					{
-
-						if (ourCurrrentColumn >= ourColCount && theirCurrentColumn < 0)
-						{
-							// do nothing, both invalid
-						}
-						else if(ourCurrrentColumn >= ourColCount)
-						{
-							// their attack our nearest column
-							EnemyGroup->AssignColumn(this, theirCurrentColumn, ourColCount - 1);
-						}
-						else if (theirCurrentColumn < 0)
-						{
-							this->AssignColumn(EnemyGroup, ourCurrrentColumn, 0);
-
-						}
-
-					}
-
-
-					ourCurrrentColumn = -iOffset + ourMiddleColumn;
-					theirCurrentColumn = +iOffset + theirMiddleColumn;
-
-
-					if (ourCurrrentColumn >= 0 && theirCurrentColumn < theirColCount)
-					{
-						PairColumn(EnemyGroup, ourCurrrentColumn, theirCurrentColumn);
-					}
-					else
-					{
-
-						if (ourCurrrentColumn < 0 && theirCurrentColumn >= theirColCount)
-						{
-							// do nothing, both invalid
-						}
-						else if (ourCurrrentColumn < 0)
-						{
-							// their attack our nearest column
-							EnemyGroup->AssignColumn(this, theirCurrentColumn, 0);
-						}
-						else if (theirCurrentColumn >= theirColCount)
-						{
-							this->AssignColumn(EnemyGroup, ourCurrrentColumn, theirColCount - 1);
-
-						}
-
-					}
-
-				}
-			}
-
-		}
-
+		InitMeleeCombat(EnemyGroup);
 	}
 
 }
@@ -508,8 +408,8 @@ void AAllyGroup::SetMarchLocation(const FVector & _targetLocation, int _commandI
 	case GC_HOLDLOCATION:
 	case GC_FOLLOW:
 	{
-		GroupTargetForward = Hero->GetActorForwardVector();
-		GroupTargetRight = Hero->GetActorRightVector();
+		GroupTargetForward = PlayerHero->GetActorForwardVector();
+		GroupTargetRight = PlayerHero->GetActorRightVector();
 		break;
 	}
 	case GC_FORWARD:
@@ -543,7 +443,7 @@ void AAllyGroup::SetMarchLocation(const FVector & _targetLocation, int _commandI
 	case GC_HOLDLOCATION:
 	case GC_FOLLOW:
 	{
-		this->SetActorRotation(Hero->GetActorRotation());
+		this->SetActorRotation(PlayerHero->GetActorRotation());
 		break;
 	}
 	case GC_FORWARD:
@@ -596,7 +496,7 @@ void AAllyGroup::OnChildDeath(int _childIndex)
 
 void AAllyGroup::SetFollowingLocation()
 {
-	FVector targetLocation = Hero->GetActorLocation() - Hero->GetActorForwardVector() * 100.0f;
+	FVector targetLocation = PlayerHero->GetActorLocation() - PlayerHero->GetActorForwardVector() * 100.0f;
 
 	float distanceSqr = FVector::DistSquared(targetLocation, mFollowingLocation);
 
@@ -628,5 +528,13 @@ void AAllyGroup::OnStopFollowing()
 
 int AAllyGroup::GetMaxColoumnCount() const
 {
-	return FormationInfo[0];
+
+	if (bUseSquareFormation)
+	{
+		return FormationInfo[0];
+	}
+	else
+	{
+		return AICharactersInfo.Num();
+	}
 }

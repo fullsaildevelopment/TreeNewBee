@@ -62,7 +62,6 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
 
-
 void ATheLastBastionCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -103,6 +102,34 @@ void ATheLastBastionCharacter::OnTakePointDamageHandle(AActor * DamagedActor, fl
 
 	//UE_LOG(LogTemp, Log, TEXT("Take Point Damage - ATheLastBastionCharacter::OnTakePointDamageHandle"));
 
+}
+
+void ATheLastBastionCharacter::OnDead()
+{
+	// condition for ragdoll
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetCollisionResponseToChannel(
+		ECollisionChannel::ECC_WorldStatic,
+		ECollisionResponse::ECR_Block);
+
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+	PawnStats->SetEnableWeapon(false, true, true);
+
+	for (int iGroup = 0; iGroup < ThreatingGroup.Num(); iGroup++)
+	{
+		ThreatingGroup[iGroup]->RemoveThreat(this);
+	}
+}
+
+void ATheLastBastionCharacter::Kill()
+{
+}
+
+void ATheLastBastionCharacter::RegisterThreat(AAIGroupBase * _threatingGroup)
+{
+	ThreatingGroup.AddUnique(_threatingGroup);
 }
 
 float ATheLastBastionCharacter::GetCurrentMaxSpeed() const

@@ -369,7 +369,7 @@ float UPawnStatsComponent::CalculateDamage(float baseDamage, AActor * _damageCau
 
 	HpCurrent = FMath::Clamp(HpCurrent, 0.0f, HpMax);
 
-	UE_LOG(LogTemp, Log, TEXT("Enemy::OnTakePointDamageHandle, critical: %f, stun: %f"), criticalRate, stunRate);
+	//UE_LOG(LogTemp, Log, TEXT("Enemy::OnTakePointDamageHandle, critical: %f, stun: %f"), criticalRate, stunRate);
 
 	return totalDamage;
 }

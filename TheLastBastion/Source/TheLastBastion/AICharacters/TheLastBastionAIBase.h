@@ -9,6 +9,9 @@
 /**
  * 
  */
+
+
+
 UCLASS()
 class THELASTBASTION_API ATheLastBastionAIBase : public ATheLastBastionCharacter
 {
@@ -23,19 +26,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
 		FText AiName;
 
-	UPROPERTY()
-		FTimerHandle mKillTimer;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
 		class UPawnStatsComponent* AIStats;
 
 	UPROPERTY()
 		class UAIBase_AnimInstance* mAnimInstanceRef;
 
-	UPROPERTY(EditDefaultsOnly, Category = Behavior)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Behavior)
 		class UBehaviorTree* BehaviorTree;
 
-	UPROPERTY(VisibleAnywhere, Category = AiHud)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AiHud)
 		class UWidgetComponent* InfoHUD;
 
 	UPROPERTY()
@@ -79,18 +79,39 @@ public:
 	FORCEINLINE void SetGroupIndex(int _groupIndex) { mGroupIndex = _groupIndex; }
 
 	UFUNCTION(BlueprintCallable)
-			void CalculateMarchTargetPosition();
+			bool OnGroupTaskStart();
 
 	void SetTarget(AActor* _target);
 
-
+	void RequestAnotherTarget();
 
 protected:
 
+
+	UFUNCTION()
+		void OnTakeAnyDamageHandle(AActor* DamagedActor, float Damage, const class UDamageType* DamageType
+			, class AController* InstigatedBy, AActor* DamageCauser) override;
+	UFUNCTION()
+		void OnTakePointDamageHandle(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation,
+			class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
+			const class UDamageType* DamageType, AActor* DamageCauser) override;
+
+	virtual void GenerateFloatingText(const FVector& HitLocation, const class ATheLastBastionHeroCharacter* heroAttacker,
+		float totalDamage, bool isCritical, bool isStun);
+
+	virtual void EvaluateAttackerThreat(AActor* DamageCauser, float hp);
+
+	// Define how am I going to do with the damage causer
+	virtual void HitResponse(AActor* DamageCauser);
+
 	// Called on Hp = 0;
-	void OnDead();
+	void OnDead() override;
 
 	// Called on actor destroyed
-	void Kill();
+	void Kill() override;
+
+
+
+
 
 };

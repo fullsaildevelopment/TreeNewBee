@@ -22,13 +22,12 @@ public:
 
 protected:
 
-	UFUNCTION()
-		void OnTakeAnyDamageHandle(AActor* DamagedActor, float Damage, const class UDamageType* DamageType
-			, class AController* InstigatedBy, AActor* DamageCauser) override;
-	UFUNCTION()
-		void OnTakePointDamageHandle(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation,
-			class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
-			const class UDamageType* DamageType, AActor* DamageCauser) override;
+	void HitResponse(AActor* DamageCauser) override;
+
+	void GenerateFloatingText(const FVector& HitLocation, const class ATheLastBastionHeroCharacter* heroAttacker,
+		float totalDamage, bool isCritical, bool isStun) override;
+
+	void EvaluateAttackerThreat(AActor* DamageCauser, float hp) override;
 
 
 public:
