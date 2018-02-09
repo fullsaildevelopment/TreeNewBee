@@ -37,8 +37,8 @@ public:
 protected:
 
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GroupBehavior)
-		TArray<class AAIGroupBase*> ThreatingGroup;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GroupBehavior)
+	//	TArray<class AAIGroupBase*> ThreatingGroup;
 
 	UPROPERTY()
 	    class UPawnStatsComponent* PawnStats;
@@ -108,8 +108,8 @@ protected:
 
 public:
 	
-	// Mark a group that under my threat
-	void RegisterThreat(AAIGroupBase* _threatingGroup);
+	//// Mark a group that under my threat
+	//void RegisterThreat(AAIGroupBase* _threatingGroup);
 
 public:
 

@@ -17,6 +17,7 @@
 #include "CustomType.h"
 
 #define NavPointHeightAdjustLimit 500.0f;
+#define SecondBeforeKill 10.0f
 
 ATheLastBastionAIBase::ATheLastBastionAIBase()
 {
@@ -68,8 +69,8 @@ void ATheLastBastionAIBase::BeginPlay()
 	InfoHUD->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("head"));
 	InfoHUD->AddLocalOffset(FVector(30, 0, 0));
 
-	UInGameAIHUD* aiHUD = Cast<UInGameAIHUD>(InfoHUD->GetUserWidgetObject());
-	if (aiHUD == nullptr)
+	AI_HUD = Cast<UInGameAIHUD>(InfoHUD->GetUserWidgetObject());
+	if (AI_HUD == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("aiHUD must be a UInGameAIHUD - ATheLastBastionEnemyCharacter"));
 		return;
@@ -79,8 +80,8 @@ void ATheLastBastionAIBase::BeginPlay()
 	initializer.AIName = AiName;
 	initializer.AILevel = AILevel;
 
-	aiHUD->InitRowHeader(initializer);
-	aiHUD->SetVisibility(ESlateVisibility::Hidden);
+	AI_HUD->InitRowHeader(initializer);
+	AI_HUD->SetVisibility(ESlateVisibility::Hidden);
 
 	if (bIsWalking)
 		GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
@@ -237,6 +238,8 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 	float totalDamage = AIStats->CalculateDamage(Damage, DamageCauser, isCritical, isStun);
 	float currentHp = AIStats->GetHpCurrent();
 
+	AI_HUD->UpdateHealthBar(AIStats);
+
 	const ATheLastBastionHeroCharacter* heroAttacker = Cast<ATheLastBastionHeroCharacter>(DamageCauser);
 	if (heroAttacker)
 		GenerateFloatingText(HitLocation, heroAttacker, totalDamage, isCritical, isStun);
@@ -252,8 +255,6 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 	// if this ai is alive, how he response to this hit
 	HitResponse(DamageCauser);
 
-
-
 	// if this ai is not get stunned, play hit animation
 	mAnimInstanceRef->OnBeingHit(BoneName, ShotFromDirection, HitLocation);
 
@@ -264,7 +265,7 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 	else
 	{
 		// if this ai is not get stunned, play hit animation
-		mAnimInstanceRef->OnBeingHit(BoneName, ShotFromDirection, HitLocation);
+		//mAnimInstanceRef->OnBeingHit(BoneName, ShotFromDirection, HitLocation);
 	}
 }
 
@@ -282,8 +283,8 @@ void ATheLastBastionAIBase::HitResponse(AActor* DamageCauser)
 void ATheLastBastionAIBase::OnDead()
 {
 	bIsDead = true;
-	UInGameAIHUD* aiHUD = Cast<UInGameAIHUD>(InfoHUD->GetUserWidgetObject());
-	aiHUD->ToggleUI(false, false);
+	if (AI_HUD)
+		AI_HUD->ToggleUI(false, false);
 
 	// disable BT
 	ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(GetController());
@@ -294,7 +295,7 @@ void ATheLastBastionAIBase::OnDead()
 	mGroup->OnChildDeath(mGroupIndex);
 
 	// Launch kill timer
-	GetWorldTimerManager().SetTimer(mKillTimer, this, &ATheLastBastionAIBase::Kill, 1.0f, false, 10.0f);
+	GetWorldTimerManager().SetTimer(mKillTimer, this, &ATheLastBastionAIBase::Kill, 1.0f, false, SecondBeforeKill);
 
 	Super::OnDead();
 

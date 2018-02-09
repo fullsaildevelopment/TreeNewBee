@@ -40,13 +40,10 @@ void ATheLastBastionEnemyCharacter::HitResponse(AActor * DamageCauser)
 void ATheLastBastionEnemyCharacter::GenerateFloatingText(const FVector & HitLocation,
 	const ATheLastBastionHeroCharacter * heroAttacker, float totalDamage, bool isCritical, bool isStun)
 {
-	UInGameAIHUD* aiHUD = Cast<UInGameAIHUD>(InfoHUD->GetUserWidgetObject());
-	aiHUD->UpdateHealthBar(AIStats);
-
 	// if this AI is not being locked on, 
 	// we will display UI temporary with a opacity animation
 	if (!bAIHUDisDisplayedForLockedOn)
-		aiHUD->ToggleUI(true, true);
+		AI_HUD->ToggleUI(true, true);
 
 	// pop up some floating text
 	TSubclassOf<UUserWidget> fT_WBP = AIStats->GetFloatingText_WBP();
@@ -135,7 +132,7 @@ void ATheLastBastionEnemyCharacter::EvaluateAttackerThreat(AActor * DamageCauser
 	{
 		if (attacker && !attacker->GetIsDead())
 		{
-			attacker->RegisterThreat(mGroup);
+			//attacker->RegisterThreat(mGroup);
 			if (hp > 0)
 				mGroup->AddThreat(attacker, ThreatGain_ByHit);
 			else
@@ -150,14 +147,13 @@ void ATheLastBastionEnemyCharacter::EvaluateAttackerThreat(AActor * DamageCauser
 void ATheLastBastionEnemyCharacter::ToggleAIHUD(bool _val)
 {
 	bAIHUDisDisplayedForLockedOn = _val;
-	UInGameAIHUD* aiHUD = Cast<UInGameAIHUD>(InfoHUD->GetUserWidgetObject());
 
-	if (aiHUD)
+	if (AI_HUD)
 	{
 		if (bAIHUDisDisplayedForLockedOn)
-			aiHUD->ToggleUI(true, false);
+			AI_HUD->ToggleUI(true, false);
 		else
-			aiHUD->ToggleUI(false, false);
+			AI_HUD->ToggleUI(false, false);
 	}
 	else
 	{

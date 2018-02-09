@@ -119,6 +119,17 @@ protected:
 	void OnCommandPressed();
 
 	void OnCommandReleased();
+
+	void OnSelectedCrew_1();
+
+	void OnSelectedCrew_2();
+
+	void OnSelectedCrew_3();
+
+	void OnSelectedCrew_4();
+
+	void OnSelectedCrewOnIndex(int _index);
+
 #pragma endregion
 
 	UFUNCTION()

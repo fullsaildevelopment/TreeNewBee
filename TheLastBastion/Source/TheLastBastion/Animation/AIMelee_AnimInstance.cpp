@@ -57,7 +57,7 @@ void UAIMelee_AnimInstance::OnEnableWeapon(bool bIsright, bool bIsAll)
 	if (mCharacter)
 	{
 		//UE_LOG(LogTemp, Log, TEXT("enable weapon"));
-		if (CurrentActionState != EAIActionState::GettingHurt)
+		if (CurrentActionState != EAIActionState::GettingHurt && !mCharacter->GetIsDead())
 		{
 			mCharacter->GetEnemyStatsComponent()->SetEnableWeapon(true, bIsright, bIsAll);
 

@@ -127,7 +127,7 @@ void AAIGroupBase::SetMarchLocation(const FVector & _targetLocation, int _comman
 
 void AAIGroupBase::OnChildDeath(int _childIndex) {}
 
-void AAIGroupBase::AddThreat(AActor * _character, float _threat)
+void AAIGroupBase::AddThreat(ATheLastBastionCharacter * _character, float _threat)
 {
 	float* threat = ThreatMap.Find(_character);
 	if (threat == nullptr)
@@ -140,25 +140,31 @@ void AAIGroupBase::AddThreat(AActor * _character, float _threat)
 	}
 }
 
-void AAIGroupBase::RemoveThreat(AActor * _character)
+void AAIGroupBase::RemoveThreat(ATheLastBastionCharacter * _character)
 {
 	ThreatMap.Remove(_character);
 }
 
-AActor * AAIGroupBase::OnTargetRequest(const AActor* _requestSender) const
+AActor * AAIGroupBase::OnTargetRequest(const AActor* _requestSender)
 {
+	ATheLastBastionCharacter* currentThreat = nullptr;
+	//filter out the dead threat
+	for (auto& Elem : ThreatMap)
+	{
+		currentThreat = Elem.Key;
+		if (currentThreat->GetIsDead())
+			ThreatMap.Remove(currentThreat);
+	}
 
 	int ThreatCount = ThreatMap.Num();
 	if (ThreatCount == 0)
 		return nullptr;
-
 
 	// find the nearest target candidates use manhaton distance
 	TArray<FThreat> targetCandidates;
 	targetCandidates.SetNum(ThreatCount);
 	int currentIndex = 0;
 
-	AActor* currentThreat = nullptr;
 	for (auto& Elem : ThreatMap)
 	{
 		currentThreat = Elem.Key;

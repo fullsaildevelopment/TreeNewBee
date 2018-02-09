@@ -41,6 +41,9 @@ protected:
 	UPROPERTY()
 		class AAIGroupBase* mGroup;
 
+	UPROPERTY()
+		class UInGameAIHUD* AI_HUD;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GroupBehavior)
 		int mGroupIndex;
 

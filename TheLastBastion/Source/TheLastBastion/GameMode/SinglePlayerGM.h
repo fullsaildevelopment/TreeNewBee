@@ -36,6 +36,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = CharacterClass)
 		TSubclassOf<class ATheLastBastionCharacter> LannesterShooter_T0_BP;
 
+
+
 	FTimerHandle TimerHandle_EnemySpawner;
 
 	FTimerHandle TimerHandle_NextWaveStart;
@@ -70,6 +72,20 @@ protected:
 private:
 
 	// resource
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
+		TArray<class AAllyGroup*> Allies;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
+		int Gold;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
+		int Wood;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
+		int Metal;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
+		int Rock;
 
 	//
 	UPROPERTY()
@@ -91,4 +107,7 @@ public:
 
 	void Tick(float DeltaSeconds) override;
 
+	bool HasAllyGroupUnitAt(int _index);
+
+	class AAllyGroup* GetAllyGroupUnitAt(int _index);
 };

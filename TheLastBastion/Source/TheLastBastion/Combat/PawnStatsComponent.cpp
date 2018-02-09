@@ -69,7 +69,7 @@ void UPawnStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 void UPawnStatsComponent::SetEnableWeapon(bool _bIsEnabled, bool _bIsRightHand, bool _bIsAll)
 {
-
+	//UE_LOG(LogTemp, Log, TEXT("SetEnableWeapon(_bIsEnabled %d, _bIsRightHand  %d, _bIsAll  %d)"), _bIsEnabled, _bIsRightHand, _bIsAll);
 	AWeapon* rightWeapon = Cast<AWeapon>(WeaponSlots[CurrentWeapon_Index].RightHand);
 	AWeapon* leftWeapon = Cast<AWeapon>(WeaponSlots[CurrentWeapon_Index].LeftHand);
 

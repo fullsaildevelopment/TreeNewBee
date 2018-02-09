@@ -3,26 +3,33 @@
 #include "TheLastBastionHeroCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+
+#include "Components/InputComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/SphereComponent.h"
+#include "Components/CapsuleComponent.h"
+
 #include "Animation/Hero_AnimInstance.h"
 #include "CustomType.h"
 #include "Combat/Weapon.h"
 #include "Combat/Armor.h"
 #include "Combat/HeroStatsComponent.h"
-#include "Components/SphereComponent.h"
-#include "Components/CapsuleComponent.h"
 
 #include "GI_TheLastBastion.h"
-#include "UI/InGameHUD.h"
+
 #include "PCs/SinglePlayerPC.h"
+#include "GameMode/SinglePlayerGM.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "AI/AllyGroup.h"
-#include "AICharacters/TheLastBastionEnemyCharacter.h"
 #include "AI/TheLastBastionGroupAIController.h"
+
+#include "AICharacters/TheLastBastionEnemyCharacter.h"
+
 #include "UI/InGameFloatingText.h"
+#include "UI/InGameHUD.h"
+
 #include "DrawDebugHelpers.h"
 
 
@@ -154,6 +161,10 @@ void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputCompone
 	PlayerInputComponent->BindAction("Command_Forward", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnCommandForward);
 	PlayerInputComponent->BindAction("Command_Backward", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnCommandBackward);
 
+	PlayerInputComponent->BindAction("SelectedCrew_1", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSelectedCrew_1);
+	PlayerInputComponent->BindAction("SelectedCrew_2", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSelectedCrew_2);
+	PlayerInputComponent->BindAction("SelectedCrew_3", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSelectedCrew_3);
+	PlayerInputComponent->BindAction("SelectedCrew_4", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSelectedCrew_4);
 
 }
 
@@ -460,6 +471,60 @@ void ATheLastBastionHeroCharacter::OnCommandReleased()
 	}
 	bIsInCommandMode = false;
 	mInGameHUD->ToggleCommandList(false);
+}
+
+void ATheLastBastionHeroCharacter::OnSelectedCrew_1()
+{
+	OnSelectedCrewOnIndex(0);
+}
+
+void ATheLastBastionHeroCharacter::OnSelectedCrew_2()
+{
+	OnSelectedCrewOnIndex(1);
+}
+
+void ATheLastBastionHeroCharacter::OnSelectedCrew_3()
+{
+	OnSelectedCrewOnIndex(2);
+}
+
+void ATheLastBastionHeroCharacter::OnSelectedCrew_4()
+{
+	OnSelectedCrewOnIndex(3);
+}
+
+void ATheLastBastionHeroCharacter::OnSelectedCrewOnIndex(int _index)
+{
+	// check if we have an ally group unit on that index
+	ASinglePlayerGM* spGameMode = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (spGameMode == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("spGameMode == nullptr - ATheLastBastionHeroCharacter::OnSelectedCrewOnIndex(int _index)"));
+		return;
+	}
+
+	AAllyGroup* const ally = spGameMode->GetAllyGroupUnitAt(_index);
+	if (ally != nullptr)
+	{
+		if (CommandedGroup)
+			CommandedGroup->OnDeSelected();
+		CommandedGroup = ally;
+		CommandedGroup->OnSelected();
+
+		// if we have assign that ally group under our command and show up in UI
+		ASinglePlayerPC* spPC = Cast<ASinglePlayerPC>(GetController());
+		if (spPC)
+		{
+			spPC->OnSelectedCrewAt(_index);
+		}
+
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, 
+			TEXT("Ally unit at index: %d is nullptr - ATheLastBastionHeroCharacter::OnSelectedCrewOnIndex(int _index)"), _index);
+	}
+
 }
 
 void ATheLastBastionHeroCharacter::OnTABPressed()

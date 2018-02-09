@@ -7,6 +7,7 @@
 #include "GameMode/SpawnLocation.h"
 #include "TimerManager.h"
 #include "TheLastBastionCharacter.h"
+#include "AI/AllyGroup.h"
 
 
 ASinglePlayerGM::ASinglePlayerGM(const FObjectInitializer & _objectInitilizer) : Super(_objectInitilizer)
@@ -120,7 +121,21 @@ void ASinglePlayerGM::BeginPlay()
 
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("%d"), LannesterSpawnLocations_One.Num());
+	/// Temp Code
+	/// Get All Allies on the scene, since we cant not spawn any ally unit yet
+	TArray<AActor*> AllAllies;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAllyGroup::StaticClass(), AllAllies);
+	int AlliesCount = AllAllies.Num();
+	AlliesCount = (AlliesCount > 4) ? 4 : AlliesCount;
+
+	Allies.SetNum(AlliesCount);
+	for (int iAllies = 0; iAllies < AlliesCount; iAllies++)
+	{
+		Allies[iAllies] = Cast<AAllyGroup>(AllAllies[iAllies]);
+	}
+
+
+	
 
 
 }
@@ -240,4 +255,18 @@ void ASinglePlayerGM::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	CheckWaveState();
+}
+
+bool ASinglePlayerGM::HasAllyGroupUnitAt(int _index)
+{
+	return 	Allies.IsValidIndex(_index);
+}
+
+AAllyGroup * ASinglePlayerGM::GetAllyGroupUnitAt(int _index)
+{
+	if (Allies.IsValidIndex(_index))
+	{
+		return Allies[_index];
+	}
+	return nullptr;
 }

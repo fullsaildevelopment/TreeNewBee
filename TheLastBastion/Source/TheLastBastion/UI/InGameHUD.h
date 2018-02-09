@@ -50,6 +50,9 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UWidgetSwitcher* GroupCommandList;
 
+	UPROPERTY(meta = (BindWidget))
+		class UCrewBarUI* CrewBar;
+
 	UPROPERTY()
 		bool bIsRanger;
 
@@ -74,5 +77,7 @@ public:
 	void ToggleCommandList(bool _val);
 
 	void SetCurrentWeaponImage(const class AGear* _gear);
+
+	void OnSelectedCrewAt(int _index);
 
 };

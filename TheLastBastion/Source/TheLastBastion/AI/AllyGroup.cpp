@@ -39,8 +39,10 @@ AAllyGroup::AAllyGroup()
 void AAllyGroup::BeginPlay()
 {
 	Super::BeginPlay();
-	if (PlayerHero && PlayerHero->CommandedGroup == nullptr)
-		PlayerHero->CommandedGroup = this;
+
+	//if (PlayerHero && PlayerHero->CommandedGroup == nullptr)
+	//	PlayerHero->CommandedGroup = this;
+
 
 	mFollowingLocation = GetActorLocation();
 }
@@ -525,6 +527,25 @@ void AAllyGroup::OnStopFollowing()
 	bIsFollowing = false;
 
 }
+
+void AAllyGroup::OnSelected()
+{
+	for (auto& character : AICharactersInfo )
+	{
+		character.AICharacter->ToggleAIHUD(true);
+	}
+}
+
+void AAllyGroup::OnDeSelected()
+{
+	for (auto& character : AICharactersInfo)
+	{
+		character.AICharacter->ToggleAIHUD(false);
+	}
+
+}
+
+
 
 int AAllyGroup::GetMaxColoumnCount() const
 {

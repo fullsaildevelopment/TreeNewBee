@@ -97,6 +97,11 @@ public:
 
 	void OnChildDeath(int _childIndex) override;
 
+	/**Called when this unit get selected, show up UI for each child*/
+	void OnSelected();
+
+	void OnDeSelected();
+
 	int GetMaxColoumnCount() const override;
 
 	FORCEINLINE bool IsFollowing() const { return bIsFollowing; }

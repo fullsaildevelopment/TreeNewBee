@@ -38,8 +38,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = DamageCollision)
 		bool bShowBounding;
 
-	UPROPERTY(BlueprintReadOnly, Category = DamageCollision)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DamageCollision)
 		bool bDamageIsEnable;
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = DamageCollision)
 		FVector DamageEdgeOffset_start;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = DamageCollision)

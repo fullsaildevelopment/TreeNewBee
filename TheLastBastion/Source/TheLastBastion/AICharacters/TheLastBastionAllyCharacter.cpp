@@ -38,9 +38,7 @@ void ATheLastBastionAllyCharacter::HitResponse(AActor * DamageCauser)
 void ATheLastBastionAllyCharacter::GenerateFloatingText(const FVector & HitLocation,
 	const ATheLastBastionHeroCharacter * heroAttacker, float totalDamage, bool isCritical, bool isStun)
 {
-	UInGameAIHUD* aiHUD = Cast<UInGameAIHUD>(InfoHUD->GetUserWidgetObject());
-	aiHUD->UpdateHealthBar(AIStats);
-	aiHUD->ToggleUI(true, true);
+	AI_HUD->ToggleUI(true, true);
 
 	// pop up some floating text
 	TSubclassOf<UUserWidget> fT_WBP = AIStats->GetFloatingText_WBP();
@@ -122,7 +120,7 @@ void ATheLastBastionAllyCharacter::EvaluateAttackerThreat(AActor * DamageCauser,
 	// this an enemy is hit by an enemy, we dont put it threat map
 	if (attacker && !attacker->GetIsDead())
 	{
-		attacker->RegisterThreat(mGroup);
+		//attacker->RegisterThreat(mGroup);
 		if (hp > 0)
 			mGroup->AddThreat(attacker, ThreatGain_ByHit);
 		else
@@ -135,10 +133,8 @@ void ATheLastBastionAllyCharacter::EvaluateAttackerThreat(AActor * DamageCauser,
 void ATheLastBastionAllyCharacter::ToggleAIHUD(bool _val)
 {
 
-	UInGameAIHUD* aiHUD = Cast<UInGameAIHUD>(InfoHUD->GetUserWidgetObject());
-
-	if (aiHUD)
+	if (AI_HUD)
 	{
-		aiHUD->ToggleUI(_val, true);
+		AI_HUD->ToggleUI(_val, true);
 	}
 }

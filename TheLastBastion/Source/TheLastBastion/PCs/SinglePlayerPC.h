@@ -61,20 +61,12 @@ public:
 		void CloseTradeMenu();
 
 	UFUNCTION(Exec)
-		void TurnOnRagDoll();
-
-	UFUNCTION(Exec)
-		void RecoverImmediate();
-
-	UFUNCTION(Exec)
-		void RecoverByGettingUp();
-
-
-	UFUNCTION(Exec)
 		void ShowFrontLine();
 
 	UFUNCTION(Exec)
 		void ShowColumnAt(int _index);
+
+	void OnSelectedCrewAt(int _index);
 
 
 

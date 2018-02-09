@@ -113,7 +113,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
 		// Look up map for check the individual character to this threat
-		TMap<AActor* , float> ThreatMap;
+		TMap<class ATheLastBastionCharacter* , float> ThreatMap;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		/** The class and the number we about to spawn*/
@@ -208,9 +208,9 @@ public:
 		virtual void OnChildDeath(int _childIndex);
 
 
-	void AddThreat(AActor* _character, float _threat);
-	void RemoveThreat(AActor* _character);
-	AActor* OnTargetRequest(const AActor* _requestSender) const;
+	void AddThreat(class ATheLastBastionCharacter* _character, float _threat);
+	void RemoveThreat(class ATheLastBastionCharacter* _character);
+	AActor* OnTargetRequest(const AActor* _requestSender);
 	void QuickSortThreatListByManDistance(TArray<FThreat>& _threatList, int _left, int _right) const;
 
 	/** Update the children location during move to*/

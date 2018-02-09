@@ -188,18 +188,6 @@ void ASinglePlayerPC::CloseTradeMenu()
 	}
 }
 
-void ASinglePlayerPC::TurnOnRagDoll()
-{
-}
-
-void ASinglePlayerPC::RecoverImmediate()
-{
-}
-
-void ASinglePlayerPC::RecoverByGettingUp()
-{
-}
-
 void ASinglePlayerPC::ShowFrontLine()
 {
 	ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(GetCharacter());
@@ -225,6 +213,11 @@ void ASinglePlayerPC::ShowColumnAt(int _index)
 		}
 	}
 
+}
+
+void ASinglePlayerPC::OnSelectedCrewAt(int _index)
+{
+	mInGameHUD->OnSelectedCrewAt(_index);
 }
 
 void ASinglePlayerPC::OnTradeMenuAccept(UHeroStatsComponent * _heroStats)

@@ -9,6 +9,7 @@
 #include "UI/InGamePlayerRow.h"
 #include "UI/InGameTeamRow.h"
 #include "UI/Gameplay/WeaponSlotsUI.h"
+#include "UI/Gameplay/CrewBarUI.h"
 
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
@@ -40,7 +41,7 @@ bool UInGameHUD::Initialize()
 	bool bAllWidgetAreGood =
 		PlayerRow != nullptr && TeamWindow != nullptr
 		&& GoldValue != nullptr && WoodValue != nullptr && MetalValue != nullptr && RockValue != nullptr && CrossHair != nullptr
-		&& CrossHair && WeaponSlots && GroupCommandList;
+		&& CrossHair && WeaponSlots && GroupCommandList && CrewBar;
 
 	if (!bAllWidgetAreGood)
 	{
@@ -146,6 +147,11 @@ void UInGameHUD::ToggleCommandList(bool _val)
 void UInGameHUD::SetCurrentWeaponImage(const AGear * _gear)
 {
 	WeaponSlots->SetCurrentWeaponImage(_gear);
+}
+
+void UInGameHUD::OnSelectedCrewAt(int _index)
+{
+	CrewBar->OnSelectedCrewAt(_index);
 }
 
 

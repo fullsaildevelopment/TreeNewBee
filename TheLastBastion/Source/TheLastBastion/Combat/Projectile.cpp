@@ -55,7 +55,7 @@ void AProjectile::BeginPlay()
 	AGear* RangeWeapon = Cast<AGear>(GetOwner());
 	if (RangeWeapon)
 	{
-		UE_LOG(LogTemp, Log, TEXT("From RangeWeapon - AProjectile::BeginPlay"));
+		//UE_LOG(LogTemp, Log, TEXT("From RangeWeapon - AProjectile::BeginPlay"));
 
 		//CombineDamage(RangeWeapon);
 		GearOwner = RangeWeapon->GetGearOwner();
@@ -74,7 +74,7 @@ void AProjectile::BeginPlay()
 	else
 	{
 		MakeStatic();
-		UE_LOG(LogTemp, Log, TEXT("From Hit - AProjectile::BeginPlay"));
+		//UE_LOG(LogTemp, Log, TEXT("From Hit - AProjectile::BeginPlay"));
 	}
 
 }
