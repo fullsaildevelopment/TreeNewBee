@@ -10,7 +10,7 @@
  * 
  */
 
-
+DECLARE_MULTICAST_DELEGATE(FOnAIDeathEvent);
 
 UCLASS()
 class THELASTBASTION_API ATheLastBastionAIBase : public ATheLastBastionCharacter
@@ -60,10 +60,14 @@ protected:
 
 public:
 
+
+	FOnAIDeathEvent OnAIDeathEvent;
+
 	/** Toggle the AI hud to screen*/
 	virtual void ToggleAIHUD(bool _val);
 
-public:
+	UFUNCTION()
+		virtual void OnTargetDeathHandle();
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE class UPawnStatsComponent* GetEnemyStatsComponent() const { return AIStats; }

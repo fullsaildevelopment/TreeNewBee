@@ -199,8 +199,6 @@ void AEnemyGroup::SwapChildenOrder()
 
 void AEnemyGroup::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("overrlap with %s"), *OtherActor->GetName());
-
 	// check if this is a hero character
 	ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(OtherActor);
 	if (hero)
@@ -208,7 +206,7 @@ void AEnemyGroup::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * OverlappedCom
 		bInBattle = true;
 		AddThreat(hero, ThreatGain_HeroInit);
 		int whereAbout = CheckTargetRelativeWhereAbout(hero);
-		AgainstPlayerInit(whereAbout);
+		//AgainstPlayerInit(whereAbout);
 	}
 	else
 	{
@@ -384,32 +382,32 @@ void AEnemyGroup::AgainstPlayerInit(int _whereAbout)
 {
 
 	TArray<ATheLastBastionAIBase* > ComingForPlayer;
-	switch (_whereAbout)
-	{
-	case TargetFromBack_Chasing:
-	case TargetFromBack_Back2Back:
-	{
-		ComingForPlayer = GetBackLine();
-		break;
-	}
-	case TargetFromLeft:
-	{
-		ComingForPlayer = GetLeftLine();
-		break;
-	}
-	case TargetFromRight:
-	{
-		ComingForPlayer = GetRightLine();
-		break;
-	}
-	case TargetAtFront_Chasing:
-	case TargetAtFront_Face2Face:
-	default:
-	{
-		ComingForPlayer = GetFrontLine();
-		break;
-	}
-	}
+	//switch (_whereAbout)
+	//{
+	//case TargetFromBack_Chasing:
+	//case TargetFromBack_Back2Back:
+	//{
+	//	ComingForPlayer = GetBackLine();
+	//	break;
+	//}
+	//case TargetFromLeft:
+	//{
+	//	ComingForPlayer = GetLeftLine();
+	//	break;
+	//}
+	//case TargetFromRight:
+	//{
+	//	ComingForPlayer = GetRightLine();
+	//	break;
+	//}
+	//case TargetAtFront_Chasing:
+	//case TargetAtFront_Face2Face:
+	//default:
+	//{
+	//	ComingForPlayer = GetFrontLine();
+	//	break;
+	//}
+	//}
 
 	for (ATheLastBastionAIBase* aiCharacter : ComingForPlayer)
 	{

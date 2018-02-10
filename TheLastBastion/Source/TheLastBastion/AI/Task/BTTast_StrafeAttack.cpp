@@ -70,7 +70,7 @@ EBTNodeResult::Type UBTTast_StrafeAttack::ExecuteTask(UBehaviorTreeComponent & O
 		else if (targetActor->GetIsDead())
 		{
 			UE_LOG(LogTemp, Log, TEXT("Target is Dead, find other target - UBTTast_StrafeAttack::ExecuteTask"));
-			me->RequestAnotherTarget();
+			// me->RequestAnotherTarget();
 			return EBTNodeResult::Succeeded;
 		}
 		else

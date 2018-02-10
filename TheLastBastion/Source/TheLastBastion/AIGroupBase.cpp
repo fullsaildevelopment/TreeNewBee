@@ -140,6 +140,16 @@ void AAIGroupBase::AddThreat(ATheLastBastionCharacter * _character, float _threa
 	}
 }
 
+void AAIGroupBase::AddThreatByGroup(AAIGroupBase * _targetGroup)
+{
+	int targetGroupSize = _targetGroup->GetGroupSize();
+
+	for (int i = 0; i < targetGroupSize; i++)
+	{
+		AddThreat(_targetGroup->GetGroupMemberAt(i), ThreatGain_AIInit);
+	}
+}
+
 void AAIGroupBase::RemoveThreat(ATheLastBastionCharacter * _character)
 {
 	ThreatMap.Remove(_character);
@@ -226,6 +236,11 @@ void AAIGroupBase::QuickSortThreatListByManDistance(TArray<FThreat>& _threatList
 }
 
 int AAIGroupBase::GetMaxColoumnCount() const
+{
+	return 0;
+}
+
+int AAIGroupBase::GetMaxRowCount() const
 {
 	return 0;
 }
@@ -353,11 +368,18 @@ int AAIGroupBase::CheckTargetRelativeWhereAbout(const AActor * const _target) co
 	{	
 		// target is in front
 		FVector targetFWD = _target->GetActorForwardVector();
-		float dotHeading = FVector::DotProduct(myFWD, targetFWD);
-		if (dotHeading > 0)
+		float dotHeadingFwd = FVector::DotProduct(myFWD, targetFWD);
+
+		if (dotHeadingFwd > COS45)
+		{
+			UE_LOG(LogTemp, Log, TEXT("TargetAtFront_Chasing"));
 			return TargetAtFront_Chasing;
+		}
 		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("TargetAtFront_Face2Face"));
 			return TargetAtFront_Face2Face;
+		}
 
 	}
 	else if (dotFwd < -COS45)
@@ -366,9 +388,22 @@ int AAIGroupBase::CheckTargetRelativeWhereAbout(const AActor * const _target) co
 		FVector targetFWD = _target->GetActorForwardVector();
 		float dotHeading = FVector::DotProduct(myFWD, targetFWD);
 		if (dotHeading > 0)
-			return TargetFromBack_Chasing;
+		{
+			if (dotHeading  > COS45)
+			{
+				// add negative effect - being surprised on group member for
+				// short time period
+				UE_LOG(LogTemp, Log, TEXT("Be surprised - TargetFromBack_BeingChased"));
+
+			}
+			UE_LOG(LogTemp, Log, TEXT("TargetFromBack_BeingChased"));
+			return TargetFromBack_BeingChased;
+		}
 		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("TargetFromBack_Back2Back"));
 			return TargetFromBack_Back2Back;
+		}
 	}
 	else
 	{
@@ -377,17 +412,313 @@ int AAIGroupBase::CheckTargetRelativeWhereAbout(const AActor * const _target) co
 		float dotRight = FVector::DotProduct(myRight, away);
 		if (dotRight > 0)
 		{
-			// target is on right
-			return TargetFromRight;
+			// target on Right
+			FVector targetFWD = _target->GetActorForwardVector();
+			float dotHeading = FVector::DotProduct(myRight, targetFWD);
+
+			if (dotHeading < 0)
+			{
+				if (dotHeading  < -COS45)
+				{
+					// add negative effect - being flanked on group member for 
+					// short time period
+					UE_LOG(LogTemp, Log, TEXT("being flanked - TargetFromRight_FaceToUs"));
+				}
+				UE_LOG(LogTemp, Log, TEXT("TargetFromRight_FaceToUs"));
+				return TargetFromRight_FaceToUs;
+			}
+			else
+			{
+				UE_LOG(LogTemp, Log, TEXT("TargetFromRight_BackToUs"));
+				return TargetFromRight_BackToUs;
+			}
 		}
 		else
 		{
-			// target in on left
-			return TargetFromLeft;
+			// target on Right
+			FVector targetFWD = _target->GetActorForwardVector();
+			float dotHeading = FVector::DotProduct(myRight, targetFWD);
+
+			if (dotHeading > 0)
+			{
+				if (dotHeading  > COS45)
+				{
+					// add negative effect - being flanked on group member for 
+					// short time period
+					UE_LOG(LogTemp, Log, TEXT("being flanked - TargetFromLeft_FaceToUs"));
+
+				}
+				UE_LOG(LogTemp, Log, TEXT("TargetFromLeft_FaceToUs"));
+				return TargetFromLeft_FaceToUs;
+			}
+			else
+			{
+				UE_LOG(LogTemp, Log, TEXT("TargetFromLeft_BackToUs"));
+				return TargetFromLeft_BackToUs;
+			}
+		}
+	}
+}
+
+void AAIGroupBase::MeleeTargetSelect_Vertical_SameDir(AAIGroupBase * const _targetGroup)
+{
+	// check number of column for two group
+	int ourColCount = this->GetMaxColoumnCount();
+	int theirColCount = _targetGroup->GetMaxColoumnCount();
+
+	// find middle column
+	int ourMiddleColumn = ourColCount * 0.5f;
+	int theirMiddleColumn = theirColCount * 0.5f;
+
+
+	///         0 - 1 - 2 - 3 - 4         middle column = 5 / 2 = 2.5 = 2
+	/// 0 - 1 - 2 - 3 - 4 - 5 - 6 - 7     middle column = 8 / 2 = 4,  maxOffsetFromMiddleRow = 4 - 0 = 4, for loop 0 to 4
+
+	int maxOffsetTimeFromMiddle;
+	if (ourColCount > theirColCount)
+		maxOffsetTimeFromMiddle = UKismetMathLibrary::Max(ourMiddleColumn, ourColCount - 1 - ourMiddleColumn);
+	else
+		maxOffsetTimeFromMiddle = UKismetMathLibrary::Max(theirMiddleColumn, theirColCount - 1 - theirMiddleColumn);
+
+	// Start from middle column to starting and ending column at each iteration
+	for (int iOffset = 0; iOffset <= maxOffsetTimeFromMiddle; iOffset++)
+	{
+		int ourCurrrentColumn, theirCurrentColumn;
+		if (iOffset == 0)
+		{
+			ourCurrrentColumn = iOffset + ourMiddleColumn;
+			theirCurrentColumn = iOffset + theirMiddleColumn;
+			AssignColumnToColumn(_targetGroup, ourCurrrentColumn, theirCurrentColumn);
+		}
+		else
+		{
+			// both go right
+			ourCurrrentColumn  = iOffset + ourMiddleColumn;
+			theirCurrentColumn = iOffset + theirMiddleColumn;
+
+			if (ourCurrrentColumn < ourColCount && theirCurrentColumn < theirColCount)
+			{
+				// if both column are valid
+				AssignColumnToColumn(_targetGroup, ourCurrrentColumn, theirCurrentColumn);
+			}
+			else
+			{
+
+				if (ourCurrrentColumn >= ourColCount)
+				{
+					// do nothing if our column is invalid
+				}
+				else
+				{
+					// if target group has no more column to fight us on the right, 
+					// we use the rest of column to target his very right column
+					if (theirCurrentColumn >= theirColCount)
+						this->AssignColumnToColumn(_targetGroup, ourCurrrentColumn, theirColCount - 1);
+				}
+
+			}
+
+			// both go left
+			ourCurrrentColumn = -iOffset + ourMiddleColumn;
+			theirCurrentColumn = -iOffset + theirMiddleColumn;
+
+			if (ourCurrrentColumn >= 0 && theirCurrentColumn >= 0)
+			{
+				this->AssignColumnToColumn(_targetGroup, ourCurrrentColumn, theirCurrentColumn);
+			}
+			else
+			{
+				if (ourCurrrentColumn < 0)
+				{
+					// do nothing, both invalid
+				}
+				else 
+				{
+					if (theirCurrentColumn < 0)
+						this->AssignColumnToColumn(_targetGroup, ourCurrrentColumn, 0);
+				}
+			}
+
 		}
 	}
 
-	return 0;
+}
+
+void AAIGroupBase::MeleeTargetSelect_Vertical_OppDir(AAIGroupBase * const _targetGroup)
+{
+	//FVector ourForwardVector = GetActorForwardVector();
+	//FVector theirForwardVector = _targetGroup->GetActorForwardVector();
+	//float dotProduct = FVector::DotProduct(ourForwardVector, theirForwardVector);
+	//if (dotProduct < -COS45)
+	//{
+	//}
+
+	// check number of column for two group
+	int ourColCount = this->GetMaxColoumnCount();
+	int theirColCount = _targetGroup->GetMaxColoumnCount();
+
+	// find middle column
+	int ourMiddleColumn = ourColCount * 0.5f;
+	int theirMiddleColumn = theirColCount * 0.5f;
+
+	int maxOffsetTimeFromMiddle;
+	if (ourColCount > theirColCount)
+		maxOffsetTimeFromMiddle = UKismetMathLibrary::Max(ourMiddleColumn, ourColCount - 1 - ourMiddleColumn);
+	else
+		maxOffsetTimeFromMiddle = UKismetMathLibrary::Max(theirMiddleColumn, theirColCount - 1 - theirMiddleColumn);
+
+	for (int iOffset = 0; iOffset <= maxOffsetTimeFromMiddle; iOffset++)
+	{
+		int ourCurrrentColumn, theirCurrentColumn;
+		if (iOffset == 0)
+		{
+			ourCurrrentColumn = iOffset + ourMiddleColumn;
+			theirCurrentColumn = iOffset + theirMiddleColumn;
+			AssignColumnToColumn(_targetGroup, ourCurrrentColumn, theirCurrentColumn);
+		}
+		else
+		{
+			ourCurrrentColumn = iOffset + ourMiddleColumn;
+			theirCurrentColumn = -iOffset + theirMiddleColumn;
+
+			if (ourCurrrentColumn < ourColCount && theirCurrentColumn >= 0)
+			{
+				AssignColumnToColumn(_targetGroup, ourCurrrentColumn, theirCurrentColumn);
+			}
+			else
+			{
+
+				if (ourCurrrentColumn >= ourColCount)
+				{
+					// their attack our nearest column
+					//_targetGroup->AssignColumn(this, theirCurrentColumn, ourColCount - 1);
+				}
+				else if (theirCurrentColumn < 0)
+				{
+					this->AssignColumnToColumn(_targetGroup, ourCurrrentColumn, 0);
+
+				}
+
+			}
+
+
+			ourCurrrentColumn = -iOffset + ourMiddleColumn;
+			theirCurrentColumn = +iOffset + theirMiddleColumn;
+
+
+			if (ourCurrrentColumn >= 0 && theirCurrentColumn < theirColCount)
+			{
+				this->AssignColumnToColumn(_targetGroup, ourCurrrentColumn, theirCurrentColumn);
+
+				//PairColumn(_targetGroup, ourCurrrentColumn, theirCurrentColumn);
+			}
+			else
+			{
+				if (ourCurrrentColumn < 0) {}
+				else if (theirCurrentColumn >= theirColCount)
+				{
+					this->AssignColumnToColumn(_targetGroup, ourCurrrentColumn, theirColCount - 1);
+				}
+
+			}
+
+		}
+	}
+
+}
+
+void AAIGroupBase::MeleeTargetSelect_Horizontal_SameDir(AAIGroupBase * const _targetGroup)
+{
+                     
+	///        T        c0 c1 c2 c3
+	///                   0 1 2 3    r0
+	///      6 3 0        4 5 6 7    r1
+	///      7 4 1        8 9 0 1    r2
+	///      8 5 2        2 3 4 5    r3
+	///        
+	
+	// find our row count against their column count
+	int ourRowCount = this->GetMaxRowCount();
+	int theirColCount = _targetGroup->GetMaxColoumnCount();
+
+	// find middle row for us and middle column for them 
+	int ourMiddleRow = ourRowCount * 0.5f;
+	int theirMiddleColumn = theirColCount * 0.5f;
+
+
+	int maxOffsetFromMiddle;
+	if (ourRowCount > theirColCount)
+		maxOffsetFromMiddle = UKismetMathLibrary::Max(ourMiddleRow, ourRowCount - 1 - ourMiddleRow);
+	else
+		maxOffsetFromMiddle = UKismetMathLibrary::Max(theirMiddleColumn, theirColCount - 1 - theirMiddleColumn);
+
+	// Start from middle column to starting and ending column at each iteration
+	for (int iOffset = 0; iOffset <= maxOffsetFromMiddle; iOffset++)
+	{
+		int ourCurrentRow, theirCurrentColumn;
+		if (iOffset == 0)
+		{
+			ourCurrentRow = iOffset + ourMiddleRow;
+			theirCurrentColumn = iOffset + theirMiddleColumn;
+			AssignRowToColumn(_targetGroup, ourCurrentRow, theirCurrentColumn);
+		}
+		else
+		{
+			// both go right
+			ourCurrentRow = iOffset + ourMiddleRow;
+			theirCurrentColumn = iOffset + theirMiddleColumn;
+
+			if (ourCurrentRow < ourRowCount && theirCurrentColumn < theirColCount)
+			{
+				// if both column are valid
+				AssignRowToColumn(_targetGroup, ourCurrentRow, theirCurrentColumn);
+			}
+			else
+			{
+
+				if (ourCurrentRow >= ourRowCount)
+				{
+					// do nothing if our column is invalid
+				}
+				else
+				{
+					// if target group has no more column to fight us on the right, 
+					// we use the rest of row against their very right column
+					if (theirCurrentColumn >= theirColCount)
+						this->AssignRowToColumn(_targetGroup, ourCurrentRow, theirColCount - 1);
+				}
+
+			}
+
+			// both go left
+			ourCurrentRow = -iOffset + ourMiddleRow;
+			theirCurrentColumn = -iOffset + theirMiddleColumn;
+
+			if (ourCurrentRow >= 0 && theirCurrentColumn >= 0)
+			{
+				this->AssignRowToColumn(_targetGroup, ourCurrentRow, theirCurrentColumn);
+			}
+			else
+			{
+				if (ourCurrentRow < 0)
+				{
+					// do nothing, both invalid
+				}
+				else
+				{
+					if (theirCurrentColumn < 0)
+						this->AssignRowToColumn(_targetGroup, ourCurrentRow, 0);
+				}
+			}
+
+		}
+	}
+
+}
+
+void AAIGroupBase::MeleeTargetSelect_Horizontal_OppDir(AAIGroupBase * const _targetGroup)
+{
+
 }
 
 void AAIGroupBase::PairColumn(AAIGroupBase * const _enemyGroup, int _myColumn, int _theirColumn)
@@ -435,7 +766,7 @@ void AAIGroupBase::PairColumn(AAIGroupBase * const _enemyGroup, int _myColumn, i
 	}
 }
 
-void AAIGroupBase::AssignColumn(AAIGroupBase * const _targetGroup, int _myColumn, int _theirColumn)
+void AAIGroupBase::AssignColumnToColumn(AAIGroupBase * const _targetGroup, int _myColumn, int _theirColumn)
 {
 
 	TArray<ATheLastBastionAIBase*> ourColGroup = GetColumnAt(_myColumn);
@@ -475,103 +806,72 @@ void AAIGroupBase::AssignColumn(AAIGroupBase * const _targetGroup, int _myColumn
 
 }
 
-void AAIGroupBase::InitMeleeCombat(AAIGroupBase* _targetGroup)
+void AAIGroupBase::AssignRowToColumn(AAIGroupBase * const _targetGroup, int _myRow, int _theirColumn)
 {
+	TArray<ATheLastBastionAIBase*> ourRowGroup = GetRowAt(_myRow);
+	TArray<ATheLastBastionAIBase*> theirColGroup = _targetGroup->GetColumnAt(_theirColumn);
 
+	int ourRowSize = ourRowGroup.Num();
+	int theirColSize = theirColGroup.Num();
 
-	FVector ourForwardVector = GetActorForwardVector();
-	FVector theirForwardVector = _targetGroup->GetActorForwardVector();
-
-	float dotProduct = FVector::DotProduct(ourForwardVector, theirForwardVector);
-	if (dotProduct < -COS22_5)
+	int theirCurrentRow = 0;
+	if (ourRowSize > theirColSize)
 	{
-		// check number of column for two group
-		int ourColCount = this->GetMaxColoumnCount();
-		int theirColCount = _targetGroup->GetMaxColoumnCount();
-
-		// find middle column
-		int ourMiddleColumn = ourColCount * 0.5f;
-		int theirMiddleColumn = theirColCount * 0.5f;
-
-		int maxOffsetTimeFromMiddle;
-		if (ourColCount > theirColCount)
-			maxOffsetTimeFromMiddle = UKismetMathLibrary::Max(ourMiddleColumn, ourColCount - 1 - ourMiddleColumn);
-		else
-			maxOffsetTimeFromMiddle = UKismetMathLibrary::Max(theirMiddleColumn, theirColCount - 1 - theirMiddleColumn);
-
-
-
-		for (int iOffset = 0; iOffset <= maxOffsetTimeFromMiddle; iOffset++)
+		for (int iCol = 0; iCol < ourRowSize; iCol++)
 		{
-			int ourCurrrentColumn, theirCurrentColumn;
-			if (iOffset == 0)
+			if (iCol <= theirColSize - 1)
 			{
-				ourCurrrentColumn = iOffset + ourMiddleColumn;
-				theirCurrentColumn = iOffset + theirMiddleColumn;
-
-				PairColumn(_targetGroup, ourCurrrentColumn, theirCurrentColumn);
+				theirCurrentRow = iCol;
+				ourRowGroup[iCol]->SetTarget(theirColGroup[theirCurrentRow]);
 			}
 			else
 			{
-				ourCurrrentColumn = iOffset + ourMiddleColumn;
-				theirCurrentColumn = -iOffset + theirMiddleColumn;
-
-				if (ourCurrrentColumn < ourColCount && theirCurrentColumn >= 0)
-				{
-					PairColumn(_targetGroup, ourCurrrentColumn, theirCurrentColumn);
-				}
-				else
-				{
-
-					if (ourCurrrentColumn >= ourColCount && theirCurrentColumn < 0)
-					{
-						// do nothing, both invalid
-					}
-					else if (ourCurrrentColumn >= ourColCount)
-					{
-						// their attack our nearest column
-						_targetGroup->AssignColumn(this, theirCurrentColumn, ourColCount - 1);
-					}
-					else if (theirCurrentColumn < 0)
-					{
-						this->AssignColumn(_targetGroup, ourCurrrentColumn, 0);
-
-					}
-
-				}
-
-
-				ourCurrrentColumn = -iOffset + ourMiddleColumn;
-				theirCurrentColumn = +iOffset + theirMiddleColumn;
-
-
-				if (ourCurrrentColumn >= 0 && theirCurrentColumn < theirColCount)
-				{
-					PairColumn(_targetGroup, ourCurrrentColumn, theirCurrentColumn);
-				}
-				else
-				{
-
-					if (ourCurrrentColumn < 0 && theirCurrentColumn >= theirColCount)
-					{
-						// do nothing, both invalid
-					}
-					else if (ourCurrrentColumn < 0)
-					{
-						// their attack our nearest column
-						_targetGroup->AssignColumn(this, theirCurrentColumn, 0);
-					}
-					else if (theirCurrentColumn >= theirColCount)
-					{
-						this->AssignColumn(_targetGroup, ourCurrrentColumn, theirColCount - 1);
-
-					}
-
-				}
-
+				theirCurrentRow = FMath::RandRange(0, theirColSize - 1);
+				ourRowGroup[iCol]->SetTarget(theirColGroup[theirCurrentRow]);
 			}
-		}
 
+		}
+	}
+	else
+	{
+		for (int iCol = 0; iCol < theirColSize; iCol++)
+		{
+			if (iCol <= ourRowSize - 1)
+			{
+				theirCurrentRow = iCol;
+				ourRowGroup[iCol]->SetTarget(theirColGroup[iCol]);
+			}
+
+		}
 	}
 
+}
+
+void AAIGroupBase::MeleeTargetSelectionOnOverlap(AAIGroupBase* _targetGroup)
+{
+
+	int targetGroupWhereAbout = CheckTargetRelativeWhereAbout(_targetGroup);
+
+	// target selection based on Target group where about
+
+	switch (targetGroupWhereAbout)
+	{
+	case TargetAtFront_Chasing:
+	case TargetFromBack_BeingChased:
+		MeleeTargetSelect_Vertical_SameDir(_targetGroup);
+		break;
+	case TargetAtFront_Face2Face:
+	case TargetFromBack_Back2Back:
+		MeleeTargetSelect_Vertical_OppDir(_targetGroup);
+		break;
+
+	case TargetFromLeft_FaceToUs:
+	case TargetFromRight_BackToUs:
+		MeleeTargetSelect_Horizontal_SameDir(_targetGroup);
+		break;
+	case TargetFromLeft_BackToUs:
+	case TargetFromRight_FaceToUs:
+		MeleeTargetSelect_Horizontal_OppDir(_targetGroup);
+		break;
+	}
 }

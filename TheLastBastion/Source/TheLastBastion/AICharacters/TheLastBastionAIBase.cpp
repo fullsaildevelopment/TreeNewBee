@@ -94,6 +94,11 @@ void ATheLastBastionAIBase::ToggleAIHUD(bool _val)
 {
 }
 
+void ATheLastBastionAIBase::OnTargetDeathHandle()
+{
+	RequestAnotherTarget();
+}
+
 void ATheLastBastionAIBase::SetParent(AAIGroupBase * _Group, int _groupIndex)
 {
 	mGroup = _Group;
@@ -209,7 +214,15 @@ void ATheLastBastionAIBase::SetTarget(AActor * _target)
 	{
 		baseAICtrl->SetTargetActor_BBC(_target);
 		baseAICtrl->ClearFocus(EAIFocusPriority::Gameplay);
-		baseAICtrl->SetFocus(_target, EAIFocusPriority::Gameplay);
+		if (_target != nullptr)
+		{
+			baseAICtrl->SetFocus(_target, EAIFocusPriority::Gameplay);
+			ATheLastBastionAIBase* aiTarget = Cast<ATheLastBastionAIBase>(_target);
+			if (aiTarget)
+			{
+				aiTarget->OnAIDeathEvent.AddUObject(this, &ATheLastBastionAIBase::OnTargetDeathHandle);
+			}
+		}
 	}
 	baseAICtrl->SetNewCommandIndex_BBC(GC_FIGHT);
 }
@@ -299,6 +312,8 @@ void ATheLastBastionAIBase::OnDead()
 
 	Super::OnDead();
 
+	// tell all the ai that target this actor to re choose target
+	OnAIDeathEvent.Broadcast();
 }
 
 void ATheLastBastionAIBase::Kill()

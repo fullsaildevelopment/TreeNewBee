@@ -235,12 +235,21 @@ void AAllyGroup::SwapChildenOrder()
 void AAllyGroup::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 
-	// Get Enemy Group
-	AEnemyGroup* EnemyGroup = Cast<AEnemyGroup>(OtherActor);
+	// if this group is not in battle, 
+	// it can choose target will it overlap with other group
 
-	if (EnemyGroup)
+	if (bInBattle == false)
 	{
-		InitMeleeCombat(EnemyGroup);
+		// Get Enemy Group
+		AEnemyGroup* EnemyGroup = Cast<AEnemyGroup>(OtherActor);
+
+		if (EnemyGroup)
+		{
+			AddThreatByGroup(EnemyGroup);
+			MeleeTargetSelectionOnOverlap(EnemyGroup);
+			bInBattle = true;
+		}
+
 	}
 
 }
@@ -545,8 +554,6 @@ void AAllyGroup::OnDeSelected()
 
 }
 
-
-
 int AAllyGroup::GetMaxColoumnCount() const
 {
 
@@ -557,5 +564,17 @@ int AAllyGroup::GetMaxColoumnCount() const
 	else
 	{
 		return AICharactersInfo.Num();
+	}
+}
+
+int AAllyGroup::GetMaxRowCount() const
+{
+	if (bUseSquareFormation)
+	{
+		return FormationInfo.Num();
+	}
+	else
+	{
+		return 1;
 	}
 }
