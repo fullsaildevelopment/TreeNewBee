@@ -13,6 +13,11 @@ UCLASS()
 class THELASTBASTION_API AAllyRangeGroup : public AAllyGroup
 {
 	GENERATED_BODY()
+
+protected:
+	TArray<class ATheLastBastionCharacter*> TargetList;
+
+	FTimerHandle TimerHandle_TargetListUpdater;
 	
 public:
 	AAllyRangeGroup();
@@ -26,8 +31,10 @@ protected:
 	UFUNCTION()
 	void OnGroupVolumnOverrlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 
-	void IntializeTargetsForGroupMembers();
-	
+	void UpdateTargetList();
+
+	void UpdateTargetsForGroupMembers();
+
 	void ClearTargetsForGroupMembers();
 	
 };
