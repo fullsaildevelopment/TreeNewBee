@@ -26,12 +26,14 @@
 
 #define TargetAtFront_Chasing 1 
 #define TargetAtFront_Face2Face 2
-#define TargetFromBack_BeingChased 3 // being Surprised from back
-#define TargetFromBack_Back2Back 4
-#define TargetFromLeft_BackToUs 5
-#define TargetFromLeft_FaceToUs 6 // being Flanked from Left
-#define TargetFromRight_BackToUs 7
-#define TargetFromRight_FaceToUs 8 // being Flanked from Right
+#define TargetAtFront_FlankItsLeft 3
+#define TargetAtFront_FlankItsRight 4
+#define TargetFromBack_BeingChased 5 // being Surprised from back
+#define TargetFromBack_Back2Back 6
+#define TargetFromLeft_BackToUs 7
+#define TargetFromLeft_FaceToUs 8 // being Flanked from Left
+#define TargetFromRight_BackToUs 9
+#define TargetFromRight_FaceToUs 10 // being Flanked from Right
 
 
 
@@ -190,10 +192,17 @@ protected:
 	int CheckTargetRelativeWhereAbout(const AActor* const _target ) const;
 
 	/// Melee Group Target Selection
-	void MeleeTargetSelect_Vertical_SameDir(AAIGroupBase * const _targetGroup);
-	void MeleeTargetSelect_Vertical_OppDir(AAIGroupBase * const _targetGroup);
+	void MeleeTargetSelect_TAtF_Chasing(AAIGroupBase * const _targetGroup);
+	void MeleeTargetSelect_TAtF_F2F(AAIGroupBase * const _targetGroup);
+	void MeleeTargetSelect_TAtF_FL(AAIGroupBase * const _targetGroup);
+	void MeleeTargetSelect_TAtF_FR(AAIGroupBase * const _targetGroup);
+
+
 	void MeleeTargetSelect_Horizontal_SameDir(AAIGroupBase * const _targetGroup);
 	void MeleeTargetSelect_Horizontal_OppDir(AAIGroupBase * const _targetGroup);
+
+
+
 
 
 	UFUNCTION()
@@ -211,6 +220,8 @@ public:
 	void PairColumn(AAIGroupBase* const _enemyGroup, int _myColumn, int _theirColumn);
 	void AssignColumnToColumn(AAIGroupBase* const _targetGroup, int _myColumn, int _theirColumn);
 	void AssignRowToColumn(AAIGroupBase* const _targetGroup, int _myRow, int _theirColumn);
+	void AssignColumnToRow(AAIGroupBase* const _targetGroup, int _myColumn, int _theirRow);
+	
 	void MeleeTargetSelectionOnOverlap(AAIGroupBase* _targetGroup);
 
 
