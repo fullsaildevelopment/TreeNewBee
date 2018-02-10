@@ -372,9 +372,20 @@ int AEnemyGroup::GetMaxColoumnCount() const
 	int NumberOfSection = AIToSpawn.Num();
 	if (NumberOfSection == 1)
 	{
-		return AIToSpawn[0].MaxNumOfCol;
+		return FormationInfo[0];
+		//return AIToSpawn[0].MaxNumOfCol;
 	}
 
+	return 0;
+}
+
+int AEnemyGroup::GetMaxRowCount() const
+{
+	int NumberOfSection = AIToSpawn.Num();
+	if (NumberOfSection == 1)
+	{
+		return AIToSpawn[0].NumOfRow;
+	}
 	return 0;
 }
 

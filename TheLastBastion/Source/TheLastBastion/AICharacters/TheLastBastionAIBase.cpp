@@ -227,6 +227,13 @@ void ATheLastBastionAIBase::SetTarget(AActor * _target)
 	baseAICtrl->SetNewCommandIndex_BBC(GC_FIGHT);
 }
 
+AActor * ATheLastBastionAIBase::GetTarget() const
+{
+	ATheLastBastionBaseAIController *baseAICtrl = Cast<ATheLastBastionBaseAIController>(GetController());
+	return 	baseAICtrl->GetTargetActor_BBC();
+
+}
+
 void ATheLastBastionAIBase::RequestAnotherTarget()
 {
 	AActor* target = mGroup->OnTargetRequest(this);

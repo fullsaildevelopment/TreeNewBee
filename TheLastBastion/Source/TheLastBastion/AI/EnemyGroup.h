@@ -58,6 +58,8 @@ public:
 
 	int GetMaxColoumnCount() const override;
 
+	int GetMaxRowCount() const override;
+
 private:
 
 	/** Called upon when player enter the combat trigger, while group is not in battle*/

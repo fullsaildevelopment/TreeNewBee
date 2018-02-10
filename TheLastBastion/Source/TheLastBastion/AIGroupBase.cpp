@@ -375,12 +375,27 @@ int AAIGroupBase::CheckTargetRelativeWhereAbout(const AActor * const _target) co
 			UE_LOG(LogTemp, Log, TEXT("TargetAtFront_Chasing"));
 			return TargetAtFront_Chasing;
 		}
-		else
+		else if (dotHeadingFwd < -COS45)
 		{
 			UE_LOG(LogTemp, Log, TEXT("TargetAtFront_Face2Face"));
 			return TargetAtFront_Face2Face;
 		}
+		else
+		{
 
+			FVector targetRight = _target->GetActorRightVector();
+			float dotHeadingAgainstRight = FVector::DotProduct(myFWD, targetRight);
+			if (dotHeadingAgainstRight > 0)
+			{
+				UE_LOG(LogTemp, Log, TEXT("TargetAtFront_FlankItsLeft"));
+				return TargetAtFront_FlankItsLeft;
+			}
+			else
+			{
+				UE_LOG(LogTemp, Log, TEXT("TargetAtFront_FlankItsRight"));
+				return TargetAtFront_FlankItsRight;
+			}
+		}
 	}
 	else if (dotFwd < -COS45)
 	{
@@ -460,7 +475,7 @@ int AAIGroupBase::CheckTargetRelativeWhereAbout(const AActor * const _target) co
 	}
 }
 
-void AAIGroupBase::MeleeTargetSelect_Vertical_SameDir(AAIGroupBase * const _targetGroup)
+void AAIGroupBase::MeleeTargetSelect_TAtF_Chasing(AAIGroupBase * const _targetGroup)
 {
 	// check number of column for two group
 	int ourColCount = this->GetMaxColoumnCount();
@@ -544,7 +559,7 @@ void AAIGroupBase::MeleeTargetSelect_Vertical_SameDir(AAIGroupBase * const _targ
 
 }
 
-void AAIGroupBase::MeleeTargetSelect_Vertical_OppDir(AAIGroupBase * const _targetGroup)
+void AAIGroupBase::MeleeTargetSelect_TAtF_F2F(AAIGroupBase * const _targetGroup)
 {
 	//FVector ourForwardVector = GetActorForwardVector();
 	//FVector theirForwardVector = _targetGroup->GetActorForwardVector();
@@ -625,6 +640,94 @@ void AAIGroupBase::MeleeTargetSelect_Vertical_OppDir(AAIGroupBase * const _targe
 		}
 	}
 
+}
+
+void AAIGroupBase::MeleeTargetSelect_TAtF_FL(AAIGroupBase * const _targetGroup)
+{
+	/// my column against their row, at same index order
+
+	int ourColCount = this->GetMaxColoumnCount();
+	int theirRowCount = _targetGroup->GetMaxRowCount();
+
+	// find middle row for us and middle column for them 
+	int ourMiddleCol   = ourColCount * 0.5f;
+	int theirMiddleRow = theirRowCount * 0.5f;
+
+
+	int maxOffsetFromMiddle;
+	if (ourColCount > theirRowCount)
+		maxOffsetFromMiddle = UKismetMathLibrary::Max(ourMiddleCol, ourColCount - 1 - ourMiddleCol);
+	else
+		maxOffsetFromMiddle = UKismetMathLibrary::Max(theirMiddleRow, theirRowCount - 1 - theirMiddleRow);
+
+	// Start from middle column to starting and ending column at each iteration
+	for (int iOffset = 0; iOffset <= maxOffsetFromMiddle; iOffset++)
+	{
+		int ourCurrentCol, theirCurrentRow;
+		if (iOffset == 0)
+		{
+			ourCurrentCol = iOffset + ourMiddleCol;
+			theirCurrentRow = iOffset + theirMiddleRow;
+			AssignColumnToRow(_targetGroup, ourCurrentCol, theirCurrentRow);
+		}
+		else
+		{
+			// both go right
+			ourCurrentCol = iOffset + ourMiddleCol;
+			theirCurrentRow = iOffset + theirMiddleRow;
+
+			if (ourCurrentCol < ourColCount && theirCurrentRow < theirRowCount)
+			{
+				// if both column are valid
+				AssignColumnToRow(_targetGroup, ourCurrentCol, theirCurrentRow);
+			}
+			else
+			{
+
+				if (ourCurrentCol >= ourColCount)
+				{
+					// do nothing if our column is invalid
+				}
+				else
+				{
+					// if target group has no more row to fight our column on our the right, 
+					// we use the rest of column against their very last row
+					if (theirCurrentRow >= theirRowCount)
+						this->AssignColumnToRow(_targetGroup, ourCurrentCol, theirRowCount - 1);
+				}
+
+			}
+
+			// both go left
+			ourCurrentCol = -iOffset + ourMiddleCol;
+			theirCurrentRow = -iOffset + theirMiddleRow;
+
+			if (ourCurrentCol >= 0 && theirCurrentRow >= 0)
+			{
+				this->AssignColumnToRow(_targetGroup, ourCurrentCol, theirCurrentRow);
+			}
+			else
+			{
+				if (ourCurrentCol < 0)
+				{
+					// do nothing, both invalid
+				}
+				else
+				{
+					if (theirCurrentRow < 0)
+						this->AssignColumnToRow(_targetGroup, ourCurrentCol, 0);
+				}
+			}
+
+		}
+	}
+
+
+
+}
+
+void AAIGroupBase::MeleeTargetSelect_TAtF_FR(AAIGroupBase * const _targetGroup)
+{
 }
 
 void AAIGroupBase::MeleeTargetSelect_Horizontal_SameDir(AAIGroupBase * const _targetGroup)
@@ -847,6 +950,39 @@ void AAIGroupBase::AssignRowToColumn(AAIGroupBase * const _targetGroup, int _myR
 
 }
 
+void AAIGroupBase::AssignColumnToRow(AAIGroupBase * const _targetGroup, int _myColumn, int _theirRow)
+{
+	TArray<ATheLastBastionAIBase*> ourColGroup = GetColumnAt(_myColumn);
+	TArray<ATheLastBastionAIBase*> theirRowGroup = _targetGroup->GetRowAt(_theirRow);
+
+	int ourColSize = ourColGroup.Num();
+	int theirRowSize = theirRowGroup.Num();
+
+	int theirCurrentCol = 0;
+	if (ourColSize > theirRowSize)
+	{
+		for (int iRow = 0; iRow < ourColSize; iRow++)
+		{
+			if (iRow <= theirRowSize - 1)
+				theirCurrentCol = iRow;
+			else
+				theirCurrentCol = FMath::RandRange(0, theirRowSize - 1);
+
+			ourColGroup[iRow]->SetTarget(theirRowGroup[theirCurrentCol]);
+		}
+	}
+	else
+	{
+
+		for (int iRow = 0; iRow < ourColSize; iRow++)
+		{
+			theirCurrentCol = iRow;
+			ourColGroup[iRow]->SetTarget(theirRowGroup[theirCurrentCol]);
+		}
+	}
+
+}
+
 void AAIGroupBase::MeleeTargetSelectionOnOverlap(AAIGroupBase* _targetGroup)
 {
 
@@ -858,11 +994,19 @@ void AAIGroupBase::MeleeTargetSelectionOnOverlap(AAIGroupBase* _targetGroup)
 	{
 	case TargetAtFront_Chasing:
 	case TargetFromBack_BeingChased:
-		MeleeTargetSelect_Vertical_SameDir(_targetGroup);
+		MeleeTargetSelect_TAtF_Chasing(_targetGroup);
 		break;
+	case TargetAtFront_FlankItsLeft:
+		MeleeTargetSelect_TAtF_FL(_targetGroup);
+		break;
+
+	case TargetAtFront_FlankItsRight:
+		MeleeTargetSelect_TAtF_FR(_targetGroup);
+		break;
+
 	case TargetAtFront_Face2Face:
 	case TargetFromBack_Back2Back:
-		MeleeTargetSelect_Vertical_OppDir(_targetGroup);
+		MeleeTargetSelect_TAtF_F2F(_targetGroup);
 		break;
 
 	case TargetFromLeft_FaceToUs:

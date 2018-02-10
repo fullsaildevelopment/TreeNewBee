@@ -90,6 +90,8 @@ public:
 
 	void SetTarget(AActor* _target);
 
+	AActor* GetTarget() const;
+
 	void RequestAnotherTarget();
 
 protected:
