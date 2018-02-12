@@ -10,7 +10,6 @@
  * 
  */
 
-DECLARE_MULTICAST_DELEGATE(FOnAIDeathEvent);
 
 UCLASS()
 class THELASTBASTION_API ATheLastBastionAIBase : public ATheLastBastionCharacter
@@ -57,11 +56,8 @@ protected:
 
 	void BeginPlay() override;
 
-
 public:
 
-
-	FOnAIDeathEvent OnAIDeathEvent;
 
 	/** Toggle the AI hud to screen*/
 	virtual void ToggleAIHUD(bool _val);
@@ -78,7 +74,6 @@ public:
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE class UAIBase_AnimInstance* GetAnimInstanceRef() const { return mAnimInstanceRef; }
 
-	void SetParent(class AAIGroupBase* _Group, int _groupIndex); 
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE class AAIGroupBase* GetGroup() const { return mGroup; }
@@ -90,9 +85,13 @@ public:
 
 	void SetTarget(AActor* _target);
 
+	void SetParent(class AAIGroupBase* _Group, int _groupIndex);
+
 	AActor* GetTarget() const;
 
 	void RequestAnotherTarget();
+
+
 
 protected:
 
@@ -114,7 +113,7 @@ protected:
 	virtual void HitResponse(AActor* DamageCauser);
 
 	// Called on Hp = 0;
-	void OnDead() override;
+	void OnDead(const FVector& dir, const AActor* _damageCauser, const FName& _boneName) override;
 
 	// Called on actor destroyed
 	void Kill() override;

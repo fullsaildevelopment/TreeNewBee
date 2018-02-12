@@ -103,10 +103,13 @@ public:
 	void OnDeSelected();
 
 	int GetMaxColoumnCount() const override;
+
 	int GetMaxRowCount() const override;
 
 	FORCEINLINE bool IsFollowing() const { return bIsFollowing; }
 
+	bool CanBeReformed() const;
 
+	void SetHUDIndex(int _index);
 
 };

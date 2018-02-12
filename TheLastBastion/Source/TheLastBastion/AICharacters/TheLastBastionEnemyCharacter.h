@@ -37,6 +37,6 @@ public:
 	/** Toggle the AI hud to screen*/
 	void ToggleAIHUD(bool _val) override;
 
-
+	void OnGetUp() override;
 
 };

@@ -8,8 +8,10 @@
 
 #define FontSize_Regular 22
 #define FontSize_Critical 26
+#define RagDoll_RecoverLerpSpeed 5.0f
+#define RagDoll_MinimumGetUpTime 3.0f
 
-
+DECLARE_MULTICAST_DELEGATE(FOnAIDeathEvent);
 
 
 UENUM(BlueprintType)
@@ -32,6 +34,7 @@ protected:
 	virtual void BeginPlay();
 
 public:
+
 	ATheLastBastionCharacter();
 
 protected:
@@ -43,17 +46,41 @@ protected:
 	UPROPERTY()
 	    class UPawnStatsComponent* PawnStats;
 
+	UPROPERTY()
+		class UBase_AnimInstance* mBaseAnimRef;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CharacterType)
 		ECharacterType CharacterType;
 
 	UPROPERTY()
-		/** Timer Handle after death*/
-		FTimerHandle mKillTimer;
+		/** Timer Handle after death, and get up*/
+		FTimerHandle mRagDollTimer;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = RagDoll)
+		/** Toggle body velocity check after min ragdoll period*/
+		bool bCheckBodyVelocity;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = RagDoll)
+		uint8 newRagDollIndex;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = RagDoll)
+		uint8 oldRagDollIndex;
 
 #pragma region Movement Stats
 
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = RagDoll)
+		bool bIsRagDoll;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = RagDoll)
+		bool bIsRecoveringFromRagDoll;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
 		bool bIsWalking;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = RagDoll)
+		float RagDollBlendWeight;
+
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement, meta = (BlueprintProtected))
 		float SprintSpeed = 850.0f;
@@ -85,8 +112,12 @@ protected:
 		bool bIsGodMode;
 
 protected:
+
+
 	/** Config character based on character type during beginplay*/
 	void CharacterCustomInit();
+
+	//FVector GetRagDollPulse(const FVector& dir, const AActor* _damageCauser) const;
 
 
 	UFUNCTION()
@@ -98,18 +129,37 @@ protected:
 			class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
 			const class UDamageType* DamageType, AActor* DamageCauser);
 
+	/** Turn character to ragdoll*/
+	virtual void KnockOut(const FVector& dir, const AActor* _damageCauser, const FName& _boneName);
+
 	/** Unregister all the group that I am a threat to it
 	* put character to ragdoll, Called on Hp = 0 */
-	virtual void OnDead();
+	virtual void OnDead(const FVector& dir, const AActor* _damageCauser, const FName& _boneName);
 
 	// Called on actor destroyed
 	virtual void Kill();
 
+	// Called ragdoll recover start
+	virtual void OnGetUp();
 
 public:
 	
-	//// Mark a group that under my threat
-	//void RegisterThreat(AAIGroupBase* _threatingGroup);
+	FOnAIDeathEvent OnCharacterDeathEvent;
+
+
+private:
+
+	void ClampCapsuleToMesh();
+
+	void ToggleBodyStopCheck();
+
+
+public:
+
+	void DuringRagDoll();
+	virtual void RagDollRecoverOnFinish();
+	void DuringRagDollRecovering(float _deltaTime);
+	bool IsOldKnockOut() const { return oldRagDollIndex == newRagDollIndex; }
 
 public:
 
@@ -130,6 +180,11 @@ public:
 	FORCEINLINE bool GetIsDead() const { return bIsDead; }
 	FORCEINLINE bool GetIsGodMode() const { return bIsGodMode; }
 
+	FORCEINLINE bool IsRagDoll() const { return bIsRagDoll; }
+	FORCEINLINE bool IsRagDollRecovereing() const { return bIsRecoveringFromRagDoll; }
+
 	float GetCurrentMaxSpeed() const;
+	class AGear* GetCurrentWeapon() const;
+
 };
 

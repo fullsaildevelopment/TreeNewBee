@@ -127,6 +127,13 @@ private:
 		float StunChance;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+		float Force;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+		float CriticalForce;
+
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 		EElementalType ElementalType;
 
 
@@ -154,6 +161,8 @@ public:
 	FORCEINLINE float GetSpAdditive() const { return SpAdditive; }
 	FORCEINLINE float GetCriticalChance() const { return CriticalChance; }
 	FORCEINLINE float GetStunChance() const { return StunChance; }
+	FORCEINLINE float GetForce() const { return Force; }
+	FORCEINLINE float GetCriticalForce() const { return CriticalForce; }
 	FORCEINLINE EElementalType GetElementalType() const { return ElementalType; }
 
 	UFUNCTION(BlueprintPure)

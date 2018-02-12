@@ -2,6 +2,7 @@
 
 #include "EnemyGroup.h"
 #include "Components/BoxComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 
 
@@ -10,13 +11,24 @@
 
 #include "AI/TheLastBastionGroupAIController.h"
 #include "AI/TheLastBastionBaseAIController.h"
+#include "AI/EnemyGroup.h"
 
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "CustomType.h"
+
 
 AEnemyGroup::AEnemyGroup()
 {
 	MainTask = EM_ToCastle;
+
+	if (GroupHUD)
+	{
+		TSubclassOf<UUserWidget> HUD_Class;
+		UCustomType::FindClass<UUserWidget>(HUD_Class, TEXT("/Game/UI/In-Game/WBP_GroupHUD"));
+		GroupHUD->SetWidgetClass(HUD_Class);
+	}
+
 
 }
 
@@ -203,16 +215,27 @@ void AEnemyGroup::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * OverlappedCom
 	ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(OtherActor);
 	if (hero)
 	{
-		bInBattle = true;
 		AddThreat(hero, ThreatGain_HeroInit);
-		int whereAbout = CheckTargetRelativeWhereAbout(hero);
-		//AgainstPlayerInit(whereAbout);
+		if (!bInBattle)
+		{
+			bInBattle = true;
+			MeleeGroupAgainstPlayer();
+		}
 	}
 	else
 	{
+		AAllyGroup* targetGroup = Cast<AAllyGroup>(OtherActor);
+		if (targetGroup)
+		{
+			AddThreatByGroup(targetGroup);
+			if (!bInBattle)
+			{
+				MeleeTargetSelectionOnOverlap(targetGroup);
+				bInBattle = true;
+			}
+		}
 
-	}
-	
+	}	
 }
 
 void AEnemyGroup::OnGroupVolumnOverrlapEnd(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
@@ -389,41 +412,12 @@ int AEnemyGroup::GetMaxRowCount() const
 	return 0;
 }
 
-void AEnemyGroup::AgainstPlayerInit(int _whereAbout)
+void AEnemyGroup::MeleeGroupAgainstPlayer()
 {
-
-	TArray<ATheLastBastionAIBase* > ComingForPlayer;
-	//switch (_whereAbout)
-	//{
-	//case TargetFromBack_Chasing:
-	//case TargetFromBack_Back2Back:
-	//{
-	//	ComingForPlayer = GetBackLine();
-	//	break;
-	//}
-	//case TargetFromLeft:
-	//{
-	//	ComingForPlayer = GetLeftLine();
-	//	break;
-	//}
-	//case TargetFromRight:
-	//{
-	//	ComingForPlayer = GetRightLine();
-	//	break;
-	//}
-	//case TargetAtFront_Chasing:
-	//case TargetAtFront_Face2Face:
-	//default:
-	//{
-	//	ComingForPlayer = GetFrontLine();
-	//	break;
-	//}
-	//}
-
-	for (ATheLastBastionAIBase* aiCharacter : ComingForPlayer)
+	for (int iCharacter = 0; iCharacter < AICharactersInfo.Num(); iCharacter++)
 	{
-		aiCharacter->SetTarget(PlayerHero);
+		AICharactersInfo[iCharacter].AICharacter->SetTarget(PlayerHero);
 	}
-
 }
+
 

@@ -312,6 +312,8 @@ public:
 	/** Called When switch melee weapon and equip*/
 	void UpdateComboList(EGearType _gearType);
 
+	void AnimInstanceResetOnRagDoll() override;
+
 private:
 
 	/** Update the Yaw and Pitch for head track based on Control rotation between mesh forward vector*/
@@ -324,7 +326,6 @@ private:
 	/** Similar to SkipEquip, without change movement rules*/
 	void AttachWeapon();
 
-	void ResetOnBeingHit();
 
 	void RecoverFromBeingHit(bool _bInterrupted);
 
@@ -433,6 +434,8 @@ protected:
 
 #pragma endregion
 
+
+	void ResetOnBeingHit() override;
 
 public:
 

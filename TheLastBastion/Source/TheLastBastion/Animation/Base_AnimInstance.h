@@ -36,8 +36,15 @@ protected:
 	virtual void OnPostEvaluate();
 
 public:
+
 	virtual void OnBeingHit
 	(FName boneName ,const FVector& _shotFromDirection, const FVector& _hitLocation);
+
+
+	UFUNCTION(BlueprintCallable)
+	virtual void AnimInstanceResetOnRagDoll();
+
+	void OnGetUp();
 
 
 protected:
@@ -53,8 +60,13 @@ protected:
 	UFUNCTION()
 		virtual void OnMontageBlendOutStartHandle(class UAnimMontage* _animMontage, bool _bInterruptted);
 
+	UFUNCTION()
+		virtual void ResetOnBeingHit();
 
 protected:
+
+	UPROPERTY()
+		class ATheLastBastionCharacter* mBaseCharacter;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
 		/** Animation Montage to play when this character get hurt*/
@@ -72,6 +84,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat)
 		class UAnimMontage* Fire_Montage;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat)
+		class UAnimMontage* GetUp_Montage;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
 		float turn;
@@ -91,6 +105,8 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Movement)
 		FVector damageMomentum;
+
+	
 
 
 };

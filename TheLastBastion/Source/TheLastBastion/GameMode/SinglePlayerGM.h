@@ -110,4 +110,6 @@ public:
 	bool HasAllyGroupUnitAt(int _index);
 
 	class AAllyGroup* GetAllyGroupUnitAt(int _index);
+
+	void ToggleAllGroupUI(bool _val);
 };

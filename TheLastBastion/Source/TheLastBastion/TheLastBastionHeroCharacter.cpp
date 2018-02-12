@@ -93,6 +93,7 @@ void ATheLastBastionHeroCharacter::BeginPlay()
 	// Get Anim Bp Reference
 	mAnimInstanceRef = Cast<UHero_AnimInstance>(this->GetMesh()->GetAnimInstance());
 	if (mAnimInstanceRef == nullptr) { UE_LOG(LogTemp, Warning, TEXT("ATheLastBastionCharacter can not take other AnimInstance other than UHero_AnimInstance, - ATheLastBastionCharacter")); return; }
+	mBaseAnimRef = mAnimInstanceRef;
 
 	ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(GetController());
 	if (pc)
@@ -361,17 +362,6 @@ void ATheLastBastionHeroCharacter::OnCommandMarch()
 		{
 			EnemyGroupTemp->SetMarchLocation(ImpactLocation, GC_GOTOLOCATION);
 		}
-		//// this is this a enemy?
-		//ATheLastBastionEnemyCharacter* enemy = Cast<ATheLastBastionEnemyCharacter>(Hit.GetActor());
-		//if (enemy)
-		//{
-		//	AAIGroupBase* enemyGroup = enemy->GetGroup();
-		//	if (enemyGroup && CommandedGroup)
-		//		CommandedGroup->InitMeleeCombat(enemyGroup);
-		//}
-		//else
-		//{
-		//}
 	}
 }
 
@@ -406,6 +396,7 @@ void ATheLastBastionHeroCharacter::OnCommandDistribute()
 		if (CommandedGroup->IsFollowing())
 			CommandedGroup->OnStopFollowing();
 
+
 		FVector targetLocation = CommandedGroup->GetActorLocation() + CommandedGroup->GetActorForwardVector() * 100.0f; 
 		CommandedGroup->SetMarchLocation(targetLocation, GC_DISTRIBUTE);
 		DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
@@ -416,12 +407,18 @@ void ATheLastBastionHeroCharacter::OnCommandReform()
 {
 	if (CommandedGroup)
 	{
-		if (CommandedGroup->IsFollowing())
-			CommandedGroup->OnStopFollowing();
 
-		FVector targetLocation = CommandedGroup->GetActorLocation() + CommandedGroup->GetActorForwardVector() * 300.0f;
-		CommandedGroup->SetMarchLocation(targetLocation, GC_REFORM);
-		DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
+		bool reformCheck = CommandedGroup->CanBeReformed();
+
+		if (reformCheck)
+		{
+			if (CommandedGroup->IsFollowing())
+				CommandedGroup->OnStopFollowing();
+
+			FVector targetLocation = CommandedGroup->GetActorLocation() + CommandedGroup->GetActorForwardVector() * 300.0f;
+			CommandedGroup->SetMarchLocation(targetLocation, GC_REFORM);
+			DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
+		}
 	}
 
 }
@@ -461,6 +458,12 @@ void ATheLastBastionHeroCharacter::OnCommandPressed()
 	}
 	bIsInCommandMode = true;
 	mInGameHUD->ToggleCommandList(true);
+	
+	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (gm)
+	{
+		gm->ToggleAllGroupUI(true);
+	}
 }
 
 void ATheLastBastionHeroCharacter::OnCommandReleased()
@@ -471,6 +474,13 @@ void ATheLastBastionHeroCharacter::OnCommandReleased()
 	}
 	bIsInCommandMode = false;
 	mInGameHUD->ToggleCommandList(false);
+
+	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (gm)
+	{
+		gm->ToggleAllGroupUI(false);
+	}
+
 }
 
 void ATheLastBastionHeroCharacter::OnSelectedCrew_1()
@@ -545,15 +555,31 @@ FVector ATheLastBastionHeroCharacter::GetPawnViewLocation() const
 
 }
 
+void ATheLastBastionHeroCharacter::OnGetUp()
+{
+	GetMesh()->SetCollisionProfileName("HeroBody");
+	GetCapsuleComponent()->SetCollisionProfileName("Hero");
+
+	Super::OnGetUp();
+
+}
+
+void ATheLastBastionHeroCharacter::RagDollRecoverOnFinish()
+{
+	Super::RagDollRecoverOnFinish();
+	APlayerController* pc = Cast<APlayerController>(GetController());
+	if (pc)
+	{
+		EnableInput(pc);
+	}
+}
+
+
 void ATheLastBastionHeroCharacter::ToggleFireMode(bool _val)
 {
 	mInGameHUD->ToggleFireMode(_val);
 }
 
-AGear * ATheLastBastionHeroCharacter::GetCurrentWeapon() const
-{
-	return HeroStats->GetCurrentRightHandWeapon();
-}
 
 void ATheLastBastionHeroCharacter::OnTakeAnyDamageHandle(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
 {
@@ -599,5 +625,28 @@ void ATheLastBastionHeroCharacter::OnTakePointDamageHandle(AActor * DamagedActor
 
 	}
 
-	mAnimInstanceRef->OnBeingHit(BoneName, ShotFromDirection, HitLocation);
+	FVector RagDollImpulse = HitLocation - DamageCauser->GetTargetLocation();
+
+	//mAnimInstanceRef->
+
+	if (isStun)
+	{
+		KnockOut(RagDollImpulse, DamageCauser, BoneName);
+
+	}
+	else
+	{
+		mAnimInstanceRef->OnBeingHit(BoneName, ShotFromDirection, HitLocation);
+	}
+
+}
+
+void ATheLastBastionHeroCharacter::KnockOut(const FVector & dir, const AActor * _damageCauser, const FName & _boneName)
+{
+	Super::KnockOut(dir, _damageCauser, _boneName);
+	APlayerController* pc = Cast<APlayerController>(GetController());
+	if (pc)
+	{
+		DisableInput(pc);
+	}
 }

@@ -15,7 +15,6 @@ class THELASTBASTION_API UAIMelee_AnimInstance : public UAIBase_AnimInstance
 	GENERATED_BODY()
 	
 
-
 protected:
 
 	UFUNCTION(BlueprintCallable)
@@ -31,11 +30,6 @@ protected:
 		 void OnPostEvaluate() override;
 
 
-	UFUNCTION()
-		void OnMontageStartHandle(class UAnimMontage* _animMontage) override;
-
-	UFUNCTION()
-		void OnMontageBlendOutStartHandle(class UAnimMontage* _animMontage, bool _bInterruptted) override;
 
 
 
@@ -67,6 +61,7 @@ public:
 	void OnBeingHit(FName boneName, const FVector& _shotFromDirection, 
 		const FVector& _hitLocation) override;
 
+	void ResetOnBeingHit() override;
 
 
 protected:

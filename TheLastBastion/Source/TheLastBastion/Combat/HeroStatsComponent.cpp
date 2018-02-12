@@ -364,7 +364,7 @@ void UHeroStatsComponent::OnEnemyLeaveMelee(AActor * _otherActor)
 void UHeroStatsComponent::MeleeFocus()
 {
 	mCurrentTarget = nullptr;
-	UE_LOG(LogTemp, Warning, TEXT("Ranger Search Focus Target"));
+	//UE_LOG(LogTemp, Warning, TEXT("Ranger Search Focus Target -  UHeroStatsComponent::MeleeFocus()"));
 	// Grab 
 
 	float maxDirection = -1.0f;

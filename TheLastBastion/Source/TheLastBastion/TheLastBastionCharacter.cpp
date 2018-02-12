@@ -2,17 +2,21 @@
 
 #include "TheLastBastionCharacter.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
+
 #include "Combat/PawnStatsComponent.h"
+#include "Combat/Gear.h"
+
+#include "Animation/Base_AnimInstance.h"
 
 #include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
-#include "Components/StaticMeshComponent.h"
-#include "Components/SkeletalMeshComponent.h"
 
-#include "Components/BoxComponent.h"
-#include "Components/SphereComponent.h"
 #include "CustomType.h"
 #include "Engine.h"
 
@@ -22,7 +26,6 @@
 
 ATheLastBastionCharacter::ATheLastBastionCharacter()
 {	
-	bReplicates = true;
 	bIsDead = false;
 	bIsGodMode = false;
 
@@ -39,6 +42,14 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
+
+	// RagDoll
+	bIsRagDoll = false;
+	bIsRecoveringFromRagDoll = false;
+	bCheckBodyVelocity = false;
+	RagDollBlendWeight = 0.0f;
+	newRagDollIndex = 0;
+	oldRagDollIndex = 0;
 
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
@@ -104,28 +115,160 @@ void ATheLastBastionCharacter::OnTakePointDamageHandle(AActor * DamagedActor, fl
 
 }
 
-void ATheLastBastionCharacter::OnDead()
+
+void ATheLastBastionCharacter::KnockOut(const FVector& dir, const AActor* _damageCauser, const FName& _boneName)
+{
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RagDollBlendWeight = 1.0f;
+	GetMesh()->SetAllBodiesBelowSimulatePhysics(TEXT("pelvis"), true);
+	GetMesh()->SetAllBodiesBelowPhysicsBlendWeight(TEXT("pelvis"), RagDollBlendWeight);
+
+	FVector Impulse = FVector::ZeroVector;
+
+	const ATheLastBastionCharacter* damageCauser = Cast<ATheLastBastionCharacter>(_damageCauser);
+	if (damageCauser)
+	{
+		AGear* currentWeapon = damageCauser->GetCurrentWeapon();
+		if (currentWeapon)
+		{
+
+			bool isHeadShot = _boneName.Compare("head") == 0 || _boneName.Compare("neck_01") == 0;
+			float force = (isHeadShot)?currentWeapon->GetCriticalForce() : currentWeapon->GetForce();
+			Impulse =  dir.GetSafeNormal() * force;
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("implse: x, %f, y, %f, z, %f"), Impulse.X, Impulse.Y, Impulse.Z);
+	GetMesh()->AddImpulse(Impulse, _boneName, true);
+
+	// if this character is dead, then dont bother to get up
+	if (bIsDead == false)
+	{
+		// 
+		bIsRagDoll = true;
+		bIsRecoveringFromRagDoll = false;
+		bCheckBodyVelocity = false;
+		GetWorldTimerManager().ClearTimer(mRagDollTimer);
+		newRagDollIndex++;
+
+		UE_LOG(LogTemp, Log, TEXT("ATheLastBastionCharacter::KnockOut"));
+
+		GetWorldTimerManager().SetTimer(mRagDollTimer, this, 
+			&ATheLastBastionCharacter::ToggleBodyStopCheck, 1.0f, false, RagDoll_MinimumGetUpTime);
+	}
+
+	mBaseAnimRef->AnimInstanceResetOnRagDoll();
+
+}
+
+void ATheLastBastionCharacter::OnDead(const FVector& dir, const AActor* _damageCauser, const FName& _boneName)
 {
 	// condition for ragdoll
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetMesh()->SetSimulatePhysics(true);
-	GetMesh()->SetCollisionResponseToChannel(
-		ECollisionChannel::ECC_WorldStatic,
-		ECollisionResponse::ECR_Block);
-
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	//GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//GetMesh()->SetSimulatePhysics(true);
+	//GetMesh()->SetCollisionResponseToChannel(
+	//	ECollisionChannel::ECC_WorldStatic,
+	//	ECollisionResponse::ECR_Block);
+	//GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	KnockOut(dir, _damageCauser, _boneName);
 
 	PawnStats->SetEnableWeapon(false, true, true);
 
+	// tell all the ai that target this actor to re choose target
+	OnCharacterDeathEvent.Broadcast();
 }
 
 void ATheLastBastionCharacter::Kill()
 {
 }
 
+void ATheLastBastionCharacter::ClampCapsuleToMesh()
+{
+	FVector pelvisLocation = GetMesh()->GetSocketLocation(TEXT("pelvis"));
+	FVector capLocation = GetCapsuleComponent()->GetComponentLocation();
+	FVector newLocation = FVector(pelvisLocation.X, pelvisLocation.Y, capLocation.Z);
+	GetCapsuleComponent()->SetWorldLocation(newLocation);
+}
+
+void ATheLastBastionCharacter::ToggleBodyStopCheck()
+{
+	bCheckBodyVelocity = true;
+}
+
+void ATheLastBastionCharacter::OnGetUp()
+{
+	bIsRecoveringFromRagDoll = true;
+	bCheckBodyVelocity = false;
+	oldRagDollIndex = newRagDollIndex;
+
+	//GetMesh()->SetAllBodiesBelowSimulatePhysics(TEXT("pelvis"), false);
+	RagDollBlendWeight = 1.0f;
+	// Check whether this character is face up or face down
+
+	// use current pelvis rotation for capsule
+	FRotator pelvisRotator = GetMesh()->GetSocketRotation(TEXT("pelvis"));
+	FRotator capRotator = FRotator(0, pelvisRotator.Yaw, 0);
+
+	GetCapsuleComponent()->SetWorldRotation(capRotator);
+
+
+	mBaseAnimRef->OnGetUp();
+	
+}
+
+void ATheLastBastionCharacter::DuringRagDoll()
+{
+	ClampCapsuleToMesh();
+	float velocitySqr = GetMesh()->GetPhysicsLinearVelocity().SizeSquared();
+	//UE_LOG(LogTemp, Log, TEXT("Body SpeedSqr %f - ATheLastBastionCharacter::DuringRagDoll"), velocitySqr);
+	if (velocitySqr <= 5.0f && bCheckBodyVelocity)
+	{
+		OnGetUp();
+	}
+}
+
+void ATheLastBastionCharacter::RagDollRecoverOnFinish()
+{
+	bIsRagDoll = false;
+	bIsRecoveringFromRagDoll = false;
+	UE_LOG(LogTemp, Log, TEXT("ATheLastBastionCharacter::RagDollRecoverOnFinish"));
+}
+
+void ATheLastBastionCharacter::DuringRagDollRecovering(float _deltaTime)
+{
+
+	RagDollBlendWeight = FMath::FInterpTo(RagDollBlendWeight, 0.0f, _deltaTime, RagDoll_RecoverLerpSpeed);
+
+	if (RagDollBlendWeight <= 0.05f)
+	{
+		RagDollBlendWeight = 0.0f;
+		GetMesh()->SetAllBodiesBelowPhysicsBlendWeight(TEXT("pelvis"), RagDollBlendWeight);
+		GetMesh()->SetAllBodiesBelowSimulatePhysics(TEXT("pelvis"), false);
+	}
+	else
+	{
+
+		GetMesh()->SetAllBodiesBelowPhysicsBlendWeight(TEXT("pelvis"), RagDollBlendWeight);
+	}
+}
+
 float ATheLastBastionCharacter::GetCurrentMaxSpeed() const
 {
 	return GetCharacterMovement()->MaxWalkSpeed;
+}
+
+AGear * ATheLastBastionCharacter::GetCurrentWeapon() const
+{
+	if (PawnStats)
+	{
+		return PawnStats->GetCurrentRightHandWeapon();
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 

@@ -30,10 +30,13 @@
 #define TargetAtFront_FlankItsRight 4
 #define TargetFromBack_BeingChased 5 // being Surprised from back
 #define TargetFromBack_Back2Back 6
-#define TargetFromLeft_BackToUs 7
-#define TargetFromLeft_FaceToUs 8 // being Flanked from Left
-#define TargetFromRight_BackToUs 9
-#define TargetFromRight_FaceToUs 10 // being Flanked from Right
+#define TargetFromBack_ToMyRight 7
+#define TargetFromBack_ToMyLeft 8
+
+#define TargetFromLeft_BackToUs 9
+#define TargetFromLeft_FaceToUs 10 // being Flanked from Left
+#define TargetFromRight_BackToUs 11
+#define TargetFromRight_FaceToUs 12 // being Flanked from Right
 
 
 
@@ -143,6 +146,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Behavior)
 		class UBehaviorTree* BehaviorTree;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		class UWidgetComponent* GroupHUD;
+
 	UPROPERTY()
 		class ATheLastBastionHeroCharacter* PlayerHero;
 
@@ -198,12 +204,8 @@ protected:
 	void MeleeTargetSelect_TAtF_FR(AAIGroupBase * const _targetGroup);
 
 
-	void MeleeTargetSelect_Horizontal_SameDir(AAIGroupBase * const _targetGroup);
-	void MeleeTargetSelect_Horizontal_OppDir(AAIGroupBase * const _targetGroup);
-
-
-
-
+	void MeleeTargetSelect_TFL_Face2Us(AAIGroupBase * const _targetGroup);
+	void MeleeTargetSelect_TFR_Face2Us(AAIGroupBase * const _targetGroup);
 
 	UFUNCTION()
 		virtual void OnGroupVolumnOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
@@ -218,10 +220,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void PairColumn(AAIGroupBase* const _enemyGroup, int _myColumn, int _theirColumn);
-	void AssignColumnToColumn(AAIGroupBase* const _targetGroup, int _myColumn, int _theirColumn);
-	void AssignRowToColumn(AAIGroupBase* const _targetGroup, int _myRow, int _theirColumn);
-	void AssignColumnToRow(AAIGroupBase* const _targetGroup, int _myColumn, int _theirRow);
-	
+	void AssignColumnToColumn(AAIGroupBase* const _targetGroup, int _myColumn, int _theirColumn, bool _isReversed = false);
+	void AssignRowToColumn(AAIGroupBase* const _targetGroup, int _myRow, int _theirColumn, bool _isReversed = false);
+	void AssignColumnToRow(AAIGroupBase* const _targetGroup, int _myColumn, int _theirRow, bool _isReversed = false);
+
 	void MeleeTargetSelectionOnOverlap(AAIGroupBase* _targetGroup);
 
 
@@ -234,14 +236,20 @@ public:
 	void AddThreat(class ATheLastBastionCharacter* _character, float _threat);
 	void AddThreatByGroup(class AAIGroupBase* _targetGroup);
 	void RemoveThreat(class ATheLastBastionCharacter* _character);
+	void RemoveThreatByGroup(class AAIGroupBase* _targetGroup);
+
+
+
 	AActor* OnTargetRequest(const AActor* _requestSender);
 	void QuickSortThreatListByManDistance(TArray<FThreat>& _threatList, int _left, int _right) const;
+
+
+	void ToggleHUDVisibility(bool _val);
 
 	/** Update the children location during move to*/
 	/** DEPRECATED */
 	UFUNCTION(BlueprintCallable, Category = Behavior)
 		void CheckGroupCommand();
-
 
 	UFUNCTION()
 		/** Get Current most front line*/
@@ -275,8 +283,4 @@ public:
 	FORCEINLINE FVector GetGroupTargetLocation() const { return GroupTargetLocation; }
 	FORCEINLINE FVector GetGroupTargetForward() const { return GroupTargetForward; }
 	FORCEINLINE FVector GetGroupTargetRight() const { return GroupTargetRight; }
-
-
-
-
 };

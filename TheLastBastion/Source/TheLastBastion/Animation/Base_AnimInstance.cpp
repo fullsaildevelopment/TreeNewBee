@@ -1,6 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Base_AnimInstance.h"
+#include "TheLastBastionCharacter.h"
+
+#define SN_GetUpFromBack TEXT("GetUpFromBack")
+#define SN_GetUpFromFace TEXT("GetUpFromFace")
 
 
 UBase_AnimInstance::UBase_AnimInstance(const FObjectInitializer& _objectInitalizer)
@@ -10,6 +14,8 @@ UBase_AnimInstance::UBase_AnimInstance(const FObjectInitializer& _objectInitaliz
 
 void UBase_AnimInstance::OnBeginPlay()
 {
+	OnMontageStarted.AddDynamic(this, &UBase_AnimInstance::OnMontageStartHandle);
+	OnMontageBlendingOut.AddDynamic(this, &UBase_AnimInstance::OnMontageBlendOutStartHandle);
 }
 
 void UBase_AnimInstance::OnInit()
@@ -18,6 +24,17 @@ void UBase_AnimInstance::OnInit()
 
 void UBase_AnimInstance::OnUpdate(float _deltaTime)
 {
+	if (mBaseCharacter && mBaseCharacter->IsRagDoll())
+	{
+		if (mBaseCharacter->IsRagDollRecovereing())
+		{
+			mBaseCharacter->DuringRagDollRecovering(_deltaTime);
+		}
+		else
+		{
+			mBaseCharacter->DuringRagDoll();
+		}
+	}
 }
 
 void UBase_AnimInstance::OnPostEvaluate()
@@ -28,6 +45,17 @@ void UBase_AnimInstance::OnBeingHit(FName boneName, const FVector & _shotFromDir
 {
 }
 
+void UBase_AnimInstance::AnimInstanceResetOnRagDoll() {}
+
+void UBase_AnimInstance::OnGetUp()
+{
+	if (GetUp_Montage == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("GetUp_Montage == nullptr  - UBase_AnimInstance::OnGetUp() "));
+		return;
+	}
+	PlayMontage(GetUp_Montage, 1.0f, SN_GetUpFromFace);
+}
 
 float UBase_AnimInstance::PlayMontage(class UAnimMontage* _animMontage, float _rate, FName _startSectionName)
 {
@@ -56,8 +84,17 @@ void UBase_AnimInstance::OnMontageEndHandle(UAnimMontage * _animMontage, bool _b
 {
 }
 
-
 void UBase_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontage, bool _bInterruptted)
 {
 
+	if (mBaseCharacter)
+	{
+		if (_animMontage == GetUp_Montage && !_bInterruptted && mBaseCharacter->IsOldKnockOut())
+		{
+			mBaseCharacter->RagDollRecoverOnFinish();
+		}
+
+	}
 }
+
+void UBase_AnimInstance::ResetOnBeingHit() {}

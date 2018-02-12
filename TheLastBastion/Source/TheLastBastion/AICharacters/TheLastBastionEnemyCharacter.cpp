@@ -161,6 +161,14 @@ void ATheLastBastionEnemyCharacter::ToggleAIHUD(bool _val)
 	}
 }
 
+void ATheLastBastionEnemyCharacter::OnGetUp()
+{
+	GetCapsuleComponent()->SetCollisionProfileName("Enemy");
+	GetMesh()->SetCollisionProfileName("EnemyBody");
+
+	Super::OnGetUp();
+}
+
 
 
 

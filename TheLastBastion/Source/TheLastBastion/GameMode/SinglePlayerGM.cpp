@@ -132,12 +132,11 @@ void ASinglePlayerGM::BeginPlay()
 	for (int iAllies = 0; iAllies < AlliesCount; iAllies++)
 	{
 		Allies[iAllies] = Cast<AAllyGroup>(AllAllies[iAllies]);
+		if (Allies[iAllies])
+		{
+			Allies[iAllies]->SetHUDIndex(iAllies + 1);
+		}
 	}
-
-
-	
-
-
 }
 
 void ASinglePlayerGM::SpawnNewEnemy()
@@ -269,4 +268,16 @@ AAllyGroup * ASinglePlayerGM::GetAllyGroupUnitAt(int _index)
 		return Allies[_index];
 	}
 	return nullptr;
+}
+
+void ASinglePlayerGM::ToggleAllGroupUI(bool _val)
+{
+	// toggle all allies HUD
+
+	for (int i = 0; i < Allies.Num(); i++)
+	{
+		Allies[i]->ToggleHUDVisibility(_val);
+	}
+
+	// toggle all enemy group hud
 }

@@ -31,7 +31,9 @@ void ATheLastBastionAllyCharacter::HitResponse(AActor * DamageCauser)
 {	
 	if (mGroup->IsInBattle())
 	{
-		SetTarget(DamageCauser);
+		const ATheLastBastionHeroCharacter * heroAttacker = Cast<ATheLastBastionHeroCharacter>(DamageCauser);
+		if (heroAttacker == nullptr)
+			SetTarget(DamageCauser);
 	}
 }
 
@@ -137,4 +139,12 @@ void ATheLastBastionAllyCharacter::ToggleAIHUD(bool _val)
 	{
 		AI_HUD->ToggleUI(_val, true);
 	}
+}
+
+void ATheLastBastionAllyCharacter::OnGetUp()
+{
+	GetCapsuleComponent()->SetCollisionProfileName("Ally");
+	GetMesh()->SetCollisionProfileName("HeroBody");
+	Super::OnGetUp();
+
 }

@@ -30,11 +30,11 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		void OnPostEvaluate() override;
 
-	UFUNCTION()
-		void OnMontageStartHandle(class UAnimMontage* _animMontage) override;
+	//UFUNCTION()
+	//	void OnMontageStartHandle(class UAnimMontage* _animMontage) override;
 
-	UFUNCTION()
-		void OnMontageBlendOutStartHandle(class UAnimMontage* _animMontage, bool _bInterruptted) override;
+	//UFUNCTION()
+	//	void OnMontageBlendOutStartHandle(class UAnimMontage* _animMontage, bool _bInterruptted) override;
 
 
 
@@ -48,14 +48,6 @@ public:
 
 	void OnBeingHit(FName boneName,
 		const FVector& _shotFromDirection, const FVector& _hitLocation) override;
-
-
-	//UFUNCTION(BlueprintCallable)
-	//	/** Called at the end of attack frame, and let BT know attack is finished*/
-	//	void FinishAttack() override;
-
-	//UFUNCTION(BlueprintCallable)
-	//	void InitFire();
 
 
 protected:

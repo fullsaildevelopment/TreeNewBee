@@ -51,6 +51,7 @@ void ATheLastBastionAIBase::BeginPlay()
 			TEXT("ATheLastBastionAIBase can not take other AnimInstance other than AIBase_AnimInstance - ATheLastBastionAIBase::BeginPlay"));
 		return;
 	}
+	mBaseAnimRef = mAnimInstanceRef;
 
 	if (AIStats == nullptr)
 	{
@@ -96,14 +97,16 @@ void ATheLastBastionAIBase::ToggleAIHUD(bool _val)
 
 void ATheLastBastionAIBase::OnTargetDeathHandle()
 {
-	RequestAnotherTarget();
+	if (bIsDead == false)
+	{
+		RequestAnotherTarget();
+	}
 }
 
 void ATheLastBastionAIBase::SetParent(AAIGroupBase * _Group, int _groupIndex)
 {
 	mGroup = _Group;
 	mGroupIndex = _groupIndex;
-
 }
 
 bool ATheLastBastionAIBase::OnGroupTaskStart()
@@ -111,7 +114,7 @@ bool ATheLastBastionAIBase::OnGroupTaskStart()
 	if (mGroup == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, 
-			TEXT("%s is not in a group -- ATheLastBastionAIBase::CalculateMarchTargetPosition"));
+			TEXT("%s is not in a group -- ATheLastBastionAIBase::OnGroupTaskStart"));
 		return false;
 	}
 
@@ -119,7 +122,7 @@ bool ATheLastBastionAIBase::OnGroupTaskStart()
 
 	if (baseAICtrl == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr - AAIGroupBase::CalculateMarchTargetPosition"));
+		UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr - AAIGroupBase::OnGroupTaskStart, %s"), *this->GetName());
 		return false;
 	}
 
@@ -129,7 +132,10 @@ bool ATheLastBastionAIBase::OnGroupTaskStart()
 	if (groupCommand == GC_FIGHT)
 	{
 		baseAICtrl->SetNewCommandIndex_BBC(0);
-		baseAICtrl->SetOldCommandIndex_BBC(0);
+		if (baseAICtrl->GetTargetActor_BBC() == nullptr)
+			baseAICtrl->SetOldCommandIndex_BBC(0);
+		else
+			baseAICtrl->SetOldCommandIndex_BBC(GC_FIGHT);
 		return false;
 	}
 
@@ -170,27 +176,29 @@ bool ATheLastBastionAIBase::OnGroupTaskStart()
 		childtargetLocation = Hit.ImpactPoint;
 	}
 
-	// Handle focus
-
-	FVector focusPoint = FVector::ZeroVector;
-	switch (groupCommand)
+	// Handle focus, if this AI current has no target, therefore currently dont have focus
+	if (baseAICtrl->GetTargetActor_BBC() == nullptr)
 	{
-	case GC_GOTOLOCATION:
-	case GC_FOLLOW:
-		baseAICtrl->ClearFocus(EAIFocusPriority::Gameplay);
-		break;
-	case GC_HOLDLOCATION:
-	case GC_BACKWARD:
-	case GC_DISTRIBUTE:
-	case GC_REFORM:
-	case GC_FORWARD:
-		focusPoint = mGroup->GetActorLocation() + mGroup->GetActorForwardVector() * 1000000.0f;
-		baseAICtrl->ClearFocus(EAIFocusPriority::Gameplay);
-		baseAICtrl->SetFocalPoint(focusPoint, EAIFocusPriority::Gameplay);
-		break;
+		FVector focusPoint = FVector::ZeroVector;
+		switch (groupCommand)
+		{
+		case GC_GOTOLOCATION:
+		case GC_FOLLOW:
+			baseAICtrl->ClearFocus(EAIFocusPriority::Gameplay);
+			break;
+		case GC_HOLDLOCATION:
+		case GC_BACKWARD:
+		case GC_DISTRIBUTE:
+		case GC_REFORM:
+		case GC_FORWARD:
+			focusPoint = mGroup->GetActorLocation() + mGroup->GetActorForwardVector() * 1000000.0f;
+			baseAICtrl->ClearFocus(EAIFocusPriority::Gameplay);
+			baseAICtrl->SetFocalPoint(focusPoint, EAIFocusPriority::Gameplay);
+			break;
 
-	default:
-		break;
+		default:
+			break;
+		}
 	}
 
 	baseAICtrl->SetTargetLocation_BBC(childtargetLocation);
@@ -205,26 +213,32 @@ void ATheLastBastionAIBase::SetTarget(AActor * _target)
 
 	if (baseAICtrl == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr - AAIGroupBase::CalculateMarchTargetPosition"));
+		UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr - AAIGroupBase::SetTarget"));
 		return;
 	}
 
-	AActor* currentTarget = baseAICtrl->GetTargetActor_BBC();
-	if (_target != currentTarget)
+	// check to see if we have new command
+
+	int newCommand = baseAICtrl->GetNewCommandIndex_BBC();
+	if (newCommand == 0)
 	{
-		baseAICtrl->SetTargetActor_BBC(_target);
-		baseAICtrl->ClearFocus(EAIFocusPriority::Gameplay);
+		AActor* currentTarget = baseAICtrl->GetTargetActor_BBC();
+
 		if (_target != nullptr)
-		{
 			baseAICtrl->SetFocus(_target, EAIFocusPriority::Gameplay);
-			ATheLastBastionAIBase* aiTarget = Cast<ATheLastBastionAIBase>(_target);
-			if (aiTarget)
+
+		if (_target != currentTarget)
+		{
+			baseAICtrl->SetTargetActor_BBC(_target);
+			ATheLastBastionCharacter* aiTarget = Cast<ATheLastBastionCharacter>(_target);
+			if (aiTarget && !aiTarget->GetIsDead())
 			{
-				aiTarget->OnAIDeathEvent.AddUObject(this, &ATheLastBastionAIBase::OnTargetDeathHandle);
+				aiTarget->OnCharacterDeathEvent.AddUObject(this, &ATheLastBastionAIBase::OnTargetDeathHandle);
 			}
 		}
+		baseAICtrl->SetNewCommandIndex_BBC(GC_FIGHT);
 	}
-	baseAICtrl->SetNewCommandIndex_BBC(GC_FIGHT);
+
 }
 
 AActor * ATheLastBastionAIBase::GetTarget() const
@@ -266,27 +280,32 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 
 	EvaluateAttackerThreat(DamageCauser, currentHp);
 
+	// calculate impulse direction in case this ai is killed or stuned
+	FVector RagDollImpulse = HitLocation - DamageCauser->GetTargetLocation();
+
 	if (currentHp <= 0)
 	{
-		OnDead();
+		OnDead(RagDollImpulse, DamageCauser, BoneName);
 		return;
 	}
 	
 	// if this ai is alive, how he response to this hit
 	HitResponse(DamageCauser);
 
-	// if this ai is not get stunned, play hit animation
-	mAnimInstanceRef->OnBeingHit(BoneName, ShotFromDirection, HitLocation);
+	/// Check if we want to simulate physics or play animation
+	mAnimInstanceRef->ResetOnBeingHit();
 
 	if (isStun)
 	{
 		// if this ai is not get simulate ragdoll physics, play hit animation
+		KnockOut(RagDollImpulse, DamageCauser,BoneName);
 	}
 	else
 	{
 		// if this ai is not get stunned, play hit animation
-		//mAnimInstanceRef->OnBeingHit(BoneName, ShotFromDirection, HitLocation);
+		mAnimInstanceRef->OnBeingHit(BoneName, ShotFromDirection, HitLocation);
 	}
+
 }
 
 void ATheLastBastionAIBase::GenerateFloatingText(const FVector & HitLocation,
@@ -300,7 +319,7 @@ void ATheLastBastionAIBase::HitResponse(AActor* DamageCauser)
 
 }
 
-void ATheLastBastionAIBase::OnDead()
+void ATheLastBastionAIBase::OnDead(const FVector& dir, const AActor* _damageCauser, const FName& _boneName)
 {
 	bIsDead = true;
 	if (AI_HUD)
@@ -315,12 +334,10 @@ void ATheLastBastionAIBase::OnDead()
 	mGroup->OnChildDeath(mGroupIndex);
 
 	// Launch kill timer
-	GetWorldTimerManager().SetTimer(mKillTimer, this, &ATheLastBastionAIBase::Kill, 1.0f, false, SecondBeforeKill);
+	GetWorldTimerManager().SetTimer(mRagDollTimer, this, &ATheLastBastionAIBase::Kill, 1.0f, false, SecondBeforeKill);
 
-	Super::OnDead();
+	Super::OnDead(dir, _damageCauser, _boneName);
 
-	// tell all the ai that target this actor to re choose target
-	OnAIDeathEvent.Broadcast();
 }
 
 void ATheLastBastionAIBase::Kill()

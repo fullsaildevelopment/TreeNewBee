@@ -97,6 +97,16 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	virtual void OnPostEvaluate();
 
+
+
+	UFUNCTION()
+		void OnMontageStartHandle(class UAnimMontage* _animMontage) override;
+
+	UFUNCTION()
+		void OnMontageBlendOutStartHandle(class UAnimMontage* _animMontage, bool _bInterruptted) override;
+
+
+
 public:
 
 	// Called when an enemy BT decide to attack in Melee
@@ -110,6 +120,9 @@ public:
 	// Called When Attack Sequence is done by the end of animation sequence
 	virtual void FinishAttack();
 
+	void ResetOnBeingHit() override;
+
+
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE EAIActionState GetCurrentActionState() const {return CurrentActionState;}
 
@@ -121,7 +134,7 @@ protected:
 
 	void SyncMotionForNone();
 
-	FName HitReaction_SHSword(FName boneName, const FVector & _shotFromDirection, const FVector& _hitLocation);
+	FName HitReaction_SHSword(FName boneName, const FVector& _shotFromDirection, const FVector& _hitLocation);
 
 
 };

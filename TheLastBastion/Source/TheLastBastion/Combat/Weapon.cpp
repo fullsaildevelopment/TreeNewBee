@@ -47,6 +47,7 @@ void AWeapon::Tick(float _deltaTime)
 	if (bShowBounding)
 	{
 		FVector startPosition, endPosition;
+		//FRotator rotation;
 
 		//startPosition = GetActorLocation() + DamageEdgeOffset_start;
 		//endPosition   = GetActorLocation() + DamageEdgeOffset_end;
@@ -56,7 +57,7 @@ void AWeapon::Tick(float _deltaTime)
 
 		FHitResult _hit;
 		const TArray<AActor* > ignoreActors;
-		UKismetSystemLibrary::BoxTraceSingle(GetWorld(), startPosition, endPosition, DamageVolumnExtend, this->GetActorRotation(),
+		UKismetSystemLibrary::BoxTraceSingle(GetWorld(), startPosition, endPosition, DamageVolumnExtend, GetActorRotation(),
 			ETraceTypeQuery::TraceTypeQuery1, false, ignoreActors, EDrawDebugTrace::ForOneFrame, _hit, true);
 	}
 
@@ -67,6 +68,7 @@ void AWeapon::Tick(float _deltaTime)
 
 		// Get Start End Position
 		FVector startPosition, endPosition;
+		//FRotator rotation;
 
 		GetRayCastPosition(startPosition, endPosition);
 
@@ -93,7 +95,7 @@ void AWeapon::Tick(float _deltaTime)
 		DamageInfo.damageType = DamageType;
 
 		UWorld* world = GetWorld();
-		bool IsHit = world->SweepSingleByObjectType(DamageInfo.hitResult, startPosition, endPosition, this->GetActorRotation().Quaternion(), ObjectParams,
+		bool IsHit = world->SweepSingleByObjectType(DamageInfo.hitResult, startPosition, endPosition, GetActorRotation().Quaternion(), ObjectParams,
 			FCollisionShape::MakeBox(DamageVolumnExtend), Params);
 		if (IsHit)
 		{
@@ -129,20 +131,28 @@ void AWeapon::GetRayCastPosition(FVector & _start, FVector & _end)
 	{
 		_start = GetActorLocation() + GetActorUpVector() * DamageEdgeOffset_start.Z;
 		_end = GetActorLocation() + GetActorUpVector() * DamageEdgeOffset_end.Z;
+		//_rotator = this->GetActorRotation();
 		break;
 	}
 	case EGearType::DoubleHandWeapon:
 	{
 		_start = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_start.Y + GetActorUpVector() * DamageEdgeOffset_start.Z;;
 		_end = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_end.Y;
+		//_rotator = this->GetActorRotation();
 		break;
 	}
 	case EGearType::GreatSword:
 	case EGearType::BattleAxe:
 	case EGearType::Hammer:
 	{
-		_start = GetActorLocation() - GetActorRightVector() * DamageEdgeOffset_start.Y   + GetActorForwardVector() * DamageEdgeOffset_start;
-		_end = GetActorLocation()   - GetActorRightVector() * DamageEdgeOffset_end.Y     + GetActorForwardVector() * DamageEdgeOffset_end;
+
+		_start = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_start.Y + GetActorUpVector() * DamageEdgeOffset_start.Z;;
+		_end = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_end.Y;
+		//_rotator = this->GetActorRotation();
+
+		//_start = GetActorLocation() - GetActorRightVector() * DamageEdgeOffset_start.Y   + GetActorForwardVector() * DamageEdgeOffset_start;
+		//_end = GetActorLocation()   - GetActorRightVector() * DamageEdgeOffset_end.Y     + GetActorForwardVector() * DamageEdgeOffset_end;
+		//_rotator = FRotator(this->GetActorRotation().Pitch, -this->GetActorRotation().Yaw, this->GetActorRotation().Roll);
 		break;
 	}
 	case EGearType::TwinBlade:
@@ -150,6 +160,8 @@ void AWeapon::GetRayCastPosition(FVector & _start, FVector & _end)
 	{
 		_start = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_start;
 		_end = GetActorLocation()   + GetActorForwardVector() * DamageEdgeOffset_end;
+		//_rotator = this->GetActorRotation();
+
 		break;
 	}
 	default:

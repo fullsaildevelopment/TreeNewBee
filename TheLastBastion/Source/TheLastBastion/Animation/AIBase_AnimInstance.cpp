@@ -2,6 +2,8 @@
 
 #include "AIBase_AnimInstance.h"
 #include "AICharacters/TheLastBastionAIBase.h"
+#include "AI/TheLastBastionBaseAIController.h"
+
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 
@@ -20,10 +22,16 @@ void UAIBase_AnimInstance::OnBeginPlay()
 	mCharacter = Cast<ATheLastBastionAIBase>(TryGetPawnOwner());
 	if (mCharacter == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("The AIBase_AnimInstance can only assigned to ATheLastBastionEnemyCharacter - UAIBase_AnimInstance "));
+		UE_LOG(LogTemp, Warning, TEXT("The AIBase_AnimInstance can only assigned to ATheLastBastionAIBase - UAIBase_AnimInstance "));
 		return;
 	}
-	//UE_LOG(LogTemp, Warning, TEXT("AIBase_AnimInstance Call OnBeginPlay"));
+
+	mBaseCharacter = mCharacter;
+
+	Super::OnBeginPlay();
+
+	//OnMontageStarted.AddDynamic(this, &UAIMelee_AnimInstance::OnMontageStartHandle);
+	//OnMontageBlendingOut.AddDynamic(this, &UAIMelee_AnimInstance::OnMontageBlendOutStartHandle);
 }
 
 void UAIBase_AnimInstance::OnInit()
@@ -33,7 +41,12 @@ void UAIBase_AnimInstance::OnInit()
 
 void UAIBase_AnimInstance::OnUpdate(float _deltaTime)
 {
+	Super::OnUpdate(_deltaTime);
+
 	if (mCharacter == nullptr)
+		return;
+
+	if (mCharacter->IsRagDoll())
 		return;
 
 	UCharacterMovementComponent* movementComp = mCharacter->GetCharacterMovement();
@@ -43,10 +56,72 @@ void UAIBase_AnimInstance::OnUpdate(float _deltaTime)
 	velocityLocalDir = FVector(velocityLocalDir.X, velocityLocalDir.Y, 0).GetSafeNormal();
 	MoveForwardAxis = velocityLocalDir.X;
 	MoveRightAxis = velocityLocalDir.Y;
+
+	switch (CurrentActionState)
+	{
+	case EAIActionState::MeleeAttack:
+		SyncMotionForMeleeAttack();
+		break;
+	case EAIActionState::GettingHurt:
+		SyncMotionForGettingHurt();
+		break;
+	case EAIActionState::None:
+
+		break;
+	default:
+		break;
+	}
+
+
 }
 
 void UAIBase_AnimInstance::OnPostEvaluate()
 {
+}
+
+void UAIBase_AnimInstance::ResetOnBeingHit()
+{
+	CurrentActionState = EAIActionState::GettingHurt;
+
+	ATheLastBastionBaseAIController* baseAICtrl 
+		= Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
+	if (baseAICtrl == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("enemyC is nullptr - UAIRange_AnimInstance"));
+		return;
+	}
+
+	baseAICtrl->OnBeingHit(mCharacter->GetCharacterType());
+}
+
+void UAIBase_AnimInstance::OnMontageStartHandle(UAnimMontage * _animMontage) {}
+
+void UAIBase_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontage, bool _bInterruptted)
+{
+	Super::OnMontageBlendOutStartHandle(_animMontage, _bInterruptted);
+
+	if (_animMontage == Hit_Montage && !_bInterruptted)
+	{
+		//UE_LOG(LogTemp, Log, TEXT("I am recover from being hit - OnMontageBlendOutStartHandle"));
+		CurrentActionState = EAIActionState::None;
+		// Tell BT that this attack is done
+		if (mCharacter)
+		{
+			ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
+			// recover the rotation rate from melee attack motion sync
+			mCharacter->GetCharacterMovement()->RotationRate.Yaw = 540.0f;
+			if (baseAICtrl)
+			{
+				baseAICtrl->SetAICurrentActionState_BBC(CurrentActionState);
+				UBehaviorTreeComponent* btc = baseAICtrl->GetBTComp();
+				if (btc)
+				{
+					OnRecoverFromHitSignature.ExecuteIfBound(btc);
+				}
+			}
+		}
+	}
+
 }
 
 void UAIBase_AnimInstance::Attack(EAIMeleeAttackType _attackType)
@@ -104,7 +179,7 @@ void UAIBase_AnimInstance::SyncMotionForNone()
 
 }
 
-FName UAIBase_AnimInstance::HitReaction_SHSword(FName boneName, const FVector & _shotFromDirection, const FVector & _hitLocation)
+FName UAIBase_AnimInstance::HitReaction_SHSword(FName boneName, const FVector& _shotFromDirection, const FVector& _hitLocation)
 {
 	// assume always face to attacker
 	FName sectionName;

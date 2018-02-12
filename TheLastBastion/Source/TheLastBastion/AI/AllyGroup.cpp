@@ -2,6 +2,8 @@
 
 #include "AllyGroup.h"
 #include "AICharacters/TheLastBastionAIBase.h"
+
+
 #include "AI/EnemyGroup.h"
 #include "AI/TheLastBastionGroupAIController.h"
 #include "AI/TheLastBastionBaseAIController.h"
@@ -9,15 +11,15 @@
 #include "TheLastBastionHeroCharacter.h"
 #include "AICharacters/TheLastBastionEnemyCharacter.h"
 #include "Kismet/KismetMathLibrary.h"
-
-#include "BehaviorTree/BlackboardComponent.h"
-#include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
+#include "UI/Gameplay/AllyGroupHUD.h"
 
 
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Components/BoxComponent.h"
 #include "Components/ArrowComponent.h"
+#include "Components/WidgetComponent.h"
 
+#include "CustomType.h"
 #include "DrawDebugHelpers.h"
 
 
@@ -34,15 +36,18 @@ AAllyGroup::AAllyGroup()
 	{
 		ArrowComp->ArrowColor = FColor::Green;
 	}
+
+	if (GroupHUD)
+	{
+		TSubclassOf<UUserWidget> HUD_Class;
+		UCustomType::FindClass<UUserWidget>(HUD_Class, TEXT("/Game/UI/In-Game/WBP_AllyGroupHUD"));
+		GroupHUD->SetWidgetClass(HUD_Class);
+	}
 }
 
 void AAllyGroup::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//if (PlayerHero && PlayerHero->CommandedGroup == nullptr)
-	//	PlayerHero->CommandedGroup = this;
-
 
 	mFollowingLocation = GetActorLocation();
 }
@@ -497,6 +502,14 @@ void AAllyGroup::OnChildDeath(int _childIndex)
 	}
 	else
 	{
+
+
+
+
+
+
+
+
 		bReformPending = true;
 		for (int i = 0; i < totalCharacterCount; i++)
 		{
@@ -576,5 +589,28 @@ int AAllyGroup::GetMaxRowCount() const
 	else
 	{
 		return 1;
+	}
+}
+
+bool AAllyGroup::CanBeReformed() const
+{
+
+	if (AICharactersInfo.Num() <= 3 )
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+
+}
+
+void AAllyGroup::SetHUDIndex(int _index)
+{
+	UAllyGroupHUD* hud = Cast<UAllyGroupHUD>(GroupHUD->GetUserWidgetObject());
+	if (hud)
+	{
+		hud->SetGroupIndexText(_index);
 	}
 }

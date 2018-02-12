@@ -89,7 +89,7 @@ UHero_AnimInstance::UHero_AnimInstance(const FObjectInitializer& _objectInitaliz
 
 void UHero_AnimInstance::OnBeginPlay()
 {
-	UE_LOG(LogTemp, Warning, TEXT("UHero_AnimInstance::OnBeginPlay"));
+	//UE_LOG(LogTemp, Warning, TEXT("UHero_AnimInstance::OnBeginPlay"));
 	APawn* pawn = TryGetPawnOwner();
 	mCharacter = Cast<ATheLastBastionHeroCharacter>(pawn);
 	if (mCharacter == nullptr)
@@ -97,11 +97,13 @@ void UHero_AnimInstance::OnBeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("The Hero can only assigned to ATheLastBastionCharacter - UHero_AnimInstance::OnBeginPlay "));
 		return;
 	}
+	mBaseCharacter = mCharacter;
 
 	UpdateComboList(EGearType::LongSword);
 
-	OnMontageStarted.AddDynamic(this, &UHero_AnimInstance::OnMontageStartHandle);
-	OnMontageBlendingOut.AddDynamic(this, &UHero_AnimInstance::OnMontageBlendOutStartHandle);
+	Super::OnBeginPlay();
+	//OnMontageStarted.AddDynamic(this, &UHero_AnimInstance::OnMontageStartHandle);
+	//OnMontageBlendingOut.AddDynamic(this, &UHero_AnimInstance::OnMontageBlendOutStartHandle);
 
 }
 
@@ -114,6 +116,11 @@ void UHero_AnimInstance::OnUpdate(float _deltaTime)
 {
 	if (mCharacter != nullptr)
 	{
+		Super::OnUpdate(_deltaTime);
+
+		if (mCharacter->IsRagDoll())
+			return;
+
 		// Head Track
 		HeadTrack();
 
@@ -395,6 +402,8 @@ void UHero_AnimInstance::OnMontageStartHandle(UAnimMontage * _animMontage)
 
 void UHero_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontage, bool _bInterruptted)
 {
+
+	Super::OnMontageBlendOutStartHandle(_animMontage, _bInterruptted);
 	if (_animMontage == Attack_Montage && !_bInterruptted)
 	{
 		ResetCombo();
@@ -1478,8 +1487,6 @@ void UHero_AnimInstance::ResetOnBeingHit()
 
 	CurrentComboIndex = 0;
 	OnDisableDamage(false, true);
-
-
 }
 
 void UHero_AnimInstance::RecoverFromBeingHit(bool _bInterrupted)
@@ -1528,6 +1535,23 @@ void UHero_AnimInstance::UpdateComboList(EGearType _gearType)
 		break;
 	}
 	CurrentComboIndex = 0;
+}
+
+void UHero_AnimInstance::AnimInstanceResetOnRagDoll()
+{
+
+	// Get Control Axis for strafing
+	MoveForwardAxis = 0.0f;
+	MoveRightAxis = 0.0f;
+	bIsInAir = false;
+	// Check if the player try to move?
+	bTryToMove = false;
+
+	currentSpeed = 0.0f;
+	turn = 0.0f;
+	
+
+
 }
 
 void UHero_AnimInstance::HeadTrack()

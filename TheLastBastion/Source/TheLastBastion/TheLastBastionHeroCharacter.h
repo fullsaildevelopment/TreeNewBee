@@ -142,6 +142,9 @@ protected:
 			const class UDamageType* DamageType, AActor* DamageCauser) override;
 
 
+	virtual void KnockOut(const FVector& dir, const AActor* _damageCauser, const FName& _boneName) override;
+
+
 protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
@@ -194,7 +197,7 @@ public:
 private:
 
 	/** Animation Bp Reference */
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		class UHero_AnimInstance*  mAnimInstanceRef;
 	UPROPERTY()
 		class UInGameHUD*          mInGameHUD;
@@ -227,6 +230,11 @@ public:
 
 	// Override A Parent class function
 	FVector GetPawnViewLocation() const override;	
+	void OnGetUp() override;
+	void RagDollRecoverOnFinish() override;
+
+
+
 	void ToggleFireMode(bool _val);
 
 	FORCEINLINE class USphereComponent* GetTargetDetector() const { return TargetDetector; }
@@ -253,7 +261,6 @@ public:
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE class AAllyGroup* GetCommandGroup() const { return CommandedGroup; }
 
-	class AGear* GetCurrentWeapon() const;
 
 
 };

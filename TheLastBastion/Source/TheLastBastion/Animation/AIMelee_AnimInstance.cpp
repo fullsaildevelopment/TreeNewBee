@@ -15,8 +15,8 @@ void UAIMelee_AnimInstance::OnBeginPlay()
 	attackChoice = EAIMeleeAttackType::None;
 	//UE_LOG(LogTemp, Log, TEXT("UAIMelee_AnimInstance::OnBeginPlay is Called"));
 
-	OnMontageStarted.AddDynamic(this, &UAIMelee_AnimInstance::OnMontageStartHandle);
-	OnMontageBlendingOut.AddDynamic(this, &UAIMelee_AnimInstance::OnMontageBlendOutStartHandle);
+	//OnMontageStarted.AddDynamic(this, &UAIMelee_AnimInstance::OnMontageStartHandle);
+	//OnMontageBlendingOut.AddDynamic(this, &UAIMelee_AnimInstance::OnMontageBlendOutStartHandle);
 }
 
 void UAIMelee_AnimInstance::OnInit()
@@ -28,23 +28,6 @@ void UAIMelee_AnimInstance::OnUpdate(float _deltaTime)
 {
 	Super::OnUpdate(_deltaTime);
 
-	if (mCharacter == nullptr)
-		return;
-
-	switch (CurrentActionState)
-	{
-	case EAIActionState::MeleeAttack:
-		SyncMotionForMeleeAttack();
-		break;
-	case EAIActionState::GettingHurt:
-		SyncMotionForGettingHurt();
-		break;
-	case EAIActionState::None:
-		
-		break;
-	default:
-		break;
-	}
 }
 
 void UAIMelee_AnimInstance::OnPostEvaluate()
@@ -87,12 +70,12 @@ void UAIMelee_AnimInstance::FinishAttack()
 	// Tell BT that this attack is done
 	if (mCharacter)
 	{
-		ATheLastBastionBaseAIController* enemyC = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
+		ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
 		// recover the rotation rate from melee attack motion sync
 		mCharacter->GetCharacterMovement()->RotationRate.Yaw = 540.0f;
-		if (enemyC)
+		if (baseAICtrl)
 		{
-			UBehaviorTreeComponent* btc = enemyC->GetBTComp();
+			UBehaviorTreeComponent* btc = baseAICtrl->GetBTComp();
 			if (btc)
 			{
 				OnFinishAttackDelegate.ExecuteIfBound(btc);
@@ -107,34 +90,34 @@ void UAIMelee_AnimInstance::InitAttack()
 	NextAction = EAIActionState::None;
 }
 
-void UAIMelee_AnimInstance::OnMontageStartHandle(UAnimMontage * _animMontage)
-{
-}
-
-void UAIMelee_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontage, bool _bInterruptted)
-{
-	if (_animMontage == Hit_Montage && !_bInterruptted)
-	{
-		//UE_LOG(LogTemp, Log, TEXT("I am recover from being hit - OnMontageBlendOutStartHandle"));
-		CurrentActionState = EAIActionState::None;
-		// Tell BT that this attack is done
-		if (mCharacter)
-		{
-			ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
-			// recover the rotation rate from melee attack motion sync
-			mCharacter->GetCharacterMovement()->RotationRate.Yaw = 540.0f;
-			if (baseAICtrl)
-			{
-				baseAICtrl->SetAICurrentActionState_BBC(CurrentActionState);
-				UBehaviorTreeComponent* btc = baseAICtrl->GetBTComp();
-				if (btc)
-				{
-					OnRecoverFromHitSignature.ExecuteIfBound(btc);
-				}
-			}
-		}
-	}
-}
+//void UAIMelee_AnimInstance::OnMontageStartHandle(UAnimMontage * _animMontage)
+//{
+//}
+//
+//void UAIMelee_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontage, bool _bInterruptted)
+//{
+//	if (_animMontage == Hit_Montage && !_bInterruptted)
+//	{
+//		//UE_LOG(LogTemp, Log, TEXT("I am recover from being hit - OnMontageBlendOutStartHandle"));
+//		CurrentActionState = EAIActionState::None;
+//		// Tell BT that this attack is done
+//		if (mCharacter)
+//		{
+//			ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
+//			// recover the rotation rate from melee attack motion sync
+//			mCharacter->GetCharacterMovement()->RotationRate.Yaw = 540.0f;
+//			if (baseAICtrl)
+//			{
+//				baseAICtrl->SetAICurrentActionState_BBC(CurrentActionState);
+//				UBehaviorTreeComponent* btc = baseAICtrl->GetBTComp();
+//				if (btc)
+//				{
+//					OnRecoverFromHitSignature.ExecuteIfBound(btc);
+//				}
+//			}
+//		}
+//	}
+//}
 
 void UAIMelee_AnimInstance::OnBeingHit(FName boneName, const FVector & _shotFromDirection, const FVector & _hitLocation)
 {
@@ -145,20 +128,17 @@ void UAIMelee_AnimInstance::OnBeingHit(FName boneName, const FVector & _shotFrom
 		return;
 	}
 
-	FinishAttack();
-
-	CurrentActionState = EAIActionState::GettingHurt;
-	//UE_LOG(LogTemp, Log, TEXT("disable weapon on hit"));
-	OnDisableWeapon(false, true);
-
-	ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
-	if (baseAICtrl == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("enemyC is nullptr - UAIRange_AnimInstance"));
-		return;
-	}
-
-	baseAICtrl->SetAICurrentActionState_BBC(CurrentActionState);
+	//FinishAttack();
+	//CurrentActionState = EAIActionState::GettingHurt;
+	////UE_LOG(LogTemp, Log, TEXT("disable weapon on hit"));
+	//OnDisableWeapon(false, true);
+	//ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
+	//if (baseAICtrl == nullptr)
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("enemyC is nullptr - UAIRange_AnimInstance"));
+	//	return;
+	//}
+	//baseAICtrl->SetAICurrentActionState_BBC(CurrentActionState);
 
 	ECharacterType Type = mCharacter->GetCharacterType();
 	FName sectionToPlay;
@@ -173,6 +153,13 @@ void UAIMelee_AnimInstance::OnBeingHit(FName boneName, const FVector & _shotFrom
 	}
 
 	PlayMontage(Hit_Montage, 1.0f, sectionToPlay);
+}
+
+void UAIMelee_AnimInstance::ResetOnBeingHit()
+{
+	FinishAttack();
+	Super::ResetOnBeingHit();
+
 }
 
 
