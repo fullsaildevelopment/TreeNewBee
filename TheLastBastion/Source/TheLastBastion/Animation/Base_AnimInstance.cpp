@@ -92,7 +92,7 @@ void UBase_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontag
 
 	if (mBaseCharacter)
 	{
-		if (_animMontage == GetUp_Montage && !_bInterruptted && mBaseCharacter->IsOldKnockOut())
+		if (_animMontage == GetUp_Montage  && mBaseCharacter->IsOldKnockOut())
 		{
 			mBaseCharacter->RagDollRecoverOnFinish();
 		}

@@ -58,8 +58,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void Attack(EAIMeleeAttackType _attackType) override;
 
-	void OnBeingHit(FName boneName, const FVector& _shotFromDirection, 
-		const FVector& _hitLocation) override;
 
 	void ResetOnBeingHit() override;
 

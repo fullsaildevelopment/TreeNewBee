@@ -149,7 +149,6 @@ void ATheLastBastionCharacter::KnockOut(const FVector& dir, const AActor* _damag
 	{
 		// 
 		bIsRagDoll = true;
-		bIsRecoveringFromRagDoll = false;
 		bCheckBodyVelocity = false;
 		GetWorldTimerManager().ClearTimer(mRagDollTimer);
 		newRagDollIndex++;
@@ -160,6 +159,7 @@ void ATheLastBastionCharacter::KnockOut(const FVector& dir, const AActor* _damag
 			&ATheLastBastionCharacter::ToggleBodyStopCheck, 1.0f, false, RagDoll_MinimumGetUpTime);
 	}
 
+	bIsRecoveringFromRagDoll = false;
 	mBaseAnimRef->AnimInstanceResetOnRagDoll();
 
 }

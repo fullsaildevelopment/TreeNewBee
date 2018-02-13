@@ -119,47 +119,16 @@ void UAIMelee_AnimInstance::InitAttack()
 //	}
 //}
 
-void UAIMelee_AnimInstance::OnBeingHit(FName boneName, const FVector & _shotFromDirection, const FVector & _hitLocation)
-{
-
-	if (Hit_Montage == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Hit Montage is nullptr"));
-		return;
-	}
-
-	//FinishAttack();
-	//CurrentActionState = EAIActionState::GettingHurt;
-	////UE_LOG(LogTemp, Log, TEXT("disable weapon on hit"));
-	//OnDisableWeapon(false, true);
-	//ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
-	//if (baseAICtrl == nullptr)
-	//{
-	//	UE_LOG(LogTemp, Error, TEXT("enemyC is nullptr - UAIRange_AnimInstance"));
-	//	return;
-	//}
-	//baseAICtrl->SetAICurrentActionState_BBC(CurrentActionState);
-
-	ECharacterType Type = mCharacter->GetCharacterType();
-	FName sectionToPlay;
-
-	switch (Type)
-	{
-	case ECharacterType::LanTrooper_T0:
-		sectionToPlay = HitReaction_SHSword(boneName, _shotFromDirection, _hitLocation);
-		break;
-	default:
-		break;
-	}
-
-	PlayMontage(Hit_Montage, 1.0f, sectionToPlay);
-}
+//void UAIMelee_AnimInstance::OnBeingHit(FName boneName, const FVector & _shotFromDirection, const FVector & _hitLocation)
+//{
+//
+//
+//}
 
 void UAIMelee_AnimInstance::ResetOnBeingHit()
 {
 	FinishAttack();
 	Super::ResetOnBeingHit();
-
 }
 
 

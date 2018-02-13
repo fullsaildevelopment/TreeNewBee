@@ -123,6 +123,10 @@ public:
 	void ResetOnBeingHit() override;
 
 
+	void OnBeingHit(FName boneName, const FVector& _shotFromDirection,
+		const FVector& _hitLocation) override;
+
+
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE EAIActionState GetCurrentActionState() const {return CurrentActionState;}
 

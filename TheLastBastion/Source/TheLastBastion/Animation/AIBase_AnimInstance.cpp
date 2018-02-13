@@ -94,6 +94,30 @@ void UAIBase_AnimInstance::ResetOnBeingHit()
 	baseAICtrl->OnBeingHit(mCharacter->GetCharacterType());
 }
 
+void UAIBase_AnimInstance::OnBeingHit(FName boneName, const FVector & _shotFromDirection, const FVector & _hitLocation)
+{
+	if (Hit_Montage == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Hit Montage is nullptr"));
+		return;
+	}
+
+	ECharacterType Type = mCharacter->GetCharacterType();
+	FName sectionToPlay;
+
+
+	switch (Type)
+	{
+	case ECharacterType::LanTrooper_T0:
+		sectionToPlay = HitReaction_SHSword(boneName, _shotFromDirection, _hitLocation);
+		break;
+	default:
+		break;
+	}
+
+	PlayMontage(Hit_Montage, 1.0f, sectionToPlay);
+}
+
 void UAIBase_AnimInstance::OnMontageStartHandle(UAnimMontage * _animMontage) {}
 
 void UAIBase_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontage, bool _bInterruptted)
@@ -109,11 +133,21 @@ void UAIBase_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMont
 		else if (_animMontage == GetUp_Montage && mCharacter->IsOldKnockOut())
 		{
 			OnGetupMontageEnd();
-			
+		}
+	}
+	else
+	{
+		// if get up is interrupt by something, only recover the focus
+		if (_animMontage == GetUp_Montage && mCharacter->IsOldKnockOut())
+		{
+			ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
+			// focus on target
+			AActor* target = baseAICtrl->GetTargetActor_BBC();
+			if (target)
+				baseAICtrl->SetFocus(target);
 		}
 
 	}
-	
 
 }
 

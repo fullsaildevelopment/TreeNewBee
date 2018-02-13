@@ -214,6 +214,8 @@ void ATheLastBastionAIBase::SetTarget(AActor * _target)
 	if (baseAICtrl == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr - AAIGroupBase::SetTarget"));
+		baseAICtrl->SetOldCommandIndex_BBC(0);
+
 		return;
 	}
 

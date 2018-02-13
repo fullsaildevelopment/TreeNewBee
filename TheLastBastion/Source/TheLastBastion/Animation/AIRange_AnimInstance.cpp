@@ -104,29 +104,29 @@ void UAIRange_AnimInstance::StopFire()
 	bAim = false;
 }
 
-void UAIRange_AnimInstance::OnBeingHit(FName boneName, 
-	const FVector & _shotFromDirection, const FVector & _hitLocation)
-{
-	if (Hit_Montage == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Hit Montage is nullptr - UAIRange_AnimInstance"));
-		return;
-	}
-
-	FName sectionToPlay;
-	ECharacterType Type = mCharacter->GetCharacterType();
-	switch (Type)
-	{
-	case ECharacterType::LanCB_T0:
-		sectionToPlay = HitReaction_SHSword(boneName, _shotFromDirection, _hitLocation);
-		break;
-	default:
-		break;
-	}
-
-	PlayMontage(Hit_Montage, 1.0f, sectionToPlay);
-
-}
+//void UAIRange_AnimInstance::OnBeingHit(FName boneName, 
+//	const FVector & _shotFromDirection, const FVector & _hitLocation)
+//{
+//	if (Hit_Montage == nullptr)
+//	{
+//		UE_LOG(LogTemp, Error, TEXT("Hit Montage is nullptr - UAIRange_AnimInstance"));
+//		return;
+//	}
+//
+//	FName sectionToPlay;
+//	ECharacterType Type = mCharacter->GetCharacterType();
+//	switch (Type)
+//	{
+//	case ECharacterType::LanCB_T0:
+//		sectionToPlay = HitReaction_SHSword(boneName, _shotFromDirection, _hitLocation);
+//		break;
+//	default:
+//		break;
+//	}
+//
+//	PlayMontage(Hit_Montage, 1.0f, sectionToPlay);
+//
+//}
 
 //void UAIRange_AnimInstance::FinishAttack()
 //{
