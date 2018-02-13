@@ -267,9 +267,9 @@ public:
 
 
 	UFUNCTION()
-		TArray<class ATheLastBastionAIBase*> GetColumnAt(int _index) const;
+		virtual TArray<class ATheLastBastionAIBase*> GetColumnAt(int _index) const;
 	UFUNCTION()
-		TArray<class ATheLastBastionAIBase*> GetRowAt(int _index) const;
+		virtual TArray<class ATheLastBastionAIBase*> GetRowAt(int _index) const;
 
 	FORCEINLINE bool IsInBattle() const { return bInBattle; }
 	FORCEINLINE class UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }

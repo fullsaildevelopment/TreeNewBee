@@ -16,6 +16,7 @@
 
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #include "CustomType.h"
 #include "Engine.h"
@@ -188,7 +189,20 @@ void ATheLastBastionCharacter::ClampCapsuleToMesh()
 {
 	FVector pelvisLocation = GetMesh()->GetSocketLocation(TEXT("pelvis"));
 	FVector capLocation = GetCapsuleComponent()->GetComponentLocation();
-	FVector newLocation = FVector(pelvisLocation.X, pelvisLocation.Y, capLocation.Z);
+
+
+	FVector traceStart = pelvisLocation;
+	FVector traceEnd = traceStart + FVector::UpVector * -500.0f;
+	FHitResult Hit;
+	bool const IsHit = GetWorld()->LineTraceSingleByObjectType(Hit, traceStart, traceEnd, ECollisionChannel::ECC_WorldStatic);
+	FVector newLocation;
+	if (IsHit)
+	{
+		newLocation = Hit.ImpactPoint + FVector::UpVector * 90.0f;
+	}
+	else
+		newLocation = FVector(pelvisLocation.X, pelvisLocation.Y, capLocation.Z);
+
 	GetCapsuleComponent()->SetWorldLocation(newLocation);
 }
 
@@ -204,18 +218,31 @@ void ATheLastBastionCharacter::OnGetUp()
 	oldRagDollIndex = newRagDollIndex;
 
 	//GetMesh()->SetAllBodiesBelowSimulatePhysics(TEXT("pelvis"), false);
-	RagDollBlendWeight = 1.0f;
-	// Check whether this character is face up or face down
+	//GetMesh()->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	//GetMesh()->RelativeLocation = FVector(0, 0, -90);
+	//GetMesh()->RelativeRotation = FRotator(0, 270, 0);
 
-	// use current pelvis rotation for capsule
-	FRotator pelvisRotator = GetMesh()->GetSocketRotation(TEXT("pelvis"));
-	FRotator capRotator = FRotator(0, pelvisRotator.Yaw, 0);
+
+	RagDollBlendWeight = 1.0f;
+	FName pelvis = TEXT("pelvis");
+	// Check whether this character is face up or face down
+	FRotator pelvisRotator = GetMesh()->GetSocketRotation(pelvis);
+
+	FVector traceStart = GetMesh()->GetSocketLocation(pelvis);
+	FVector traceEnd = traceStart + UKismetMathLibrary::GetRightVector(pelvisRotator) * 100.0f;
+	FHitResult Hit;
+	bool const IsHit = GetWorld()->LineTraceSingleByObjectType(Hit, traceStart, traceEnd, ECollisionChannel::ECC_WorldStatic);  
+
+	FRotator capRotator;
+	if (IsHit)
+		capRotator = FRotator(0, pelvisRotator.Yaw, 0);
+	else
+		capRotator = FRotator(0, 180 + pelvisRotator.Yaw, 0);
 
 	GetCapsuleComponent()->SetWorldRotation(capRotator);
 
 
-	mBaseAnimRef->OnGetUp();
-	
+	mBaseAnimRef->OnGetUp(IsHit);
 }
 
 void ATheLastBastionCharacter::DuringRagDoll()

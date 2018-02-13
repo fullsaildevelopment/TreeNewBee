@@ -100,27 +100,20 @@ void UAIBase_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMont
 {
 	Super::OnMontageBlendOutStartHandle(_animMontage, _bInterruptted);
 
-	if (_animMontage == Hit_Montage && !_bInterruptted)
+	if (!_bInterruptted)
 	{
-		//UE_LOG(LogTemp, Log, TEXT("I am recover from being hit - OnMontageBlendOutStartHandle"));
-		CurrentActionState = EAIActionState::None;
-		// Tell BT that this attack is done
-		if (mCharacter)
+		if (_animMontage == Hit_Montage)
 		{
-			ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
-			// recover the rotation rate from melee attack motion sync
-			mCharacter->GetCharacterMovement()->RotationRate.Yaw = 540.0f;
-			if (baseAICtrl)
-			{
-				baseAICtrl->SetAICurrentActionState_BBC(CurrentActionState);
-				UBehaviorTreeComponent* btc = baseAICtrl->GetBTComp();
-				if (btc)
-				{
-					OnRecoverFromHitSignature.ExecuteIfBound(btc);
-				}
-			}
+			OnHitMontageEnd();
 		}
+		else if (_animMontage == GetUp_Montage && mCharacter->IsOldKnockOut())
+		{
+			OnGetupMontageEnd();
+			
+		}
+
 	}
+	
 
 }
 
@@ -243,4 +236,55 @@ FName UAIBase_AnimInstance::HitReaction_SHSword(FName boneName, const FVector& _
 	damageMomentum = damageMomentum.GetUnsafeNormal();
 
 	return sectionName;
+}
+
+void UAIBase_AnimInstance::OnHitMontageEnd()
+{
+	//UE_LOG(LogTemp, Log, TEXT("I am recover from being hit - OnMontageBlendOutStartHandle"));
+	CurrentActionState = EAIActionState::None;
+	// Tell BT that this attack is done
+	if (mCharacter)
+	{
+		ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
+		// recover the rotation rate from melee attack motion sync
+		mCharacter->GetCharacterMovement()->RotationRate.Yaw = 540.0f;
+		if (baseAICtrl)
+		{
+			baseAICtrl->SetAICurrentActionState_BBC(CurrentActionState);
+			UBehaviorTreeComponent* btc = baseAICtrl->GetBTComp();
+			if (btc)
+			{
+				OnRecoverFromHitSignature.ExecuteIfBound(btc);
+			}
+		}
+	}
+
+}
+
+void UAIBase_AnimInstance::OnGetupMontageEnd()
+{
+	//UE_LOG(LogTemp, Log, TEXT("I am recover from being hit - OnMontageBlendOutStartHandle"));
+	CurrentActionState = EAIActionState::None;
+	// Tell BT that this attack is done
+	if (mCharacter)
+	{
+		ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
+		// recover the rotation rate from melee attack motion sync
+		mCharacter->GetCharacterMovement()->RotationRate.Yaw = 540.0f;
+		if (baseAICtrl)
+		{
+			baseAICtrl->SetAICurrentActionState_BBC(CurrentActionState);
+			UBehaviorTreeComponent* btc = baseAICtrl->GetBTComp();
+			if (btc)
+			{
+				OnRecoverFromHitSignature.ExecuteIfBound(btc);
+			}
+			
+			// focus on target
+			AActor* target = baseAICtrl->GetTargetActor_BBC();
+			if (target)
+				baseAICtrl->SetFocus(target);
+		}
+	}
+
 }

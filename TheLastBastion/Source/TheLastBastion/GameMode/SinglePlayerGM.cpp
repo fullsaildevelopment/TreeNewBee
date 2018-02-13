@@ -276,7 +276,10 @@ void ASinglePlayerGM::ToggleAllGroupUI(bool _val)
 
 	for (int i = 0; i < Allies.Num(); i++)
 	{
-		Allies[i]->ToggleHUDVisibility(_val);
+		if (Allies[i] != nullptr)
+		{
+			Allies[i]->ToggleHUDVisibility(_val);
+		}
 	}
 
 	// toggle all enemy group hud

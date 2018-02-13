@@ -299,6 +299,12 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 	{
 		// if this ai is not get simulate ragdoll physics, play hit animation
 		KnockOut(RagDollImpulse, DamageCauser,BoneName);
+
+		AAIController* aiCtrl = Cast<AAIController>(GetController());
+		if (aiCtrl)
+		{
+			aiCtrl->ClearFocus(EAIFocusPriority::Gameplay);
+		}
 	}
 	else
 	{

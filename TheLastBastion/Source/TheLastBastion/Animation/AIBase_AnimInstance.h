@@ -136,5 +136,11 @@ protected:
 
 	FName HitReaction_SHSword(FName boneName, const FVector& _shotFromDirection, const FVector& _hitLocation);
 
+	// Called on HitMontage end uninterruptted
+	void OnHitMontageEnd();
+
+
+	// Called on recoverred from ragdoll
+	void OnGetupMontageEnd();
 
 };

@@ -47,14 +47,17 @@ void UBase_AnimInstance::OnBeingHit(FName boneName, const FVector & _shotFromDir
 
 void UBase_AnimInstance::AnimInstanceResetOnRagDoll() {}
 
-void UBase_AnimInstance::OnGetUp()
+void UBase_AnimInstance::OnGetUp(bool _isFaceDown)
 {
 	if (GetUp_Montage == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("GetUp_Montage == nullptr  - UBase_AnimInstance::OnGetUp() "));
 		return;
 	}
-	PlayMontage(GetUp_Montage, 1.0f, SN_GetUpFromFace);
+	if (_isFaceDown)
+		PlayMontage(GetUp_Montage, 1.0f, SN_GetUpFromFace);
+	else
+		PlayMontage(GetUp_Montage, 1.0f, SN_GetUpFromBack);
 }
 
 float UBase_AnimInstance::PlayMontage(class UAnimMontage* _animMontage, float _rate, FName _startSectionName)

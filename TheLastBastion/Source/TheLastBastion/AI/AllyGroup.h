@@ -88,6 +88,12 @@ public:
 
 
 	UFUNCTION()
+		virtual TArray<class ATheLastBastionAIBase*> GetColumnAt(int _index) const;
+	UFUNCTION()
+		virtual TArray<class ATheLastBastionAIBase*> GetRowAt(int _index) const;
+
+
+	UFUNCTION()
 		void SetFollowingLocation();
 
 		void OnStartFollowing();

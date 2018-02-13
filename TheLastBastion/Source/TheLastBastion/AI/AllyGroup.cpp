@@ -491,6 +491,40 @@ void AAllyGroup::SetMarchLocation(const FVector & _targetLocation, int _commandI
 	SendGroupCommand(_commandIndex);
 }
 
+TArray<class ATheLastBastionAIBase*> AAllyGroup::GetColumnAt(int _index) const
+{
+
+	if (bUseSquareFormation)
+	{
+		return Super::GetColumnAt(_index);
+	}
+	else
+	{
+		TArray<class ATheLastBastionAIBase*> out;
+		out.Add(AICharactersInfo[_index].AICharacter);
+		return out;
+	}
+}
+
+TArray<class ATheLastBastionAIBase*> AAllyGroup::GetRowAt(int _index) const
+{
+	if (bUseSquareFormation)
+	{
+		return Super::GetRowAt(_index);
+	}
+	else
+	{
+		TArray<class ATheLastBastionAIBase*> out;
+		out.SetNum(AICharactersInfo.Num());
+		for (int i = 0; i < out.Num(); i++)
+		{
+			out[i] = AICharactersInfo[i].AICharacter;
+		}
+
+		return out;
+	}
+}
+
 void AAllyGroup::OnChildDeath(int _childIndex)
 {
 	AICharactersInfo.RemoveAt(_childIndex);

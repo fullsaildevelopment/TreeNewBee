@@ -44,7 +44,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void AnimInstanceResetOnRagDoll();
 
-	void OnGetUp();
+	void OnGetUp(bool _isFaceDown);
 
 
 protected:
