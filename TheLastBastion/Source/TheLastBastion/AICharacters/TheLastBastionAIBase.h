@@ -52,6 +52,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
 		int AITier;
 
+
 protected:
 
 	void BeginPlay() override;
@@ -59,8 +60,6 @@ protected:
 public:
 
 
-	/** Toggle the AI hud to screen*/
-	virtual void ToggleAIHUD(bool _val);
 
 	UFUNCTION()
 		virtual void OnTargetDeathHandle();
@@ -82,6 +81,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 			bool OnGroupTaskStart();
+
+	/** Toggle the AI hud to screen*/
+	virtual void ToggleAIHUD(bool _val);
+
+	bool OnFriendFireCheck(const ATheLastBastionCharacter* _target);
 
 	void SetTarget(AActor* _target);
 
@@ -117,6 +121,7 @@ protected:
 
 	// Called on actor destroyed
 	void Kill() override;
+
 
 
 

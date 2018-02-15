@@ -51,7 +51,7 @@ EBTNodeResult::Type UBTTask_RangeAttack::ExecuteTask(UBehaviorTreeComponent & Ow
 
 	if (distanceSqr > RangeAttackDistanceSqr)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Is too far too attack, failed this task, and move to next task"));
+		//UE_LOG(LogTemp, Log, TEXT("Is too far too attack, failed this task, and move to next task"));
 		animRef->StopFire();
 		return NodeResult;
 	}

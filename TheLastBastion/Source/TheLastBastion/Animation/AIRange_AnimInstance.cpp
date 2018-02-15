@@ -90,7 +90,7 @@ void UAIRange_AnimInstance::Fire(const AActor * _target)
 			RangeWeapon->NPCFire(_target);
 			FName sectionToPlay;
 			//sectionToPlay = TEXT("SingleShot");
-			sectionToPlay = TEXT("PowerShot");
+			sectionToPlay = MONTAGE_CB_FireOnce;
 			PlayMontage(Fire_Montage, 1.0f, sectionToPlay);
 			//bAim = false;
 			UE_LOG(LogTemp, Log, TEXT("FIre"));

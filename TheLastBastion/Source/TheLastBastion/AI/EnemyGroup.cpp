@@ -7,7 +7,7 @@
 
 
 #include "AICharacters/TheLastBastionAIBase.h"
-#include "TheLastBastionHeroCharacter.h"
+
 
 #include "AI/TheLastBastionGroupAIController.h"
 #include "AI/TheLastBastionBaseAIController.h"
@@ -27,6 +27,11 @@ AEnemyGroup::AEnemyGroup()
 		TSubclassOf<UUserWidget> HUD_Class;
 		UCustomType::FindClass<UUserWidget>(HUD_Class, TEXT("/Game/UI/In-Game/WBP_GroupHUD"));
 		GroupHUD->SetWidgetClass(HUD_Class);
+	}
+
+	if (GroupVolumn)
+	{
+		GroupVolumn->SetCollisionProfileName("EnemyGroupTrigger");
 	}
 
 
@@ -132,7 +137,9 @@ void AEnemyGroup::SpawnChildGroup()
 				}
 				maxGroupLength = xOffset - colPadding + SIDEPADDING * 0.5f;
 				maxGroupWidth = maxGroupWidth * 0.5f + SIDEPADDING;
-				GroupVolumn->SetBoxExtent(FVector(maxGroupLength, maxGroupWidth, GroupVolumn->GetUnscaledBoxExtent().Z), true);
+
+				SetGroupVolumn(maxGroupLength, maxGroupWidth);
+				//GroupVolumn->SetBoxExtent(FVector(maxGroupLength, maxGroupWidth, GroupVolumn->GetUnscaledBoxExtent().Z), true);
 			}
 		}
 		else
@@ -209,38 +216,6 @@ void AEnemyGroup::SwapChildenOrder()
 {
 }
 
-void AEnemyGroup::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
-{
-	// check if this is a hero character
-	ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(OtherActor);
-	if (hero)
-	{
-		AddThreat(hero, ThreatGain_HeroInit);
-		if (!bInBattle)
-		{
-			bInBattle = true;
-			MeleeGroupAgainstPlayer();
-		}
-	}
-	else
-	{
-		AAllyGroup* targetGroup = Cast<AAllyGroup>(OtherActor);
-		if (targetGroup)
-		{
-			AddThreatByGroup(targetGroup);
-			if (!bInBattle)
-			{
-				MeleeTargetSelectionOnOverlap(targetGroup);
-				bInBattle = true;
-			}
-		}
-
-	}	
-}
-
-void AEnemyGroup::OnGroupVolumnOverrlapEnd(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
-{
-}
 
 void AEnemyGroup::SetMarchLocation(const FVector & _targetLocation, int _commandIndex)
 {

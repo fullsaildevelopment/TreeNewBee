@@ -21,12 +21,12 @@ void AShield::Equip(USkeletalMeshComponent * const _skeletonMeshComponent)
 {
 	Super::Equip(_skeletonMeshComponent);
 
-	ShieldBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//ShieldBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AShield::Arm(USkeletalMeshComponent * const _skeletonMeshComponent)
 {
 	Super::Arm(_skeletonMeshComponent);
-	ShieldBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	//ShieldBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 }

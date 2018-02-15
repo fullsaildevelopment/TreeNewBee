@@ -21,6 +21,7 @@ struct FAIHUDInitializer
 	int   AILevel = 1;
 	int   AITier = 1;
 	float AIHp = 100.0f;
+	bool  bIsEnemy;
 };
 
 

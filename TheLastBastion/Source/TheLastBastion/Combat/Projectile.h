@@ -59,6 +59,8 @@ public:
 
 	bool ShouldDestroy() const;
 
+	void SetInitFireVelocity(const FVector& _hor, float flyTime);
+
 
 public:
 	/** Returns ProjectileMovement subobject **/

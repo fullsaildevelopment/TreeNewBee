@@ -7,34 +7,27 @@
 #include "AllyRangeGroup.generated.h"
 
 /**
- * 
- */
+*
+*/
 UCLASS()
 class THELASTBASTION_API AAllyRangeGroup : public AAllyGroup
 {
 	GENERATED_BODY()
 
-protected:
-	TArray<class ATheLastBastionCharacter*> TargetList;
-
-	FTimerHandle TimerHandle_TargetListUpdater;
-	
 public:
 	AAllyRangeGroup();
 
 protected:
-	void BeginPlay() override;
 
 	UFUNCTION()
-	void OnGroupVolumnOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult) override;
+		void OnGroupVolumnOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult) override;
 
 	UFUNCTION()
-	void OnGroupVolumnOverrlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
+		void OnGroupVolumnOverrlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 
-	void UpdateTargetList();
 
-	void UpdateTargetsForGroupMembers();
+	//void UpdateTargetsOnOverlapEnd(AActor* CurrentTargetActor);
 
-	void ClearTargetsForGroupMembers();
-	
+	void SetGroupVolumn(float _maxGroupWidth, float _maxGroupLength) override;
+
 };

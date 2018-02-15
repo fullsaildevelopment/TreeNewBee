@@ -25,14 +25,31 @@ ATheLastBastionAllyCharacter::ATheLastBastionAllyCharacter()
 	GetMesh()->SetCollisionProfileName("HeroBody");
 	AiName = FText::FromString(TEXT("Base Ally"));
 	AILevel = 1;
+
+	bIsEnemy = false;
+
+}
+
+void ATheLastBastionAllyCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	FAIHUDInitializer initializer;
+	initializer.AIName = AiName;
+	initializer.AILevel = AILevel;
+	initializer.bIsEnemy = bIsEnemy;
+
+	if (AI_HUD)
+	{
+		AI_HUD->InitRowHeader(initializer);
+	}
 }
 
 void ATheLastBastionAllyCharacter::HitResponse(AActor * DamageCauser)
 {	
 	if (mGroup->IsInBattle())
 	{
-		const ATheLastBastionHeroCharacter * heroAttacker = Cast<ATheLastBastionHeroCharacter>(DamageCauser);
-		if (heroAttacker == nullptr)
+		const ATheLastBastionCharacter * attacker = Cast<ATheLastBastionCharacter>(DamageCauser);
+		if (attacker && attacker->IsEnemy() && !attacker->GetIsDead())
 			SetTarget(DamageCauser);
 	}
 }
@@ -143,8 +160,10 @@ void ATheLastBastionAllyCharacter::ToggleAIHUD(bool _val)
 
 void ATheLastBastionAllyCharacter::OnGetUp()
 {
-	GetCapsuleComponent()->SetCollisionProfileName("Ally");
-	GetMesh()->SetCollisionProfileName("HeroBody");
+
 	Super::OnGetUp();
+
+	//GetCapsuleComponent()->SetCollisionProfileName("Ally");
+	//GetMesh()->SetCollisionProfileName("HeroBody");
 
 }

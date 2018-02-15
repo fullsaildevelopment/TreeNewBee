@@ -143,6 +143,9 @@ protected:
 		/** spine angle to blend alpha*/
 		float spineAngleOverrideAlpha;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = MeleeAttack)
+		float ShieldUpBlendWeight;
+
 	UPROPERTY(BlueprintReadOnly, Category = MeleeAttack)
 		/** spine angle to blend */
 		FRotator spineAngleRotator;
@@ -339,8 +342,8 @@ private:
 	/** Called OnAttack is called and Player's current Equipment is melee weapon*/
 	void OnMeleeAttack();
 
-	//void OnDefendOn();
-	//void OnDefendOff();
+	void OnDefendOn();
+	void OnDefendOff();
 
 	void LaunchCombo();
 	/** Reset Combo when attack montage gets blended out without any interrupt*/

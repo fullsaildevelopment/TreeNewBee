@@ -42,7 +42,7 @@ AAIGroupBase::AAIGroupBase()
 		GroupVolumn->bGenerateOverlapEvents = true;
 		GroupVolumn->SetCanEverAffectNavigation(false);
 		GroupVolumn->InitBoxExtent(FVector(halfHeight, halfHeight, halfHeight));
-		GroupVolumn->SetCollisionProfileName("GroupTrigger");
+		//GroupVolumn->SetCollisionProfileName("GroupTrigger");
 	}
 
 	MoveComp = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("MoveComp"));
@@ -100,11 +100,56 @@ void AAIGroupBase::BeginPlay()
 	ToggleHUDVisibility(false);
 
 	PlayerHero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+	GetWorldTimerManager().SetTimer(mGroupUpdateTimer, this, &AAIGroupBase::Update, 1.0f, true, 1.0f);
+}
+
+void AAIGroupBase::Update()
+{
+	//UE_LOG(LogTemp, Log, TEXT("AAIGroupBase::Update %s"), *this->GetName());
+
+	if (bInBattle)
+	{
+		UpdateGroupVolumnDuringBattle();
+	}
+
+}
+
+void AAIGroupBase::UpdateGroupVolumnDuringBattle()
+{
+	FVector newLocation = FVector::ZeroVector;
+	int groupSize = AICharactersInfo.Num();
+	float divBy = GetDivider(groupSize);
+	for (int i = 0; i < groupSize; i++)
+	{
+		newLocation += AICharactersInfo[i].AICharacter->GetActorLocation();
+	}
+	newLocation *= divBy;
+	//UE_LOG(LogTemp, Log, 
+	//	TEXT("AAIGroupBase::UpdateGroupVolumnDuringBattle %f, %f,%f   - %s"),
+	//	newLocation.X , newLocation.Y , newLocation.Z, *this->GetName());
+
+
+	SetActorLocation(newLocation);
 }
 
 void AAIGroupBase::SpawnChildGroup() {}
 
 void AAIGroupBase::OnReform() {}
+
+void AAIGroupBase::RangeTargetSelect_OnFirstOverlap(AActor* TargetActor)
+{
+	// give each child a target
+	for (int i = 0; i < AICharactersInfo.Num(); i++)
+	{
+		ATheLastBastionAIBase* CurrentAICharacter = AICharactersInfo[i].AICharacter;
+		if (CurrentAICharacter && !CurrentAICharacter->GetIsDead())
+		{
+			CurrentAICharacter->SetTarget(TargetActor);
+			//DrawDebugLine(GetWorld(), CurrentAICharacter->GetActorLocation(), TargetActor->GetActorLocation(), FColor::Cyan, false, 5.0f, 0, 2.0f);
+		}
+	}
+}
 
 void AAIGroupBase::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
@@ -116,6 +161,61 @@ void AAIGroupBase::OnGroupVolumnOverrlapEnd(UPrimitiveComponent * OverlappedComp
 
 	UE_LOG(LogTemp, Warning, TEXT("overrlap end with %s"), *OtherActor->GetName());
 
+}
+
+void AAIGroupBase::SetGroupVolumn(float _maxGroupWidth, float _maxGroupLength)
+{
+	GroupVolumn->SetBoxExtent(FVector(_maxGroupWidth, _maxGroupLength, GroupVolumnZ), true);
+}
+
+float AAIGroupBase::GetDivider(int _index) const
+{
+	ensure(_index != 0 && _index <= MaxGroupSize);
+	switch (_index)
+	{
+	case 1:
+		return 1.0f;
+	case 2:
+		return 0.5f;
+	case 3:
+		return 0.333f;
+	case 4:
+		return 0.25f;
+	case 5:
+		return 0.2f;
+	case 6:
+		return 0.1667f;
+	case 7:
+		return 0.1428f;
+	case 8:
+		return 0.125f;
+	case 9:
+		return 0.111f;
+	case 10:
+		return 0.1f;
+	case 11:
+		return 0.0909f;
+	case 12:
+		return 0.0833f;
+	case 13:
+		return 0.0769f;
+	case 14:
+		return 0.0714f;
+	case 15:
+		return 0.0667f;
+	case 16:
+		return 0.0625f;
+	case 17:
+		return 0.0588f;
+	case 18:
+		return 0.0556f;
+	case 19:
+		return 0.0526f;
+	case 20:
+		return 0.05f;
+	default:
+		return 1.0f;
+	}
 }
 
 // Called every frame
@@ -183,7 +283,7 @@ void AAIGroupBase::RemoveThreatByGroup(AAIGroupBase * _targetGroup)
 {
 	for (int i = 0; i <  _targetGroup->GetGroupSize(); i++)
 	{
-		ThreatMap.FindAndRemoveChecked(_targetGroup->GetGroupMemberAt(i));
+		ThreatMap.Remove(_targetGroup->GetGroupMemberAt(i));
 	}
 
 	if (ThreatMap.Num() == 0)

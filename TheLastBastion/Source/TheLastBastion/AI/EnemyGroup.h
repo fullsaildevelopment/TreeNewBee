@@ -40,13 +40,13 @@ protected:
 	// Call when group go to the opposite direction
 	void SwapChildenOrder() override;
 
-	UFUNCTION()
-		virtual void OnGroupVolumnOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-			UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+	//UFUNCTION()
+	//	virtual void OnGroupVolumnOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	//		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
-	UFUNCTION()
-		virtual void OnGroupVolumnOverrlapEnd(UPrimitiveComponent* OverlappedComponent,
-			AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	//UFUNCTION()
+	//	virtual void OnGroupVolumnOverrlapEnd(UPrimitiveComponent* OverlappedComponent,
+	//		AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 
 public:
@@ -60,7 +60,7 @@ public:
 
 	int GetMaxRowCount() const override;
 
-private:
+protected:
 
 	/** Called upon when player enter the combat trigger, while group is not in battle*/
 	void MeleeGroupAgainstPlayer();

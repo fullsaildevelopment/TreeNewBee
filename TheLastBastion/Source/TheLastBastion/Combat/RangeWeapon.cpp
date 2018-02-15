@@ -17,14 +17,15 @@ ARangeWeapon::ARangeWeapon()
 	// Intialize Components
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	RootComponent = MeshComp;
+	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// initialize variables
 	ShootingRange = 10000.0f;
 	BulletSpeed = 1500.0f;
-	MinVerticalAimOffset = -50.0f;
+	MinVerticalAimOffset = 0.0f;
 	MaxVerticalAimOffset = 50.0f;
-	MinHorizontalAimOffset = -100.0f;
-	MaxHorizontalAimOffset = 100.0f;
+	MinHorizontalAimOffset = -20.0f;
+	MaxHorizontalAimOffset = 20.0f;
 }
 
 USceneComponent * ARangeWeapon::GetMesh() const
@@ -35,6 +36,7 @@ USceneComponent * ARangeWeapon::GetMesh() const
 void ARangeWeapon::BeginPlay()
 {
 	Super::BeginPlay();
+	DivByBulletSpeed = 1 / BulletSpeed;
 	
 }
 
@@ -111,7 +113,7 @@ void ARangeWeapon::NPCFire(const AActor* _target)
 	// Trace the world from pawn eyes to crosshair location
 	if (GearOwner != nullptr && ProjectileClassBP != nullptr)
 	{
-		const ACharacter* TargetActor = Cast<ACharacter>( _target);
+		const ATheLastBastionCharacter* TargetActor = Cast<ATheLastBastionCharacter>( _target);
 
 		// Correctly Spawn the projectile
 		FVector MuzzleLocation = MeshComp->GetSocketLocation(MuzzleSocketName);
@@ -122,7 +124,6 @@ void ARangeWeapon::NPCFire(const AActor* _target)
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		SpawnParams.Owner = this;
 
-		AProjectile* CrossbowProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClassBP, MuzzleLocation, MuzzleRotation, SpawnParams);
 
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(GearOwner);
@@ -138,28 +139,29 @@ void ARangeWeapon::NPCFire(const AActor* _target)
 		FVector FlyDir;
 		float FlyDistance; 
 		(TraceEnd - MuzzleLocation).ToDirectionAndLength(FlyDir, FlyDistance);
-		float FlyTime = FlyDistance / BulletSpeed;
+		float FlyTime = FlyDistance * DivByBulletSpeed;
 		FVector PredictedPosition = TraceEnd + (TargetActor->GetVelocity()*FlyTime);
 
 		// vertical offset
-		float VerticalRandomOffset = FMath::RandRange(MinVerticalAimOffset, MaxVerticalAimOffset);
+		float offsetZModder = FlyDistance * 0.01f;
+		float VerticalRandomOffset = FMath::RandRange(MinVerticalAimOffset + offsetZModder, MaxVerticalAimOffset + offsetZModder);
 
 		// horizontal offset
-		float HorizontalRandomOffset = FMath::RandRange(MinHorizontalAimOffset, MaxHorizontalAimOffset);
+		float HorizontalRandomOffset_x = FMath::RandRange(MinHorizontalAimOffset, MaxHorizontalAimOffset);
+		float HorizontalRandomOffset_y = FMath::RandRange(MinHorizontalAimOffset, MaxHorizontalAimOffset);
 
 		// Override Predicted Location with offset value
-		PredictedPosition += FVector(0, HorizontalRandomOffset, VerticalRandomOffset);
+		PredictedPosition += FVector(HorizontalRandomOffset_x, HorizontalRandomOffset_y, VerticalRandomOffset);
 
 		// Finalize Projectile fly direction
 		FlyDir = (PredictedPosition - MuzzleLocation).GetSafeNormal();
 
 		bool const IsHit = GetWorld()->LineTraceSingleByChannel(Hit, MuzzleLocation, TraceEnd, ECollisionChannel::ECC_Visibility);
-		if (IsHit)
-		{
-			//UE_LOG(LogTemp, Log, TEXT(""))
-		}
 
-		CrossbowProjectile->GetProjectileMovementComp()->Velocity = FlyDir * BulletSpeed;
+
+		AProjectile* CrossbowProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClassBP, MuzzleLocation, MuzzleRotation, SpawnParams);
+		FVector horVel = FlyDir * BulletSpeed;
+		CrossbowProjectile->SetInitFireVelocity(horVel, FlyTime);
 
 	}
 

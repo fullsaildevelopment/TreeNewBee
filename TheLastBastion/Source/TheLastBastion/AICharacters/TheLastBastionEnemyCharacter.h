@@ -25,6 +25,9 @@ protected:
 
 protected:
 
+	void BeginPlay() override;
+
+
 	void HitResponse(AActor* DamageCauser) override;
 
 	void GenerateFloatingText(const FVector& HitLocation, const class ATheLastBastionHeroCharacter* heroAttacker,

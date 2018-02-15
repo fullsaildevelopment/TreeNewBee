@@ -29,6 +29,7 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 {	
 	bIsDead = false;
 	bIsGodMode = false;
+	bIsEnemy = false;
 
 	SprintSpeed = 850.0f;
 	JogSpeed = 595.0f;
@@ -119,7 +120,7 @@ void ATheLastBastionCharacter::OnTakePointDamageHandle(AActor * DamagedActor, fl
 
 void ATheLastBastionCharacter::KnockOut(const FVector& dir, const AActor* _damageCauser, const FName& _boneName)
 {
-	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	//GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	RagDollBlendWeight = 1.0f;
@@ -141,7 +142,7 @@ void ATheLastBastionCharacter::KnockOut(const FVector& dir, const AActor* _damag
 		}
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("implse: x, %f, y, %f, z, %f"), Impulse.X, Impulse.Y, Impulse.Z);
+	//UE_LOG(LogTemp, Log, TEXT("implse: x, %f, y, %f, z, %f"), Impulse.X, Impulse.Y, Impulse.Z);
 	GetMesh()->AddImpulse(Impulse, _boneName, true);
 
 	// if this character is dead, then dont bother to get up
@@ -177,8 +178,9 @@ void ATheLastBastionCharacter::OnDead(const FVector& dir, const AActor* _damageC
 
 	PawnStats->SetEnableWeapon(false, true, true);
 
+	UE_LOG(LogTemp, Warning, TEXT("%s is Dead - ATheLastBastionCharacter::OnDead"), *GetName());
 	// tell all the ai that target this actor to re choose target
-	OnCharacterDeathEvent.Broadcast();
+	OnBecomeUnvailbleTargetEvent.Broadcast();
 }
 
 void ATheLastBastionCharacter::Kill()
@@ -213,6 +215,9 @@ void ATheLastBastionCharacter::ToggleBodyStopCheck()
 
 void ATheLastBastionCharacter::OnGetUp()
 {
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	bIsRecoveringFromRagDoll = true;
 	bCheckBodyVelocity = false;
 	oldRagDollIndex = newRagDollIndex;

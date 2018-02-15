@@ -26,7 +26,11 @@ protected:
 	float ShootingRange;
 
 	UPROPERTY(EditDefaultsOnly, Category = "RangeWeapon")
+		//* horizontal velocity //
 	float BulletSpeed;
+
+	UPROPERTY(EditDefaultsOnly, Category = "RangeWeapon")
+	float DivByBulletSpeed;
 
 	// Bullet Spread in Degrees
 	UPROPERTY(EditDefaultsOnly, Category = "AIRangeWeapon")

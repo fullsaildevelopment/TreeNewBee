@@ -11,7 +11,7 @@
  */
 
 
-
+#define MONTAGE_CB_FireOnce   TEXT("FireOnce")
 
 
 UCLASS()
@@ -88,6 +88,7 @@ protected:
 		class UAnimMontage* GetUp_Montage;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+		/** angle between the acceleration and mesh forward*/
 		float turn;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)

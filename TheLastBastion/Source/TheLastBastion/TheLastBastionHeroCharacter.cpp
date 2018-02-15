@@ -557,11 +557,10 @@ FVector ATheLastBastionHeroCharacter::GetPawnViewLocation() const
 
 void ATheLastBastionHeroCharacter::OnGetUp()
 {
-	GetMesh()->SetCollisionProfileName("HeroBody");
-	GetCapsuleComponent()->SetCollisionProfileName("Hero");
-
 	Super::OnGetUp();
 
+	//GetMesh()->SetCollisionProfileName("HeroBody");
+	//GetCapsuleComponent()->SetCollisionProfileName("Hero");
 }
 
 void ATheLastBastionHeroCharacter::RagDollRecoverOnFinish()

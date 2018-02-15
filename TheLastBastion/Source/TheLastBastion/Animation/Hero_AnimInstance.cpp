@@ -53,7 +53,7 @@ const TArray<FName> KatanaAirAttack_Montage_SN
 #define MONTAGE_SN_HERO_KatanaDodgeLeft    TEXT("KALeft")
 #define MONTAGE_SN_HERO_KatanaDodgeRight   TEXT("KARight")
 
-#define MONTAGE_SN_HERO_FireOnce   TEXT("FireOnce")
+
 
 #pragma region Class Base Interface
 
@@ -78,6 +78,7 @@ UHero_AnimInstance::UHero_AnimInstance(const FObjectInitializer& _objectInitaliz
 	FocusDodgeDirection = EFocusDodgeDirection::None;
 	bIsFocused = false;
 
+	ShieldUpBlendWeight = 0.0f;
 	// Range Init
 	bTryToZoomIn = false;
 	CameraZoomInRate = 10.0f;
@@ -472,8 +473,9 @@ void UHero_AnimInstance::OnRightMouseButtonPressed()
 	switch (CurrentEquipment)
 	{
 	case EEquipType::ShieldSword:
-	case EEquipType::TwoHandSword:
-		
+		OnDefendOn();
+		break;
+	default:
 		break;
 	case EEquipType::CrossBow:
 		OnZoomIn();
@@ -486,8 +488,9 @@ void UHero_AnimInstance::OnRightMouseButtonReleased()
 	switch (CurrentEquipment)
 	{
 	case EEquipType::ShieldSword:
-	case EEquipType::TwoHandSword:
-
+		OnDefendOff();
+		break;
+	default:
 		break;
 	case EEquipType::CrossBow:
 		OnZoomOut();
@@ -965,6 +968,16 @@ void UHero_AnimInstance::OnMeleeAttack()
 
 }
 
+void UHero_AnimInstance::OnDefendOn()
+{
+	ShieldUpBlendWeight = 1.0f;
+}
+
+void UHero_AnimInstance::OnDefendOff()
+{
+	ShieldUpBlendWeight = 0.0f;
+}
+
 void UHero_AnimInstance::OnRangeAttack()
 {
 	// Condition Check
@@ -1002,7 +1015,7 @@ void UHero_AnimInstance::OnRangeAttack()
 
 
 		rangeWeapon->Fire();
-		PlayMontage(Fire_Montage, 1.0f, MONTAGE_SN_HERO_FireOnce);
+		PlayMontage(Fire_Montage, 1.0f, MONTAGE_CB_FireOnce);
 
 	}
 

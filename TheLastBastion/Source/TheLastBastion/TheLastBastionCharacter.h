@@ -11,7 +11,7 @@
 #define RagDoll_RecoverLerpSpeed 5.0f
 #define RagDoll_MinimumGetUpTime 2.0f
 
-DECLARE_MULTICAST_DELEGATE(FOnAIDeathEvent);
+DECLARE_MULTICAST_DELEGATE(FOnBecomeUnavailbleTargetEvent);
 
 
 UENUM(BlueprintType)
@@ -111,6 +111,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BlueprintProtected))
 		bool bIsGodMode;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+		bool bIsEnemy;
+
 protected:
 
 
@@ -144,7 +147,7 @@ protected:
 
 public:
 	
-	FOnAIDeathEvent OnCharacterDeathEvent;
+	FOnBecomeUnavailbleTargetEvent OnBecomeUnvailbleTargetEvent;
 
 
 private:
@@ -156,6 +159,7 @@ private:
 
 public:
 
+	bool IsEnemy() const { return bIsEnemy; }
 	void DuringRagDoll();
 	virtual void RagDollRecoverOnFinish();
 	void DuringRagDollRecovering(float _deltaTime);

@@ -38,7 +38,8 @@
 #define TargetFromRight_BackToUs 11
 #define TargetFromRight_FaceToUs 12 // being Flanked from Right
 
-
+#define MaxGroupSize 20
+#define RangeUnitShootingRange 8000
 
 USTRUCT(BlueprintType)
 struct FAISpawnInfo 
@@ -175,6 +176,9 @@ protected:
 		bool bReformPending;
 
 
+	FTimerHandle mGroupUpdateTimer;
+
+
 public:
 	// Sets default values for this pawn's properties
 	AAIGroupBase();
@@ -182,6 +186,10 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual void Update();
+
+	void UpdateGroupVolumnDuringBattle();
 
 	virtual void SpawnChildGroup();
 
@@ -202,10 +210,14 @@ protected:
 	void MeleeTargetSelect_TAtF_F2F(AAIGroupBase * const _targetGroup);
 	void MeleeTargetSelect_TAtF_FL(AAIGroupBase * const _targetGroup);
 	void MeleeTargetSelect_TAtF_FR(AAIGroupBase * const _targetGroup);
-
-
 	void MeleeTargetSelect_TFL_Face2Us(AAIGroupBase * const _targetGroup);
 	void MeleeTargetSelect_TFR_Face2Us(AAIGroupBase * const _targetGroup);
+
+	/// Range Group Target Selection
+
+	// all unit target on the first threat, when there comes the first threat
+	void RangeTargetSelect_OnFirstOverlap(AActor* TargetActor);
+
 
 	UFUNCTION()
 		virtual void OnGroupVolumnOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
@@ -214,6 +226,10 @@ protected:
 	UFUNCTION()
 		virtual void OnGroupVolumnOverrlapEnd(UPrimitiveComponent* OverlappedComponent, 
 			AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	virtual void SetGroupVolumn(float _maxGroupWidth, float _maxGroupLength);
+
+	float GetDivider(int _index) const;
 
 public:	
 	// Called every frame

@@ -4,7 +4,7 @@
 #include "AICharacters/TheLastBastionAIBase.h"
 
 
-#include "AI/EnemyGroup.h"
+
 #include "AI/TheLastBastionGroupAIController.h"
 #include "AI/TheLastBastionBaseAIController.h"
 
@@ -32,6 +32,11 @@ AAllyGroup::AAllyGroup()
 	FollowingFrq = 1.0f;
 	CurrentPadding = GroupFormation_CompactPadding_Square;
 	
+	if (GroupVolumn)
+	{
+		GroupVolumn->SetCollisionProfileName("AllyGroupTrigger");
+	}
+
 	if (ArrowComp)
 	{
 		ArrowComp->ArrowColor = FColor::Green;
@@ -154,7 +159,9 @@ void AAllyGroup::SpawnChildGroup()
 
 	float maxGroupWidth = (maxColCount - 1) * CurrentPadding * 0.5f + SIDEPADDING;
 	float maxGroupLength = (maxRowCount - 1) * CurrentPadding + 0.5 * SIDEPADDING;
-	GroupVolumn->SetBoxExtent(FVector(maxGroupLength, maxGroupWidth, GroupVolumnZ), true);
+
+	SetGroupVolumn(maxGroupWidth, maxGroupLength);
+
 	MoveComp->MaxSpeed = groupSpeed;
 }
 
@@ -235,32 +242,6 @@ void AAllyGroup::SwapChildenOrder()
 		AICharactersInfo[indexToSwap].AICharacter->SetParent(this, indexToSwap);
 	}
 
-}
-
-void AAllyGroup::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
-{
-
-	// if this group is not in battle, 
-	// it can choose target will it overlap with other group
-
-	if (bInBattle == false)
-	{
-		// Get Enemy Group
-		AEnemyGroup* EnemyGroup = Cast<AEnemyGroup>(OtherActor);
-
-		if (EnemyGroup)
-		{
-			AddThreatByGroup(EnemyGroup);
-			MeleeTargetSelectionOnOverlap(EnemyGroup);
-			bInBattle = true;
-		}
-
-	}
-
-}
-
-void AAllyGroup::OnGroupVolumnOverrlapEnd(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
-{
 }
 
 void AAllyGroup::RedistributeBy(int _cenMeters)

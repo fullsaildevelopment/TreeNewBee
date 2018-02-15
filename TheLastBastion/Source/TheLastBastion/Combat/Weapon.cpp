@@ -14,7 +14,7 @@
 AWeapon::AWeapon() 
 {
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Appearence"));
-	Mesh->SetCollisionProfileName("EnemyWeapon");
+	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	RootComponent = Mesh;
 	DamageEdgeOffset_start = FVector(0, 0, 95.0f);
 	DamageEdgeOffset_end = FVector(0, 0, 15.0f);
@@ -99,6 +99,8 @@ void AWeapon::Tick(float _deltaTime)
 			FCollisionShape::MakeBox(DamageVolumnExtend), Params);
 		if (IsHit)
 		{
+
+			//UE_LOG(LogTemp, Log, TEXT("Melee hit - AWeapon::Tick"));
 			if (!bEnableCutOpenDamage)
 				IgnoredActors.Add(DamageInfo.hitResult.GetActor());
 		

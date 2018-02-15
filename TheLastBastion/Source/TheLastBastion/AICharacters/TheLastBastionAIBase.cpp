@@ -38,7 +38,6 @@ ATheLastBastionAIBase::ATheLastBastionAIBase()
 	AIStats = CreateDefaultSubobject<UPawnStatsComponent>(TEXT("Stats"));
 	AIControllerClass = ATheLastBastionBaseAIController::StaticClass();
 	PawnStats = AIStats;
-
 }
 
 void ATheLastBastionAIBase::BeginPlay()
@@ -77,11 +76,6 @@ void ATheLastBastionAIBase::BeginPlay()
 		return;
 	}
 
-	FAIHUDInitializer initializer;
-	initializer.AIName = AiName;
-	initializer.AILevel = AILevel;
-
-	AI_HUD->InitRowHeader(initializer);
 	AI_HUD->SetVisibility(ESlateVisibility::Hidden);
 
 	if (bIsWalking)
@@ -99,6 +93,7 @@ void ATheLastBastionAIBase::OnTargetDeathHandle()
 {
 	if (bIsDead == false)
 	{
+		//UE_LOG(LogTemp, Log, TEXT("%s is requesting new target - ATheLastBastionAIBase::OnTargetDeathHandle"), *this->GetName());
 		RequestAnotherTarget();
 	}
 }
@@ -221,25 +216,28 @@ void ATheLastBastionAIBase::SetTarget(AActor * _target)
 
 	// check to see if we have new command
 
-	int newCommand = baseAICtrl->GetNewCommandIndex_BBC();
-	if (newCommand == 0)
+	//int newCommand = baseAICtrl->GetNewCommandIndex_BBC();
+	//if (newCommand == 0)
+	//{
+	//}
+
+
+	AActor* currentTarget = baseAICtrl->GetTargetActor_BBC();
+
+	if (_target != nullptr)
+		baseAICtrl->SetFocus(_target, EAIFocusPriority::Gameplay);
+
+	if (_target != currentTarget)
 	{
-		AActor* currentTarget = baseAICtrl->GetTargetActor_BBC();
-
-		if (_target != nullptr)
-			baseAICtrl->SetFocus(_target, EAIFocusPriority::Gameplay);
-
-		if (_target != currentTarget)
+		baseAICtrl->SetTargetActor_BBC(_target);
+		ATheLastBastionCharacter* aiTarget = Cast<ATheLastBastionCharacter>(_target);
+		if (aiTarget && !aiTarget->GetIsDead())
 		{
-			baseAICtrl->SetTargetActor_BBC(_target);
-			ATheLastBastionCharacter* aiTarget = Cast<ATheLastBastionCharacter>(_target);
-			if (aiTarget && !aiTarget->GetIsDead())
-			{
-				aiTarget->OnCharacterDeathEvent.AddUObject(this, &ATheLastBastionAIBase::OnTargetDeathHandle);
-			}
+			aiTarget->OnBecomeUnvailbleTargetEvent.AddUObject(this, &ATheLastBastionAIBase::OnTargetDeathHandle);
 		}
-		baseAICtrl->SetNewCommandIndex_BBC(GC_FIGHT);
 	}
+	baseAICtrl->SetNewCommandIndex_BBC(GC_FIGHT);
+
 
 }
 
@@ -254,6 +252,16 @@ void ATheLastBastionAIBase::RequestAnotherTarget()
 {
 	AActor* target = mGroup->OnTargetRequest(this);
 	SetTarget(target);
+
+	//if (target)
+	//{
+	//	DrawDebugLine(GetWorld(), GetActorLocation(), target->GetActorLocation(), FColor::Red, true, 5);
+	//	UE_LOG(LogTemp, Log, TEXT("%s is getting new target %s"), *GetName(), *target->GetName());
+	//}
+	//else
+	//{
+	//	UE_LOG(LogTemp, Log, TEXT("no new target for %s "), *GetName());
+	//}
 }
 
 void ATheLastBastionAIBase::OnTakeAnyDamageHandle(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
@@ -331,7 +339,7 @@ void ATheLastBastionAIBase::OnDead(const FVector& dir, const AActor* _damageCaus
 {
 	bIsDead = true;
 	if (AI_HUD)
-		AI_HUD->ToggleUI(false, false);
+		AI_HUD->ToggleUI(true, true);
 
 	// disable BT
 	ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(GetController());
@@ -359,6 +367,19 @@ void ATheLastBastionAIBase::Kill()
 	}
 
 	Destroy();
+}
+
+bool ATheLastBastionAIBase::OnFriendFireCheck(const ATheLastBastionCharacter * _target)
+{
+
+	bool isGoingToFire = false;
+
+	if (bIsEnemy)
+		isGoingToFire = (_target->IsEnemy()) ? false : true;
+	else
+		isGoingToFire = (_target->IsEnemy()) ? true : false;
+
+	return isGoingToFire;
 }
 
 
