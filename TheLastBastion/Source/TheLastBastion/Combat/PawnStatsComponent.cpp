@@ -18,6 +18,7 @@
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "UI/InGameFloatingText.h"
 #include "TheLastBastionHeroCharacter.h"
+#include "VfxManager.h"
 
 
 const float RangerInitHp = 230.0f;
@@ -422,14 +423,14 @@ void UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 	// apply VFX based on surface
 	UParticleSystem* vfxSelected = nullptr;
 
-	UGI_TheLastBastion* gi = Cast<UGI_TheLastBastion>(UGameplayStatics::GetGameInstance(GetWorld()));
 	EPhysicalSurface surefaceType = UPhysicalMaterial::DetermineSurfaceType(_damageInfo.hitResult.PhysMaterial.Get());
 	switch (surefaceType)
 	{
 	case SURFACE_FLESH:
-		vfxSelected = gi->GetVFX_BloodImpact();
+		vfxSelected = UVfxManager::GetVfx(EVfxType::bloodImpact_sputtering);
 		break;
 	case SURFACE_METAL:
+		vfxSelected = UVfxManager::GetVfx(EVfxType::metalImpact_sputtering);
 		break;
 	default:
 		break;
@@ -438,53 +439,6 @@ void UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 	if (vfxSelected)
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), vfxSelected, _damageInfo.hitResult.Location);
 }
-/////*** DEPRECATED
-//void UPawnStatsComponent::OnTakeAnyDamageHandle(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
-//{
-//
-//}
-/////*** DEPRECATED
-//void UPawnStatsComponent::OnTakePointDamageHandle(AActor * DamagedActor, float Damage, AController * InstigatedBy, FVector HitLocation, UPrimitiveComponent * FHitComponent, FName BoneName, FVector ShotFromDirection, const UDamageType * DamageType, AActor * DamageCauser)
-//{
-//
-//	if (mCharacter->GetIsDead())
-//	{
-//		return;
-//	}
-//
-//	//float totalDamage = Damage + CalculateDamage();
-//
-//	if (!mCharacter->GetIsGodMode())
-//	{
-//		//HpCurrent = HpCurrent - totalDamage;
-//	}
-//	HpCurrent = FMath::Clamp(HpCurrent, 0.0f, HpMax);
-//
-//	//mCharacter->OnTakingDamage(DamageCauser, BoneName, ShotFromDirection, HitLocation, DamageType);
-//
-//	//ATheLastBastionHeroCharacter* heroAttacker = Cast<ATheLastBastionHeroCharacter>(DamageCauser);
-//	//bool isAttackByHero = heroAttacker != nullptr;
-//	//ATheLastBastionHeroCharacter* damagedHero = Cast<ATheLastBastionHeroCharacter>(DamagedActor);
-//	//bool isHeroBeAttacked = damagedHero != nullptr;
-//
-//
-//	//// Let Character class to handle Updating the HUD display
-//	//OnHealthChanged.Broadcast(this, totalDamage, DamageType, BoneName, ShotFromDirection, HitLocation);
-//	//
-//
-//	// Create Floating damage point, if this is damage done by hero
-//	//if (hero)
-//	//{
-//	//	UInGameFloatingText* floatingDamage = GenerateFloatingText(HitLocation);
-//	//	if (floatingDamage)
-//	//	{
-//	//		floatingDamage->SetInGameFTProperty(FText::AsNumber((int)totalDamage));
-//	//		floatingDamage->AddToViewport();
-//	//	}
-//
-//	//	//mCharacter->OnHeal
-//	//}
-//}
 
 AGear * UPawnStatsComponent::GetCurrentArmor() const
 {
