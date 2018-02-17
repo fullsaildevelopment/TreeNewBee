@@ -6,7 +6,7 @@
 #include "Projectile.h"
 #include "DrawDebugHelpers.h"
 #include "AudioManager.h"
-
+#include "Kismet/GameplayStatics.h"
 
 #define CLOSESHOTDISTANCE 350
 static FName MuzzleSocketName =TEXT( "MuzzleSocket");
@@ -46,6 +46,7 @@ void ARangeWeapon::Fire()
 	//UE_LOG(LogTemp, Warning, TEXT("Fire in the hole"));
 
 	GearOwner = Cast<ATheLastBastionCharacter>(GetOwner());
+	UWorld* world = GetWorld();
 
 	// Trace the world from pawn eyes to crosshair location
 	if (GearOwner != nullptr && ProjectileClassBP != nullptr)
@@ -66,7 +67,7 @@ void ARangeWeapon::Fire()
 		QueryParams.bTraceComplex = true;
 		QueryParams.bReturnPhysicalMaterial = false;
 		FHitResult Hit;
-		bool const IsHit = GetWorld()->LineTraceSingleByChannel(Hit, EyesLocation, TraceEnd, ECollisionChannel::ECC_Visibility);
+		bool const IsHit = world->LineTraceSingleByChannel(Hit, EyesLocation, TraceEnd, ECollisionChannel::ECC_Visibility);
 		if (IsHit)
 		{
 
@@ -88,12 +89,12 @@ void ARangeWeapon::Fire()
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		SpawnParams.Owner = this;
 
-		AProjectile* CrossbowProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClassBP, MuzzleLocation, EyesRotation, SpawnParams);
+		AProjectile* CrossbowProjectile = world->SpawnActor<AProjectile>(ProjectileClassBP, MuzzleLocation, EyesRotation, SpawnParams);
 		if (CrossbowProjectile)
 		{
 			FVector FlyDir = (TraceEnd - LaunchLocation).GetSafeNormal();
 			CrossbowProjectile->GetProjectileMovementComp()->Velocity = FlyDir * BulletSpeed;
-			//UAudioManager::PlaySoundEffects(ESoundEffectType::ECrossBowFire, this);
+			PlayCrossbowFireSFXAtLocation(world, MuzzleLocation);
 		}
 
 	}
@@ -103,6 +104,8 @@ void ARangeWeapon::NPCFire(const AActor* _target)
 {
 
 	GearOwner = Cast<ATheLastBastionCharacter>(GetOwner());
+	UWorld* world = GetWorld();
+
 	// Trace the world from pawn eyes to crosshair location
 	if (GearOwner != nullptr && ProjectileClassBP != nullptr)
 	{
@@ -149,15 +152,24 @@ void ARangeWeapon::NPCFire(const AActor* _target)
 		// Finalize Projectile fly direction
 		FlyDir = (PredictedPosition - MuzzleLocation).GetSafeNormal();
 
-		bool const IsHit = GetWorld()->LineTraceSingleByChannel(Hit, MuzzleLocation, TraceEnd, ECollisionChannel::ECC_Visibility);
+		bool const IsHit = world->LineTraceSingleByChannel(Hit, MuzzleLocation, TraceEnd, ECollisionChannel::ECC_Visibility);
 
 
-		AProjectile* CrossbowProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClassBP, MuzzleLocation, MuzzleRotation, SpawnParams);
-		FVector horVel = FlyDir * BulletSpeed;
-		CrossbowProjectile->SetInitFireVelocity(horVel, FlyTime);
-
+		AProjectile* CrossbowProjectile = world->SpawnActor<AProjectile>(ProjectileClassBP, MuzzleLocation, MuzzleRotation, SpawnParams);
+		if (CrossbowProjectile)
+		{
+			FVector horVel = FlyDir * BulletSpeed;
+			CrossbowProjectile->SetInitFireVelocity(horVel, FlyTime);
+			PlayCrossbowFireSFXAtLocation(world, MuzzleLocation);
+		}
 	}
 
+}
+
+void ARangeWeapon::PlayCrossbowFireSFXAtLocation(const UObject* WorldContextObject, FVector Location)
+{
+	USoundCue* CrossbowFireSFX = UAudioManager::GetSFX(ESoundEffectType::ECrossBowFire);
+	UGameplayStatics::PlaySoundAtLocation(WorldContextObject, CrossbowFireSFX, Location);
 }
 
 
