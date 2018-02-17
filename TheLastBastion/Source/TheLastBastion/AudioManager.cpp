@@ -4,7 +4,6 @@
 #include "Components/AudioComponent.h"
 #include "Sound/SoundCue.h"
 #include "ConstructorHelpers.h"
-#include "Kismet/GameplayStatics.h"
 
 
 USoundCue* UAudioManager::CrossBowFire = nullptr;
