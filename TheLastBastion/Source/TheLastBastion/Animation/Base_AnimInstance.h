@@ -38,8 +38,10 @@ protected:
 public:
 
 	virtual void OnBeingHit
-	(FName boneName ,const FVector& _shotFromDirection, const FVector& _hitLocation);
+	(FName boneName ,const FVector& _damageCauseRelative, const FVector& _hitLocation);
 
+	UFUNCTION()
+		virtual bool OnCounterAttack(const FVector& _damageCauserRelative) { return false; }
 
 	UFUNCTION(BlueprintCallable)
 	virtual void AnimInstanceResetOnRagDoll();
@@ -62,6 +64,7 @@ protected:
 
 	UFUNCTION()
 		virtual void ResetOnBeingHit();
+
 
 protected:
 

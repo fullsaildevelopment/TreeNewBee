@@ -5,7 +5,7 @@
 
 
 
-void AAllyMeleeGroup::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * OverlappedComponent, 
+void AAllyMeleeGroup::OnMeleeVisionOverrlapBegin(UPrimitiveComponent * OverlappedComponent,
 	AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 
@@ -25,7 +25,7 @@ void AAllyMeleeGroup::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * Overlappe
 
 }
 
-void AAllyMeleeGroup::OnGroupVolumnOverrlapEnd(UPrimitiveComponent * OverlappedComponent, 
+void AAllyMeleeGroup::OnMeleeVisionOverrlapEnd(UPrimitiveComponent * OverlappedComponent,
 	AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
 {
 	//AEnemyGroup* targetGroup = Cast<AEnemyGroup>(OtherActor);

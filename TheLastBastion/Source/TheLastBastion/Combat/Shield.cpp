@@ -2,31 +2,54 @@
 
 #include "Shield.h"
 #include "Components/BoxComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 
 
 AShield::AShield()
 {
+	Thickness = 40.0f;
+	MeshArea = FVector2D(40, 40);
 	ShieldBox = CreateDefaultSubobject<UBoxComponent>(TEXT("ShieldBox"));
 	ShieldBox->SetupAttachment(RootComponent);
-	ShieldBox->SetBoxExtent(FVector(40, 40, 40));
-	ShieldBox->SetRelativeScale3D(FVector(0.2f, 1.0f, 1.0f));
+	ShieldBox->SetBoxExtent(FVector(0.5f * Thickness, MeshArea.X, MeshArea.Y));
+	ShieldBox->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));
 	ShieldBox->SetCollisionProfileName(TEXT("Shield"));
+	ShieldBox->RelativeLocation = FVector(Thickness *.5f, 0, 0);
+}
 
-
+void AShield::BeginPlay()
+{
+	FVector box = ShieldBox->GetUnscaledBoxExtent();
+	CollisionArea = FVector2D(box.Y, box.Z);
+	WidthMeshColRatio = MeshArea.X / CollisionArea.X;
+	HeightMeshColRatio = MeshArea.Y / CollisionArea.Y;
 }
 
 void AShield::Equip(USkeletalMeshComponent * const _skeletonMeshComponent)
 {
 	Super::Equip(_skeletonMeshComponent);
-
-	//ShieldBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	ShieldBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AShield::Arm(USkeletalMeshComponent * const _skeletonMeshComponent)
 {
 	Super::Arm(_skeletonMeshComponent);
-	//ShieldBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	ShieldBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
 
+FVector AShield::GetArrowAttachLocation(const FVector & _hitLocation) const
+{
+	FVector arrowAttachLocation = _hitLocation - this->GetActorForwardVector() * Thickness;
+	arrowAttachLocation = UKismetMathLibrary::InverseTransformLocation(this->GetActorTransform(), arrowAttachLocation);
+	FVector surfaceOffset = arrowAttachLocation;	
+	UE_LOG(LogTemp, Log, TEXT("surfaceOffset: %f, %f, %f - AShield::GetArrowAttachLocation"), surfaceOffset.X, surfaceOffset.Y, surfaceOffset.Z);
+	surfaceOffset.Y *= WidthMeshColRatio;
+	surfaceOffset.Z *= HeightMeshColRatio;
+	arrowAttachLocation = this->GetActorLocation() + 
+		this->GetActorRightVector() * surfaceOffset.Y + 
+		surfaceOffset.Z * this->GetActorUpVector();
+	//attachLocation = this->GetActorLocation() + surfaceOffset;
+	return arrowAttachLocation;
 }

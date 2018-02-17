@@ -93,7 +93,7 @@ void UAIRange_AnimInstance::Fire(const AActor * _target)
 			sectionToPlay = MONTAGE_CB_FireOnce;
 			PlayMontage(Fire_Montage, 1.0f, sectionToPlay);
 			//bAim = false;
-			UE_LOG(LogTemp, Log, TEXT("FIre"));
+			//UE_LOG(LogTemp, Log, TEXT("FIre"));
 		}
 	}
 

@@ -110,6 +110,11 @@ void UPawnStatsComponent::OnSheathWeapon()
 		WeaponSlots[CurrentWeapon_Index].RightHand->Equip(mCharacter->GetMesh());
 		if (WeaponSlots[CurrentWeapon_Index].bHideWhenEquip)
 			WeaponSlots[CurrentWeapon_Index].RightHand->ToggleVisibilty(false);
+
+		if (WeaponSlots[CurrentWeapon_Index].LeftHand)
+		{
+			WeaponSlots[CurrentWeapon_Index].LeftHand->Equip(mCharacter->GetMesh());
+		}
 	}
 
 }

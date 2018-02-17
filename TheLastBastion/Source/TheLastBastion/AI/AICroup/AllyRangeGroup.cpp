@@ -7,10 +7,20 @@
 
 AAllyRangeGroup::AAllyRangeGroup()
 {
+	RangeVision = CreateDefaultSubobject<UBoxComponent>(TEXT("RangeVision"));
+
+	if (RangeVision)
+	{
+		RangeVision->SetupAttachment(RootComp);
+		RangeVision->bGenerateOverlapEvents = true;
+		RangeVision->SetCanEverAffectNavigation(false);
+		RangeVision->InitBoxExtent(FVector(VisionHalfHeight, VisionHalfHeight, VisionHalfHeight));
+		RangeVision->SetCollisionProfileName("AllyRangeTrigger");
+	}
 
 }
 
-void AAllyRangeGroup::OnGroupVolumnOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+void AAllyRangeGroup::OnRangeVisionOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	// Cast overlapped actor to an enemy and check if it's valid
 	ATheLastBastionEnemyCharacter* EnemyCharacter = Cast<ATheLastBastionEnemyCharacter>(OtherActor);
@@ -26,7 +36,7 @@ void AAllyRangeGroup::OnGroupVolumnOverrlapBegin(UPrimitiveComponent* Overlapped
 
 }
 
-void AAllyRangeGroup::OnGroupVolumnOverrlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void AAllyRangeGroup::OnRangeVisionOverrlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	// Cast overlapped actor to an enemy and check if it's valid
 	ATheLastBastionEnemyCharacter* EnemyCharacter = Cast<ATheLastBastionEnemyCharacter>(OtherActor);
@@ -58,14 +68,21 @@ void AAllyRangeGroup::OnGroupVolumnOverrlapEnd(UPrimitiveComponent* OverlappedCo
 //	}
 //}
 
-void AAllyRangeGroup::SetGroupVolumn(float _maxGroupWidth, float _maxGroupLength)
+void AAllyRangeGroup::SetGroupVisionVolumn(float _maxGroupWidth, float _maxGroupLength)
 {
+
+	MeleeVision->SetBoxExtent(FVector(_maxGroupWidth, _maxGroupLength, GroupVolumnZ), true);
 
 	_maxGroupWidth += RangeUnitShootingRange;
 	_maxGroupLength += RangeUnitShootingRange;
 
-	GroupVolumn->SetBoxExtent(FVector(_maxGroupWidth, _maxGroupLength, GroupVolumnZ), true);
+	RangeVision->SetBoxExtent(FVector(_maxGroupWidth, _maxGroupLength, GroupVolumnZ), true);
 
+}
+
+AActor * AAllyRangeGroup::OnTargetRequest(const ATheLastBastionCharacter * _requestSender)
+{
+	return OnTargetRequest_Range(_requestSender);
 }
 
 

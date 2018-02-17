@@ -5,7 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Combat/PawnStatsComponent.h"
-#include "Combat/Weapon.h"
+#include "Combat/Shield.h"
 
 #include "TheLastBastionHeroCharacter.h"
 #include "DrawDebugHelpers.h"
@@ -95,7 +95,7 @@ void AProjectile::SetInitFireVelocity(const FVector & _hor, float flyTime)
 {
 	float vel_Z = flyTime * ProjectileMovementComp->GetGravityZ() * ProjectileMovementComp->ProjectileGravityScale;
 	ProjectileMovementComp->Velocity = _hor - 2.0f * FVector::UpVector * vel_Z;
-	UE_LOG(LogTemp, Log, TEXT("%f, %f, %f - AProjectile::SetInitFireVelocity "), ProjectileMovementComp->Velocity.X, ProjectileMovementComp->Velocity.Y, ProjectileMovementComp->Velocity.Z);
+	//UE_LOG(LogTemp, Log, TEXT("%f, %f, %f - AProjectile::SetInitFireVelocity "), ProjectileMovementComp->Velocity.X, ProjectileMovementComp->Velocity.Y, ProjectileMovementComp->Velocity.Z);
 }
 
 void AProjectile::MakeStatic()
@@ -177,7 +177,7 @@ void AProjectile::Tick(float _deltaTime)
 			}
 			else
 			{
-				AWeapon* Shield = Cast<AWeapon>(damagedActor);
+				AShield* Shield = Cast<AShield>(damagedActor);
 				if (Shield)
 				{
 					CurrentHitCount++;
@@ -187,8 +187,8 @@ void AProjectile::Tick(float _deltaTime)
 						FActorSpawnParameters spawnParam;
 						spawnParam.Owner = damagedActor;
 						spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-						AProjectile* copyProjectile = GetWorld()->SpawnActor<AProjectile>(this->GetClass(), GetActorLocation(), GetActorRotation(), spawnParam);
+						FVector AttachLocation = Shield->GetArrowAttachLocation(GetActorLocation());
+						AProjectile* copyProjectile = GetWorld()->SpawnActor<AProjectile>(this->GetClass(), AttachLocation, GetActorRotation(), spawnParam);
 						copyProjectile->AttachToComponent
 						(Shield->GetMesh(), FAttachmentTransformRules::KeepWorldTransform);
 						copyProjectile->MakeStatic();

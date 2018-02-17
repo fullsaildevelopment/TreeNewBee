@@ -15,16 +15,39 @@ class THELASTBASTION_API AShield : public AWeapon
 	GENERATED_BODY()
 
 public:
-
 	AShield();
-	
+
+protected:
+	virtual void BeginPlay() override;
+
 protected:
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Shield)
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = ShieldShape)
+		/** Actual mesh area of the shield*/
+		FVector2D MeshArea;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = ShieldShape)
+		/** Actual collision area of the shield*/
+		FVector2D CollisionArea;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ShieldShape)
 		class UBoxComponent* ShieldBox;
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ShieldShape)
+		float Thickness;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ShieldShape)
+		float HeightMeshColRatio;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ShieldShape)
+		float WidthMeshColRatio;
+
 
 public:
 
 	void Equip(class USkeletalMeshComponent* const _skeletonMeshComponent);
 	void Arm(class USkeletalMeshComponent* const _skeletonMeshComponent);
+	FVector GetArrowAttachLocation(const FVector& _hitLocation) const;
 };

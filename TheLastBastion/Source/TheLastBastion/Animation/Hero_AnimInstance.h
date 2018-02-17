@@ -143,8 +143,11 @@ protected:
 		/** spine angle to blend alpha*/
 		float spineAngleOverrideAlpha;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = MeleeAttack)
-		float ShieldUpBlendWeight;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Defend)
+		float CurrentDefendPoseAlpha;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Defend)
+		float TargetDefendPoseAlpha;
 
 	UPROPERTY(BlueprintReadOnly, Category = MeleeAttack)
 		/** spine angle to blend */
@@ -154,6 +157,13 @@ protected:
 
 #pragma region Combat
 	
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Defend)
+		bool bOnDefend;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Defend)
+		/** Animation will not be interrupt */
+		bool bAnimInterruptRobust;
+
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 		/** Catch the next action,
 		whether is dodge, attack or use skills
@@ -197,11 +207,12 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = MeleeCombo)
 		class UAnimMontage*  KatanaAirAttack_Montage;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = CounterAttack)
+		class UAnimMontage* CounterAttack_Montage;
+
 	/** A pointer point to the combo list for current melee weapon, 
 	    when change weapon and equip to determine which combo list we used for melee attack */
 	const TArray<FName>* Current_AttackSectionName;
-
-
 
 #pragma endregion
 
@@ -309,13 +320,21 @@ public:
 
 #pragma endregion
 
+	
+
 	void OnBeingHit
-	(FName boneName, const FVector& _shotFromDirection, const FVector& _hitLocation) override;
+	(FName boneName, const FVector& _damageCauseRelative, const FVector& _hitLocation) override;
+
+	UFUNCTION()
+		bool OnCounterAttack(const FVector& _damageCauserRelative) override;
+
 
 	/** Called When switch melee weapon and equip*/
 	void UpdateComboList(EGearType _gearType);
 
 	void AnimInstanceResetOnRagDoll() override;
+
+
 
 private:
 
@@ -342,8 +361,15 @@ private:
 	/** Called OnAttack is called and Player's current Equipment is melee weapon*/
 	void OnMeleeAttack();
 
-	void OnDefendOn();
+	// enter defend pose with single hand weapon and shield
+	void OnDefendOn_Sns();
+	// exit defend pose
 	void OnDefendOff();
+	// enter defend pose with double hand weapon and shield
+	void OnDefendOn_Dh();
+
+	void LaunchCounterAttack(const FName& _sectionName);
+
 
 	void LaunchCombo();
 	/** Reset Combo when attack montage gets blended out without any interrupt*/

@@ -156,6 +156,9 @@ bool UHeroStatsComponent::OnSwitchWeapon(EEquipType _nextEquip)
 		if (WeaponSlots[CurrentWeapon_Index].bHideWhenEquip)
 			rightWeapon->ToggleVisibilty(false);
 
+		if (leftWeapon)
+			leftWeapon->Equip(mCharacter->GetMesh());
+
 		// Handle some special toggling based on current weapon type
 		switch (rightWeapon->GetGearType())
 		{

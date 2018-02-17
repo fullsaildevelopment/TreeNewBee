@@ -40,6 +40,7 @@
 
 #define MaxGroupSize 20
 #define RangeUnitShootingRange 8000
+#define VisionHalfHeight 200.0f
 
 USTRUCT(BlueprintType)
 struct FAISpawnInfo 
@@ -134,7 +135,11 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		/** Trigger volumn to present the group size and trigger group combat*/
-		class UBoxComponent* GroupVolumn;
+		class UBoxComponent* MeleeVision;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		/** Trigger volumn to present the group size and trigger group combat*/
+		class UBoxComponent* RangeVision;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		/** Trigger volumn to present the group size and trigger group combat*/
@@ -213,21 +218,39 @@ protected:
 	void MeleeTargetSelect_TFL_Face2Us(AAIGroupBase * const _targetGroup);
 	void MeleeTargetSelect_TFR_Face2Us(AAIGroupBase * const _targetGroup);
 
-	/// Range Group Target Selection
+
 
 	// all unit target on the first threat, when there comes the first threat
 	void RangeTargetSelect_OnFirstOverlap(AActor* TargetActor);
 
 
+
 	UFUNCTION()
-		virtual void OnGroupVolumnOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
+		virtual void OnMeleeVisionOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+			UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+
+
+	UFUNCTION()
+		virtual void OnMeleeVisionOverrlapEnd(UPrimitiveComponent* OverlappedComponent,
+			AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+
+	UFUNCTION()
+		virtual void OnRangeVisionOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 			UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
 	UFUNCTION()
-		virtual void OnGroupVolumnOverrlapEnd(UPrimitiveComponent* OverlappedComponent, 
+		virtual void OnRangeVisionOverrlapEnd(UPrimitiveComponent* OverlappedComponent,
 			AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	virtual void SetGroupVolumn(float _maxGroupWidth, float _maxGroupLength);
+
+	/** Melee Unit version of OnTarget Request*/
+	AActor* OnTargetRequest_Melee(const ATheLastBastionCharacter* _requestSender);
+	/** Range Unit version of OnTarget Request*/
+	AActor* OnTargetRequest_Range(const ATheLastBastionCharacter* _requestSender);
+
+
+	virtual void SetGroupVisionVolumn(float _maxGroupWidth, float _maxGroupLength);
 
 	float GetDivider(int _index) const;
 
@@ -256,9 +279,9 @@ public:
 
 
 
-	AActor* OnTargetRequest(const AActor* _requestSender);
-	void QuickSortThreatListByManDistance(TArray<FThreat>& _threatList, int _left, int _right) const;
+	virtual AActor* OnTargetRequest(const ATheLastBastionCharacter* _requestSender);
 
+	void QuickSortThreatListByManDistance(TArray<FThreat>& _threatList, int _left, int _right) const;
 
 	void ToggleHUDVisibility(bool _val);
 

@@ -19,11 +19,11 @@ class THELASTBASTION_API AAllyMeleeGroup : public AAllyGroup
 protected:
 
 	UFUNCTION()
-		void OnGroupVolumnOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+		void OnMeleeVisionOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 			UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult) override;
 
 	UFUNCTION()
-		void OnGroupVolumnOverrlapEnd(UPrimitiveComponent* OverlappedComponent,
+		void OnMeleeVisionOverrlapEnd(UPrimitiveComponent* OverlappedComponent,
 			AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 
 	

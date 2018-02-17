@@ -123,7 +123,7 @@ public:
 	void ResetOnBeingHit() override;
 
 
-	void OnBeingHit(FName boneName, const FVector& _shotFromDirection,
+	void OnBeingHit(FName boneName, const FVector& _damageCauseRelative,
 		const FVector& _hitLocation) override;
 
 

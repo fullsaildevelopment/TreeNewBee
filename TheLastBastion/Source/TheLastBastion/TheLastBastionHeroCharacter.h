@@ -222,8 +222,6 @@ private:
 
 #pragma endregion
 
-
-
 	bool bIsInCommandMode;
 
 public:
@@ -232,9 +230,6 @@ public:
 	FVector GetPawnViewLocation() const override;	
 	void OnGetUp() override;
 	void RagDollRecoverOnFinish() override;
-
-
-
 	void ToggleFireMode(bool _val);
 
 	FORCEINLINE class USphereComponent* GetTargetDetector() const { return TargetDetector; }

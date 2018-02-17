@@ -20,14 +20,16 @@ public:
 protected:
 
 	UFUNCTION()
-		void OnGroupVolumnOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult) override;
+		void OnRangeVisionOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult) override;
 
 	UFUNCTION()
-		void OnGroupVolumnOverrlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
+		void OnRangeVisionOverrlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 
 
 	//void UpdateTargetsOnOverlapEnd(AActor* CurrentTargetActor);
 
-	void SetGroupVolumn(float _maxGroupWidth, float _maxGroupLength) override;
+	void SetGroupVisionVolumn(float _maxGroupWidth, float _maxGroupLength) override;
+
+	AActor* OnTargetRequest(const ATheLastBastionCharacter* _requestSender) override;
 
 };

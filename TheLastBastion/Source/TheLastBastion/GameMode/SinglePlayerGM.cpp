@@ -8,10 +8,15 @@
 #include "TimerManager.h"
 #include "TheLastBastionCharacter.h"
 #include "AI/AllyGroup.h"
+#include "AudioManager.h"
 
 
 ASinglePlayerGM::ASinglePlayerGM(const FObjectInitializer & _objectInitilizer) : Super(_objectInitilizer)
 {
+	UAudioManager* audioManager = NewObject<UAudioManager>(UAudioManager::StaticClass());
+	if (audioManager == nullptr)
+		UE_LOG(LogTemp, Error, TEXT("audioManager"));
+
 	PlayerControllerClass = ASinglePlayerPC::StaticClass();
 	UCustomType::FindClass<APawn>(DefaultPawnClass, TEXT("/Game/Blueprints/Heros/SinglePlayer_Bp"));
 	bUseSeamlessTravel = true;

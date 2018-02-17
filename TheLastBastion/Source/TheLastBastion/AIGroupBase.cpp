@@ -34,15 +34,13 @@ AAIGroupBase::AAIGroupBase()
 	SetRootComponent(RootComp);
 
 
-	float halfHeight = 200.0f;
-	GroupVolumn = CreateDefaultSubobject<UBoxComponent>(TEXT("GroupVolumn"));
-	if (GroupVolumn)
+	MeleeVision = CreateDefaultSubobject<UBoxComponent>(TEXT("GroupVolumn"));
+	if (MeleeVision)
 	{
-		GroupVolumn->SetupAttachment(RootComp);
-		GroupVolumn->bGenerateOverlapEvents = true;
-		GroupVolumn->SetCanEverAffectNavigation(false);
-		GroupVolumn->InitBoxExtent(FVector(halfHeight, halfHeight, halfHeight));
-		//GroupVolumn->SetCollisionProfileName("GroupTrigger");
+		MeleeVision->SetupAttachment(RootComp);
+		MeleeVision->bGenerateOverlapEvents = true;
+		MeleeVision->SetCanEverAffectNavigation(false);
+		MeleeVision->InitBoxExtent(FVector(VisionHalfHeight, VisionHalfHeight, VisionHalfHeight));
 	}
 
 	MoveComp = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("MoveComp"));
@@ -54,7 +52,7 @@ AAIGroupBase::AAIGroupBase()
 	ArrowComp = CreateDefaultSubobject<UArrowComponent>(TEXT("Arrow"));
 	if (ArrowComp)
 	{
-		ArrowComp->SetupAttachment(GroupVolumn);
+		ArrowComp->SetupAttachment(MeleeVision);
 		ArrowComp->bHiddenInGame = false;
 		ArrowComp->ArrowSize = 5.0f;
 	}
@@ -70,7 +68,7 @@ AAIGroupBase::AAIGroupBase()
 	GroupHUD = CreateDefaultSubobject<UWidgetComponent>(TEXT("GroupHUD"));
 	if (GroupHUD)
 	{
-		GroupHUD->SetupAttachment(GroupVolumn);
+		GroupHUD->SetupAttachment(MeleeVision);
 		GroupHUD->SetDrawAtDesiredSize(true);
 		GroupHUD->RelativeLocation = FVector(0, 0, 250);
 		GroupHUD->SetWidgetSpace(EWidgetSpace::Screen);
@@ -90,13 +88,26 @@ void AAIGroupBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (GroupVolumn && MoveComp)
+
+
+
+	if (MeleeVision)
 	{
-		SpawnChildGroup();
-		GroupVolumn->OnComponentBeginOverlap.AddDynamic(this, &AAIGroupBase::OnGroupVolumnOverrlapBegin);
-		GroupVolumn->OnComponentEndOverlap.AddDynamic(this, &AAIGroupBase::OnGroupVolumnOverrlapEnd);
+		MeleeVision->OnComponentBeginOverlap.AddDynamic(this, &AAIGroupBase::OnMeleeVisionOverrlapBegin);
+		MeleeVision->OnComponentEndOverlap.AddDynamic(this, &AAIGroupBase::OnMeleeVisionOverrlapEnd);
 	}
 
+	if (RangeVision)
+	{
+		RangeVision->OnComponentBeginOverlap.AddDynamic(this, &AAIGroupBase::OnRangeVisionOverrlapBegin);
+		RangeVision->OnComponentEndOverlap.AddDynamic(this, &AAIGroupBase::OnRangeVisionOverrlapEnd);
+	}
+
+
+	if (MoveComp)
+	{
+		SpawnChildGroup();
+	}
 	ToggleHUDVisibility(false);
 
 	PlayerHero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
@@ -106,7 +117,6 @@ void AAIGroupBase::BeginPlay()
 
 void AAIGroupBase::Update()
 {
-	//UE_LOG(LogTemp, Log, TEXT("AAIGroupBase::Update %s"), *this->GetName());
 
 	if (bInBattle)
 	{
@@ -129,7 +139,6 @@ void AAIGroupBase::UpdateGroupVolumnDuringBattle()
 	//	TEXT("AAIGroupBase::UpdateGroupVolumnDuringBattle %f, %f,%f   - %s"),
 	//	newLocation.X , newLocation.Y , newLocation.Z, *this->GetName());
 
-
 	SetActorLocation(newLocation);
 }
 
@@ -151,21 +160,33 @@ void AAIGroupBase::RangeTargetSelect_OnFirstOverlap(AActor* TargetActor)
 	}
 }
 
-void AAIGroupBase::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+void AAIGroupBase::OnMeleeVisionOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult) {}
+
+void AAIGroupBase::OnMeleeVisionOverrlapEnd(UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) {}
+
+void AAIGroupBase::OnRangeVisionOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult) {}
+
+void AAIGroupBase::OnRangeVisionOverrlapEnd(UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) {}
+
+//void AAIGroupBase::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+//{
+//	UE_LOG(LogTemp, Warning, TEXT("overrlap with %s"), *OtherActor->GetName());
+//}
+//
+//void AAIGroupBase::OnGroupVolumnOverrlapEnd(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
+//{
+//
+//	UE_LOG(LogTemp, Warning, TEXT("overrlap end with %s"), *OtherActor->GetName());
+//
+//}
+
+void AAIGroupBase::SetGroupVisionVolumn(float _maxGroupWidth, float _maxGroupLength)
 {
-	UE_LOG(LogTemp, Warning, TEXT("overrlap with %s"), *OtherActor->GetName());
-}
-
-void AAIGroupBase::OnGroupVolumnOverrlapEnd(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
-{
-
-	UE_LOG(LogTemp, Warning, TEXT("overrlap end with %s"), *OtherActor->GetName());
-
-}
-
-void AAIGroupBase::SetGroupVolumn(float _maxGroupWidth, float _maxGroupLength)
-{
-	GroupVolumn->SetBoxExtent(FVector(_maxGroupWidth, _maxGroupLength, GroupVolumnZ), true);
+	MeleeVision->SetBoxExtent(FVector(_maxGroupWidth, _maxGroupLength, GroupVolumnZ), true);
 }
 
 float AAIGroupBase::GetDivider(int _index) const
@@ -294,14 +315,19 @@ void AAIGroupBase::RemoveThreatByGroup(AAIGroupBase * _targetGroup)
 
 }
 
-AActor * AAIGroupBase::OnTargetRequest(const AActor* _requestSender)
+AActor * AAIGroupBase::OnTargetRequest(const ATheLastBastionCharacter* _requestSender)
+{
+	return OnTargetRequest_Melee(_requestSender);
+}
+
+AActor * AAIGroupBase::OnTargetRequest_Melee(const ATheLastBastionCharacter * _requestSender)
 {
 	ATheLastBastionCharacter* currentThreat = nullptr;
 	//filter out the dead threat
 	for (auto& Elem : ThreatMap)
 	{
 		currentThreat = Elem.Key;
-		if (currentThreat->GetIsDead())
+		if (currentThreat == nullptr || currentThreat->GetIsDead())
 			RemoveThreat(currentThreat);
 	}
 
@@ -340,6 +366,51 @@ AActor * AAIGroupBase::OnTargetRequest(const AActor* _requestSender)
 		if (targetCandidates[iCandi].GroupThreat > targetCandidates[outIndex].GroupThreat)
 			outIndex = iCandi;
 	}
+
+	return targetCandidates[outIndex].Character;
+
+}
+
+AActor * AAIGroupBase::OnTargetRequest_Range(const ATheLastBastionCharacter * _requestSender)
+{
+	ATheLastBastionCharacter* currentThreat = nullptr;
+	//filter out the dead threat
+	for (auto& Elem : ThreatMap)
+	{
+		currentThreat = Elem.Key;
+		if (currentThreat == nullptr || currentThreat->GetIsDead())
+			RemoveThreat(currentThreat);
+	}
+
+	int ThreatCount = ThreatMap.Num();
+	if (ThreatCount == 0)
+		return nullptr;
+
+	// find the nearest target candidates use manhaton distance
+	TArray<FThreat> targetCandidates;
+	targetCandidates.SetNum(ThreatCount);
+	int currentIndex = 0;
+
+	for (auto& Elem : ThreatMap)
+	{
+		currentThreat = Elem.Key;
+		targetCandidates[currentIndex].Character = currentThreat;
+		targetCandidates[currentIndex].GroupThreat = Elem.Value;
+		FVector dir = currentThreat->GetActorLocation() - _requestSender->GetActorLocation();
+		targetCandidates[currentIndex].Manhaton = FMath::Abs(dir.X) + FMath::Abs(dir.Y);
+		currentIndex++;
+	}
+
+	QuickSortThreatListByManDistance(targetCandidates, 0, ThreatCount - 1);
+
+	int remainShooter = AICharactersInfo.Num();
+	int maxTarget = remainShooter * 0.5f;
+	int targetSelectionRandomRange = 0;
+
+	targetSelectionRandomRange = (maxTarget < ThreatCount) ? maxTarget : ThreatCount;
+	targetSelectionRandomRange--;
+	targetSelectionRandomRange = (targetSelectionRandomRange < 0) ? 0 : targetSelectionRandomRange;
+	int outIndex = FMath::RandRange(0, targetSelectionRandomRange);
 
 	return targetCandidates[outIndex].Character;
 }

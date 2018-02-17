@@ -94,7 +94,7 @@ void UAIBase_AnimInstance::ResetOnBeingHit()
 	baseAICtrl->OnBeingHit(mCharacter->GetCharacterType());
 }
 
-void UAIBase_AnimInstance::OnBeingHit(FName boneName, const FVector & _shotFromDirection, const FVector & _hitLocation)
+void UAIBase_AnimInstance::OnBeingHit(FName boneName, const FVector & _damageCauseRelative, const FVector & _hitLocation)
 {
 	if (Hit_Montage == nullptr)
 	{
@@ -109,7 +109,8 @@ void UAIBase_AnimInstance::OnBeingHit(FName boneName, const FVector & _shotFromD
 	switch (Type)
 	{
 	case ECharacterType::LanTrooper_T0:
-		sectionToPlay = HitReaction_SHSword(boneName, _shotFromDirection, _hitLocation);
+	case ECharacterType::LanCB_T0:
+		sectionToPlay = HitReaction_SHSword(boneName, _damageCauseRelative, _hitLocation);
 		break;
 	default:
 		break;
@@ -169,10 +170,7 @@ void UAIBase_AnimInstance::FinishAttack()
 
 void UAIBase_AnimInstance::SyncMotionForMeleeAttack()
 {
-
-
 	UCharacterMovementComponent* movementComp = mCharacter->GetCharacterMovement();
-
 	// Sync Velocity
 	float speed = GetCurveValue("Speed");
 
@@ -184,8 +182,6 @@ void UAIBase_AnimInstance::SyncMotionForMeleeAttack()
 	// float rotateRate = UKismetMathLibrary::MapRangeClamped(speed, 200.0f, 600.0f,360.0f, 90.0f);
 
 	movementComp->RotationRate.Yaw = GetCurveValue("RotationRate");
-
-
 }
 
 void UAIBase_AnimInstance::SyncMotionForGettingHurt()
@@ -206,15 +202,15 @@ void UAIBase_AnimInstance::SyncMotionForNone()
 
 }
 
-FName UAIBase_AnimInstance::HitReaction_SHSword(FName boneName, const FVector& _shotFromDirection, const FVector& _hitLocation)
+FName UAIBase_AnimInstance::HitReaction_SHSword(FName boneName, const FVector& _damageCauseRelative, const FVector& _hitLocation)
 {
 	// assume always face to attacker
 	FName sectionName;
 
 	// relative position of damage causer
-	FVector damageCauserRelative = _shotFromDirection;
-	damageCauserRelative.Z = 0.0f;
-	damageCauserRelative = damageCauserRelative.GetUnsafeNormal();
+	//FVector damageCauserRelative = _shotFromDirection;
+	//damageCauserRelative.Z = 0.0f;
+	//damageCauserRelative = damageCauserRelative.GetUnsafeNormal();
 
 
 	FVector hitRelative = _hitLocation - GetSkelMeshComponent()->GetSocketLocation(boneName);
@@ -266,7 +262,7 @@ FName UAIBase_AnimInstance::HitReaction_SHSword(FName boneName, const FVector& _
 	}
 
 
-	damageMomentum = -MomentumRatioByActor * damageCauserRelative - (1 - MomentumRatioByActor) * hitRelative;
+	damageMomentum = -MomentumRatioByActor * _damageCauseRelative - (1 - MomentumRatioByActor) * hitRelative;
 	damageMomentum = damageMomentum.GetUnsafeNormal();
 
 	return sectionName;

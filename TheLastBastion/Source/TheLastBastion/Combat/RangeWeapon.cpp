@@ -5,6 +5,7 @@
 #include "AICharacters/TheLastBastionEnemyCharacter.h"
 #include "Projectile.h"
 #include "DrawDebugHelpers.h"
+#include "AudioManager.h"
 
 
 #define CLOSESHOTDISTANCE 350
@@ -88,21 +89,13 @@ void ARangeWeapon::Fire()
 		SpawnParams.Owner = this;
 
 		AProjectile* CrossbowProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClassBP, MuzzleLocation, EyesRotation, SpawnParams);
+		if (CrossbowProjectile)
+		{
+			FVector FlyDir = (TraceEnd - LaunchLocation).GetSafeNormal();
+			CrossbowProjectile->GetProjectileMovementComp()->Velocity = FlyDir * BulletSpeed;
+			//UAudioManager::PlaySoundEffects(ESoundEffectType::ECrossBowFire, this);
+		}
 
-		// Calculate the velocity for the projectile
-		// if enemy is too close, we are using weapon forward vector as fly dircection
-
-		//UE_LOG(LogTemp, Log, TEXT("Hit Distance, %d"), Hit.Distance);
-
-
-		//TraceEnd = (IsHit && Hit.Distance > CLOSESHOTDISTANCE) ? ImpactPoint : TraceEnd;
-	
-		FVector FlyDir = (TraceEnd - LaunchLocation).GetSafeNormal();
-
-		CrossbowProjectile->GetProjectileMovementComp()->Velocity = FlyDir * BulletSpeed;
-
-		// Draw a bebug line from weapon to impact position
-		//DrawDebugLine(GetWorld(), LaunchLocation, TraceEnd, FColor::Green, false, 2.0f, 0, 1.0f);
 	}
 }
 

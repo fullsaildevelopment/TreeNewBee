@@ -32,9 +32,9 @@ AAllyGroup::AAllyGroup()
 	FollowingFrq = 1.0f;
 	CurrentPadding = GroupFormation_CompactPadding_Square;
 	
-	if (GroupVolumn)
+	if (MeleeVision)
 	{
-		GroupVolumn->SetCollisionProfileName("AllyGroupTrigger");
+		MeleeVision->SetCollisionProfileName("AllyMeleeTrigger");
 	}
 
 	if (ArrowComp)
@@ -160,7 +160,7 @@ void AAllyGroup::SpawnChildGroup()
 	float maxGroupWidth = (maxColCount - 1) * CurrentPadding * 0.5f + SIDEPADDING;
 	float maxGroupLength = (maxRowCount - 1) * CurrentPadding + 0.5 * SIDEPADDING;
 
-	SetGroupVolumn(maxGroupWidth, maxGroupLength);
+	SetGroupVisionVolumn(maxGroupWidth, maxGroupLength);
 
 	MoveComp->MaxSpeed = groupSpeed;
 }
@@ -217,7 +217,10 @@ void AAllyGroup::OnReform()
 
 	float maxGroupWidth = (maxColCount - 1) * CurrentPadding * 0.5f + SIDEPADDING;
 	float maxGroupLength = (maxRowCount - 1) * CurrentPadding + 0.5 * SIDEPADDING;
-	GroupVolumn->SetBoxExtent(FVector(maxGroupLength, maxGroupWidth, GroupVolumnZ), true);
+
+	SetGroupVisionVolumn(maxGroupWidth, maxGroupLength);
+
+	//GroupVolumn->SetBoxExtent(FVector(maxGroupLength, maxGroupWidth, GroupVolumnZ), true);
 
 	MoveComp->MaxSpeed = groupSpeed;
 	bReformPending = false;

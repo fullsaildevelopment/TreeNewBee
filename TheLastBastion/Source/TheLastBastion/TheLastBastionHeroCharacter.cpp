@@ -592,6 +592,15 @@ void ATheLastBastionHeroCharacter::OnTakePointDamageHandle(AActor * DamagedActor
 
 	bool isCritical = false, isStun = false;
 
+	// the relative position of damage causer to damaged actor
+	FVector damageCauserRelative = ShotFromDirection;
+	damageCauserRelative.Z = 0.0f;
+	damageCauserRelative = damageCauserRelative.GetUnsafeNormal();
+
+	bool CounterAttackSuccessed = mAnimInstanceRef->OnCounterAttack(damageCauserRelative);
+	if (CounterAttackSuccessed)
+		return;
+
 	float totalDamage = HeroStats->CalculateDamage(Damage, DamageCauser, isCritical, isStun);
 
 	/// update HUD hp bar
@@ -635,7 +644,7 @@ void ATheLastBastionHeroCharacter::OnTakePointDamageHandle(AActor * DamagedActor
 	}
 	else
 	{
-		mAnimInstanceRef->OnBeingHit(BoneName, ShotFromDirection, HitLocation);
+		mAnimInstanceRef->OnBeingHit(BoneName, damageCauserRelative, HitLocation);
 	}
 
 }

@@ -41,9 +41,7 @@ void UBase_AnimInstance::OnPostEvaluate()
 {
 }
 
-void UBase_AnimInstance::OnBeingHit(FName boneName, const FVector & _shotFromDirection, const FVector & _hitLocation)
-{
-}
+void UBase_AnimInstance::OnBeingHit(FName boneName, const FVector & _damageCauseRelative, const FVector & _hitLocation) {}
 
 void UBase_AnimInstance::AnimInstanceResetOnRagDoll() {}
 

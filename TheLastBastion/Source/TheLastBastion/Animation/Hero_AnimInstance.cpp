@@ -52,6 +52,14 @@ const TArray<FName> KatanaAirAttack_Montage_SN
 #define MONTAGE_SN_HERO_KatanaDodgeBwd     TEXT("KABwd")
 #define MONTAGE_SN_HERO_KatanaDodgeLeft    TEXT("KALeft")
 #define MONTAGE_SN_HERO_KatanaDodgeRight   TEXT("KARight")
+#define MONTAGE_SN_CA_SnsFront   TEXT("Sns_Front")
+#define MONTAGE_SN_CA_SnsLeft    TEXT("Sns_Left")
+#define MONTAGE_SN_CA_SnsRight   TEXT("Sns_Right")
+#define MONTAGE_SN_CA_Hammer     TEXT("Hammer")
+#define MONTAGE_SN_CA_BattleAxe  TEXT("BattleAxe")
+#define MONTAGE_SN_CA_Katana     TEXT("Katana")
+
+
 
 
 
@@ -68,6 +76,7 @@ UHero_AnimInstance::UHero_AnimInstance(const FObjectInitializer& _objectInitaliz
 	bIsSprinting = false;
 	bTryToEquip = false;
 	bVelocityOverrideByAnim = false;
+	bAnimInterruptRobust = false;
 
 	MomentumRatioByActor = 0.7f;
 
@@ -78,7 +87,10 @@ UHero_AnimInstance::UHero_AnimInstance(const FObjectInitializer& _objectInitaliz
 	FocusDodgeDirection = EFocusDodgeDirection::None;
 	bIsFocused = false;
 
-	ShieldUpBlendWeight = 0.0f;
+
+	
+	CurrentDefendPoseAlpha = 0.0f;
+	TargetDefendPoseAlpha = 0.0f;
 	// Range Init
 	bTryToZoomIn = false;
 	CameraZoomInRate = 10.0f;
@@ -251,7 +263,9 @@ void UHero_AnimInstance::MeleeUpdate(UCharacterMovementComponent * movementComp,
 
 	spineAngleOverrideAlpha = FMath::Clamp(spineAngleOverrideAlpha, 0.0f, .8f);
 	spineAngleRotator = FRotator(0, 0, -15.f - HeadTrackPitch);
+	CurrentDefendPoseAlpha = FMath::FInterpTo(CurrentDefendPoseAlpha, TargetDefendPoseAlpha, _deltaTime, 15.0f);
 
+	
 	// Set camera back to origional, if it is not in command mode
 	if (mCharacter->IsInCommandMode())
 		mCharacter->GetFollowCamera()->RelativeLocation
@@ -292,7 +306,16 @@ void UHero_AnimInstance::MeleeRotateRateAndMaxSpeedUpdate(UCharacterMovementComp
 		{
 		case EEquipType::ShieldSword:
 			movementComp->JumpZVelocity = 1100.0f;
-			mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();
+			if (bOnDefend)
+			{
+				mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetWalkSpeed() + 50.0f;
+				MoveForwardAxis *= 0.5f;
+				MoveRightAxis *= 0.5f;
+			}
+			else
+			{
+				mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();
+			}
 			break;
 		case EEquipType::HeavyWeapon:
 			movementComp->JumpZVelocity = 800.0f;
@@ -398,7 +421,11 @@ void UHero_AnimInstance::OnPostEvaluate()
 
 void UHero_AnimInstance::OnMontageStartHandle(UAnimMontage * _animMontage)
 {
-
+	if (_animMontage == CounterAttack_Montage)
+	{
+		bAnimInterruptRobust = true;
+		OnDefendOff();		
+	}
 }
 
 void UHero_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontage, bool _bInterruptted)
@@ -416,6 +443,12 @@ void UHero_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontag
 	else if (_animMontage == Hit_Montage)
 	{
 		RecoverFromBeingHit(_bInterruptted);
+	}
+	else if (_animMontage == CounterAttack_Montage)
+	{
+		bAnimInterruptRobust = false;
+		if (!_bInterruptted)
+			ResetCombo();
 	}
 }
 
@@ -473,12 +506,16 @@ void UHero_AnimInstance::OnRightMouseButtonPressed()
 	switch (CurrentEquipment)
 	{
 	case EEquipType::ShieldSword:
-		OnDefendOn();
+		OnDefendOn_Sns();
 		break;
-	default:
+	case EEquipType::TwoHandSword:
+	case EEquipType::HeavyWeapon:
+		OnDefendOn_Dh();
 		break;
 	case EEquipType::CrossBow:
 		OnZoomIn();
+		break;
+	default:
 		break;
 	}
 }
@@ -488,6 +525,8 @@ void UHero_AnimInstance::OnRightMouseButtonReleased()
 	switch (CurrentEquipment)
 	{
 	case EEquipType::ShieldSword:
+	case EEquipType::TwoHandSword:
+	case EEquipType::HeavyWeapon:
 		OnDefendOff();
 		break;
 	default:
@@ -781,19 +820,16 @@ void UHero_AnimInstance::OnChangeWeaponFinsh()
 	case EGearType::Mace:
 		CurrentEquipment = EEquipType::ShieldSword;
 		sectionToPlay = MONTAGE_SN_HERO_SnsEquip;
-		//this->PlayMontage(Equip_Montage, 1.0f, MONTAGE_SN_HERO_SnsEquip);
 		break;
 	case EGearType::DoubleHandWeapon:
 		CurrentEquipment = EEquipType::TwoHandSword;
 		sectionToPlay = MONTAGE_SN_HERO_DHEquip;
-		//this->PlayMontage(Equip_Montage, 1.0f, MONTAGE_SN_HERO_DHEquip);
 		break;
 	case EGearType::BattleAxe:
 	case EGearType::Hammer:
 	case EGearType::GreatSword:
 		CurrentEquipment = EEquipType::HeavyWeapon;
 		sectionToPlay = MONTAGE_SN_HERO_HVEquip;
-		//this->PlayMontage(Equip_Montage, 1.0f, MONTAGE_SN_HERO_HVEquip);
 		break;
 	case EGearType::CrossBow:
 	{
@@ -841,32 +877,14 @@ void UHero_AnimInstance::OnSheathWeapon()
 void UHero_AnimInstance::SkipEquip()
 {
 	OnEquipWeapon();
-	//if (bIsSprinting)
-	//{
-	//	// Once Attack, we activate combat mode, hence we have to slow our speed down
-	//	// if we are sprinting then stop
-	//	mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
-	//	bIsSprinting = false;
-	//}
 	bVelocityOverrideByAnim = false;
-	//DisableJump();
 }
 
 void UHero_AnimInstance::AttachWeapon()
 {
 	ActivatedEquipment = CurrentEquipment;
 	mCharacter->GetHeroStatsComp()->OnEquipWeapon();
-
-	//if (bIsSprinting)
-	//{
-	//	// Once Attack, we activate combat mode, hence we have to slow our speed down
-	//	// if we are sprinting then stop
-	//	mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed();;
-	//	bIsSprinting = false;
-	//}
 	bVelocityOverrideByAnim = false;
-	//DisableJump();
-
 }
 
 
@@ -968,14 +986,74 @@ void UHero_AnimInstance::OnMeleeAttack()
 
 }
 
-void UHero_AnimInstance::OnDefendOn()
+void UHero_AnimInstance::OnDefendOn_Sns()
 {
-	ShieldUpBlendWeight = 1.0f;
+
+	if (ActivatedEquipment == EEquipType::Travel)
+	{
+		OnEquip();
+	}
+
+	bOnDefend = true;
+	TargetDefendPoseAlpha = 1.0f;
 }
 
 void UHero_AnimInstance::OnDefendOff()
 {
-	ShieldUpBlendWeight = 0.0f;
+	bOnDefend = false;
+	TargetDefendPoseAlpha = 0.0f;
+}
+
+void UHero_AnimInstance::OnDefendOn_Dh()
+{
+
+	if (ActivatedEquipment == EEquipType::Travel)
+	{
+		OnEquip();
+	}
+
+
+	// Condition Check
+	bool ignore = MoveRightAxis != 0.0f || MoveForwardAxis != 0.0f;
+	if (ignore)
+		return;
+
+	bool wrongState = AttackState == EAttackState::BeingHit ||
+		AttackState == EAttackState::Attacking ||
+		AttackState == EAttackState::Dodging;
+	if (wrongState)
+		return;
+
+
+	if (AttackState == EAttackState::ReadyForNext
+		|| AttackState == EAttackState::PreWinding)
+	{
+		Montage_Stop(0.2f);
+		ResetCombo();
+	}
+	else if (AttackState == EAttackState::PostDodging)
+	{
+		OnDodgeFinish(false);
+	}
+
+	bOnDefend = true;
+	TargetDefendPoseAlpha = 1.0f;
+}
+
+void UHero_AnimInstance::LaunchCounterAttack(const FName & _sectionName)
+{
+
+	this->PlayMontage(CounterAttack_Montage, 1.0f, _sectionName);
+	bVelocityOverrideByAnim = true;
+
+	if (!bIsFocused)
+	{
+		mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = true;
+		mCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
+	}
+
+	AttackState = EAttackState::PreWinding;
+	NextAction = EActionType::None;
 }
 
 void UHero_AnimInstance::OnRangeAttack()
@@ -1020,7 +1098,6 @@ void UHero_AnimInstance::OnRangeAttack()
 	}
 
 }
-
 
 #pragma region Fire
 
@@ -1109,7 +1186,6 @@ void UHero_AnimInstance::OnDisableDamage(bool bIsright, bool bIsAll)
 {
 	//Super::OnDisableWeapon(bIsright, bIsAll);
 	mCharacter->GetHeroStatsComp()->SetEnableWeapon(false, bIsright, bIsAll);
-
 }
 
 void UHero_AnimInstance::OnNextAttack()
@@ -1330,7 +1406,6 @@ void UHero_AnimInstance::OnDodgeFinish(bool _bInterruptted)
 
 }
 
-
 FName UHero_AnimInstance::GetForwardDodgeSection() const 
 {
 	switch (CurrentEquipment)
@@ -1424,23 +1499,20 @@ FVector UHero_AnimInstance::GetFocusDodgeDirection() const
 	}
 }
 
-
 #pragma endregion
 
-void UHero_AnimInstance::OnBeingHit(FName boneName, const FVector & _shotFromDirection, const FVector & _hitLocation)
+void UHero_AnimInstance::OnBeingHit(FName boneName, const FVector & _damageCauseRelative, const FVector & _hitLocation)
 {
+	if (bAnimInterruptRobust)
+		return;
 
 	if (Hit_Montage)
 	{
 		// reset the attack state and movement override, cuz we are being attack
 		ResetOnBeingHit();
 
-		// relative position of damage causer
-		FVector damageCauserRelative = _shotFromDirection;
-		damageCauserRelative.Z = 0.0f;
-		damageCauserRelative = damageCauserRelative.GetUnsafeNormal();
 
-		bool HitFromFront = FVector::DotProduct(mCharacter->GetActorForwardVector(), damageCauserRelative) > 0.3f;
+		bool HitFromFront = FVector::DotProduct(mCharacter->GetActorForwardVector(), _damageCauseRelative) > 0.3f;
 		FName sectionName;
 
 		if (HitFromFront)
@@ -1466,13 +1538,13 @@ void UHero_AnimInstance::OnBeingHit(FName boneName, const FVector & _shotFromDir
 					sectionName = TEXT("HitLeft");
 			}
 
-			damageMomentum = - MomentumRatioByActor * damageCauserRelative - (1 - MomentumRatioByActor) * hitRelative;
+			damageMomentum = - MomentumRatioByActor * _damageCauseRelative - (1 - MomentumRatioByActor) * hitRelative;
 			damageMomentum = damageMomentum.GetUnsafeNormal();
 		}
 		else
 		{
 			sectionName = TEXT("HitBack");
-			damageMomentum = -damageCauserRelative;
+			damageMomentum = -_damageCauseRelative;
 		}
 
 		//UE_LOG(LogTemp, Log, TEXT("%f, %f, %f"), damageMomentum.X, damageMomentum.Y, damageMomentum.Z);
@@ -1481,6 +1553,87 @@ void UHero_AnimInstance::OnBeingHit(FName boneName, const FVector & _shotFromDir
 	}
 	else
 		UE_LOG(LogTemp, Error, TEXT("Hit_Montage is nullptr - UHero_AnimInstance::OnBeingHit"));
+}
+
+bool UHero_AnimInstance::OnCounterAttack(const FVector & _damageCauserRelative)
+{
+	float dotFront = FVector::DotProduct(mCharacter->GetActorForwardVector(), _damageCauserRelative);
+
+
+	// Check if we are in defence mode
+	if (!bOnDefend)
+		return false;
+
+	// Check Stanima
+
+
+	// Implement Counter Attack
+	if (CounterAttack_Montage == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CounterAttack_Montage == nullptr - UHero_AnimInstance::OnCounterAttack"));
+		return false;
+	}
+	// Check direction, Sns Has more counter attack chance 
+	FName sectionName;
+	switch (CurrentEquipment)
+	{
+	case EEquipType::ShieldSword:
+		if (dotFront < 0.5f)
+			return false;
+		else
+		{
+
+			if (dotFront > 0.98f)
+			{
+				sectionName = MONTAGE_SN_CA_SnsFront;
+			}
+			else
+			{
+				float dotRight = FVector::DotProduct(mCharacter->GetActorRightVector(), _damageCauserRelative);
+				if (dotRight > 0)
+					sectionName = MONTAGE_SN_CA_SnsRight;
+				else
+					sectionName = MONTAGE_SN_CA_SnsLeft;
+			}
+			LaunchCounterAttack(sectionName);
+			return true;
+		}
+	case EEquipType::TwoHandSword:
+		if (dotFront < 0.7f)
+			return false;
+		else
+		{
+			sectionName = MONTAGE_SN_CA_Katana;
+			LaunchCounterAttack(sectionName);
+			return true;
+		}
+	case EEquipType::HeavyWeapon:
+		if (dotFront < 0.7f)
+			return false;
+		else
+		{
+			AGear* currentWeapon = mCharacter->GetCurrentWeapon();
+			if (currentWeapon)
+			{
+				if (currentWeapon->GetGearType() == EGearType::BattleAxe)
+				{
+					sectionName = MONTAGE_SN_CA_BattleAxe;
+					LaunchCounterAttack(sectionName);
+					return true;
+				}
+				else
+				{
+					sectionName = MONTAGE_SN_CA_Hammer;
+					LaunchCounterAttack(sectionName);
+					return true;
+				}
+			}
+			return false;
+		}
+	default:
+		return false;
+
+	}	
 }
 
 void UHero_AnimInstance::ResetOnBeingHit()

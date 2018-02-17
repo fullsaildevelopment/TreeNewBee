@@ -29,9 +29,9 @@ AEnemyGroup::AEnemyGroup()
 		GroupHUD->SetWidgetClass(HUD_Class);
 	}
 
-	if (GroupVolumn)
+	if (MeleeVision)
 	{
-		GroupVolumn->SetCollisionProfileName("EnemyGroupTrigger");
+		MeleeVision->SetCollisionProfileName("EnemyMeleeTrigger");
 	}
 
 
@@ -138,7 +138,7 @@ void AEnemyGroup::SpawnChildGroup()
 				maxGroupLength = xOffset - colPadding + SIDEPADDING * 0.5f;
 				maxGroupWidth = maxGroupWidth * 0.5f + SIDEPADDING;
 
-				SetGroupVolumn(maxGroupLength, maxGroupWidth);
+				SetGroupVisionVolumn(maxGroupLength, maxGroupWidth);
 				//GroupVolumn->SetBoxExtent(FVector(maxGroupLength, maxGroupWidth, GroupVolumn->GetUnscaledBoxExtent().Z), true);
 			}
 		}
@@ -204,7 +204,8 @@ void AEnemyGroup::OnReform()
 		float groupWidth = (FormationInfo[0] - 1) * colPadding * 0.5f + SIDEPADDING;
 		float groupLength = (xOffset - rowPadding) + 0.5f * SIDEPADDING;
 
-		GroupVolumn->SetBoxExtent(FVector(groupLength, groupWidth, GroupVolumnZ), true);
+		SetGroupVisionVolumn(groupWidth, groupLength);
+		//GroupVolumn->SetBoxExtent(FVector(groupLength, groupWidth, GroupVolumnZ), true);
 		MoveComp->MaxSpeed = groupSpeed;
 	}
 

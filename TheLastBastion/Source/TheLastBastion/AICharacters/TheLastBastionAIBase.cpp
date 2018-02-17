@@ -279,6 +279,12 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 
 	bool isCritical = false, isStun = false;
 
+	// the relative position of damage causer to damaged actor
+	FVector damageCauserRelative = ShotFromDirection;
+	damageCauserRelative.Z = 0.0f;
+	damageCauserRelative = damageCauserRelative.GetUnsafeNormal();
+
+
 	float totalDamage = AIStats->CalculateDamage(Damage, DamageCauser, isCritical, isStun);
 	float currentHp = AIStats->GetHpCurrent();
 
@@ -319,7 +325,7 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 	else
 	{
 		// if this ai is not get stunned, play hit animation
-		mAnimInstanceRef->OnBeingHit(BoneName, ShotFromDirection, HitLocation);
+		mAnimInstanceRef->OnBeingHit(BoneName, damageCauserRelative, HitLocation);
 	}
 
 }
