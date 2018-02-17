@@ -20,7 +20,7 @@ static FName SESSION_NAME = TEXT("GAME");
 
 UGI_TheLastBastion::UGI_TheLastBastion(const FObjectInitializer & ObjectInitializer) : Super(ObjectInitializer)
 {
-	LocateAllVFX();
+	//LocateAllVFX();
 	LocateAllWidgetClass();
 	//LocateAllCharacterClass();
 
@@ -66,11 +66,11 @@ void UGI_TheLastBastion::LocateAllWidgetClass()
 
 void UGI_TheLastBastion::LocateAllVFX()
 {
-	ConstructorHelpers::FObjectFinder<UParticleSystem> bloodImpactFind (TEXT("/Game/Assets/Partical/WeaponEffects/BloodImpact/P_blood_splash_02"));
-	if (bloodImpactFind.Succeeded())
-		BloodImpact_vfx = bloodImpactFind.Object;
-	else
-		UE_LOG(LogTemp, Error, TEXT("Can not find BloodImpact_vfx"));
+	//ConstructorHelpers::FObjectFinder<UParticleSystem> bloodImpactFind (TEXT("/Game/Assets/Partical/WeaponEffects/BloodImpact/P_blood_splash_02"));
+	//if (bloodImpactFind.Succeeded())
+	//	BloodImpact_vfx = bloodImpactFind.Object;
+	//else
+	//	UE_LOG(LogTemp, Error, TEXT("Can not find BloodImpact_vfx"));
 }
 
 void UGI_TheLastBastion::Init()

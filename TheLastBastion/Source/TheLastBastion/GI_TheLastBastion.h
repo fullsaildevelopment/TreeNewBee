@@ -84,8 +84,8 @@ protected:
 
 
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Vfx)
-		UParticleSystem* BloodImpact_vfx;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Vfx)
+	//	UParticleSystem* BloodImpact_vfx;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Map)
 		FName LobbyMap;
@@ -169,8 +169,8 @@ public:
 
 #pragma region Vfx Getter
 
-	UFUNCTION(BlueprintPure)
-		FORCEINLINE class UParticleSystem* GetVFX_BloodImpact() const { return BloodImpact_vfx; }
+	//UFUNCTION(BlueprintPure)
+	//	FORCEINLINE class UParticleSystem* GetVFX_BloodImpact() const { return BloodImpact_vfx; }
 
 #pragma endregion
 
