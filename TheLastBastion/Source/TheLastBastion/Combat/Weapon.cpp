@@ -42,8 +42,6 @@ void AWeapon::SetDamageIsEnabled(bool _val)
 
 void AWeapon::Tick(float _deltaTime)
 {
-
-
 	if (bShowBounding)
 	{
 		FVector startPosition, endPosition;
