@@ -90,6 +90,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat)
 		class UAnimMontage* GetUp_Montage;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Movement)
+		FVector damageMomentum;
+
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
 		/** angle between the acceleration and mesh forward*/
 		float turn;
@@ -107,10 +111,13 @@ protected:
 		/** the weight to decide damage momentum direction by damage causer location */
 		float MomentumRatioByActor;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Movement)
-		FVector damageMomentum;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Defend)
+		bool bOnDefend;
 
-	
+
+public:
+
+	FORCEINLINE bool IsOnDefend() const { return bOnDefend; }
 
 
 };

@@ -119,6 +119,11 @@ void UAIBase_AnimInstance::OnBeingHit(FName boneName, const FVector & _damageCau
 	PlayMontage(Hit_Montage, 1.0f, sectionToPlay);
 }
 
+bool UAIBase_AnimInstance::OnCounterAttack(const FVector & _damageCauserRelative)
+{
+	return false;
+}
+
 void UAIBase_AnimInstance::OnMontageStartHandle(UAnimMontage * _animMontage) {}
 
 void UAIBase_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontage, bool _bInterruptted)

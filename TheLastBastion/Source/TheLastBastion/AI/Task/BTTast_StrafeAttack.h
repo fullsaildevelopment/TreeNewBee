@@ -9,6 +9,11 @@
 /**
  * 
  */
+
+#define ECC_EnemyBody ECollisionChannel::ECC_GameTraceChannel3
+#define ECC_HeroBody  ECollisionChannel::ECC_GameTraceChannel1
+
+
 UCLASS()
 class THELASTBASTION_API UBTTast_StrafeAttack : public UBTTaskNode
 {

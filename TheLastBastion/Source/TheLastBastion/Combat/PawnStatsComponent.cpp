@@ -391,6 +391,39 @@ void UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 	// calculate the damage based on Gears
 	float damage = GetBaseDamage();
 
+	// apply VFX based on surface
+	UParticleSystem* vfxSelected = nullptr;
+
+	// Check if this damage is caused by melee and been countered
+	if (_damageInfo.bIsProjectile == false)
+	{
+		ATheLastBastionCharacter* damageActor = Cast<ATheLastBastionCharacter>(_damageInfo.hitResult.GetActor());
+		if (damageActor && damageActor->OnCounterAttack(_damageInfo.hitDirection))
+		{
+			vfxSelected = UVfxManager::GetVfx(EVfxType::metalImpact_sputtering);
+			if (vfxSelected)
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), vfxSelected, _damageInfo.hitResult.Location);
+
+			return;
+		}
+	}
+
+	EPhysicalSurface surefaceType = UPhysicalMaterial::DetermineSurfaceType(_damageInfo.hitResult.PhysMaterial.Get());
+	switch (surefaceType)
+	{
+	case SURFACE_FLESH:
+		vfxSelected = UVfxManager::GetVfx(EVfxType::bloodImpact_sputtering);
+		break;
+	case SURFACE_METAL:
+		vfxSelected = UVfxManager::GetVfx(EVfxType::metalImpact_sputtering);
+		break;
+	default:
+		break;
+	}
+
+	if (vfxSelected)
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), vfxSelected, _damageInfo.hitResult.Location);
+
 	// apply damage type based on weapon 
 	switch (_damageInfo.applyDamageType)
 	{
@@ -420,24 +453,6 @@ void UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 
 	}
 
-	// apply VFX based on surface
-	UParticleSystem* vfxSelected = nullptr;
-
-	EPhysicalSurface surefaceType = UPhysicalMaterial::DetermineSurfaceType(_damageInfo.hitResult.PhysMaterial.Get());
-	switch (surefaceType)
-	{
-	case SURFACE_FLESH:
-		vfxSelected = UVfxManager::GetVfx(EVfxType::bloodImpact_sputtering);
-		break;
-	case SURFACE_METAL:
-		vfxSelected = UVfxManager::GetVfx(EVfxType::metalImpact_sputtering);
-		break;
-	default:
-		break;
-	}
-
-	if (vfxSelected)
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), vfxSelected, _damageInfo.hitResult.Location);
 }
 
 AGear * UPawnStatsComponent::GetCurrentArmor() const

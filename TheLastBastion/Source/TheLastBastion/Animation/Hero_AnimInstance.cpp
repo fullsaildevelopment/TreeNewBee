@@ -992,6 +992,7 @@ void UHero_AnimInstance::OnDefendOn_Sns()
 	if (ActivatedEquipment == EEquipType::Travel)
 	{
 		OnEquip();
+		return;
 	}
 
 	bOnDefend = true;
@@ -1010,6 +1011,7 @@ void UHero_AnimInstance::OnDefendOn_Dh()
 	if (ActivatedEquipment == EEquipType::Travel)
 	{
 		OnEquip();
+		return;
 	}
 
 
@@ -1559,7 +1561,7 @@ bool UHero_AnimInstance::OnCounterAttack(const FVector & _damageCauserRelative)
 {
 	float dotFront = FVector::DotProduct(mCharacter->GetActorForwardVector(), _damageCauserRelative);
 
-
+	UE_LOG(LogTemp, Log, TEXT("dotFront: %f, UHero_AnimInstance::OnCounterAttack"), dotFront);
 	// Check if we are in defence mode
 	if (!bOnDefend)
 		return false;
@@ -1583,7 +1585,7 @@ bool UHero_AnimInstance::OnCounterAttack(const FVector & _damageCauserRelative)
 		else
 		{
 
-			if (dotFront > 0.98f)
+			if (dotFront > 0.99f)
 			{
 				sectionName = MONTAGE_SN_CA_SnsFront;
 			}

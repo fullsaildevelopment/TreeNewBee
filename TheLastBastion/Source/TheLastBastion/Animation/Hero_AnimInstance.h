@@ -157,8 +157,6 @@ protected:
 
 #pragma region Combat
 	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Defend)
-		bool bOnDefend;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Defend)
 		/** Animation will not be interrupt */

@@ -22,6 +22,8 @@ public:
 
 protected:
 
+
+
 	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
 		FText AiName;
 

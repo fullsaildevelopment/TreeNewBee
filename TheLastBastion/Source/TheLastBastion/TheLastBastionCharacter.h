@@ -39,10 +39,6 @@ public:
 
 protected:
 
-
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GroupBehavior)
-	//	TArray<class AAIGroupBase*> ThreatingGroup;
-
 	UPROPERTY()
 	    class UPawnStatsComponent* PawnStats;
 
@@ -186,6 +182,10 @@ public:
 
 	FORCEINLINE bool IsRagDoll() const { return bIsRagDoll; }
 	FORCEINLINE bool IsRagDollRecovereing() const { return bIsRecoveringFromRagDoll; }
+	bool IsOnDefend() const;
+
+	/** Check if this character is able to counter attack this attack*/
+	bool OnCounterAttack(const FVector& _damageCauserRelative);
 
 	float GetCurrentMaxSpeed() const;
 	class AGear* GetCurrentWeapon() const;

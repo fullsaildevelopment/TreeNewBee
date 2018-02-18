@@ -286,6 +286,24 @@ void ATheLastBastionCharacter::DuringRagDollRecovering(float _deltaTime)
 	}
 }
 
+bool ATheLastBastionCharacter::IsOnDefend() const
+{
+	if (mBaseAnimRef)
+	{
+		return mBaseAnimRef->IsOnDefend();
+	}
+	return false;
+}
+
+bool ATheLastBastionCharacter::OnCounterAttack(const FVector& _damageCauserRelative)
+{
+	if (mBaseAnimRef)
+	{
+		return mBaseAnimRef->OnCounterAttack(_damageCauserRelative);
+	}
+	return false;
+}
+
 float ATheLastBastionCharacter::GetCurrentMaxSpeed() const
 {
 	return GetCharacterMovement()->MaxWalkSpeed;

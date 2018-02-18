@@ -281,8 +281,8 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 
 	// the relative position of damage causer to damaged actor
 	FVector damageCauserRelative = ShotFromDirection;
-	damageCauserRelative.Z = 0.0f;
-	damageCauserRelative = damageCauserRelative.GetUnsafeNormal();
+	//damageCauserRelative.Z = 0.0f;
+	//damageCauserRelative = damageCauserRelative.GetUnsafeNormal();
 
 
 	float totalDamage = AIStats->CalculateDamage(Damage, DamageCauser, isCritical, isStun);
