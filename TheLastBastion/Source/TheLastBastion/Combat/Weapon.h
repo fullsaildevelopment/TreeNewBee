@@ -63,4 +63,5 @@ public:
 
 
 	void GetRayCastPosition(FVector& _start, FVector& _end);
+
 };

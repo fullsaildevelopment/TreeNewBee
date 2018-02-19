@@ -12,7 +12,11 @@
 UENUM()
 enum class ESoundEffectType : uint8
 {
-	ECrossBowFire = 0
+	ECrossBowFire = 0,
+	ESingeHandSwordSlash = 1,
+	EBoltsFleshCharacter = 2,
+	EBoltsStickToShield = 3,
+	ESwordFleshImpact = 4
 };
 /**
  * 
@@ -26,9 +30,20 @@ public:
 	UAudioManager();
 
 private:
-	static class USoundCue* CrossBowFire;
+	static class USoundCue* CrossbowFire;
+
+	static class USoundCue* SingleHandSwordSlash;
+
+	static class USoundCue* BoltsFleshCharacter;
+
+	static class USoundCue* BoltsStickToShield;
+
+	static class USoundCue* SwordFleshImpact;
 
 public:
 	static class USoundCue* GetSFX(ESoundEffectType _sfxType);
+
+private:
+	USoundCue* FindSoundCue(const TCHAR* _path);
 
 };

@@ -6,6 +6,8 @@
 #include "AICharacters/TheLastBastionEnemyCharacter.h"
 #include "Combat/PawnStatsComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "AudioManager.h"
+#include "Kismet/GameplayStatics.h"
 
 
 //#define ECC_EnemyBody ECollisionChannel::ECC_GameTraceChannel3
@@ -110,6 +112,29 @@ void AWeapon::Tick(float _deltaTime)
 				pSC->ApplyDamage(DamageInfo);
 			else
 				UE_LOG(LogTemp, Error, TEXT("UPawnStatsComponent is NuLL -- AWeapon::Tick "));
+
+			// Play SFX
+			USoundCue* WeaponFleshImpact = nullptr;
+			switch (GearType)
+			{
+			case EGearType::LongSword:
+			{
+				WeaponFleshImpact = UAudioManager::GetSFX(ESoundEffectType::ESwordFleshImpact);
+				UGameplayStatics::PlaySoundAtLocation(world, WeaponFleshImpact, DamageInfo.hitResult.GetActor()->GetActorLocation());
+			}
+
+			case EGearType::WarAxe:
+				break;
+
+			case EGearType::Mace:
+				break;
+
+			case EGearType::DoubleHandWeapon:
+				break;
+
+			default:
+				break;
+			}
 		}
 	}
 
@@ -169,5 +194,6 @@ void AWeapon::GetRayCastPosition(FVector & _start, FVector & _end)
 	}
 
 }
+
 
 

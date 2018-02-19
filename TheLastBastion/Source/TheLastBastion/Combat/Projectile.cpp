@@ -10,6 +10,9 @@
 #include "TheLastBastionHeroCharacter.h"
 #include "DrawDebugHelpers.h"
 
+#include "AudioManager.h"
+#include "Kismet/GameplayStatics.h"
+
 #define SPHERERADIUS 1.5f
 #define StabInDistance 10.0f;
 
@@ -147,7 +150,7 @@ void AProjectile::Tick(float _deltaTime)
 			// if it is a person or shield
 			ATheLastBastionCharacter* Character = Cast<ATheLastBastionCharacter>(damagedActor);
 			if (Character)
-			{
+			{   
 				CurrentHitCount++;
 				DamageInfo.hitDirection = GearOwner->GetActorLocation() - DamageInfo.hitResult.GetActor()->GetActorLocation();
 				UPawnStatsComponent* pSC = GearOwner->GetPawnStatsComp();
@@ -174,6 +177,11 @@ void AProjectile::Tick(float _deltaTime)
 				{
 					IgnoredActors.Add(damagedActor);
 				}
+
+				// Play SFX
+				USoundCue* BoltsFleshCharacter = UAudioManager::GetSFX(ESoundEffectType::EBoltsFleshCharacter);
+				UGameplayStatics::PlaySoundAtLocation(World, BoltsFleshCharacter, Character->GetActorLocation());
+
 			}
 			else
 			{
@@ -199,6 +207,9 @@ void AProjectile::Tick(float _deltaTime)
 						IgnoredActors.Add(damagedActor);
 					}
 
+					// Play SFX
+					USoundCue* BoltsSticksToShield = UAudioManager::GetSFX(ESoundEffectType::EBoltsStickToShield);
+					UGameplayStatics::PlaySoundAtLocation(World, BoltsSticksToShield, Shield->GetActorLocation());
 				}
 				else
 				{
