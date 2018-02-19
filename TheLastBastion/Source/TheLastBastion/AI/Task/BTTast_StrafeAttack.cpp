@@ -5,7 +5,6 @@
 #include "TheLastBastionCharacter.h"
 #include "AICharacters/TheLastBastionAIBase.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
-
 #include "Animation/AIMelee_AnimInstance.h"
 
 UBTTast_StrafeAttack::UBTTast_StrafeAttack(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -69,12 +68,24 @@ EBTNodeResult::Type UBTTast_StrafeAttack::ExecuteTask(UBehaviorTreeComponent & O
 		}
 		else if (targetActor->GetIsDead())
 		{
-			// UE_LOG(LogTemp, Log, TEXT("Target is Dead, find other target - UBTTast_StrafeAttack::ExecuteTask"));
-			// me->RequestAnotherTarget();
 			return EBTNodeResult::Succeeded;
 		}
 		else
 		{
+			FHitResult hitResult;
+			ECollisionChannel objectColType = (me->IsEnemy())? ECC_EnemyBody:ECC_HeroBody;
+			FCollisionQueryParams queryParams;
+			queryParams.AddIgnoredActor(me);
+
+			const bool bHit = GetWorld()->LineTraceSingleByObjectType(hitResult,
+				me->GetTargetLocation(), targetActor->GetTargetLocation(), objectColType, queryParams);
+			if (bHit)
+			{
+				UE_LOG(LogTemp, Log, TEXT("Friendly Ahead - UBTTast_StrafeAttack::ExecuteTask"));
+				return EBTNodeResult::Failed;
+			}
+
+
 			NodeResult = EBTNodeResult::InProgress;
 			animRef->OnFinishAttackDelegate.BindUObject(this, &UBTTast_StrafeAttack::OnFinishAttackHandle);
 

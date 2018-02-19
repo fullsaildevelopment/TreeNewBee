@@ -134,6 +134,7 @@ void AProjectile::Tick(float _deltaTime)
 		FDamageInfo DamageInfo;
 		DamageInfo.applyDamageType = EApplyDamageType::Point;
 		DamageInfo.damageType = DamageType;
+		DamageInfo.bIsProjectile = true;
 
 		UWorld* World = GetWorld();
 		bool const bHit = World ? World->SweepSingleByObjectType(DamageInfo.hitResult, 
@@ -152,7 +153,13 @@ void AProjectile::Tick(float _deltaTime)
 			if (Character)
 			{   
 				CurrentHitCount++;
-				DamageInfo.hitDirection = GearOwner->GetActorLocation() - DamageInfo.hitResult.GetActor()->GetActorLocation();
+
+
+
+				FVector damageCauserRelative = GearOwner->GetActorLocation()
+					- DamageInfo.hitResult.GetActor()->GetActorLocation();
+				damageCauserRelative.Z = 0.0f;
+				DamageInfo.hitDirection = damageCauserRelative.GetUnsafeNormal();
 				UPawnStatsComponent* pSC = GearOwner->GetPawnStatsComp();
 
 				if (pSC != nullptr)

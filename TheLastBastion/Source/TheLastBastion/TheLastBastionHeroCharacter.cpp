@@ -594,12 +594,12 @@ void ATheLastBastionHeroCharacter::OnTakePointDamageHandle(AActor * DamagedActor
 
 	// the relative position of damage causer to damaged actor
 	FVector damageCauserRelative = ShotFromDirection;
-	damageCauserRelative.Z = 0.0f;
-	damageCauserRelative = damageCauserRelative.GetUnsafeNormal();
+	//damageCauserRelative.Z = 0.0f;
+	//damageCauserRelative = damageCauserRelative.GetUnsafeNormal();
 
-	bool CounterAttackSuccessed = mAnimInstanceRef->OnCounterAttack(damageCauserRelative);
-	if (CounterAttackSuccessed)
-		return;
+	//bool CounterAttackSuccessed = mAnimInstanceRef->OnCounterAttack(damageCauserRelative);
+	//if (CounterAttackSuccessed)
+	//	return;
 
 	float totalDamage = HeroStats->CalculateDamage(Damage, DamageCauser, isCritical, isStun);
 

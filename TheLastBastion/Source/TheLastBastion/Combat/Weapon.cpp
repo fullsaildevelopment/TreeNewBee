@@ -10,8 +10,6 @@
 #include "Kismet/GameplayStatics.h"
 
 
-//#define ECC_EnemyBody ECollisionChannel::ECC_GameTraceChannel3
-//#define ECC_HeroBody  ECollisionChannel::ECC_GameTraceChannel1
 
 AWeapon::AWeapon() 
 {
@@ -93,19 +91,21 @@ void AWeapon::Tick(float _deltaTime)
 		FDamageInfo DamageInfo;
 		DamageInfo.applyDamageType = EApplyDamageType::Point;
 		DamageInfo.damageType = DamageType;
+		DamageInfo.bIsProjectile = false;
 
 		UWorld* world = GetWorld();
 		bool IsHit = world->SweepSingleByObjectType(DamageInfo.hitResult, startPosition, endPosition, GetActorRotation().Quaternion(), ObjectParams,
 			FCollisionShape::MakeBox(DamageVolumnExtend), Params);
 		if (IsHit)
 		{
-
-			//UE_LOG(LogTemp, Log, TEXT("Melee hit - AWeapon::Tick"));
 			if (!bEnableCutOpenDamage)
 				IgnoredActors.Add(DamageInfo.hitResult.GetActor());
 		
 
-			DamageInfo.hitDirection = GearOwner->GetActorLocation() - DamageInfo.hitResult.GetActor()->GetActorLocation();
+			FVector damageCauserRelative = GearOwner->GetActorLocation()
+				- DamageInfo.hitResult.GetActor()->GetActorLocation();
+			damageCauserRelative.Z = 0.0f;
+			DamageInfo.hitDirection = damageCauserRelative.GetUnsafeNormal();
 
 			UPawnStatsComponent* pSC = GearOwner->GetPawnStatsComp();
 			if (pSC != nullptr)
@@ -137,7 +137,6 @@ void AWeapon::Tick(float _deltaTime)
 			}
 		}
 	}
-
 }
 
 USceneComponent * AWeapon::GetMesh() const

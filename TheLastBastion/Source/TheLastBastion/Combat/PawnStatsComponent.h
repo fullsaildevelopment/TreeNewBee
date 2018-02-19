@@ -39,6 +39,9 @@ struct FDamageInfo
 	UPROPERTY()
 		/** Damage class depends on weapon */
 		TSubclassOf<class UDamageType> damageType;
+
+	UPROPERTY()
+		bool bIsProjectile;
 };
 
 
@@ -89,9 +92,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Gear)
 		TArray<FWeaponSlot> WeaponSlots;
-
-	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Gear)
-	//	TArray<TSubclassOf<class AGear>> WeaponWheels;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Gear)
 		/** Index to the WeaponWheels*/
