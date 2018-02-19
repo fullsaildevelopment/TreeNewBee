@@ -39,6 +39,9 @@ public:
 
 protected:
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class UAudioComponent* AudioComp;
+
 	UPROPERTY()
 	    class UPawnStatsComponent* PawnStats;
 

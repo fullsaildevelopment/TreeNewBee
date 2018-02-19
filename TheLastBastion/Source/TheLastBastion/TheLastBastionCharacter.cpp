@@ -17,6 +17,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Components/AudioComponent.h "
 
 #include "CustomType.h"
 #include "Engine.h"
@@ -70,6 +71,8 @@ ATheLastBastionCharacter::ATheLastBastionCharacter()
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->bGenerateOverlapEvents = true;
+
+	AudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("AUDIOComp"));
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)

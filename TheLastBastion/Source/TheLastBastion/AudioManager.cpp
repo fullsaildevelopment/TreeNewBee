@@ -35,7 +35,6 @@ UAudioManager::UAudioManager()
 	LightWpnFleshImpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/MeleeWeaponHitImpact/Light_Flesh_Impact"));
 
 	MeleeCounterAttackImpactpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/MeleeWeaponHitImpact/MeleeCounterAttackImpact"));
-
 }
 
 USoundCue* UAudioManager::FindSoundCue(const TCHAR* _path)
