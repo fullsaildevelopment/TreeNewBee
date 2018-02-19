@@ -849,14 +849,17 @@ void UHero_AnimInstance::OnChangeWeaponFinsh()
 
 }
 
+// Draw weapon
 void UHero_AnimInstance::OnEquipWeapon()
 {
 	ActivatedEquipment = CurrentEquipment;
 	mCharacter->GetHeroStatsComp()->OnEquipWeapon();
 	mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = true;
 	mCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
+
 }
 
+// Sheath Weapon
 void UHero_AnimInstance::OnSheathWeapon()
 {
 	ActivatedEquipment = EEquipType::Travel;
@@ -870,7 +873,6 @@ void UHero_AnimInstance::OnSheathWeapon()
 	}
 	mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = false;
 	mCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
-
 }
 
 /** Skip equipAnimation direction to equip mode, change the movement role to strafe*/

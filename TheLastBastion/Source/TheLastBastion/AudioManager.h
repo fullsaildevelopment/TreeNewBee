@@ -7,16 +7,19 @@
 #include "AudioManager.generated.h"
 
 
-
+enum class EGearType :uint8;
 
 UENUM()
 enum class ESoundEffectType : uint8
 {
 	ECrossBowFire = 0,
-	ESingeHandSwordSlash = 1,
-	EBoltsFleshCharacter = 2,
-	EBoltsStickToShield = 3,
-	ESwordFleshImpact = 4
+	ESingeHandSwordSlash,
+	EBoltsFleshCharacter,
+	EBoltsStickToLightShield,
+	EBoltsStickToHeavyShield,
+	ELightWpnFleshImpact,
+	EMeleeCounterAttackImpact,
+	EBoltsMetalImpact
 };
 /**
  * 
@@ -35,15 +38,29 @@ private:
 	static class USoundCue* SingleHandSwordSlash;
 
 	static class USoundCue* BoltsFleshCharacter;
+	static class USoundCue* BoltsMetalImpact;
+	static class USoundCue* BoltsSticks_LightShield;
+	static class USoundCue* BoltsSticks_HeavyShield;
 
-	static class USoundCue* BoltsStickToShield;
+	static class USoundCue* LightWpnFleshImpact;
 
-	static class USoundCue* SwordFleshImpact;
+	static class USoundCue* MeleeCounterAttackImpactpact;
+
+
 
 public:
+
 	static class USoundCue* GetSFX(ESoundEffectType _sfxType);
 
+	static class USoundCue* GetProjectileImpactByMaterial(EPhysicalSurface _surfaceType);
+
+	static class USoundCue* GetMeleeImpactByMaterialAndGearType(EGearType _gearType, EPhysicalSurface _surfaceType);
+
+	static class USoundCue* GetSingleHandWeaponImpactByMaterial(EPhysicalSurface _surfaceType);
+
+
 private:
+
 	USoundCue* FindSoundCue(const TCHAR* _path);
 
 };

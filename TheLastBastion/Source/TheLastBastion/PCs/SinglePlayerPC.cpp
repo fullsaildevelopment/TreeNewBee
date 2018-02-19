@@ -26,7 +26,7 @@ ASinglePlayerPC::ASinglePlayerPC(const FObjectInitializer & _objInit) : Super(_o
 		UCustomType::FindClass<UUserWidget>(InGameHuD_WBPClass, TEXT("/Game/UI/In-Game/WBP_InGameHUD"));
 
 	if (!TradeMenu_WBPClass)
-		UCustomType::FindClass<UUserWidget>(TradeMenu_WBPClass, TEXT("/Game/UI/In-Game/WBP_TradeMenu"));
+		UCustomType::FindClass<UUserWidget>(TradeMenu_WBPClass, TEXT("/Game/UI/In-Game/TradeMenu/WBP_TradeMenu"));
 
 	if (!InGameMenu_WBPClass)
 		UCustomType::FindClass<UUserWidget>(InGameMenu_WBPClass, TEXT("/Game/UI/In-Game/WBP_InGameMenu"));

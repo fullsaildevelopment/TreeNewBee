@@ -7,8 +7,8 @@
 #include "PawnStatsComponent.generated.h"
 
 
-#define SURFACE_FLESH EPhysicalSurface::SurfaceType1
-#define SURFACE_METAL EPhysicalSurface::SurfaceType2
+
+enum class EGearType : uint8;
 
 UENUM(BlueprintType)
 enum class EApplyDamageType : uint8
@@ -234,6 +234,8 @@ public:
 
 protected:
 
+
+	void GetEffectsForImpact(class UParticleSystem*& _vfx, class USoundCue*& _sfx, int _surfaceType, EGearType _gearType) const;
 	//// Calculate the health that this character left after being attacked
 	//virtual float CalculateHealth(AActor* _otherActor);
 

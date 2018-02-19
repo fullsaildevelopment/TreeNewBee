@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/DragDropOperation.h"
-#include "UI/ActionSlot.h"
+#include "UI/Gameplay/TradeMenuSlot.h"
 #include "ItemDrag.generated.h"
 
 /**

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ShopRow.h"
-#include "UI/ActionSlot.h"
+#include "UI/Gameplay/TradeMenuSlot.h"
 #include "Components/HorizontalBox.h"
 
 
@@ -29,10 +29,10 @@ bool UShopRow::Initialize()
 
 void UShopRow::SetEachSlotSize(float _width, float _height)
 {
-	UActionSlot* slot = nullptr;
+	UTradeMenuSlot* slot = nullptr;
 	for (int i = 0; i < ItemRow->GetChildrenCount(); i++)
 	{
-		slot = Cast<UActionSlot>(ItemRow->GetChildAt(i));
+		slot = Cast<UTradeMenuSlot>(ItemRow->GetChildAt(i));
 		if (slot)
 		{
 			slot->SetSize(_width, _height);
@@ -43,10 +43,10 @@ void UShopRow::SetEachSlotSize(float _width, float _height)
 
 void UShopRow::SetEachSlotAction(const TArray<struct FGearUI>& _data)
 {
-	UActionSlot* slot = nullptr;
+	UTradeMenuSlot* slot = nullptr;
 	for (size_t i = 0; i < ItemRow->GetChildrenCount(); i++)
 	{
-		slot = Cast<UActionSlot>(ItemRow->GetChildAt(i));
+		slot = Cast<UTradeMenuSlot>(ItemRow->GetChildAt(i));
 		if (slot)
 			slot->SetAction(_data[i]);
 	}
@@ -55,11 +55,11 @@ void UShopRow::SetEachSlotAction(const TArray<struct FGearUI>& _data)
 
 void UShopRow::SetEachSlotActionImage(const TArray<UTexture2D*>& _actionImages)
 {
-	UActionSlot* slot = nullptr;
+	UTradeMenuSlot* slot = nullptr;
 	for (size_t i = 0; i < ItemRow->GetChildrenCount(); i++)
 	{
-		slot = Cast<UActionSlot>(ItemRow->GetChildAt(i));
+		slot = Cast<UTradeMenuSlot>(ItemRow->GetChildAt(i));
 		if (slot)
-			slot->SetActionImage(_actionImages[i]);
+			slot->SetImage(_actionImages[i]);
 	}
 }

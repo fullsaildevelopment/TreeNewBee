@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CrewSlotUI.h"
-
+#include "Components/SizeBox.h"
 
 
 
@@ -11,7 +11,7 @@ bool UCrewSlotUI::Initialize()
 		return false;
 
 	// Bind Delegetes to Widget components
-	bool bAllWidgetAreGood = CrewSize != nullptr;
+	bool bAllWidgetAreGood = NumericValue != nullptr;
 
 	if (bAllWidgetAreGood)
 	{
@@ -30,3 +30,4 @@ void UCrewSlotUI::OnCrewMemberDead()
 void UCrewSlotUI::OnCrewSelected()
 {
 }
+

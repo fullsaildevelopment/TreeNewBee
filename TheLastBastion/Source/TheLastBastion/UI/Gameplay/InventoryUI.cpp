@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InventoryUI.h"
-#include "UI/ActionSlot.h"
+#include "UI/Gameplay/TradeMenuSlot.h"
 #include "Components/HorizontalBox.h"
 #include "Combat/HeroStatsComponent.h"
 #include "Combat/Gear.h"
@@ -24,10 +24,10 @@ bool UInventoryUI::Initialize()
 	else
 		return false;
 
-	UActionSlot* slot = nullptr;
+	UTradeMenuSlot* slot = nullptr;
 	for (int i = 0; i < GearRow->GetChildrenCount(); i++)
 	{
-		slot = Cast<UActionSlot>(GearRow->GetChildAt(i));
+		slot = Cast<UTradeMenuSlot>(GearRow->GetChildAt(i));
 		if (slot)
 		{
 			slot->SetSize(150.0f, 150.0f);
@@ -43,7 +43,7 @@ void UInventoryUI::OnOpenTradeMenu(UHeroStatsComponent * _heroStats)
 	// Check Armor
 	AGear* currentArmor = _heroStats->GetCurrentArmor();
 	if (currentArmor)
-		Armor->SetActionImage(currentArmor->GetThumbNailImage());
+		Armor->SetImage(currentArmor->GetThumbNailImage());
 
 	// Check WeaponSlot
 	AGear* weapon = nullptr;
@@ -60,21 +60,21 @@ void UInventoryUI::OnOpenTradeMenu(UHeroStatsComponent * _heroStats)
 				case EGearType::LongSword:
 				case EGearType::Mace:
 					SHWeapon->SetGearBp(weaponClass);
-					SHWeapon->SetActionImage(weapon->GetThumbNailImage());
+					SHWeapon->SetImage(weapon->GetThumbNailImage());
 					break;
 				case EGearType::BattleAxe:
 				case EGearType::Hammer:
 				case EGearType::GreatSword:
 					HeavyWeapon->SetGearBp(weaponClass);
-					HeavyWeapon->SetActionImage(weapon->GetThumbNailImage());
+					HeavyWeapon->SetImage(weapon->GetThumbNailImage());
 					break;
 				case EGearType::CrossBow:
 					RangeWeapon->SetGearBp(weaponClass);
-					RangeWeapon->SetActionImage(weapon->GetThumbNailImage());
+					RangeWeapon->SetImage(weapon->GetThumbNailImage());
 					break;
 				case EGearType::DoubleHandWeapon:
 					THWeapon->SetGearBp(weaponClass);
-					THWeapon->SetActionImage(weapon->GetThumbNailImage());
+					THWeapon->SetImage(weapon->GetThumbNailImage());
 					break;
 			}
 		}
@@ -84,7 +84,7 @@ void UInventoryUI::OnOpenTradeMenu(UHeroStatsComponent * _heroStats)
 
 TSubclassOf<class AGear> UInventoryUI::GetGearClassAt(int _index) const
 {
-	UActionSlot* slot  = Cast<UActionSlot>(GearRow->GetChildAt(_index));
+	UTradeMenuSlot* slot  = Cast<UTradeMenuSlot>(GearRow->GetChildAt(_index));
 	if (slot)
 		return slot->GetGearClass();
 	return nullptr;

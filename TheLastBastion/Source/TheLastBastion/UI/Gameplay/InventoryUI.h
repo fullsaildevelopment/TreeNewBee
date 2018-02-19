@@ -21,37 +21,37 @@ protected:
 protected:
 
 	UPROPERTY(meta = (BindWidget))
-		class UActionSlot* SHWeapon;
+		class UTradeMenuSlot* SHWeapon;
 
 	UPROPERTY(meta = (BindWidget))
-		class UActionSlot* RangeWeapon;
+		class UTradeMenuSlot* RangeWeapon;
 
 	UPROPERTY(meta = (BindWidget))
-		class UActionSlot* Armor;
+		class UTradeMenuSlot* Armor;
 
 	UPROPERTY(meta = (BindWidget))
-		class UActionSlot* THWeapon;
+		class UTradeMenuSlot* THWeapon;
 
 	UPROPERTY(meta = (BindWidget))
-		class UActionSlot* HeavyWeapon;
+		class UTradeMenuSlot* HeavyWeapon;
 
 	UPROPERTY(meta = (BindWidget))
-		class UActionSlot* Additive_0;
+		class UTradeMenuSlot* Additive_0;
 
 	UPROPERTY(meta = (BindWidget))
-		class UActionSlot* Additive_1;
+		class UTradeMenuSlot* Additive_1;
 
 	UPROPERTY(meta = (BindWidget))
-		class UActionSlot* Additive_2;
+		class UTradeMenuSlot* Additive_2;
 
 	UPROPERTY(meta = (BindWidget))
-		class UActionSlot* Additive_3;
+		class UTradeMenuSlot* Additive_3;
 
 	UPROPERTY(meta = (BindWidget))
-		class UActionSlot* Additive_4;
+		class UTradeMenuSlot* Additive_4;
 
 	UPROPERTY(meta = (BindWidget))
-		class UActionSlot* Additive_5;
+		class UTradeMenuSlot* Additive_5;
 
 	UPROPERTY(meta = (BindWidget))
 		class UHorizontalBox* GearRow;

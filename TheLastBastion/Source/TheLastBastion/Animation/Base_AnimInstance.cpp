@@ -99,3 +99,19 @@ void UBase_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontag
 }
 
 void UBase_AnimInstance::ResetOnBeingHit() {}
+
+void UBase_AnimInstance::FxFootStep()
+{
+}
+
+void UBase_AnimInstance::FxMeleeSwing()
+{
+}
+
+void UBase_AnimInstance::FxOnEquip()
+{
+}
+
+void UBase_AnimInstance::FxOnReload()
+{
+}

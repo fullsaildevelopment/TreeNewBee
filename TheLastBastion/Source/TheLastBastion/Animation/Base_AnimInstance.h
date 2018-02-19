@@ -65,6 +65,18 @@ protected:
 	UFUNCTION()
 		virtual void ResetOnBeingHit();
 
+	UFUNCTION(BlueprintCallable, Category = Effects)
+		/** Play sfx and vfx for one foot step*/
+		virtual void FxFootStep();
+
+	UFUNCTION(BlueprintCallable, Category = Effects)
+		virtual void FxMeleeSwing();
+
+	UFUNCTION(BlueprintCallable, Category = Effects)
+		virtual void FxOnEquip();
+
+	UFUNCTION(BlueprintCallable, Category = Effects)
+		virtual void FxOnReload();
 
 protected:
 

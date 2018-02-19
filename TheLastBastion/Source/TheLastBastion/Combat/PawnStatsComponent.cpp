@@ -19,6 +19,8 @@
 #include "UI/InGameFloatingText.h"
 #include "TheLastBastionHeroCharacter.h"
 #include "VfxManager.h"
+#include "AudioManager.h"
+
 
 
 const float RangerInitHp = 230.0f;
@@ -335,6 +337,7 @@ TSubclassOf<class UUserWidget> UPawnStatsComponent::GetFloatingText_WBP()
 	return FloatingText_WBP;
 }
 
+
 float UPawnStatsComponent::CalculateDamage(float baseDamage, AActor * _damageCauser, bool & _isCritical, bool & _isStun)
 {
 
@@ -386,43 +389,118 @@ float UPawnStatsComponent::GetBaseDamage()
 }
 #pragma endregion
 
+void UPawnStatsComponent::GetEffectsForImpact(UParticleSystem *& _vfx, USoundCue *& _sfx, int _surfaceType, EGearType _gearType) const
+{
+	//switch (_gearType)
+	//{
+	//	case EGearType::
+	//default:
+	//	break;
+	//}
+}
+
+
 void UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 {
 	// calculate the damage based on Gears
 	float damage = GetBaseDamage();
 
+
+
+
 	// apply VFX based on surface
 	UParticleSystem* vfxSelected = nullptr;
+	USoundCue* sfxSelected = nullptr;
 
 	// Check if this damage is caused by melee and been countered
 	if (_damageInfo.bIsProjectile == false)
 	{
+		// if this is not projectile
 		ATheLastBastionCharacter* damageActor = Cast<ATheLastBastionCharacter>(_damageInfo.hitResult.GetActor());
 		if (damageActor && damageActor->OnCounterAttack(_damageInfo.hitDirection))
 		{
+			// counter attack
 			vfxSelected = UVfxManager::GetVfx(EVfxType::metalImpact_sputtering);
-			if (vfxSelected)
+			sfxSelected = UAudioManager::GetSFX(ESoundEffectType::EMeleeCounterAttackImpact);
+			// play effects
+			if (vfxSelected && sfxSelected)		
+			{
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), vfxSelected, _damageInfo.hitResult.Location);
-
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), sfxSelected, _damageInfo.hitResult.Location);
+			}
 			return;
 		}
-	}
+		else
+		{
+			// counter attack fail, melee damage
+			EPhysicalSurface surfaceType = UPhysicalMaterial::DetermineSurfaceType(_damageInfo.hitResult.PhysMaterial.Get());
+			vfxSelected = UVfxManager::GetVfxBySurfaceType(surfaceType);
 
-	EPhysicalSurface surefaceType = UPhysicalMaterial::DetermineSurfaceType(_damageInfo.hitResult.PhysMaterial.Get());
-	switch (surefaceType)
+
+
+	
+		}
+	}
+	else
 	{
-	case SURFACE_FLESH:
-		vfxSelected = UVfxManager::GetVfx(EVfxType::bloodImpact_sputtering);
-		break;
-	case SURFACE_METAL:
-		vfxSelected = UVfxManager::GetVfx(EVfxType::metalImpact_sputtering);
-		break;
-	default:
-		break;
+		// this is projectile
+		EPhysicalSurface surfaceType = UPhysicalMaterial::DetermineSurfaceType(_damageInfo.hitResult.PhysMaterial.Get());
+
+		sfxSelected = UAudioManager::GetProjectileImpactByMaterial(surfaceType);
+		vfxSelected = UVfxManager::GetVfxBySurfaceType(surfaceType);
 	}
 
+
+	// play effects
 	if (vfxSelected)
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), vfxSelected, _damageInfo.hitResult.Location);
+	if (sfxSelected)
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), sfxSelected, _damageInfo.hitResult.Location);
+
+
+	//// Play SFX
+	//USoundCue* WeaponFleshImpact = nullptr;
+	//switch (GearType)
+	//{
+	//case EGearType::LongSword:
+	//{
+	//	WeaponFleshImpact = UAudioManager::GetSFX(ESoundEffectType::ESwordFleshImpact);
+	//	UGameplayStatics::PlaySoundAtLocation(world, WeaponFleshImpact, DamageInfo.hitResult.GetActor()->GetActorLocation());
+	//}
+
+	//case EGearType::WarAxe:
+	//	break;
+
+	//case EGearType::Mace:
+	//	break;
+
+	//case EGearType::DoubleHandWeapon:
+	//	break;
+
+	//default:
+	//	break;
+	//}
+
+
+
+
+
+	//switch (surefaceType)
+	//{
+	//case SURFACE_FLESH:
+	//	vfxSelected = UVfxManager::GetVfx(EVfxType::bloodImpact_sputtering);
+	//	break;
+	//case SURFACE_METAL:
+	//	vfxSelected = UVfxManager::GetVfx(EVfxType::metalImpact_sputtering);
+	//	break;
+	//default:
+	//	break;
+	//}
+
+
+
+
+
 
 	// apply damage type based on weapon 
 	switch (_damageInfo.applyDamageType)

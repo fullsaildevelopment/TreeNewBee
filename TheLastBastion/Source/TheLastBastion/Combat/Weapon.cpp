@@ -113,28 +113,6 @@ void AWeapon::Tick(float _deltaTime)
 			else
 				UE_LOG(LogTemp, Error, TEXT("UPawnStatsComponent is NuLL -- AWeapon::Tick "));
 
-			// Play SFX
-			USoundCue* WeaponFleshImpact = nullptr;
-			switch (GearType)
-			{
-			case EGearType::LongSword:
-			{
-				WeaponFleshImpact = UAudioManager::GetSFX(ESoundEffectType::ESwordFleshImpact);
-				UGameplayStatics::PlaySoundAtLocation(world, WeaponFleshImpact, DamageInfo.hitResult.GetActor()->GetActorLocation());
-			}
-
-			case EGearType::WarAxe:
-				break;
-
-			case EGearType::Mace:
-				break;
-
-			case EGearType::DoubleHandWeapon:
-				break;
-
-			default:
-				break;
-			}
 		}
 	}
 }

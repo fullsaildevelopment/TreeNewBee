@@ -7,6 +7,17 @@
 #include "UObject/ConstructorHelpers.h"
 #include "CustomType.generated.h"
 
+
+
+
+
+#define SURFACE_FLESH EPhysicalSurface::SurfaceType1
+#define SURFACE_METAL EPhysicalSurface::SurfaceType2
+#define SURFACE_LightShield EPhysicalSurface::SurfaceType3
+#define SURFACE_HeavyShield EPhysicalSurface::SurfaceType4
+#define SURFACE_ICE EPhysicalSurface::SurfaceType5
+
+
 USTRUCT(Blueprintable)
 struct FPlayerProfile
 {
@@ -30,8 +41,6 @@ struct FPlayerProfile
 	UPROPERTY()
 		bool bIsRangerClass = true;
 };
-
-
 /**
  * 
  */

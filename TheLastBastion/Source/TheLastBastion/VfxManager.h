@@ -10,6 +10,9 @@
  * 
  */
 
+
+
+
 UENUM()
 enum class EVfxType : uint8
 {
@@ -38,4 +41,5 @@ public:
 
 	static class UParticleSystem* GetVfx(EVfxType _vfxType);
 
+	static class UParticleSystem* GetVfxBySurfaceType(EPhysicalSurface _surfaceType);
 };

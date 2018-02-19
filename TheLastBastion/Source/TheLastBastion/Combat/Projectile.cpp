@@ -7,9 +7,11 @@
 #include "Combat/PawnStatsComponent.h"
 #include "Combat/Shield.h"
 
+#include "PhysicalMaterials/PhysicalMaterial.h"
 #include "TheLastBastionHeroCharacter.h"
 #include "DrawDebugHelpers.h"
 
+#include "VfxManager.h"
 #include "AudioManager.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -185,10 +187,6 @@ void AProjectile::Tick(float _deltaTime)
 					IgnoredActors.Add(damagedActor);
 				}
 
-				// Play SFX
-				USoundCue* BoltsFleshCharacter = UAudioManager::GetSFX(ESoundEffectType::EBoltsFleshCharacter);
-				UGameplayStatics::PlaySoundAtLocation(World, BoltsFleshCharacter, Character->GetActorLocation());
-
 			}
 			else
 			{
@@ -196,13 +194,13 @@ void AProjectile::Tick(float _deltaTime)
 				if (Shield)
 				{
 					CurrentHitCount++;
+					FVector AttachLocation = Shield->GetArrowAttachLocation(GetActorLocation());
 					if (PenetrateLevel <= CurrentHitCount)
 					{
 						UE_LOG(LogTemp, Log, TEXT("Hit on Shield"));
 						FActorSpawnParameters spawnParam;
 						spawnParam.Owner = damagedActor;
-						spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-						FVector AttachLocation = Shield->GetArrowAttachLocation(GetActorLocation());
+						spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;						
 						AProjectile* copyProjectile = GetWorld()->SpawnActor<AProjectile>(this->GetClass(), AttachLocation, GetActorRotation(), spawnParam);
 						copyProjectile->AttachToComponent
 						(Shield->GetMesh(), FAttachmentTransformRules::KeepWorldTransform);
@@ -214,9 +212,19 @@ void AProjectile::Tick(float _deltaTime)
 						IgnoredActors.Add(damagedActor);
 					}
 
-					// Play SFX
-					USoundCue* BoltsSticksToShield = UAudioManager::GetSFX(ESoundEffectType::EBoltsStickToShield);
-					UGameplayStatics::PlaySoundAtLocation(World, BoltsSticksToShield, Shield->GetActorLocation());
+					USoundCue* sfx = nullptr;
+					UParticleSystem* vfx = nullptr;
+
+					EPhysicalSurface surfaceType = UPhysicalMaterial::DetermineSurfaceType(DamageInfo.hitResult.PhysMaterial.Get());
+					sfx = UAudioManager::GetProjectileImpactByMaterial(surfaceType);
+					vfx = UVfxManager::GetVfxBySurfaceType(surfaceType);
+
+					if (sfx && vfx)
+					{
+						UE_LOG(LogTemp, Log, TEXT("sfx && vfx - AProjectile::Tick"));
+						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), vfx, AttachLocation);
+						UGameplayStatics::PlaySoundAtLocation(GetWorld(), sfx, AttachLocation);
+					}					
 				}
 				else
 				{
