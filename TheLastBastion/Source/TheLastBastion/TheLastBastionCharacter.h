@@ -185,6 +185,7 @@ public:
 
 	FORCEINLINE bool IsRagDoll() const { return bIsRagDoll; }
 	FORCEINLINE bool IsRagDollRecovereing() const { return bIsRecoveringFromRagDoll; }
+	FORCEINLINE class UAudioComponent* GetAudioComp() const { return AudioComp; }
 	bool IsOnDefend() const;
 
 	/** Check if this character is able to counter attack this attack*/
