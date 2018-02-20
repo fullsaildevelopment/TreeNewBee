@@ -14,12 +14,14 @@ enum class ESoundEffectType : uint8
 {
 	ECrossBowFire = 0,
 	ESingeHandSwordSlash,
-	EBoltsFleshCharacter,
+	EBoltsFleshImpact,
+	EBoltsMetalImpact,
 	EBoltsStickToLightShield,
 	EBoltsStickToHeavyShield,
-	ELightWpnFleshImpact,
+	ELightWeaponImpact,
+	EHeavyWeaponImpact,
 	EMeleeCounterAttackImpact,
-	EBoltsMetalImpact
+
 };
 /**
  * 
@@ -37,13 +39,14 @@ private:
 
 	static class USoundCue* SingleHandSwordSlash;
 
-	static class USoundCue* BoltsFleshCharacter;
+	static class USoundCue* BoltsFleshImpact;
 	static class USoundCue* BoltsMetalImpact;
 	static class USoundCue* BoltsSticks_LightShield;
 	static class USoundCue* BoltsSticks_HeavyShield;
 
-	static class USoundCue* LightWpnFleshImpact;
-
+	// Melee Weapon SFX
+	static class USoundCue* LightWeaponImpact;
+	static class USoundCue* HeavyWeaponImpact;
 	static class USoundCue* MeleeCounterAttackImpactpact;
 
 
@@ -54,10 +57,7 @@ public:
 
 	static class USoundCue* GetProjectileImpactByMaterial(EPhysicalSurface _surfaceType);
 
-	static class USoundCue* GetMeleeImpactByMaterialAndGearType(EGearType _gearType, EPhysicalSurface _surfaceType);
-
-	static class USoundCue* GetSingleHandWeaponImpactByMaterial(EPhysicalSurface _surfaceType);
-
+	static class USoundCue* GetMeleeWeaponImpactSFXByGearType(EGearType _gearType);
 
 private:
 

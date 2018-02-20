@@ -11,11 +11,12 @@
 
 USoundCue* UAudioManager::CrossbowFire = nullptr;
 USoundCue* UAudioManager::SingleHandSwordSlash = nullptr;
-USoundCue* UAudioManager::BoltsFleshCharacter = nullptr;
+USoundCue* UAudioManager::BoltsFleshImpact = nullptr;
 USoundCue* UAudioManager::BoltsMetalImpact = nullptr;
 USoundCue* UAudioManager::BoltsSticks_LightShield = nullptr;
 USoundCue* UAudioManager::BoltsSticks_HeavyShield = nullptr;
-USoundCue* UAudioManager::LightWpnFleshImpact = nullptr;
+USoundCue* UAudioManager::LightWeaponImpact = nullptr;
+USoundCue* UAudioManager::HeavyWeaponImpact = nullptr;
 USoundCue* UAudioManager::MeleeCounterAttackImpactpact = nullptr;
 
 
@@ -26,14 +27,14 @@ UAudioManager::UAudioManager()
 
 	SingleHandSwordSlash = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Sword/SwordAttack"));
 
-	BoltsFleshCharacter = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsImpactOnCharacter"));
+	BoltsFleshImpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsImpactOnCharacter"));
 	BoltsSticks_LightShield = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsSticks_LightShield"));
 	BoltsSticks_HeavyShield = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsSticks_HeavyShield"));
 
 	BoltsMetalImpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsImpactOnMetal"));
 
-	LightWpnFleshImpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/MeleeWeaponHitImpact/Light_Flesh_Impact"));
-
+	LightWeaponImpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/MeleeWeaponHitImpact/LightWeaponImpact"));
+	HeavyWeaponImpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/MeleeWeaponHitImpact/HeavyWeaponImpact"));
 	MeleeCounterAttackImpactpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/MeleeWeaponHitImpact/MeleeCounterAttackImpact"));
 }
 
@@ -52,18 +53,28 @@ USoundCue * UAudioManager::GetSFX(ESoundEffectType _sfxType)
 	{
 	case ESoundEffectType::ECrossBowFire:
 		return CrossbowFire;
+
 	case ESoundEffectType::ESingeHandSwordSlash:
 		return SingleHandSwordSlash;
-	case ESoundEffectType::EBoltsFleshCharacter:
-		return BoltsFleshCharacter;
+
+	case ESoundEffectType::EBoltsFleshImpact:
+		return BoltsFleshImpact;
+
 	case ESoundEffectType::EBoltsMetalImpact:
 		return BoltsMetalImpact;
+
 	case ESoundEffectType::EBoltsStickToLightShield:
 		return BoltsSticks_LightShield;
+
 	case ESoundEffectType::EBoltsStickToHeavyShield:
-		return BoltsSticks_HeavyShield;		
-	case ESoundEffectType::ELightWpnFleshImpact:
-		return LightWpnFleshImpact;
+		return BoltsSticks_HeavyShield;	
+
+	case ESoundEffectType::ELightWeaponImpact:
+		return LightWeaponImpact;
+
+	case ESoundEffectType::EHeavyWeaponImpact:
+		return HeavyWeaponImpact;
+
 	case ESoundEffectType::EMeleeCounterAttackImpact:
 		return MeleeCounterAttackImpactpact;
 
@@ -79,7 +90,7 @@ USoundCue * UAudioManager::GetProjectileImpactByMaterial(EPhysicalSurface _surfa
 	switch (_surfaceType)
 	{
 	case SURFACE_FLESH:
-		return BoltsFleshCharacter;
+		return BoltsFleshImpact;
 	case SURFACE_METAL:
 		return BoltsMetalImpact;
 	case SURFACE_LightShield:
@@ -92,28 +103,56 @@ USoundCue * UAudioManager::GetProjectileImpactByMaterial(EPhysicalSurface _surfa
 
 }
 
-USoundCue * UAudioManager::GetMeleeImpactByMaterialAndGearType(EGearType _gearType, EPhysicalSurface _surfaceType)
+USoundCue* UAudioManager::GetMeleeWeaponImpactSFXByGearType(EGearType _gearType)
 {
-
 	switch (_gearType)
 	{
-	case SURFACE_FLESH:
-		return BoltsFleshCharacter;
-	case SURFACE_METAL:
-		return BoltsMetalImpact;
-	case SURFACE_LightShield:
-		return BoltsSticks_LightShield;
-	case SURFACE_HeavyShield:
-		return BoltsSticks_HeavyShield;
+	case EGearType::Armor:
+		return nullptr;
+
+	case EGearType::Shield:
+		return nullptr;
+
+	case EGearType::LongSword:
+		return LightWeaponImpact;
+
+	case EGearType::DoubleHandWeapon:
+		return LightWeaponImpact;
+
+	case EGearType::CrossBow:
+		return nullptr;
+
+	case EGearType::CrossBowBolt:
+		return nullptr;
+
+	case EGearType::TwinBlade:
+		return nullptr;
+
+	case EGearType::GreatSword:
+		return HeavyWeaponImpact;
+
+	case EGearType::Bow:
+		return nullptr;
+
+	case EGearType::Arrow:
+		return nullptr;
+
+	case EGearType::WarAxe:
+		return LightWeaponImpact;
+
+	case EGearType::Mace:
+		return LightWeaponImpact;
+
+	case EGearType::BattleAxe:
+		return HeavyWeaponImpact;
+
+	case EGearType::Hammer:
+		return HeavyWeaponImpact;
+
 	default:
 		return nullptr;
 	}
 }
 
-USoundCue * UAudioManager::GetSingleHandWeaponImpactByMaterial(EPhysicalSurface _surfaceType)
-{
-
-	return nullptr;
-}
 
 

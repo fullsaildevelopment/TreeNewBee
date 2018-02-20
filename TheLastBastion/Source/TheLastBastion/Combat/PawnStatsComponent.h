@@ -235,7 +235,7 @@ public:
 protected:
 
 
-	void GetEffectsForImpact(class UParticleSystem*& _vfx, class USoundCue*& _sfx, int _surfaceType, EGearType _gearType) const;
+	void PlaySFXForImpact(class USoundCue* _sfx, int _surfaceType, ATheLastBastionCharacter* _damagedCharacter) const;
 	//// Calculate the health that this character left after being attacked
 	//virtual float CalculateHealth(AActor* _otherActor);
 
