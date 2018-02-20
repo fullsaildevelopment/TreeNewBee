@@ -424,8 +424,6 @@ void UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 	float damage = GetBaseDamage();
 
 
-
-
 	// apply VFX based on surface
 	UParticleSystem* vfxSelected = nullptr;
 	USoundCue* sfxSelected = nullptr;
@@ -456,8 +454,7 @@ void UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 
 			sfxSelected = UAudioManager::GetMeleeWeaponImpactSFXByGearType(GetCurrentRightHandWeapon()->GetGearType());
 
-			PlaySFXForImpact(sfxSelected, surfaceType, damageActor);
-	
+			PlaySFXForImpact(sfxSelected, surfaceType, damageActor);	
 		}
 	}
 	else
