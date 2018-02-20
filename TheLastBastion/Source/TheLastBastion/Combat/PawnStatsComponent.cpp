@@ -20,6 +20,7 @@
 #include "TheLastBastionHeroCharacter.h"
 #include "VfxManager.h"
 #include "AudioManager.h"
+#include "Components/AudioComponent.h"
 
 
 
@@ -389,14 +390,31 @@ float UPawnStatsComponent::GetBaseDamage()
 }
 #pragma endregion
 
-void UPawnStatsComponent::GetEffectsForImpact(UParticleSystem *& _vfx, USoundCue *& _sfx, int _surfaceType, EGearType _gearType) const
+void UPawnStatsComponent::PlaySFXForImpact(class USoundCue* _sfx, int _surfaceType, ATheLastBastionCharacter* _damagedCharacter) const
 {
-	//switch (_gearType)
-	//{
-	//	case EGearType::
-	//default:
-	//	break;
-	//}
+	switch (_surfaceType)
+	{
+	case SURFACE_FLESH:
+	{
+		UAudioComponent* AudioComp = _damagedCharacter->GetAudioComp();
+		AudioComp->SetSound(_sfx);
+		AudioComp->SetIntParameter(TEXT("DamagedActorType"), 0);
+		AudioComp->SetIntParameter(TEXT("SurfaceType"), 0);
+		AudioComp->Play();
+	}
+
+	case SURFACE_METAL:
+	{
+		UAudioComponent* AudioComp = _damagedCharacter->GetAudioComp();
+		AudioComp->SetSound(_sfx);
+		AudioComp->SetIntParameter(TEXT("DamagedActorType"), 0);
+		AudioComp->SetIntParameter(TEXT("SurfaceType"), 1);
+		AudioComp->Play();
+	}
+
+	default:
+		break;
+	}
 }
 
 
@@ -436,8 +454,9 @@ void UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 			EPhysicalSurface surfaceType = UPhysicalMaterial::DetermineSurfaceType(_damageInfo.hitResult.PhysMaterial.Get());
 			vfxSelected = UVfxManager::GetVfxBySurfaceType(surfaceType);
 
+			sfxSelected = UAudioManager::GetMeleeWeaponImpactSFXByGearType(GetCurrentRightHandWeapon()->GetGearType());
 
-
+			PlaySFXForImpact(sfxSelected, surfaceType, damageActor);
 	
 		}
 	}
@@ -452,10 +471,11 @@ void UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 
 
 	// play effects
-	if (vfxSelected)
+	if (vfxSelected && sfxSelected)
+	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), vfxSelected, _damageInfo.hitResult.Location);
-	if (sfxSelected)
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), sfxSelected, _damageInfo.hitResult.Location);
+	}
 
 
 	//// Play SFX
