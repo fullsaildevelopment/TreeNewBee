@@ -4,6 +4,7 @@
 #include "Components/Button.h"
 #include "Components/ScrollBox.h"
 #include "UI/Gameplay/UnitRow.h"
+#include "UI/Gameplay/CrewBar_RecruitMenu.h"
 
 
 
@@ -44,6 +45,7 @@ bool URecruitMenu::Initialize()
 
 void URecruitMenu::OnOpenRecruitMenu()
 {
+	AllMyCrew->OnOpenRecruitMenu();
 }
 
 void URecruitMenu::OnAcceptClicked()
@@ -52,4 +54,9 @@ void URecruitMenu::OnAcceptClicked()
 
 void URecruitMenu::OnCancelClicked()
 {
+	this->RemoveFromParent();
+	APlayerController* pc = GetOwningPlayer();
+	pc->bShowMouseCursor = false;
+	FInputModeGameOnly InputMode;
+	pc->SetInputMode(InputMode);
 }

@@ -61,6 +61,10 @@ protected:
 
 public:
 
+	UFUNCTION(BlueprintNativeEvent)
+		UTexture2D* GetThumbNailImage() const;
+
+	UTexture2D* GetThumbNailImage_Implementation() const { return nullptr; }
 
 
 	UFUNCTION()
@@ -123,10 +127,5 @@ protected:
 
 	// Called on actor destroyed
 	void Kill() override;
-
-
-
-
-
 
 };

@@ -83,6 +83,9 @@ private:
 
 public:
 
+	TSubclassOf<class ATheLastBastionAIBase> GetAllyGroupClass() const { return AIToSpawn[0].AIClassBP; }
+	UTexture2D* GetThumbNailImage() const;
+
 	UFUNCTION()
 		void SetMarchLocation(const FVector& _location, int _commandIndex) override;
 

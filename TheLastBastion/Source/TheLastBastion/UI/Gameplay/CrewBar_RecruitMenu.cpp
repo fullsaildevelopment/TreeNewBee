@@ -2,6 +2,10 @@
 
 #include "CrewBar_RecruitMenu.h"
 #include "UI/Gameplay/CrewSlotUI.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameMode/SinglePlayerGM.h"
+#include "AI/AllyGroup.h"
+#include "Components/TextBlock.h"
 
 
 
@@ -37,9 +41,39 @@ bool UCrewBar_RecruitMenu::Initialize()
 		mCrewRow[i].Crew->SetSize(96, 96);
 	}
 
+	totalAmount = 0;
 	return true;
 }
 
-void UCrewBar_RecruitMenu::OnOpenCrewMenu()
+void UCrewBar_RecruitMenu::OnOpenRecruitMenu()
 {
+	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (gm == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UCrewBar_RecruitMenu::OnOpenRecruitMenu"));
+		return;
+	}
+
+
+
+	UCrewSlotUI *currCrewSlot = nullptr;
+	AAllyGroup* currGroup = nullptr;
+	totalAmount = 0;
+	int currentGroupAmount = 0;
+	for (int iCrew = 0; iCrew < mCrewRow.Num(); iCrew++)
+	{
+		if (gm->HasValidAlliesAt(iCrew))
+		{
+			currCrewSlot = mCrewRow[iCrew].Crew;
+			currGroup = gm->GetAllyGroupUnitAt(iCrew);
+			currCrewSlot->SetUnitClass(currGroup->GetAllyGroupClass());
+			currCrewSlot->SetImage(currGroup->GetThumbNailImage());
+			currentGroupAmount = currGroup->GetGroupSize();
+			totalAmount += currentGroupAmount;
+			mCrewRow[iCrew].Crew_Num->SetText(FText::AsNumber(currentGroupAmount));
+		}
+	}
+
+	TotalNum->SetText(FText::AsNumber(totalAmount));
+
 }

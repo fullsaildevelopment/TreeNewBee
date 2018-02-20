@@ -111,5 +111,7 @@ public:
 
 	class AAllyGroup* GetAllyGroupUnitAt(int _index);
 
+	FORCEINLINE bool HasValidAlliesAt(int _index) const { return Allies.IsValidIndex(_index); }
+
 	void ToggleAllGroupUI(bool _val);
 };
