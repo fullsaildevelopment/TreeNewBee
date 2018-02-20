@@ -122,6 +122,7 @@ void UBase_AnimInstance::FxMeleeSwing()
 			switch (GearType)
 			{
 			case EGearType::LongSword:
+			case EGearType::WarAxe:
 				weaponType = 0;
 				break;
 			case EGearType::DoubleHandWeapon:
