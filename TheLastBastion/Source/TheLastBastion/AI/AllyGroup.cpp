@@ -378,6 +378,11 @@ void AAllyGroup::SwitchToRow()
 
 }
 
+UTexture2D * AAllyGroup::GetThumbNailImage() const
+{
+	return AICharactersInfo[0].AICharacter->GetThumbNailImage();
+}
+
 void AAllyGroup::SetMarchLocation(const FVector & _targetLocation, int _commandIndex)
 {
 	ATheLastBastionGroupAIController* groupC = Cast<ATheLastBastionGroupAIController>(GetController());

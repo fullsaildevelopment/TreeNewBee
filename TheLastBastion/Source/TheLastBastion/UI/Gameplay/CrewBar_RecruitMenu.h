@@ -62,9 +62,13 @@ protected:
 	UPROPERTY()
 		TArray<FCrewInfo> mCrewRow;
 
+private:
+
+	int totalAmount;
+
 public:
 
-	void OnOpenCrewMenu();
+	void OnOpenRecruitMenu();
 
 	
 	

@@ -15,11 +15,14 @@ struct FUnitData
 {
 	GENERATED_BODY()
 
-		UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 		TSubclassOf<class ATheLastBastionAIBase> Unit_Bp;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 		UTexture2D* Unit_Image;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+		int Price;
 
 };
 
@@ -34,6 +37,15 @@ protected:
 
 	bool Initialize() override;
 
+	void NativeOnDragDetected(const FGeometry& InGeometry,
+		const FPointerEvent& InMouseEvent, 
+		UDragDropOperation*& OutOperation) override;
+
+	bool NativeOnDrop(const FGeometry& InGeometry, 
+		const FDragDropEvent& InDragDropEvent, 
+		UDragDropOperation* InOperation) override;
+
+
 protected:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
@@ -45,6 +57,16 @@ protected:
 public:
 
 	FORCEINLINE void SetUnitData(const FUnitData& _data) {Unit_Data = _data;}
+	FORCEINLINE void SetUnitClass(TSubclassOf<class ATheLastBastionAIBase> _class) { Unit_Data.Unit_Bp = _class; }
+	FORCEINLINE void SetImage(UTexture2D* _image) override { Unit_Data.Unit_Image = _image; }
+
+	/** set the player cost by this unit*/
+	void SetPrice(int _price);
+
+	/** set the amount of this unit player currently have*/
+	void SetUnitNumber(int _number);
+
+
 
 	void OnCrewMemberDead();
 
