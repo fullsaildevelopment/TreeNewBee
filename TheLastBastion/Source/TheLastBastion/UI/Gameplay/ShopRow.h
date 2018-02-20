@@ -25,25 +25,25 @@ protected:
 		class UHorizontalBox* ItemRow;
 
 	UPROPERTY(meta = (BindWidget))
-		class UActionSlot* SHWeapon_Long;
+		class UTradeMenuSlot* SHWeapon_Long;
 
 	UPROPERTY(meta = (BindWidget))
-		class UActionSlot* SHWeapon_Short;
+		class UTradeMenuSlot* SHWeapon_Short;
 
 	UPROPERTY(meta = (BindWidget))
-		class UActionSlot* RangeWeapon;
+		class UTradeMenuSlot* RangeWeapon;
 
 	UPROPERTY(meta = (BindWidget))
-		class UActionSlot* Armor;
+		class UTradeMenuSlot* Armor;
 
 	UPROPERTY(meta = (BindWidget))
-		class UActionSlot* THWeapon;
+		class UTradeMenuSlot* THWeapon;
 
 	UPROPERTY(meta = (BindWidget))
-		class UActionSlot* HeavyWeapon_Axe;
+		class UTradeMenuSlot* HeavyWeapon_Axe;
 
 	UPROPERTY(meta = (BindWidget))
-		class UActionSlot* HeavyWeapon_Hammer;
+		class UTradeMenuSlot* HeavyWeapon_Hammer;
 
 
 public:
@@ -52,6 +52,5 @@ public:
 
 	void SetEachSlotAction(const TArray<struct FGearUI>& _data);
 
-	void SetEachSlotActionImage(const TArray<UTexture2D*>& _actionImages);
-	
+	//void SetEachSlotActionImage(const TArray<UTexture2D*>& _actionImages);	
 };

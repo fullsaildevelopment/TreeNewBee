@@ -53,13 +53,13 @@ void UShopRow::SetEachSlotAction(const TArray<struct FGearUI>& _data)
 
 }
 
-void UShopRow::SetEachSlotActionImage(const TArray<UTexture2D*>& _actionImages)
-{
-	UTradeMenuSlot* slot = nullptr;
-	for (size_t i = 0; i < ItemRow->GetChildrenCount(); i++)
-	{
-		slot = Cast<UTradeMenuSlot>(ItemRow->GetChildAt(i));
-		if (slot)
-			slot->SetImage(_actionImages[i]);
-	}
-}
+//void UShopRow::SetEachSlotActionImage(const TArray<UTexture2D*>& _actionImages)
+//{
+//	UTradeMenuSlot* slot = nullptr;
+//	for (size_t i = 0; i < ItemRow->GetChildrenCount(); i++)
+//	{
+//		slot = Cast<UTradeMenuSlot>(ItemRow->GetChildAt(i));
+//		if (slot)
+//			slot->SetImage(_actionImages[i]);
+//	}
+//}

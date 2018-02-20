@@ -24,19 +24,24 @@ private:
 		TSubclassOf<UUserWidget> InGameHuD_WBPClass;
 	UPROPERTY()
 		class UInGameHUD*                  mInGameHUD;
-
-
 	UPROPERTY()
 		TSubclassOf<UUserWidget> TradeMenu_WBPClass;
 	UPROPERTY()
 		class UTradeMenu*                 mTradeMenu;
-
 	UPROPERTY()
 		TSubclassOf<UUserWidget> InGameMenu_WBPClass;
 	UPROPERTY()
 		class UInGameMenu*                mInGameMenu;
 
-	//bool bIsGamePaused;
+	UPROPERTY()
+		TSubclassOf<UUserWidget> MeleeRecruitMenu_WBPClass;
+	UPROPERTY()
+		class URecruitMenu*               mMeleeRecruitMenu;
+
+	UPROPERTY()
+		TSubclassOf<UUserWidget> RangeRecruitMenu_WBPClass;
+	UPROPERTY()
+		class URecruitMenu*               mRangeRecruitMenu;
 	
 	struct FPlayerProfile   playerProfile;
 
@@ -56,6 +61,13 @@ public:
 
 	UFUNCTION(Exec)
 		void OpenTradeMenu();
+
+	UFUNCTION(Exec)
+		void OpenMeleeRecruitMenu();
+
+	UFUNCTION(Exec)
+		void OpenRangeRecruitMenu();
+
 
 	UFUNCTION(Exec)
 		void CloseTradeMenu();
@@ -84,6 +96,8 @@ private:
 	void CreateInGameHUD();
 
 	void OpenInGameMenu();
+
+	void SetInputModeForOpenMenu(class UUserWidget* _focus);
 
 
 

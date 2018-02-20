@@ -8,6 +8,7 @@
 #include "UI/InGameHUD.h"
 #include "UI/Gameplay/TradeMenu.h"
 #include "UI/Gameplay/InGameMenu.h"
+#include "UI/Gameplay/RecruitMenu.h"
 
 
 #include "TheLastBastionHeroCharacter.h"
@@ -30,6 +31,14 @@ ASinglePlayerPC::ASinglePlayerPC(const FObjectInitializer & _objInit) : Super(_o
 
 	if (!InGameMenu_WBPClass)
 		UCustomType::FindClass<UUserWidget>(InGameMenu_WBPClass, TEXT("/Game/UI/In-Game/WBP_InGameMenu"));
+
+	if (!MeleeRecruitMenu_WBPClass)
+		UCustomType::FindClass<UUserWidget>(MeleeRecruitMenu_WBPClass, TEXT("/Game/UI/In-Game/Recruit/WBP_Melee_RecruitMenu"));
+
+	if (!RangeRecruitMenu_WBPClass)
+		UCustomType::FindClass<UUserWidget>(RangeRecruitMenu_WBPClass, TEXT("/Game/UI/In-Game/Recruit/WBP_Range_RecruitMenu"));
+
+
 
 	//bIsGamePaused = false;
 }
@@ -85,19 +94,6 @@ void ASinglePlayerPC::OnFinishSeamlessTravel()
 
 void ASinglePlayerPC::OnPauseButtonIsPressed()
 {
-	//if (bIsGamePaused)
-	//{
-	//	bIsGamePaused = false;
-	//	mInGameMenu->RemoveFromParent();
-	//	this->SetPause(bIsGamePaused);
-	//}
-	//else
-	//{
-	//	bIsGamePaused = true;
-	//	OpenInGameMenu();
-	//	this->SetPause(bIsGamePaused);
-	//}
-
 	OpenInGameMenu();
 }
 
@@ -125,15 +121,20 @@ void ASinglePlayerPC::OpenInGameMenu()
 
 	if (mInGameMenu)
 	{
-		bShowMouseCursor = true;
-		FInputModeUIOnly InputMode;
-		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-		InputMode.SetWidgetToFocus(mInGameMenu->TakeWidget());
-		SetInputMode(InputMode);
+		SetInputModeForOpenMenu(mInGameMenu);
 		mInGameMenu->OpenPauseMenu();
 		this->SetPause(true);
 	}
 
+}
+
+void ASinglePlayerPC::SetInputModeForOpenMenu(class UUserWidget* _focus)
+{
+	bShowMouseCursor = true;
+	FInputModeUIOnly InputMode;
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	InputMode.SetWidgetToFocus(_focus->TakeWidget());
+	SetInputMode(InputMode);
 }
 
 void ASinglePlayerPC::OnHealthChange(const UPawnStatsComponent * _heroStats)
@@ -163,18 +164,52 @@ void ASinglePlayerPC::OpenTradeMenu()
 
 	if (mTradeMenu)
 	{
-		// set input mode
-		bShowMouseCursor = true;
-		FInputModeUIOnly InputMode;
-		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-		InputMode.SetWidgetToFocus(mTradeMenu->TakeWidget());
-		SetInputMode(InputMode);
+		//set input mode
+		//bShowMouseCursor = true;
+		//FInputModeUIOnly InputMode;
+		//InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		//InputMode.SetWidgetToFocus(mTradeMenu->TakeWidget());
+		//SetInputMode(InputMode);
 
+		SetInputModeForOpenMenu(mTradeMenu);
 
 		ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(GetCharacter());
-
 		mTradeMenu->OnOpenTradeMenu(hero->GetHeroStatsComp());
 	}
+}
+
+void ASinglePlayerPC::OpenMeleeRecruitMenu()
+{
+	if (mMeleeRecruitMenu)
+	{
+		mMeleeRecruitMenu->AddToViewport();
+	}
+	else
+	{
+		if (MeleeRecruitMenu_WBPClass)
+		{
+			mMeleeRecruitMenu = CreateWidget <URecruitMenu>(this, MeleeRecruitMenu_WBPClass);
+			if (mMeleeRecruitMenu != nullptr)
+			{
+				mMeleeRecruitMenu->AddToViewport();
+				// set input mode
+			}
+		}
+		else
+			UE_LOG(LogTemp, Warning, TEXT("Widget Class not Set - ASinglePlayerPC::OpenInGameMenu"));
+
+	}
+
+	if (mMeleeRecruitMenu)
+	{
+		SetInputModeForOpenMenu(mMeleeRecruitMenu);
+		mMeleeRecruitMenu->OnOpenRecruitMenu();
+	}
+
+}
+
+void ASinglePlayerPC::OpenRangeRecruitMenu()
+{
 }
 
 void ASinglePlayerPC::CloseTradeMenu()

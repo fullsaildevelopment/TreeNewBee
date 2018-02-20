@@ -9,6 +9,21 @@
 /**
  * 
  */
+
+USTRUCT(BlueprintType)
+struct FUnitData
+{
+	GENERATED_BODY()
+
+		UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+		TSubclassOf<class ATheLastBastionAIBase> Unit_Bp;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+		UTexture2D* Unit_Image;
+
+};
+
+
 UCLASS()
 class THELASTBASTION_API UCrewSlotUI : public UActionSlot
 {
@@ -22,12 +37,14 @@ protected:
 protected:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-		UTexture2D* Unit_Image;
+		FUnitData Unit_Data;
 
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* NumericValue;
 
 public:
+
+	FORCEINLINE void SetUnitData(const FUnitData& _data) {Unit_Data = _data;}
 
 	void OnCrewMemberDead();
 
