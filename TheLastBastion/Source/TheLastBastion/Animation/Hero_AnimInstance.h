@@ -270,6 +270,11 @@ protected:
 		void OnUpdate(float _deltaTime) override;
 	UFUNCTION(BlueprintCallable)
 		void OnPostEvaluate() override;
+
+	UFUNCTION(BlueprintCallable)
+		void FxMeleeSwing() override;
+
+
 	UFUNCTION()
 		void OnMontageStartHandle(class UAnimMontage* _animMontage) override;
 	UFUNCTION()

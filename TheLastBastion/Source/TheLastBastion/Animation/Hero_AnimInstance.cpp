@@ -417,6 +417,16 @@ void UHero_AnimInstance::OnPostEvaluate()
 {
 }
 
+void UHero_AnimInstance::FxMeleeSwing()
+{
+	if (AttackState == EAttackState::BeingHit)
+	{
+		return;
+	}
+
+	Super::FxMeleeSwing();
+}
+
 #pragma endregion
 
 void UHero_AnimInstance::OnMontageStartHandle(UAnimMontage * _animMontage)

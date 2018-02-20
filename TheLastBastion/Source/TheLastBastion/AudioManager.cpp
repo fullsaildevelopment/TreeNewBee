@@ -10,7 +10,6 @@
 
 
 USoundCue* UAudioManager::CrossbowFire = nullptr;
-USoundCue* UAudioManager::SingleHandSwordSlash = nullptr;
 USoundCue* UAudioManager::BoltsFleshImpact = nullptr;
 USoundCue* UAudioManager::BoltsMetalImpact = nullptr;
 USoundCue* UAudioManager::BoltsSticks_LightShield = nullptr;
@@ -18,24 +17,25 @@ USoundCue* UAudioManager::BoltsSticks_HeavyShield = nullptr;
 USoundCue* UAudioManager::LightWeaponImpact = nullptr;
 USoundCue* UAudioManager::HeavyWeaponImpact = nullptr;
 USoundCue* UAudioManager::MeleeCounterAttackImpactpact = nullptr;
-
+USoundCue* UAudioManager::MeleeWeaponSwing = nullptr;
 
 UAudioManager::UAudioManager()
 {   
 	// Find all the sound cues of our game
+	//Range Weapon
 	CrossbowFire = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/CrossBow/CrossBow_Fire"));
-
-	SingleHandSwordSlash = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Sword/SwordAttack"));
-
 	BoltsFleshImpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsImpactOnCharacter"));
 	BoltsSticks_LightShield = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsSticks_LightShield"));
 	BoltsSticks_HeavyShield = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsSticks_HeavyShield"));
-
 	BoltsMetalImpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsImpactOnMetal"));
 
+	// Melee Weapon Impact
 	LightWeaponImpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/MeleeWeaponHitImpact/LightWeaponImpact"));
 	HeavyWeaponImpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/MeleeWeaponHitImpact/HeavyWeaponImpact"));
 	MeleeCounterAttackImpactpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/MeleeWeaponHitImpact/MeleeCounterAttackImpact"));
+
+	// Melee Weapon Swing
+	MeleeWeaponSwing = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/MeleeWeaponSwing/MeleeWeaponSwing"));
 }
 
 USoundCue* UAudioManager::FindSoundCue(const TCHAR* _path)
@@ -53,9 +53,6 @@ USoundCue * UAudioManager::GetSFX(ESoundEffectType _sfxType)
 	{
 	case ESoundEffectType::ECrossBowFire:
 		return CrossbowFire;
-
-	case ESoundEffectType::ESingeHandSwordSlash:
-		return SingleHandSwordSlash;
 
 	case ESoundEffectType::EBoltsFleshImpact:
 		return BoltsFleshImpact;
@@ -77,6 +74,9 @@ USoundCue * UAudioManager::GetSFX(ESoundEffectType _sfxType)
 
 	case ESoundEffectType::EMeleeCounterAttackImpact:
 		return MeleeCounterAttackImpactpact;
+
+	case ESoundEffectType::EMeleeWeaponSwing:
+		return MeleeWeaponSwing;
 
 	default:
 		return nullptr;

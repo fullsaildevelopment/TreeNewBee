@@ -2,6 +2,10 @@
 
 #include "Base_AnimInstance.h"
 #include "TheLastBastionCharacter.h"
+#include "AudioManager.h"
+#include "Components/AudioComponent.h"
+#include "Combat/Gear.h"
+#include "Sound/SoundCue.h"
 
 #define SN_GetUpFromBack TEXT("GetUpFromBack")
 #define SN_GetUpFromFace TEXT("GetUpFromFace")
@@ -106,6 +110,37 @@ void UBase_AnimInstance::FxFootStep()
 
 void UBase_AnimInstance::FxMeleeSwing()
 {
+	if (mBaseCharacter)
+	{
+		AGear* CurrentWeapon = mBaseCharacter->GetCurrentWeapon();
+		if (CurrentWeapon)
+		{   
+			UAudioComponent* AudioComp = mBaseCharacter->GetAudioComp();
+			USoundCue* sfx = UAudioManager::GetSFX(ESoundEffectType::EMeleeWeaponSwing);
+			EGearType GearType = CurrentWeapon->GetGearType();
+			int weaponType = 0;
+			switch (GearType)
+			{
+			case EGearType::LongSword:
+				weaponType = 0;
+				break;
+			case EGearType::DoubleHandWeapon:
+				weaponType = 1;
+				break;
+			case EGearType::Mace:
+			case EGearType::BattleAxe:
+			case EGearType::GreatSword:
+			case EGearType::Hammer:
+				weaponType = 2;
+				break;
+			default:
+				return;
+			}
+			AudioComp->SetSound(sfx);
+			AudioComp->SetIntParameter(TEXT("WeaponType"), weaponType);
+			AudioComp->Play();
+		}
+	}
 }
 
 void UBase_AnimInstance::FxOnEquip()

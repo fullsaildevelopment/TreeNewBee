@@ -69,7 +69,7 @@ protected:
 		/** Play sfx and vfx for one foot step*/
 		virtual void FxFootStep();
 
-	UFUNCTION(BlueprintCallable, Category = Effects)
+	//UFUNCTION(BlueprintCallable, Category = Effects)
 		virtual void FxMeleeSwing();
 
 	UFUNCTION(BlueprintCallable, Category = Effects)
