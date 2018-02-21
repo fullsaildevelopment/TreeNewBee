@@ -6,20 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "CrewBar_RecruitMenu.generated.h"
 
-/**
- * 
- */
-USTRUCT()
-struct FCrewInfo
-{
-	GENERATED_BODY()
 
-	UPROPERTY()
-		class UCrewSlotUI* Crew;
-
-	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* Crew_Num;
-};
+#define MaxAlliesNum 50
 
 UCLASS()
 class THELASTBASTION_API UCrewBar_RecruitMenu : public UUserWidget
@@ -31,38 +19,17 @@ protected:
 	bool Initialize() override;
 
 protected:
-
+	
 	UPROPERTY(meta = (BindWidget))
-		class UCrewSlotUI* Crew_1;
-
-	UPROPERTY(meta = (BindWidget))
-		class UCrewSlotUI* Crew_2;
-
-	UPROPERTY(meta = (BindWidget))
-		class UCrewSlotUI* Crew_3;
-
-	UPROPERTY(meta = (BindWidget))
-		class UCrewSlotUI* Crew_4;
-
-	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* Crew_1_Num;
-
-	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* Crew_2_Num;
-
-	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* Crew_3_Num;
-
-	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* Crew_4_Num;
+		class UHorizontalBox* AllAllyGroups;
 
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* TotalNum;
 
-	UPROPERTY()
-		TArray<FCrewInfo> mCrewRow;
-
 private:
+
+	UPROPERTY()
+		TArray<class UCrewBlock*> AllCrewBlock;
 
 	int totalAmount;
 
@@ -70,6 +37,14 @@ public:
 
 	void OnOpenRecruitMenu();
 
-	
+	/** Called When Accept button is pressed, 
+	adjust allies if the crewBlock is changed while Recruit menu is opened*/
+	void OnAccept();
+
+	void SetTotalAmount(int _val);
+
+
+
+	FORCEINLINE int GetTotalAmount() const { return totalAmount; }
 	
 };

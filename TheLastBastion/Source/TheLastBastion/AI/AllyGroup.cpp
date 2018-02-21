@@ -179,7 +179,9 @@ void AAllyGroup::OnReform()
 	else
 		maxColCount = totalAllyCount;
 
-	int maxRowCount = FMath::CeilToInt((float)totalAllyCount / maxColCount);
+	//int maxRowCount = FMath::CeilToInt((float)totalAllyCount / maxColCount);
+	int maxRowCount = totalAllyCount * GetDivider(maxColCount);
+
 	FormationInfo.Empty();
 	FormationInfo.SetNum(maxRowCount);
 
@@ -589,6 +591,25 @@ void AAllyGroup::OnDeSelected()
 	}
 
 }
+
+void AAllyGroup::OnGroupSizeChangeByNum(int _delta)
+{
+
+	int totalNumber = AICharactersInfo.Num() + _delta;
+
+	FormationInfo.Empty();
+
+	if (_delta > 0)
+	{
+		// Update formation Info first
+
+
+
+
+	}
+
+}
+
 
 int AAllyGroup::GetMaxColoumnCount() const
 {

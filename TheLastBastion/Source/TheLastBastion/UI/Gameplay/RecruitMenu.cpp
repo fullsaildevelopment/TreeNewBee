@@ -50,6 +50,15 @@ void URecruitMenu::OnOpenRecruitMenu()
 
 void URecruitMenu::OnAcceptClicked()
 {
+
+	AllMyCrew->OnAccept();
+
+	this->RemoveFromParent();
+	APlayerController* pc = GetOwningPlayer();
+	pc->bShowMouseCursor = false;
+	FInputModeGameOnly InputMode;
+	pc->SetInputMode(InputMode);
+
 }
 
 void URecruitMenu::OnCancelClicked()

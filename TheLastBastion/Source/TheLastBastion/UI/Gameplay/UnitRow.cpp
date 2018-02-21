@@ -22,7 +22,10 @@ bool UUnitRow::Initialize()
 	}
 	else
 		return false;
-
+	Slot_0->SetIsButton(false);
+	Slot_1->SetIsButton(false);
+	Slot_2->SetIsButton(false);
+	Slot_3->SetIsButton(false);
 	return true;
 }
 

@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CrewBar_RecruitMenu.h"
+#include "Components/HorizontalBox.h"
+#include "UI/Gameplay/CrewBlock.h"
 #include "UI/Gameplay/CrewSlotUI.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameMode/SinglePlayerGM.h"
@@ -16,9 +18,7 @@ bool UCrewBar_RecruitMenu::Initialize()
 		return false;
 
 	// Bind Delegetes to Widget components
-	bool bAllWidgetAreGood
-		= Crew_1 && Crew_2 && Crew_3 && Crew_4 &&
-		Crew_1_Num && Crew_2_Num && Crew_3_Num && Crew_4_Num && TotalNum;
+	bool bAllWidgetAreGood = AllAllyGroups && TotalNum;
 
 	if (bAllWidgetAreGood)
 	{
@@ -26,19 +26,19 @@ bool UCrewBar_RecruitMenu::Initialize()
 	else
 		return false;
 
-	mCrewRow.SetNum(4);
-	mCrewRow[0].Crew = Crew_1;
-	mCrewRow[0].Crew_Num = Crew_1_Num;
-	mCrewRow[1].Crew = Crew_2;
-	mCrewRow[1].Crew_Num = Crew_2_Num;
-	mCrewRow[2].Crew = Crew_3;
-	mCrewRow[2].Crew_Num = Crew_3_Num;
-	mCrewRow[3].Crew = Crew_4;
-	mCrewRow[3].Crew_Num = Crew_4_Num;
+	int AllAllyGroupsSize = AllAllyGroups->GetChildrenCount();
+	AllCrewBlock.SetNum(AllAllyGroupsSize);
 
-	for (int i = 0; i < mCrewRow.Num(); i++)
+	// put all in the crew block the a array
+	for (int i = 0; i < AllAllyGroupsSize; i++)
 	{
-		mCrewRow[i].Crew->SetSize(96, 96);
+		UCrewBlock* crewClockTemp = Cast<UCrewBlock>(AllAllyGroups->GetChildAt(i));
+		if (crewClockTemp)
+		{
+			AllCrewBlock[i] = crewClockTemp;
+			crewClockTemp->SetAllyIndex(i);
+			crewClockTemp->SetParent(this);
+		}
 	}
 
 	totalAmount = 0;
@@ -54,26 +54,66 @@ void UCrewBar_RecruitMenu::OnOpenRecruitMenu()
 		return;
 	}
 
-
-
 	UCrewSlotUI *currCrewSlot = nullptr;
 	AAllyGroup* currGroup = nullptr;
 	totalAmount = 0;
 	int currentGroupAmount = 0;
-	for (int iCrew = 0; iCrew < mCrewRow.Num(); iCrew++)
+
+	for (int iCrew = 0; iCrew < AllCrewBlock.Num(); iCrew++)
 	{
 		if (gm->HasValidAlliesAt(iCrew))
 		{
-			currCrewSlot = mCrewRow[iCrew].Crew;
+			//currCrewSlot = mCrewRow[iCrew].Crew;
 			currGroup = gm->GetAllyGroupUnitAt(iCrew);
+			currCrewSlot = AllCrewBlock[iCrew]->GetCrewSlot();
 			currCrewSlot->SetUnitClass(currGroup->GetAllyGroupClass());
 			currCrewSlot->SetImage(currGroup->GetThumbNailImage());
 			currentGroupAmount = currGroup->GetGroupSize();
 			totalAmount += currentGroupAmount;
-			mCrewRow[iCrew].Crew_Num->SetText(FText::AsNumber(currentGroupAmount));
+			AllCrewBlock[iCrew]->SetCrewNum(currentGroupAmount);
 		}
 	}
 
 	TotalNum->SetText(FText::AsNumber(totalAmount));
+}
 
+void UCrewBar_RecruitMenu::OnAccept()
+{
+	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (gm == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("UCrewBar_RecruitMenu::OnOpenRecruitMenu"));
+		return;
+	}
+
+	UCrewSlotUI *currCrewSlot = nullptr;
+	AAllyGroup* currGroup = nullptr;
+	int currentGroupAmount;
+	int desiredGroupAmount;
+	float deltaAmount = 0;
+
+	for (int iCrew = 0; iCrew < AllCrewBlock.Num(); iCrew++)
+	{
+		if (gm->HasValidAlliesAt(iCrew))
+		{
+			currGroup = gm->GetAllyGroupUnitAt(iCrew);
+
+			currentGroupAmount = currGroup->GetGroupSize();
+			desiredGroupAmount = AllCrewBlock[iCrew]->GetCrewNum();
+			deltaAmount = desiredGroupAmount - currentGroupAmount;
+			if (deltaAmount == 0)
+			{
+				// This group has no change, go to next group
+				continue;
+			}
+
+			currGroup->OnGroupSizeChangeByNum(deltaAmount);
+		}
+	}
+}
+
+void UCrewBar_RecruitMenu::SetTotalAmount(int _val)
+{
+	totalAmount = _val;
+	TotalNum->SetText(FText::AsNumber(totalAmount));
 }

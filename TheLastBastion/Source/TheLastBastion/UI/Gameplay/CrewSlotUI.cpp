@@ -3,6 +3,9 @@
 #include "CrewSlotUI.h"
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameMode/SinglePlayerGM.h"
+#include "AI/AllyGroup.h"
 
 
 
@@ -49,6 +52,7 @@ void UCrewSlotUI::SetPrice(int _price)
 
 void UCrewSlotUI::SetUnitNumber(int _number)
 {
+
 	NumericValue->SetText(FText::AsNumber(_number));
 }
 
@@ -57,6 +61,10 @@ void UCrewSlotUI::OnCrewMemberDead()
 }
 
 void UCrewSlotUI::OnCrewSelected()
+{
+}
+
+void UCrewSlotUI::OnButtonClick()
 {
 }
 

@@ -58,15 +58,6 @@ protected:
 	
 	void SwapChildenOrder() override;
 
-
-	//UFUNCTION()
-	//	void OnGroupVolumnOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	//		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult) override;
-
-	//UFUNCTION()
-	//	void OnGroupVolumnOverrlapEnd(UPrimitiveComponent* OverlappedComponent,
-	//		AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
-
 private:
 
 	void RedistributeBy(int _cenMeters);
@@ -110,6 +101,8 @@ public:
 	void OnSelected();
 
 	void OnDeSelected();
+ 
+	void OnGroupSizeChangeByNum(int _delta);
 
 	int GetMaxColoumnCount() const override;
 

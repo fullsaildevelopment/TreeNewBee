@@ -33,7 +33,7 @@ bool UActionSlot::Initialize()
 
 	if (bAllWidgetAreGood)
 	{
-
+		ActionButton->OnClicked.AddDynamic(this, &UActionSlot::OnButtonClick);
 	}
 	else
 		return false;
@@ -51,6 +51,14 @@ FReply UActionSlot::NativeOnMouseButtonDown(const FGeometry & InGeometry, const 
 {
 	Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 	return UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, FKey(TEXT("LeftMouseButton"))).NativeReply;
+}
+
+void UActionSlot::SetIsButton(bool _val)
+{
+	if (_val)
+		ActionButton->SetVisibility(ESlateVisibility::Visible);
+	else
+		ActionButton->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 }
 
 void UActionSlot::SetSize(float _width, float _height)

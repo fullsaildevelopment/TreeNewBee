@@ -43,10 +43,18 @@ protected:
 
 public:
 
+	void SetIsButton(bool _val);
+
 	void SetSize(float _width, float _height);
 
 	/** Set the Image of action slot*/
 	virtual void SetImage(class UTexture2D* _image) {}
+
+protected:
+
+	UFUNCTION()
+		virtual void OnButtonClick() {}
+
 
 
 };

@@ -32,7 +32,6 @@ class THELASTBASTION_API UCrewSlotUI : public UActionSlot
 {
 	GENERATED_BODY()
 	
-
 protected:
 
 	bool Initialize() override;
@@ -54,23 +53,29 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* NumericValue;
 
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+		int AllyIndex = -1;
+
 public:
 
 	FORCEINLINE void SetUnitData(const FUnitData& _data) {Unit_Data = _data;}
 	FORCEINLINE void SetUnitClass(TSubclassOf<class ATheLastBastionAIBase> _class) { Unit_Data.Unit_Bp = _class; }
 	FORCEINLINE void SetImage(UTexture2D* _image) override { Unit_Data.Unit_Image = _image; }
-
+	FORCEINLINE void SetAllyIndex(float _index) { AllyIndex = _index; }
 	/** set the player cost by this unit*/
 	void SetPrice(int _price);
 
 	/** set the amount of this unit player currently have*/
 	void SetUnitNumber(int _number);
 
-
-
 	void OnCrewMemberDead();
 
 	void OnCrewSelected();
 
+protected:
 
+	UFUNCTION()
+		/** Quick recruit the same class unit of current slot*/
+		void OnButtonClick() override;
 };
