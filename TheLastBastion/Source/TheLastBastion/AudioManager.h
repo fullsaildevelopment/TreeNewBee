@@ -21,6 +21,9 @@ enum class ESoundEffectType : uint8
 	EHeavyWeaponImpact,
 	EMeleeCounterAttackImpact,
 	EMeleeWeaponSwing,
+	EWeaponEquip,
+	EWeaponDraw,
+	ELightArmorFootStep
 };
 /**
  * 
@@ -48,6 +51,13 @@ private:
 
 	// Melee Weapon Swing SFX
 	static class USoundCue* MeleeWeaponSwing;
+
+	// Weapon Equip
+	static class USoundCue* WeaponEquip;
+	static class USoundCue* WeaponDraw;
+
+	// Foot Step
+	static class USoundCue* LightArmorFootStep;
 
 public:
 

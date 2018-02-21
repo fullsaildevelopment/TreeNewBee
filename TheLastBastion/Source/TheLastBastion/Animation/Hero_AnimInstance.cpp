@@ -866,7 +866,7 @@ void UHero_AnimInstance::OnEquipWeapon()
 	mCharacter->GetHeroStatsComp()->OnEquipWeapon();
 	mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = true;
 	mCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
-
+	FxOnDraw();
 }
 
 // Sheath Weapon
@@ -883,6 +883,7 @@ void UHero_AnimInstance::OnSheathWeapon()
 	}
 	mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = false;
 	mCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
+	FxOnEquip();
 }
 
 /** Skip equipAnimation direction to equip mode, change the movement role to strafe*/

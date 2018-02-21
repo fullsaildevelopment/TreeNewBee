@@ -192,6 +192,7 @@ public:
 	bool OnCounterAttack(const FVector& _damageCauserRelative);
 
 	float GetCurrentMaxSpeed() const;
+	class AArmor* GetCurrentArmor() const;
 	class AGear* GetCurrentWeapon() const;
 
 };

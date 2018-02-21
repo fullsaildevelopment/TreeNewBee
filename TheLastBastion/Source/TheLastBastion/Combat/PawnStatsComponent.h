@@ -210,7 +210,7 @@ public:
 
 public:
 
-	AGear* GetCurrentArmor() const;
+	class AArmor* GetCurrentArmor() const;
 
 	FORCEINLINE float GetHpRaw() const { return HpRaw; }
 	FORCEINLINE float GetStamina() const { return StaminaRaw; }
