@@ -186,7 +186,10 @@ void AAIGroupBase::OnRangeVisionOverrlapEnd(UPrimitiveComponent* OverlappedCompo
 
 void AAIGroupBase::SetGroupVisionVolumn(float _maxGroupWidth, float _maxGroupLength)
 {
-	MeleeVision->SetBoxExtent(FVector(_maxGroupWidth, _maxGroupLength, GroupVolumnZ), true);
+	MeleeVision->SetBoxExtent(FVector(_maxGroupLength, _maxGroupWidth, GroupVolumnZ), true);
+
+	MeleeVision->RelativeLocation = FVector::ZeroVector;
+	MeleeVision->AddRelativeLocation(FVector(-0.5f * _maxGroupLength + GroupFrontExtraVision, 0, 0));
 }
 
 float AAIGroupBase::GetDivider(int _index) const

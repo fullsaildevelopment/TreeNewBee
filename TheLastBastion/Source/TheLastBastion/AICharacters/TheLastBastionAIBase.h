@@ -101,7 +101,8 @@ public:
 
 	void RequestAnotherTarget();
 
-
+	// Called on actor destroyed
+	void Kill() override;
 
 protected:
 
@@ -125,7 +126,5 @@ protected:
 	// Called on Hp = 0;
 	void OnDead(const FVector& dir, const AActor* _damageCauser, const FName& _boneName) override;
 
-	// Called on actor destroyed
-	void Kill() override;
 
 };

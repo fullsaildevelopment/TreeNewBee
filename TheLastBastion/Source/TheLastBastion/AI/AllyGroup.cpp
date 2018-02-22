@@ -57,6 +57,8 @@ void AAllyGroup::BeginPlay()
 	mFollowingLocation = GetActorLocation();
 }
 
+
+
 TSubclassOf<class ATheLastBastionAIBase> AAllyGroup::GetClassDuringAllySpawn(int _currentIndex) const
 {
 	int baseIndex = 0;
@@ -157,10 +159,7 @@ void AAllyGroup::SpawnChildGroup()
 		remain -= curColCount;
 	}
 
-	float maxGroupWidth = (maxColCount - 1) * CurrentPadding * 0.5f + SIDEPADDING;
-	float maxGroupLength = (maxRowCount - 1) * CurrentPadding + 0.5 * SIDEPADDING;
-
-	SetGroupVisionVolumn(maxGroupWidth, maxGroupLength);
+	SetAllyGroupVisionVolumn();
 
 	MoveComp->MaxSpeed = groupSpeed;
 }
@@ -306,6 +305,8 @@ void AAllyGroup::SwitchToScatter()
 	CurrentPadding = (bUseSquareFormation) ? GroupFormation_ScatterPadding_Square : GroupFormation_ScatterPadding_Row;
 
 	RedistributeBy(CurrentPadding);
+
+	SetAllyGroupVisionVolumn();
 }
 
 void AAllyGroup::SwitchToCompact()
@@ -314,6 +315,8 @@ void AAllyGroup::SwitchToCompact()
 	CurrentPadding = (bUseSquareFormation) ? GroupFormation_CompactPadding_Square : GroupFormation_CompactPadding_Row;
 
 	RedistributeBy(CurrentPadding);
+
+	SetAllyGroupVisionVolumn();
 }
 
 void AAllyGroup::SwitchToSquare()
@@ -348,21 +351,14 @@ void AAllyGroup::SwitchToSquare()
 		xOffset += CurrentPadding;
 	}
 
+	SetAllyGroupVisionVolumn();
+
 }
 
 void AAllyGroup::SwitchToRow()
 {
 	bUseSquareFormation = false;
-	int totalNumber = 0;
-
-	for (int iRow = 0; iRow < FormationInfo.Num(); iRow++)
-	{
-		totalNumber += FormationInfo[iRow];
-	}
-
-	//// update formation info
-	//FormationInfo.Empty();
-	//FormationInfo.Add(totalNumber);
+	int totalNumber = AICharactersInfo.Num();
 
 	CurrentPadding
 		= bUseScatterFormation ? GroupFormation_ScatterPadding_Row : GroupFormation_CompactPadding_Row;
@@ -378,6 +374,37 @@ void AAllyGroup::SwitchToRow()
 		AICharactersInfo[i].GroupRelativeOffset = FVector(xOffset, yOffset, 0);
 	}
 
+	SetAllyGroupVisionVolumn();
+}
+
+void AAllyGroup::UpdateFormationInfoByTotalNum(int _totalNum)
+{
+	int maxColCount;
+
+	if (_totalNum > 16)
+		maxColCount = 5;
+	else if (_totalNum > 9)
+		maxColCount = 4;
+	else if (_totalNum >= 3)
+		maxColCount = 3;
+	else
+		maxColCount = _totalNum;
+
+	int maxRowCount = FMath::CeilToInt((float)_totalNum / maxColCount);
+
+	FormationInfo.Empty();
+	FormationInfo.SetNum(maxRowCount);
+
+	int remain = _totalNum;
+
+	// Update the FormationInfo On Reform
+	for (int iRow = 0; iRow < maxRowCount; iRow++)
+	{
+		int curColCount = (remain >= maxColCount) ? maxColCount : remain;
+		// keep information of the formation layout for reform and redistribute
+		FormationInfo[iRow] = curColCount;
+		remain -= curColCount;
+	}
 }
 
 UTexture2D * AAllyGroup::GetThumbNailImage() const
@@ -595,20 +622,181 @@ void AAllyGroup::OnDeSelected()
 void AAllyGroup::OnGroupSizeChangeByNum(int _delta)
 {
 
-	int totalNumber = AICharactersInfo.Num() + _delta;
+	int  expectedTotalNumber = AICharactersInfo.Num() + _delta;
 
-	FormationInfo.Empty();
+	// Update Formation Info based on the expectecd group size after group size change
+	UpdateFormationInfoByTotalNum(expectedTotalNumber);
 
+	if (bUseSquareFormation && expectedTotalNumber <= MinSquareFormationNum)
+		bUseSquareFormation = false;
+	
 	if (_delta > 0)
 	{
-		// Update formation Info first
+		OnGroupSizeChanged_GroupSizeIncresed(expectedTotalNumber);
+	}
+	else
+	{
+		OnGroupSizeChanged_GroupSizeDecresed(expectedTotalNumber);
+	}
+
+	SetAllyGroupVisionVolumn();
+}
+
+void AAllyGroup::OnGroupSizeChanged_GroupSizeIncresed(int _expectedNum)
+{
+
+	int currCharacterMaxIndex = AICharactersInfo.Num() - 1;
+
+	// temp variables to compute the group offseta
+	int curColCount = 0;
+	int maxColSize = FormationInfo[0];
+	float xOffset = 0;
+	float yOffset = 0;
+	float rowWidth = 0;
+	float centerOffset = 0;
+
+	FActorSpawnParameters spawnParam;
+	spawnParam.SpawnCollisionHandlingOverride 
+		= ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	// if the group size is increase
+	if (bUseSquareFormation)
+	{
+		CurrentPadding
+			= bUseScatterFormation ? GroupFormation_ScatterPadding_Square : GroupFormation_CompactPadding_Square;
+
+		for (int iRow = 0; iRow < GetMaxRowCount(); iRow++)
+		{
+			curColCount = FormationInfo[iRow];
+			rowWidth = (curColCount - 1) * CurrentPadding;
+			centerOffset = rowWidth * 0.5f;
+
+			for (int iCol = 0; iCol < curColCount; iCol++)
+			{
+				int currentCharacterIndex = iRow * maxColSize + iCol;
+				yOffset = iCol * CurrentPadding - centerOffset;
+
+				// there are some spawn we need to do
+				if (currentCharacterIndex > currCharacterMaxIndex)
+				{
+					FAICharacterInfo newCharacterInfo;
+
+					FVector myLocation = this->GetActorLocation();
+					FVector spawnLocation = myLocation - xOffset * GetActorForwardVector() + yOffset * GetActorRightVector();
+
+					newCharacterInfo.AICharacter = GetWorld()->SpawnActor<ATheLastBastionAIBase>(GetAllyGroupClass(), spawnLocation, this->GetActorRotation(), spawnParam);
+					newCharacterInfo.AICharacter->SpawnDefaultController();
+					newCharacterInfo.AICharacter->SetParent(this, currentCharacterIndex);
+					AICharactersInfo.Add(newCharacterInfo);
+				}
+				AICharactersInfo[currentCharacterIndex].GroupRelativeOffset = FVector(xOffset, yOffset, 0);
+			}
+			xOffset += CurrentPadding;
+		}
 
 
+	}
+	else
+	{
+		CurrentPadding
+			= bUseScatterFormation ? GroupFormation_ScatterPadding_Row : GroupFormation_CompactPadding_Row;
 
+		int totalNumber = _expectedNum;
+
+		rowWidth = (totalNumber - 1) * CurrentPadding;
+		centerOffset = rowWidth * 0.5f;
+
+		for (int i = 0; i < totalNumber; i++)
+		{
+			yOffset = i * CurrentPadding - centerOffset;
+
+			if (i > currCharacterMaxIndex)
+			{
+				FAICharacterInfo newCharacterInfo;
+
+				FVector myLocation = this->GetActorLocation();
+				FVector spawnLocation = myLocation - xOffset * GetActorForwardVector() + yOffset * GetActorRightVector();
+
+				newCharacterInfo.AICharacter = GetWorld()->SpawnActor<ATheLastBastionAIBase>(GetAllyGroupClass(), spawnLocation, this->GetActorRotation(), spawnParam);
+				newCharacterInfo.AICharacter->SpawnDefaultController();
+				newCharacterInfo.AICharacter->SetParent(this, i);
+				AICharactersInfo.Add(newCharacterInfo);
+			}
+			AICharactersInfo[i].GroupRelativeOffset = FVector(xOffset, yOffset, 0);
+		}
 
 	}
 
 }
+
+void AAllyGroup::OnGroupSizeChanged_GroupSizeDecresed(int _expectedNum)
+{
+	// temp variables to compute the group offseta
+	int curColCount = 0;
+	int maxColSize = FormationInfo[0];
+	float xOffset = 0;
+	float yOffset = 0;
+	float rowWidth = 0;
+	float centerOffset = 0;
+
+	int currTotalNum = AICharactersInfo.Num();
+
+	if (bUseSquareFormation)
+	{
+		CurrentPadding
+			= bUseScatterFormation ? GroupFormation_ScatterPadding_Square : GroupFormation_CompactPadding_Square;
+
+		for (int iRow = 0; iRow < FormationInfo.Num(); iRow++)
+		{
+			curColCount = FormationInfo[iRow];
+			rowWidth = (curColCount - 1) * CurrentPadding;
+			centerOffset = rowWidth * 0.5f;
+
+			for (int iCol = 0; iCol < curColCount; iCol++)
+			{
+				int currentCharacterIndex = iRow * maxColSize + iCol;
+				yOffset = iCol * CurrentPadding - centerOffset;
+				AICharactersInfo[currentCharacterIndex].GroupRelativeOffset = FVector(xOffset, yOffset, 0);
+			}
+			xOffset += CurrentPadding;
+		}
+
+	}
+	else
+	{
+		CurrentPadding
+			= bUseScatterFormation ? GroupFormation_ScatterPadding_Row : GroupFormation_CompactPadding_Row;
+
+		rowWidth = (_expectedNum - 1) * CurrentPadding;
+		centerOffset = rowWidth * 0.5f;
+
+		for (int i = 0; i < _expectedNum; i++)
+		{
+			yOffset = i * CurrentPadding - centerOffset;
+			AICharactersInfo[i].GroupRelativeOffset = FVector(xOffset, yOffset, 0);
+		}
+
+	}
+
+	// destroy child from backward to forward
+	for (int iTobeDelete = currTotalNum - 1; iTobeDelete >= _expectedNum; iTobeDelete--)
+	{
+		AICharactersInfo[iTobeDelete].AICharacter->Kill();
+		AICharactersInfo.RemoveAtSwap(iTobeDelete);
+	}
+}
+
+void AAllyGroup::SetAllyGroupVisionVolumn()
+{
+	int maxRowCount = GetMaxRowCount();
+	int maxColCount = GetMaxColoumnCount();
+
+	float maxGroupWidth = (maxColCount - 1) * CurrentPadding * 0.5f + SIDEPADDING;
+	float maxGroupLength = (maxRowCount) * CurrentPadding + 0.5 * SIDEPADDING;
+
+	SetGroupVisionVolumn(maxGroupWidth, maxGroupLength);
+}
+
 
 
 int AAllyGroup::GetMaxColoumnCount() const

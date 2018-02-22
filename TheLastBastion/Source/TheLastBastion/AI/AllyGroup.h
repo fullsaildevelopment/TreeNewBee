@@ -16,6 +16,7 @@
 #define GroupFormation_ScatterPadding_Row  400.0f
 #define GroupFormation_CompactPadding_Row  150.0f
 
+#define MinSquareFormationNum 3 // the group size must great than 3, to use square formation
 
 UCLASS()
 class THELASTBASTION_API AAllyGroup : public AAIGroupBase
@@ -47,7 +48,6 @@ private:
 	FTimerHandle mFollowingTimer;
 	FVector mFollowingLocation;
 
-
 protected:
 	// Called when the game starts or when spawned
 	void BeginPlay() override;
@@ -69,6 +69,17 @@ private:
 	void SwitchToSquare();
 
 	void SwitchToRow();
+
+	// Reconstruct the formation info by a given total number, called in OnGroupSizeChangeByNum
+	void UpdateFormationInfoByTotalNum(int _totalNum);
+
+	// when group size is increased, called in OnGroupSizeChangeByNum
+	void OnGroupSizeChanged_GroupSizeIncresed(int _expectedNum);
+
+	// when group size is decreased, called in OnGroupSizeChangeByNum
+	void OnGroupSizeChanged_GroupSizeDecresed(int _expectedNum);
+
+	void SetAllyGroupVisionVolumn();
 
 	TSubclassOf<class ATheLastBastionAIBase> GetClassDuringAllySpawn(int _currentIndex) const;
 

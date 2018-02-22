@@ -41,6 +41,8 @@
 #define MaxGroupSize 20
 #define RangeUnitShootingRange 8000
 #define VisionHalfHeight 200.0f
+#define GroupFrontExtraVision 100.0f
+
 
 USTRUCT(BlueprintType)
 struct FAISpawnInfo 
