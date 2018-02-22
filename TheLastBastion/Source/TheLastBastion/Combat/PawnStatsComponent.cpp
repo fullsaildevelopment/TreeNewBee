@@ -550,7 +550,7 @@ void UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 
 }
 
-AGear * UPawnStatsComponent::GetCurrentArmor() const
+AArmor * UPawnStatsComponent::GetCurrentArmor() const
 {
 	return Armor;
 }

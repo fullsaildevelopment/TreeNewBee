@@ -18,6 +18,9 @@ USoundCue* UAudioManager::LightWeaponImpact = nullptr;
 USoundCue* UAudioManager::HeavyWeaponImpact = nullptr;
 USoundCue* UAudioManager::MeleeCounterAttackImpactpact = nullptr;
 USoundCue* UAudioManager::MeleeWeaponSwing = nullptr;
+USoundCue* UAudioManager::WeaponEquip = nullptr;
+USoundCue* UAudioManager::WeaponDraw = nullptr;
+USoundCue* UAudioManager::LightArmorFootStep = nullptr;
 
 UAudioManager::UAudioManager()
 {   
@@ -36,6 +39,13 @@ UAudioManager::UAudioManager()
 
 	// Melee Weapon Swing
 	MeleeWeaponSwing = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/MeleeWeaponSwing/MeleeWeaponSwing"));
+
+	// Weapon Equip and Draw
+	WeaponEquip = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/GearEquipAndDraw/GearEquip"));
+	WeaponDraw = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/GearEquipAndDraw/GearDraw"));
+
+	// FootStep
+	LightArmorFootStep = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/FootStep/LightArmorFootStep"));
 }
 
 USoundCue* UAudioManager::FindSoundCue(const TCHAR* _path)
@@ -77,6 +87,15 @@ USoundCue * UAudioManager::GetSFX(ESoundEffectType _sfxType)
 
 	case ESoundEffectType::EMeleeWeaponSwing:
 		return MeleeWeaponSwing;
+
+	case ESoundEffectType::EWeaponEquip:
+		return WeaponEquip;
+
+	case ESoundEffectType::EWeaponDraw:
+		return WeaponDraw;
+
+	case ESoundEffectType::ELightArmorFootStep:
+		return LightArmorFootStep;
 
 	default:
 		return nullptr;

@@ -17,6 +17,12 @@ class THELASTBASTION_API AArmor : public AGear
 public:
 	AArmor();
 	
+
+protected:
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+		bool bIsHeavyArmor;
+
 private:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (AllowPrivateAccess = "true"))
@@ -24,6 +30,8 @@ private:
 
 public:
 	
+	bool IsHeavyArmor() const { return bIsHeavyArmor; }
+
 	void Equip(class USkeletalMeshComponent* const _skeletonMeshComponent) override;
 
 };

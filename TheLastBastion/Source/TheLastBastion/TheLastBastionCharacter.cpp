@@ -313,6 +313,16 @@ float ATheLastBastionCharacter::GetCurrentMaxSpeed() const
 	return GetCharacterMovement()->MaxWalkSpeed;
 }
 
+AArmor * ATheLastBastionCharacter::GetCurrentArmor() const
+{
+	if (PawnStats)
+	{
+		return PawnStats->GetCurrentArmor();
+	}
+
+	return nullptr;
+}
+
 AGear * ATheLastBastionCharacter::GetCurrentWeapon() const
 {
 	if (PawnStats)

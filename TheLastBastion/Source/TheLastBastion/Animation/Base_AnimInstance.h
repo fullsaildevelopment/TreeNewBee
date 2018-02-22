@@ -76,6 +76,9 @@ protected:
 		virtual void FxOnEquip();
 
 	UFUNCTION(BlueprintCallable, Category = Effects)
+		virtual void FxOnDraw();
+
+	UFUNCTION(BlueprintCallable, Category = Effects)
 		virtual void FxOnReload();
 
 protected:
