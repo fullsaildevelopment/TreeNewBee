@@ -33,7 +33,7 @@ bool UActionSlot::Initialize()
 
 	if (bAllWidgetAreGood)
 	{
-		ActionButton->OnClicked.AddDynamic(this, &UActionSlot::OnButtonClick);
+		//ActionButton->OnClicked.AddDynamic(this, &UActionSlot::OnButtonClick);
 	}
 	else
 		return false;
@@ -42,6 +42,7 @@ bool UActionSlot::Initialize()
 	ActionButton->SetClickMethod(EButtonClickMethod::PreciseClick);
 	ActionButton->SetTouchMethod(EButtonTouchMethod::PreciseTap);
 
+	DragDropMode = EDragDropMode::EDragAndDrop;
 	SetSize(DefaultActionSlot_Width, DefaultActionSlot_Height);
 
 	return true;
@@ -56,9 +57,30 @@ FReply UActionSlot::NativeOnMouseButtonDown(const FGeometry & InGeometry, const 
 void UActionSlot::SetIsButton(bool _val)
 {
 	if (_val)
+	{
 		ActionButton->SetVisibility(ESlateVisibility::Visible);
+		DragDropMode = EDragDropMode::EDisable;
+	}
 	else
+	{
 		ActionButton->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	}
+}
+
+void UActionSlot::SetDragDropMode(EDragDropMode _mode)
+{
+	switch (_mode)
+	{
+	case EDragDropMode::EDragAndDrop:
+	case EDragDropMode::EDragOnly:
+		SetIsButton(false);
+		break;
+	case EDragDropMode::EDropOnly:
+	case EDragDropMode::EDisable:
+	default:
+		break;
+	}
+	DragDropMode = _mode;
 }
 
 void UActionSlot::SetSize(float _width, float _height)
@@ -68,6 +90,5 @@ void UActionSlot::SetSize(float _width, float _height)
 
 	SlotSize->WidthOverride = _width;
 	SlotSize->HeightOverride = _height;
-
 }
 

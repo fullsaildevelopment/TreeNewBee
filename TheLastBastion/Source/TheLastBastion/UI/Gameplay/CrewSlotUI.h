@@ -19,11 +19,10 @@ struct FUnitData
 		TSubclassOf<class ATheLastBastionAIBase> Unit_Bp;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-		UTexture2D* Unit_Image;
+		UTexture2D* Unit_Image = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-		int Price;
-
+		int Price = 0;
 };
 
 
@@ -31,19 +30,14 @@ UCLASS()
 class THELASTBASTION_API UCrewSlotUI : public UActionSlot
 {
 	GENERATED_BODY()
-	
+
 protected:
 
 	bool Initialize() override;
 
 	void NativeOnDragDetected(const FGeometry& InGeometry,
-		const FPointerEvent& InMouseEvent, 
+		const FPointerEvent& InMouseEvent,
 		UDragDropOperation*& OutOperation) override;
-
-	bool NativeOnDrop(const FGeometry& InGeometry, 
-		const FDragDropEvent& InDragDropEvent, 
-		UDragDropOperation* InOperation) override;
-
 
 protected:
 
@@ -53,13 +47,17 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* NumericValue;
 
-
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 		int AllyIndex = -1;
 
+	UPROPERTY(BlueprintReadOnly)
+		bool bFromSelection;
+
 public:
 
-	FORCEINLINE void SetUnitData(const FUnitData& _data) {Unit_Data = _data;}
+	FORCEINLINE TSubclassOf<class ATheLastBastionAIBase> GetUnitClass() const { return Unit_Data.Unit_Bp; }
+
+	FORCEINLINE void SetUnitData(const FUnitData& _data) { Unit_Data = _data; }
 	FORCEINLINE void SetUnitClass(TSubclassOf<class ATheLastBastionAIBase> _class) { Unit_Data.Unit_Bp = _class; }
 	FORCEINLINE void SetImage(UTexture2D* _image) override { Unit_Data.Unit_Image = _image; }
 	FORCEINLINE void SetAllyIndex(float _index) { AllyIndex = _index; }
@@ -73,9 +71,6 @@ public:
 
 	void OnCrewSelected();
 
-protected:
+	bool IsCrewSlotEmpty() const;
 
-	UFUNCTION()
-		/** Quick recruit the same class unit of current slot*/
-		void OnButtonClick() override;
 };

@@ -6,6 +6,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameMode/SinglePlayerGM.h"
 #include "AI/AllyGroup.h"
+#include "UI/UnitDrag.h"
+#include "UI/Gameplay/DraggedItem.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 
 
 
@@ -32,22 +35,47 @@ void UCrewSlotUI::NativeOnDragDetected(const FGeometry & InGeometry,
 	UDragDropOperation *& OutOperation)
 {
 	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
-	UE_LOG(LogTemp, Log, TEXT("UCrewSlotUI::NativeOnDragDetected"));
+
+	if (IsDragEnabled() == false)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("IsDragEnabled() == false - UCrewSlotUI::NativeOnDragDetected"));
+		return;
+	}
+
+	if (Unit_Data.Unit_Bp && Unit_Data.Unit_Image)
+	{
+		UDraggedItem* dragVisual = CreateWidget<UDraggedItem>(GetOwningPlayer(), WBP_DraggedItem);
+		if (dragVisual)
+		{
+			dragVisual->SetItemSize(SlotSize->WidthOverride, SlotSize->HeightOverride);
+			dragVisual->SetImage(Unit_Data.Unit_Image);
+
+			UUnitDrag* dragOp = Cast<UUnitDrag>(UWidgetBlueprintLibrary::CreateDragDropOperation(UUnitDrag::StaticClass()));
+			if (dragOp)
+			{
+				dragOp->DefaultDragVisual = dragVisual;
+				dragOp->unitData = Unit_Data;
+				OutOperation = dragOp;
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Drag and Drop fail to create - UActionSlot::NativeOnDragDetected"));
+				OutOperation = nullptr;
+			}
+		}
+	}
+	else
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Action Slot has null action - UActionSlot::NativeOnDragDetected"));
+		OutOperation = nullptr;
+	}
+
 }
 
-bool UCrewSlotUI::NativeOnDrop(const FGeometry & InGeometry, 
-	const FDragDropEvent & InDragDropEvent, 
-	UDragDropOperation * InOperation)
-{
-	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
-	UE_LOG(LogTemp, Log, TEXT("UCrewSlotUI::NativeOnDrop"));
-	return false;
-}
 
 void UCrewSlotUI::SetPrice(int _price)
 {
-	NumericValue->SetText(FText::AsNumber(_price));
-	
+	NumericValue->SetText(FText::AsNumber(_price));	
 }
 
 void UCrewSlotUI::SetUnitNumber(int _number)
@@ -60,11 +88,11 @@ void UCrewSlotUI::OnCrewMemberDead()
 {
 }
 
-void UCrewSlotUI::OnCrewSelected()
+void UCrewSlotUI::OnCrewSelected() {}
+
+bool UCrewSlotUI::IsCrewSlotEmpty() const
 {
+	return Unit_Data.Unit_Bp == nullptr; 
 }
 
-void UCrewSlotUI::OnButtonClick()
-{
-}
 

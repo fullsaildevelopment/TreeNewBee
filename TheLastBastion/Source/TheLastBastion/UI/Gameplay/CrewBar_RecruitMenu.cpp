@@ -61,17 +61,24 @@ void UCrewBar_RecruitMenu::OnOpenRecruitMenu()
 
 	for (int iCrew = 0; iCrew < AllCrewBlock.Num(); iCrew++)
 	{
-		if (gm->HasValidAlliesAt(iCrew))
+
+		//currCrewSlot = mCrewRow[iCrew].Crew;
+		currGroup = gm->GetAllyGroupUnitAt(iCrew);
+
+		AllCrewBlock[iCrew]->SetAllyIndex(iCrew);
+		if (currGroup == nullptr)
 		{
-			//currCrewSlot = mCrewRow[iCrew].Crew;
-			currGroup = gm->GetAllyGroupUnitAt(iCrew);
-			currCrewSlot = AllCrewBlock[iCrew]->GetCrewSlot();
-			currCrewSlot->SetUnitClass(currGroup->GetAllyGroupClass());
-			currCrewSlot->SetImage(currGroup->GetThumbNailImage());
-			currentGroupAmount = currGroup->GetGroupSize();
-			totalAmount += currentGroupAmount;
-			AllCrewBlock[iCrew]->SetCrewNum(currentGroupAmount);
+			AllCrewBlock[iCrew]->SetOperationEnabled(false);
+			continue;
 		}
+
+		currCrewSlot = AllCrewBlock[iCrew]->GetCrewSlot();
+
+		currCrewSlot->SetUnitClass(currGroup->GetAllyGroupClass());
+		currCrewSlot->SetImage(currGroup->GetThumbNailImage());
+		currentGroupAmount = currGroup->GetGroupSize();
+		totalAmount += currentGroupAmount;
+		AllCrewBlock[iCrew]->SetCrewNum(currentGroupAmount);
 	}
 
 	TotalNum->SetText(FText::AsNumber(totalAmount));
@@ -87,6 +94,7 @@ void UCrewBar_RecruitMenu::OnAccept()
 	}
 
 	UCrewSlotUI *currCrewSlot = nullptr;
+	UCrewBlock * currentBlock = nullptr;
 	AAllyGroup* currGroup = nullptr;
 	int currentGroupAmount;
 	int desiredGroupAmount;
@@ -94,19 +102,30 @@ void UCrewBar_RecruitMenu::OnAccept()
 
 	for (int iCrew = 0; iCrew < AllCrewBlock.Num(); iCrew++)
 	{
-		if (gm->HasValidAlliesAt(iCrew))
+		currGroup = gm->GetAllyGroupUnitAt(iCrew);
+		currentBlock = AllCrewBlock[iCrew];
+		currCrewSlot = currentBlock->GetCrewSlot();
+		if (currGroup == nullptr)
 		{
-			currGroup = gm->GetAllyGroupUnitAt(iCrew);
-
+			// detect this slot is no longer empty
+			if (currCrewSlot->IsCrewSlotEmpty() == false)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Creating new Ally Group - UCrewBar_RecruitMenu::OnAccept()"));
+				// Spawn Group
+				gm->SpawnNewAllies(currentBlock->GetUnitClass(), 
+					currentBlock->GetCrewNum(), iCrew);
+			}
+		}
+		else
+		{
 			currentGroupAmount = currGroup->GetGroupSize();
-			desiredGroupAmount = AllCrewBlock[iCrew]->GetCrewNum();
+			desiredGroupAmount = currentBlock->GetCrewNum();
 			deltaAmount = desiredGroupAmount - currentGroupAmount;
 			if (deltaAmount == 0)
 			{
 				// This group has no change, go to next group
 				continue;
 			}
-
 			currGroup->OnGroupSizeChangeByNum(deltaAmount);
 		}
 	}

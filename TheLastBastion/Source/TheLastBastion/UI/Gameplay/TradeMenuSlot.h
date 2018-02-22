@@ -72,10 +72,6 @@ protected:
 		// Image to tell what this action does
 		EUpgradeGearType UpgradeGearType;
 
-	UPROPERTY(BlueprintReadOnly)
-		bool bFromUpgrade;
-
-
 public:
 
 
