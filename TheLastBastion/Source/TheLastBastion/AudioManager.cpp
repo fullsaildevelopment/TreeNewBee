@@ -20,7 +20,7 @@ USoundCue* UAudioManager::MeleeCounterAttackImpactpact = nullptr;
 USoundCue* UAudioManager::MeleeWeaponSwing = nullptr;
 USoundCue* UAudioManager::WeaponEquip = nullptr;
 USoundCue* UAudioManager::WeaponDraw = nullptr;
-USoundCue* UAudioManager::LightArmorFootStep = nullptr;
+USoundCue* UAudioManager::LightArmorFootStepOnDirt = nullptr;
 
 UAudioManager::UAudioManager()
 {   
@@ -45,7 +45,7 @@ UAudioManager::UAudioManager()
 	WeaponDraw = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/GearEquipAndDraw/GearDraw"));
 
 	// FootStep
-	LightArmorFootStep = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/FootStep/LightArmorFootStep"));
+	LightArmorFootStepOnDirt = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/FootStep/LightArmorFootStepOnDirt"));
 }
 
 USoundCue* UAudioManager::FindSoundCue(const TCHAR* _path)
@@ -94,8 +94,8 @@ USoundCue * UAudioManager::GetSFX(ESoundEffectType _sfxType)
 	case ESoundEffectType::EWeaponDraw:
 		return WeaponDraw;
 
-	case ESoundEffectType::ELightArmorFootStep:
-		return LightArmorFootStep;
+	case ESoundEffectType::ELightArmorFootStepOnDirt:
+		return LightArmorFootStepOnDirt;
 
 	default:
 		return nullptr;

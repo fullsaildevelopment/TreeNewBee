@@ -23,7 +23,7 @@ enum class ESoundEffectType : uint8
 	EMeleeWeaponSwing,
 	EWeaponEquip,
 	EWeaponDraw,
-	ELightArmorFootStep
+	ELightArmorFootStepOnDirt
 };
 /**
  * 
@@ -57,7 +57,7 @@ private:
 	static class USoundCue* WeaponDraw;
 
 	// Foot Step
-	static class USoundCue* LightArmorFootStep;
+	static class USoundCue* LightArmorFootStepOnDirt;
 
 public:
 
