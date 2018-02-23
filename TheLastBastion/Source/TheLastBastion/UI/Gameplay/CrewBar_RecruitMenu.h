@@ -8,6 +8,8 @@
 
 
 #define MaxAlliesNum 50
+#define MinUnitsNum_EachCrew 3 /** The Minimum number of unit number for decreasing the number of each unit group*/
+#define StartingNum_EachCrew 5 /** The Group size we use when adding new unit */
 
 UCLASS()
 class THELASTBASTION_API UCrewBar_RecruitMenu : public UUserWidget

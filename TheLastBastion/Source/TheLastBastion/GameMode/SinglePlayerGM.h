@@ -114,4 +114,7 @@ public:
 	FORCEINLINE bool HasValidAlliesAt(int _index) const { return Allies.IsValidIndex(_index); }
 
 	void ToggleAllGroupUI(bool _val);
+
+	void SpawnNewAllies(TSubclassOf<class ATheLastBastionAIBase> _classToSpawn,
+		int _totalNum, int _index);
 };

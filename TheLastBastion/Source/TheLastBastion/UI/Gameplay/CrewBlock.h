@@ -19,6 +19,10 @@ protected:
 
 	bool Initialize() override;
 
+	bool NativeOnDrop(const FGeometry& InGeometry,
+		const FDragDropEvent& InDragDropEvent,
+		UDragDropOperation* InOperation) override;
+
 protected:
 
 	UPROPERTY(meta = (BindWidget))
@@ -65,16 +69,19 @@ private:
 	UFUNCTION()
 		void OnDismissClick();
 
+	void OnAddingNewUnit(const class UUnitDrag* unitDragOp);
+
 public:
 
 	FORCEINLINE void SetAllyIndex(int _index) { AllyIndex = _index; }
-	FORCEINLINE void SetParent(class UCrewBar_RecruitMenu* _parent) { mCrewBar = _parent; }
-
-
+	FORCEINLINE void SetParent(class UCrewBar_RecruitMenu* _parent) { mCrewBar = _parent; }	
 	FORCEINLINE class UCrewSlotUI* GetCrewSlot() const { return CrewSlot; }
 	FORCEINLINE int GetCrewNum() const { return CrewNum; }
 
+	TSubclassOf<class ATheLastBastionAIBase> GetUnitClass() const; 
+
 	void SetCrewNum(int _groupSize);
+	void SetOperationEnabled(int _enabled);
 
 
 

@@ -19,7 +19,7 @@ void UTradeMenuSlot::NativeOnDragDetected(const FGeometry & InGeometry, const FP
 {
 	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
 
-	if (bFromUpgrade == false)
+	if (IsDragEnabled() == false)
 	{
 		OutOperation = nullptr;
 		UE_LOG(LogTemp, Warning, TEXT("Drag is not available for inventory Action Slot - UActionSlot::NativeOnDragDetected"));
@@ -52,7 +52,7 @@ void UTradeMenuSlot::NativeOnDragDetected(const FGeometry & InGeometry, const FP
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Action Slot has null action - UActionSlot::NativeOnDragDetected"));
+		//UE_LOG(LogTemp, Warning, TEXT("Action Slot has null action - UActionSlot::NativeOnDragDetected"));
 		OutOperation = nullptr;
 	}
 
@@ -63,7 +63,7 @@ bool UTradeMenuSlot::NativeOnDrop(const FGeometry & InGeometry, const FDragDropE
 	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
 
 	// if drop on shop row
-	if (bFromUpgrade)
+	if (IsDropEnabled() == false)
 	{
 		UE_LOG(LogTemp, Warning,
 			TEXT("Drop is not available for Shop Action Slot - UActionSlot::NativeOnDragDetected"));
@@ -136,13 +136,13 @@ void UTradeMenuSlot::SetImage(UTexture2D * _image)
 void UTradeMenuSlot::OnInventoryInit(int _index)
 {
 	InventoryGearType = (EInventoryGearType)(_index);
-	bFromUpgrade = false;
+	SetDragDropMode(EDragDropMode::EDropOnly);
 }
 
 void UTradeMenuSlot::OnShopRowInit(int _index)
 {
 	UpgradeGearType = (EUpgradeGearType)(_index);
-	bFromUpgrade = true;
+	SetDragDropMode(EDragDropMode::EDragOnly);
 }
 
 

@@ -138,8 +138,6 @@ protected:
 	* put character to ragdoll, Called on Hp = 0 */
 	virtual void OnDead(const FVector& dir, const AActor* _damageCauser, const FName& _boneName);
 
-	// Called on actor destroyed
-	virtual void Kill();
 
 	// Called ragdoll recover start
 	virtual void OnGetUp();
@@ -186,10 +184,13 @@ public:
 	FORCEINLINE bool IsRagDoll() const { return bIsRagDoll; }
 	FORCEINLINE bool IsRagDollRecovereing() const { return bIsRecoveringFromRagDoll; }
 	FORCEINLINE class UAudioComponent* GetAudioComp() const { return AudioComp; }
-	bool IsOnDefend() const;
 
+
+	bool IsOnDefend() const;
 	/** Check if this character is able to counter attack this attack*/
 	bool OnCounterAttack(const FVector& _damageCauserRelative);
+	// Called on actor destroyed
+	virtual void Kill();
 
 	float GetCurrentMaxSpeed() const;
 	class AArmor* GetCurrentArmor() const;

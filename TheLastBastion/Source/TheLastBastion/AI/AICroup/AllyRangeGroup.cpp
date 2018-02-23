@@ -71,12 +71,13 @@ void AAllyRangeGroup::OnRangeVisionOverrlapEnd(UPrimitiveComponent* OverlappedCo
 void AAllyRangeGroup::SetGroupVisionVolumn(float _maxGroupWidth, float _maxGroupLength)
 {
 
-	MeleeVision->SetBoxExtent(FVector(_maxGroupWidth, _maxGroupLength, GroupVolumnZ), true);
+
+	Super::SetGroupVisionVolumn(_maxGroupWidth, _maxGroupLength);
 
 	_maxGroupWidth += RangeUnitShootingRange;
 	_maxGroupLength += RangeUnitShootingRange;
 
-	RangeVision->SetBoxExtent(FVector(_maxGroupWidth, _maxGroupLength, GroupVolumnZ), true);
+	RangeVision->SetBoxExtent(FVector(_maxGroupLength, _maxGroupWidth, GroupVolumnZ), true);
 
 }
 

@@ -14,11 +14,20 @@
 #define DefaultActionSlot_Height 64
 
 
+UENUM()
+enum class EDragDropMode :uint8
+{
+	EDragAndDrop,
+	EDragOnly,
+	EDropOnly,
+	EDisable
+};
+
 UCLASS()
 class THELASTBASTION_API UActionSlot : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
 public:
 
 	UActionSlot(const FObjectInitializer& _objInit);
@@ -41,10 +50,19 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UButton* ActionButton;
 
+	EDragDropMode DragDropMode;
+
 public:
 
+	/** if true, will enable the button click, and set drag drop operation to disable
+		if false, will only disable the button click*/
 	void SetIsButton(bool _val);
 
+	void SetDragDropMode(EDragDropMode _mode);
+
+	FORCEINLINE bool IsDragEnabled() const { return DragDropMode == EDragDropMode::EDragOnly || DragDropMode == EDragDropMode::EDragAndDrop; }
+	FORCEINLINE bool IsDropEnabled() const { return DragDropMode == EDragDropMode::EDropOnly || DragDropMode == EDragDropMode::EDragAndDrop; }
+	
 	void SetSize(float _width, float _height);
 
 	/** Set the Image of action slot*/

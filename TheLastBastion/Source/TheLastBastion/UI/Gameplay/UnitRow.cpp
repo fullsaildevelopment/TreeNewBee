@@ -18,14 +18,13 @@ bool UUnitRow::Initialize()
 
 	if (bAllWidgetAreGood)
 	{
-
+		Slot_0->SetDragDropMode(EDragDropMode::EDragOnly);
+		Slot_1->SetDragDropMode(EDragDropMode::EDragOnly);
+		Slot_2->SetDragDropMode(EDragDropMode::EDragOnly);
+		Slot_3->SetDragDropMode(EDragDropMode::EDragOnly);
 	}
 	else
 		return false;
-	Slot_0->SetIsButton(false);
-	Slot_1->SetIsButton(false);
-	Slot_2->SetIsButton(false);
-	Slot_3->SetIsButton(false);
 	return true;
 }
 

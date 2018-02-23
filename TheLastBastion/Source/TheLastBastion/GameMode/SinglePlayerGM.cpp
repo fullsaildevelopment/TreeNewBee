@@ -128,20 +128,21 @@ void ASinglePlayerGM::BeginPlay()
 
 	/// Temp Code
 	/// Get All Allies on the scene, since we cant not spawn any ally unit yet
-	TArray<AActor*> AllAllies;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAllyGroup::StaticClass(), AllAllies);
-	int AlliesCount = AllAllies.Num();
-	AlliesCount = (AlliesCount > 4) ? 4 : AlliesCount;
+	//TArray<AActor*> AllAllies;
+	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAllyGroup::StaticClass(), AllAllies);
+	//int AlliesCount = AllAllies.Num();
+	//AlliesCount = (AlliesCount > 4) ? 4 : AlliesCount;
+	//Allies.SetNum(AlliesCount);
+	//for (int iAllies = 0; iAllies < AlliesCount; iAllies++)
+	//{
+	//	Allies[iAllies] = Cast<AAllyGroup>(AllAllies[iAllies]);
+	//	if (Allies[iAllies])
+	//	{
+	//		Allies[iAllies]->SetHUDIndex(iAllies + 1);
+	//	}
+	//}
 
-	Allies.SetNum(AlliesCount);
-	for (int iAllies = 0; iAllies < AlliesCount; iAllies++)
-	{
-		Allies[iAllies] = Cast<AAllyGroup>(AllAllies[iAllies]);
-		if (Allies[iAllies])
-		{
-			Allies[iAllies]->SetHUDIndex(iAllies + 1);
-		}
-	}
+	Allies.SetNum(4);
 }
 
 void ASinglePlayerGM::SpawnNewEnemy()
@@ -288,4 +289,8 @@ void ASinglePlayerGM::ToggleAllGroupUI(bool _val)
 	}
 
 	// toggle all enemy group hud
+}
+
+void ASinglePlayerGM::SpawnNewAllies(TSubclassOf<class ATheLastBastionAIBase> _classToSpawn, int _totalNum, int _index)
+{
 }
