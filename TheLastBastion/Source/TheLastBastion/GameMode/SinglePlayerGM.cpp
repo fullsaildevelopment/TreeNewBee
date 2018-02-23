@@ -21,7 +21,7 @@ ASinglePlayerGM::ASinglePlayerGM(const FObjectInitializer & _objectInitilizer) :
 	UCustomType::FindClass<APawn>(DefaultPawnClass, TEXT("/Game/Blueprints/Heros/SinglePlayer_Bp"));
 	bUseSeamlessTravel = true;
 	
-	GetAllCharacterClass();
+	GetAllSpawnClass();
 	EnemyAmount = 0;
 	WaveCount = 0;
 	NumOfEnemiesToSpawn = 0;
@@ -128,19 +128,6 @@ void ASinglePlayerGM::BeginPlay()
 
 	/// Temp Code
 	/// Get All Allies on the scene, since we cant not spawn any ally unit yet
-	//TArray<AActor*> AllAllies;
-	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAllyGroup::StaticClass(), AllAllies);
-	//int AlliesCount = AllAllies.Num();
-	//AlliesCount = (AlliesCount > 4) ? 4 : AlliesCount;
-	//Allies.SetNum(AlliesCount);
-	//for (int iAllies = 0; iAllies < AlliesCount; iAllies++)
-	//{
-	//	Allies[iAllies] = Cast<AAllyGroup>(AllAllies[iAllies]);
-	//	if (Allies[iAllies])
-	//	{
-	//		Allies[iAllies]->SetHUDIndex(iAllies + 1);
-	//	}
-	//}
 
 	Allies.SetNum(4);
 }
@@ -234,7 +221,7 @@ void ASinglePlayerGM::CheckWaveState()
 	}
 }
 
-void ASinglePlayerGM::GetAllCharacterClass()
+void ASinglePlayerGM::GetAllSpawnClass()
 {
 
 	if (LannesterTrooper_T0_BP == nullptr)
@@ -242,6 +229,12 @@ void ASinglePlayerGM::GetAllCharacterClass()
 
 	if (LannesterShooter_T0_BP == nullptr)
 		UCustomType::FindClass<ATheLastBastionCharacter>(LannesterShooter_T0_BP, TEXT("/Game/Blueprints/AI/Lannester/Lan_Crossbow_T0"));
+
+	if (AllyMeleeGroup_Bp == nullptr)
+		UCustomType::FindClass<AAllyGroup>(AllyMeleeGroup_Bp, TEXT("/Game/Blueprints/AI/GroupPreset/AllyMeleeGroup_Bp"));
+
+	if (AllyRangeGroup_Bp == nullptr)
+		UCustomType::FindClass<AAllyGroup>(AllyRangeGroup_Bp, TEXT("/Game/Blueprints/AI/GroupPreset/AllyRangeGroup_Bp"));
 
 }
 

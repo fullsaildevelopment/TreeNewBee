@@ -23,6 +23,10 @@ struct FUnitData
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 		int Price = 0;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+		bool IsMelee;
+
 };
 
 

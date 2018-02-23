@@ -9,6 +9,9 @@
 /**
  * 
  */
+
+
+
 UCLASS()
 class THELASTBASTION_API ASinglePlayerGM : public AGameModeBase
 {
@@ -36,6 +39,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = CharacterClass)
 		TSubclassOf<class ATheLastBastionCharacter> LannesterShooter_T0_BP;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GroupClass)
+		TSubclassOf<class AAllyGroup> AllyMeleeGroup_Bp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GroupClass)
+		TSubclassOf<class AAllyGroup> AllyRangeGroup_Bp;
 
 
 	FTimerHandle TimerHandle_EnemySpawner;
@@ -75,6 +83,8 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
 		TArray<class AAllyGroup*> Allies;
 
+
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
 		int Gold;
 
@@ -97,7 +107,7 @@ private:
 	
 private:
 
-	void GetAllCharacterClass();
+	void GetAllSpawnClass();
 
 public:
 
