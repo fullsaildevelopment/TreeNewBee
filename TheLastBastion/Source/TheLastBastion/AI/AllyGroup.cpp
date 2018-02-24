@@ -21,6 +21,8 @@
 
 #include "CustomType.h"
 #include "DrawDebugHelpers.h"
+#include "UObject/ConstructorHelpers.h"
+
 
 
 AAllyGroup::AAllyGroup()
@@ -48,6 +50,14 @@ AAllyGroup::AAllyGroup()
 		UCustomType::FindClass<UUserWidget>(HUD_Class, TEXT("/Game/UI/In-Game/WBP_AllyGroupHUD"));
 		GroupHUD->SetWidgetClass(HUD_Class);
 	}
+
+
+	ConstructorHelpers::FObjectFinder<UBehaviorTree> bt(TEXT("/Game/Blueprints/AI/GroupPreset/BT_AllyGroupAI"));
+	if (bt.Succeeded())
+		BehaviorTree = bt.Object;
+	else
+		UE_LOG(LogTemp, Error, TEXT("Can not find behaviorTree - AAllyGroup::AAllyGroup"));
+
 }
 
 void AAllyGroup::BeginPlay()
@@ -88,7 +98,8 @@ void AAllyGroup::SpawnChildGroup()
 		return;
 
 	FActorSpawnParameters spawnParam;
-	spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	spawnParam.SpawnCollisionHandlingOverride 
+		= ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 
 	int totalAllyCount = 0;
@@ -166,47 +177,18 @@ void AAllyGroup::SpawnChildGroup()
 
 void AAllyGroup::OnReform()
 {
-	int totalAllyCount = AICharactersInfo.Num();
-	int maxColCount;
-
-	if (totalAllyCount > 16)
-		maxColCount = 5;
-	else if (totalAllyCount > 9)
-		maxColCount = 4;
-	else if (totalAllyCount >= 3)
-		maxColCount = 3;
-	else
-		maxColCount = totalAllyCount;
-
-	//int maxRowCount = FMath::CeilToInt((float)totalAllyCount / maxColCount);
-	int maxRowCount = totalAllyCount * GetDivider(maxColCount);
-
-	FormationInfo.Empty();
-	FormationInfo.SetNum(maxRowCount);
-
-	int remain = totalAllyCount;
-
 	float xOffset = 0;
-
-	// Grab the minimum speed from group member as group speed
 	float groupSpeed = FLT_MAX;
-
 	int CurrentCharacterIndex = 0;
 
-	// Update the FormationInfo On Reform
-	for (int iRow = 0; iRow < maxRowCount; iRow++)
-	{
-		int curColCount = (remain >= maxColCount) ? maxColCount : remain;
-		// keep information of the formation layout for reform and redistribute
-		FormationInfo[iRow] = curColCount;
-		remain -= curColCount;
-	}
+	int totalAllyCount = AICharactersInfo.Num();
+	int maxColCount = FormationInfo[0];
+	int maxRowCount = FormationInfo.Num();
 
 	if (bUseSquareFormation && totalAllyCount > 3)
 		SwitchToSquare();
 	else
 		SwitchToRow();
-
 
 	// Find Slowest Speed
 	float speed = 0.0f;
@@ -220,8 +202,6 @@ void AAllyGroup::OnReform()
 	float maxGroupLength = (maxRowCount - 1) * CurrentPadding + 0.5 * SIDEPADDING;
 
 	SetGroupVisionVolumn(maxGroupWidth, maxGroupLength);
-
-	//GroupVolumn->SetBoxExtent(FVector(maxGroupLength, maxGroupWidth, GroupVolumnZ), true);
 
 	MoveComp->MaxSpeed = groupSpeed;
 	bReformPending = false;
@@ -554,19 +534,14 @@ void AAllyGroup::OnChildDeath(int _childIndex)
 	}
 	else
 	{
+		UpdateFormationInfoByTotalNum(totalCharacterCount);
 
-
-
-
-
-
-
-
-		bReformPending = true;
 		for (int i = 0; i < totalCharacterCount; i++)
 		{
 			AICharactersInfo[i].AICharacter->SetGroupIndex(i);
 		}
+
+		bReformPending = true;
 	}
 }
 
@@ -797,8 +772,6 @@ void AAllyGroup::SetAllyGroupVisionVolumn()
 	SetGroupVisionVolumn(maxGroupWidth, maxGroupLength);
 }
 
-
-
 int AAllyGroup::GetMaxColoumnCount() const
 {
 
@@ -822,6 +795,15 @@ int AAllyGroup::GetMaxRowCount() const
 	{
 		return 1;
 	}
+}
+
+void AAllyGroup::SetSpawnInfo(const FAISpawnInfo & _aiToSpawn)
+{
+	if (AIToSpawn.IsValidIndex(0))
+	{
+		AIToSpawn.SetNum(1);
+	}
+	AIToSpawn[0] = _aiToSpawn;
 }
 
 bool AAllyGroup::CanBeReformed() const

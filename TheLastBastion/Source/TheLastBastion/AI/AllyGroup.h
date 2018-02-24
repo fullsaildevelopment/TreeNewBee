@@ -120,9 +120,11 @@ public:
 	int GetMaxRowCount() const override;
 
 	FORCEINLINE bool IsFollowing() const { return bIsFollowing; }
+	void SetSpawnInfo(const FAISpawnInfo& _aiToSpawn); 
 
 	bool CanBeReformed() const;
 
 	void SetHUDIndex(int _index);
+
 
 };

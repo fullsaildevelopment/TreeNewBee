@@ -3,7 +3,17 @@
 #include "EnemyMeleeGroup.h"
 #include "TheLastBastionHeroCharacter.h"
 #include "AI/AllyGroup.h"
+#include "UObject/ConstructorHelpers.h"
 
+AEnemyMeleeGroup::AEnemyMeleeGroup()
+{
+	ConstructorHelpers::FObjectFinder<UBehaviorTree> bt(TEXT("/Game/Blueprints/AI/GroupPreset/BT_EnemyMeleeGroupAI"));
+	if (bt.Succeeded())
+		BehaviorTree = bt.Object;
+	else
+		UE_LOG(LogTemp, Error, TEXT("Can not find behaviorTree - AEnemyMeleeGroup::AEnemyMeleeGroup"));
+
+}
 
 void AEnemyMeleeGroup::OnMeleeVisionOverrlapBegin(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {

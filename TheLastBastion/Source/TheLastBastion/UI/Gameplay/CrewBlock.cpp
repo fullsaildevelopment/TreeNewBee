@@ -6,6 +6,8 @@
 #include "Components/Button.h"
 #include "UI/Gameplay/CrewBar_RecruitMenu.h"
 #include "UI/UnitDrag.h"
+#include "GameMode/SinglePlayerGM.h" 
+#include "Kismet/GameplayStatics.h"
 
 bool UCrewBlock::Initialize()
 {
@@ -119,12 +121,26 @@ void UCrewBlock::OnDismissClick()
 	if (CrewNum == 0)
 		return;
 
+
+	// Clear crew slot
+	CrewNum = 0;
+	CrewSlot->SetImage(nullptr);
+	CrewSlot->SetUnitClass(nullptr);
+	CrewNum_Text->SetText(FText::AsNumber(CrewNum));
+
+	// update total amount on crew bar
 	int TotalAmount = mCrewBar->GetTotalAmount();
 	TotalAmount -= CrewNum;
-	CrewNum = 0;
-
 	mCrewBar->SetTotalAmount(TotalAmount);
-	CrewNum_Text->SetText(FText::AsNumber(CrewNum));
+
+	// Kill the group
+	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (gm)
+	{
+		gm->DestroyAllyGroupAt(AllyIndex);
+	}
+	SetOperationEnabled(false);
+
 }
 
 void UCrewBlock::OnAddingNewUnit(const UUnitDrag * unitDragOp)
@@ -142,14 +158,15 @@ void UCrewBlock::OnAddingNewUnit(const UUnitDrag * unitDragOp)
 	SetCrewNum((remainRoom < StartingNum_EachCrew)
 		? remainRoom : StartingNum_EachCrew);
 
+	TotalAmount += CrewNum;
+
+	mCrewBar->SetTotalAmount(TotalAmount);
 	CrewSlot->SetUnitData(unitDragOp->unitData);
+
 	SetOperationEnabled(true);
 
 	if (CrewNum <= MinUnitsNum_EachCrew)
-	{
 		Minus->SetIsEnabled(false);
-	}
-
 }
 
 TSubclassOf<class ATheLastBastionAIBase> UCrewBlock::GetUnitClass() const

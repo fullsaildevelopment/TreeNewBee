@@ -64,15 +64,18 @@ void UCrewBar_RecruitMenu::OnOpenRecruitMenu()
 
 		//currCrewSlot = mCrewRow[iCrew].Crew;
 		currGroup = gm->GetAllyGroupUnitAt(iCrew);
+		currCrewSlot = AllCrewBlock[iCrew]->GetCrewSlot();
 
 		AllCrewBlock[iCrew]->SetAllyIndex(iCrew);
 		if (currGroup == nullptr)
 		{
 			AllCrewBlock[iCrew]->SetOperationEnabled(false);
+			currCrewSlot->SetUnitClass(nullptr);
+			currCrewSlot->SetImage(nullptr);
+			AllCrewBlock[iCrew]->SetCrewNum(0);
+
 			continue;
 		}
-
-		currCrewSlot = AllCrewBlock[iCrew]->GetCrewSlot();
 
 		currCrewSlot->SetUnitClass(currGroup->GetAllyGroupClass());
 		currCrewSlot->SetImage(currGroup->GetThumbNailImage());
@@ -113,7 +116,7 @@ void UCrewBar_RecruitMenu::OnAccept()
 				UE_LOG(LogTemp, Warning, TEXT("Creating new Ally Group - UCrewBar_RecruitMenu::OnAccept()"));
 				// Spawn Group
 				gm->SpawnNewAllies(currentBlock->GetUnitClass(), 
-					currentBlock->GetCrewNum(), iCrew);
+					currentBlock->GetCrewNum(), iCrew, currCrewSlot->IsMeleeGroup());
 			}
 		}
 		else

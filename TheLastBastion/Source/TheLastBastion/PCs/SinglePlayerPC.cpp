@@ -32,15 +32,8 @@ ASinglePlayerPC::ASinglePlayerPC(const FObjectInitializer & _objInit) : Super(_o
 	if (!InGameMenu_WBPClass)
 		UCustomType::FindClass<UUserWidget>(InGameMenu_WBPClass, TEXT("/Game/UI/In-Game/WBP_InGameMenu"));
 
-	if (!MeleeRecruitMenu_WBPClass)
-		UCustomType::FindClass<UUserWidget>(MeleeRecruitMenu_WBPClass, TEXT("/Game/UI/In-Game/Recruit/WBP_Melee_RecruitMenu"));
-
-	if (!RangeRecruitMenu_WBPClass)
-		UCustomType::FindClass<UUserWidget>(RangeRecruitMenu_WBPClass, TEXT("/Game/UI/In-Game/Recruit/WBP_Range_RecruitMenu"));
-
-
-
-	//bIsGamePaused = false;
+	if (!RecruitMenu_WBPClass)
+		UCustomType::FindClass<UUserWidget>(RecruitMenu_WBPClass, TEXT("/Game/UI/In-Game/Recruit/WBP_RecruitMenu"));
 }
 
 void ASinglePlayerPC::OnPostLogin()
@@ -178,20 +171,20 @@ void ASinglePlayerPC::OpenTradeMenu()
 	}
 }
 
-void ASinglePlayerPC::OpenMeleeRecruitMenu()
+void ASinglePlayerPC::OpenRecruitMenu()
 {
-	if (mMeleeRecruitMenu)
+	if (mRecruitMenu)
 	{
-		mMeleeRecruitMenu->AddToViewport();
+		mRecruitMenu->AddToViewport();
 	}
 	else
 	{
-		if (MeleeRecruitMenu_WBPClass)
+		if (RecruitMenu_WBPClass)
 		{
-			mMeleeRecruitMenu = CreateWidget <URecruitMenu>(this, MeleeRecruitMenu_WBPClass);
-			if (mMeleeRecruitMenu != nullptr)
+			mRecruitMenu = CreateWidget <URecruitMenu>(this, RecruitMenu_WBPClass);
+			if (mRecruitMenu != nullptr)
 			{
-				mMeleeRecruitMenu->AddToViewport();
+				mRecruitMenu->AddToViewport();
 				// set input mode
 			}
 		}
@@ -200,16 +193,12 @@ void ASinglePlayerPC::OpenMeleeRecruitMenu()
 
 	}
 
-	if (mMeleeRecruitMenu)
+	if (mRecruitMenu)
 	{
-		SetInputModeForOpenMenu(mMeleeRecruitMenu);
-		mMeleeRecruitMenu->OnOpenRecruitMenu();
+		SetInputModeForOpenMenu(mRecruitMenu);
+		mRecruitMenu->OnOpenRecruitMenu();
 	}
 
-}
-
-void ASinglePlayerPC::OpenRangeRecruitMenu()
-{
 }
 
 void ASinglePlayerPC::CloseTradeMenu()

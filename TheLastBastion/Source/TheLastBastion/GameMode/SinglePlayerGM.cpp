@@ -9,6 +9,7 @@
 #include "TheLastBastionCharacter.h"
 #include "AI/AllyGroup.h"
 #include "AudioManager.h"
+#include "Environment/Barracks.h"
 
 
 ASinglePlayerGM::ASinglePlayerGM(const FObjectInitializer & _objectInitilizer) : Super(_objectInitilizer)
@@ -284,6 +285,41 @@ void ASinglePlayerGM::ToggleAllGroupUI(bool _val)
 	// toggle all enemy group hud
 }
 
-void ASinglePlayerGM::SpawnNewAllies(TSubclassOf<class ATheLastBastionAIBase> _classToSpawn, int _totalNum, int _index)
+void ASinglePlayerGM::SpawnNewAllies(TSubclassOf<class ATheLastBastionAIBase> _classToSpawn, int _totalNum, int _index, bool _isMeleeUnit)
 {
+	TSubclassOf<AAllyGroup> groupToSpawn = (_isMeleeUnit) ? AllyMeleeGroup_Bp : AllyRangeGroup_Bp;
+
+	FVector groupSpawnLocation = Barracks->GetSpawnLocationOffsetAt(_index) + Barracks->GetActorLocation();
+	FRotator groupSpawnRotation = Barracks->GetActorRotation() + FRotator(0, 180, 0);
+	
+	FTransform groupSpawnTransform;
+	groupSpawnTransform.SetLocation(groupSpawnLocation);
+	groupSpawnTransform.SetRotation(groupSpawnRotation.Quaternion());
+	groupSpawnTransform.SetScale3D(FVector(1, 1, 1));
+
+	// spawn new group
+	AAllyGroup* newAllyGroup 
+		= GetWorld()->SpawnActorDeferred<AAllyGroup> 
+		(groupToSpawn, groupSpawnTransform ,nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+
+	FAISpawnInfo spawnInfo;
+	spawnInfo.AIClassBP = _classToSpawn;
+	spawnInfo.TotalNumber = _totalNum;
+	newAllyGroup->SetSpawnInfo(spawnInfo);
+
+	UGameplayStatics::FinishSpawningActor(newAllyGroup, groupSpawnTransform);
+	newAllyGroup->SpawnDefaultController();
+
+	// register in controlled allies
+	Allies[_index] = newAllyGroup;
+}
+
+void ASinglePlayerGM::DestroyAllyGroupAt(int _index)
+{
+	AAllyGroup* GroupToBeKilled = GetAllyGroupUnitAt(_index);
+	if (GroupToBeKilled)
+	{
+		GroupToBeKilled->KillAllChild();
+		Allies[_index] = nullptr;
+	}
 }

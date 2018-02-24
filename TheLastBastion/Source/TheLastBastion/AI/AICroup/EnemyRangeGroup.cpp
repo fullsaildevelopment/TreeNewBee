@@ -4,6 +4,7 @@
 #include "AICharacters/TheLastBastionAllyCharacter.h"
 #include "Components/BoxComponent.h"
 #include "DrawDebugHelpers.h"
+#include "UObject/ConstructorHelpers.h"
 
 
 
@@ -20,8 +21,12 @@ AEnemyRangeGroup::AEnemyRangeGroup()
 		RangeVision->SetCollisionProfileName("EnemyRangeTrigger");
 	}
 
+	ConstructorHelpers::FObjectFinder<UBehaviorTree> bt(TEXT("/Game/Blueprints/AI/GroupPreset/BT_EnemyRangeGroupAI"));
+	if (bt.Succeeded())
+		BehaviorTree = bt.Object;
+	else
+		UE_LOG(LogTemp, Error, TEXT("Can not find behaviorTree - AEnemyRangeGroup::AEnemyRangeGroup"));
 }
-
 
 void AEnemyRangeGroup::OnRangeVisionOverrlapBegin(UPrimitiveComponent* OverlappedComponent, 
 	AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, 

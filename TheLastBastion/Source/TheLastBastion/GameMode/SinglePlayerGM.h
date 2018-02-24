@@ -83,7 +83,8 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
 		TArray<class AAllyGroup*> Allies;
 
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
+		class ABarracks* Barracks;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
 		int Gold;
@@ -126,5 +127,11 @@ public:
 	void ToggleAllGroupUI(bool _val);
 
 	void SpawnNewAllies(TSubclassOf<class ATheLastBastionAIBase> _classToSpawn,
-		int _totalNum, int _index);
+		int _totalNum, int _index, bool _isMeleeUnit);
+
+	// Called when player dismiss a group, destroy the group unit and group itself
+	void DestroyAllyGroupAt(int _index);
+
+	// Make a copy of a barrack ref to game mode
+	FORCEINLINE void RegisterBarracks(class ABarracks* _barrack) { Barracks = _barrack; }
 };

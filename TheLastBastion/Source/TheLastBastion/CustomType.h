@@ -17,6 +17,8 @@
 #define SURFACE_HeavyShield EPhysicalSurface::SurfaceType4
 #define SURFACE_ICE EPhysicalSurface::SurfaceType5
 
+#define CollisionObjectType_Hero ECollisionChannel::ECC_GameTraceChannel8
+
 
 USTRUCT(Blueprintable)
 struct FPlayerProfile

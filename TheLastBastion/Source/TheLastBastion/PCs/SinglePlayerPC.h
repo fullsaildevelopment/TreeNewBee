@@ -34,16 +34,12 @@ private:
 		class UInGameMenu*                mInGameMenu;
 
 	UPROPERTY()
-		TSubclassOf<UUserWidget> MeleeRecruitMenu_WBPClass;
+		TSubclassOf<UUserWidget> RecruitMenu_WBPClass;
 	UPROPERTY()
-		class URecruitMenu*               mMeleeRecruitMenu;
+		class URecruitMenu*               mRecruitMenu;
 
-	UPROPERTY()
-		TSubclassOf<UUserWidget> RangeRecruitMenu_WBPClass;
-	UPROPERTY()
-		class URecruitMenu*               mRangeRecruitMenu;
-	
-	struct FPlayerProfile   playerProfile;
+	UPROPERTY()	
+		struct FPlayerProfile   playerProfile;
 
 public:
 
@@ -63,10 +59,7 @@ public:
 		void OpenTradeMenu();
 
 	UFUNCTION(Exec)
-		void OpenMeleeRecruitMenu();
-
-	UFUNCTION(Exec)
-		void OpenRangeRecruitMenu();
+		void OpenRecruitMenu();
 
 
 	UFUNCTION(Exec)

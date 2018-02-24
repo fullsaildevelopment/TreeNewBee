@@ -260,6 +260,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void KillAllChild();
+
 	void PairColumn(AAIGroupBase* const _enemyGroup, int _myColumn, int _theirColumn);
 	void AssignColumnToColumn(AAIGroupBase* const _targetGroup, int _myColumn, int _theirColumn, bool _isReversed = false);
 	void AssignRowToColumn(AAIGroupBase* const _targetGroup, int _myRow, int _theirColumn, bool _isReversed = false);

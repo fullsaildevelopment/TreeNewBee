@@ -14,6 +14,8 @@ class THELASTBASTION_API AEnemyMeleeGroup : public AEnemyGroup
 {
 	GENERATED_BODY()
 	
+public:
+	AEnemyMeleeGroup();
 	
 protected:
 

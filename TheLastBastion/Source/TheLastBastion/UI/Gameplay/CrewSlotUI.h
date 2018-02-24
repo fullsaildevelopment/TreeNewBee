@@ -60,13 +60,14 @@ protected:
 public:
 
 	FORCEINLINE TSubclassOf<class ATheLastBastionAIBase> GetUnitClass() const { return Unit_Data.Unit_Bp; }
-
-	FORCEINLINE void SetUnitData(const FUnitData& _data) { Unit_Data = _data; }
+	FORCEINLINE bool IsMeleeGroup() const { return Unit_Data.IsMelee; }
 	FORCEINLINE void SetUnitClass(TSubclassOf<class ATheLastBastionAIBase> _class) { Unit_Data.Unit_Bp = _class; }
 	FORCEINLINE void SetImage(UTexture2D* _image) override { Unit_Data.Unit_Image = _image; }
 	FORCEINLINE void SetAllyIndex(float _index) { AllyIndex = _index; }
 	/** set the player cost by this unit*/
 	void SetPrice(int _price);
+
+	void SetUnitData(const FUnitData& _data, bool _bShowPrice = false);
 
 	/** set the amount of this unit player currently have*/
 	void SetUnitNumber(int _number);

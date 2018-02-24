@@ -73,9 +73,18 @@ void UCrewSlotUI::NativeOnDragDetected(const FGeometry & InGeometry,
 }
 
 
+void UCrewSlotUI::SetUnitData(const FUnitData & _data, bool _bShowPrice)
+{
+	Unit_Data = _data;
+
+	if (_bShowPrice)
+		SetPrice(Unit_Data.Price);
+}
+
 void UCrewSlotUI::SetPrice(int _price)
 {
 	NumericValue->SetText(FText::AsNumber(_price));	
+	NumericValue->SetColorAndOpacity(FLinearColor::Yellow);
 }
 
 void UCrewSlotUI::SetUnitNumber(int _number)

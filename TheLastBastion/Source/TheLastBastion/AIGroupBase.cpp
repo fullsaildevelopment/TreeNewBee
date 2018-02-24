@@ -16,8 +16,6 @@
 
 #include "AICharacters/TheLastBastionAIBase.h"
 #include "DrawDebugHelpers.h"
-#include "UObject/ConstructorHelpers.h"
-
 
 
 
@@ -59,11 +57,6 @@ AAIGroupBase::AAIGroupBase()
 
 	AIControllerClass = ATheLastBastionGroupAIController::StaticClass();
 
-	ConstructorHelpers::FObjectFinder<UBehaviorTree> bt(TEXT("/Game/Blueprints/AI/GroupPreset/BT_GroupAI"));
-	if (bt.Succeeded())
-		BehaviorTree = bt.Object;
-	else
-		UE_LOG(LogTemp, Error, TEXT("Can not find behaviorTree - AAIGroupBase::AAIGroupBase"));
 
 	GroupHUD = CreateDefaultSubobject<UWidgetComponent>(TEXT("GroupHUD"));
 	if (GroupHUD)
@@ -247,6 +240,15 @@ void AAIGroupBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AAIGroupBase::KillAllChild()
+{
+	for (int iCharacter = 0; iCharacter < AICharactersInfo.Num(); iCharacter++)
+	{
+		AICharactersInfo[iCharacter].AICharacter->Kill();
+	}
+	Destroy();
 }
 
 void AAIGroupBase::CheckGroupCommand()

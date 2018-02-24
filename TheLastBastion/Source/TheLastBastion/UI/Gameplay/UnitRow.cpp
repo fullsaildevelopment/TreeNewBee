@@ -54,7 +54,7 @@ void UUnitRow::SetEachSlotAction(const TArray<FUnitData>& _unitData)
 		slot = Cast<UCrewSlotUI>(UnitsClassRow->GetChildAt(i));
 		if (slot && _unitData.IsValidIndex(i))
 		{
-			slot->SetUnitData(_unitData[i]);
+			slot->SetUnitData(_unitData[i], true);
 		}
 	}
 
