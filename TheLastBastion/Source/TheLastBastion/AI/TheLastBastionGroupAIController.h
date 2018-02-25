@@ -65,12 +65,12 @@ public:
 
 	void SetNewCommandIndex_BBC(int _newCommand);
 
-	void SetOldCommandIndex_BBC(int _oldCommand);
+	//void SetOldCommandIndex_BBC(int _oldCommand);
 
 	FVector GetTargetLocation_BBC() const;
 
 	int GetNewCommandIndex_BBC() const;
 
-	int GetOldCommandIndex_BBC() const;
+	//int GetOldCommandIndex_BBC() const;
 
 };

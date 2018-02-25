@@ -7,6 +7,9 @@
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
 #include "Animation/AIMelee_AnimInstance.h"
 
+#include "DrawDebugHelpers.h"
+
+
 UBTTast_StrafeAttack::UBTTast_StrafeAttack(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	bNotifyTick = false;
@@ -40,6 +43,7 @@ EBTNodeResult::Type UBTTast_StrafeAttack::ExecuteTask(UBehaviorTreeComponent & O
 	if (targetActor == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("targetActor == nullptr - UBTTast_StrafeAttack::ExecuteTask"));
+		baseAICtrl->SetIsRelocate(false);
 		return NodeResult;
 	}
 
@@ -47,12 +51,14 @@ EBTNodeResult::Type UBTTast_StrafeAttack::ExecuteTask(UBehaviorTreeComponent & O
 	if (me == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("baseAICtrl->GetPawn() is NULL - UBTTast_StrafeAttack::ExecuteTask"));
+		baseAICtrl->SetIsRelocate(false);
 		return NodeResult;
 	}
 
 	if (animRef->GetCurrentActionState() != EAIActionState::None)
 	{
 		//UE_LOG(LogTemp, Log, TEXT("Is Attacking, failed this task, and move to next task"));
+		baseAICtrl->SetIsRelocate(false);
 		return NodeResult;
 	}
 	else
@@ -64,25 +70,42 @@ EBTNodeResult::Type UBTTast_StrafeAttack::ExecuteTask(UBehaviorTreeComponent & O
 		if (distanceSqr > meleeComboAttackDistanceSqr)
 		{
 			//UE_LOG(LogTemp, Log, TEXT("Is too far too attack, failed this task, and move to next task"));
+			//baseAICtrl->SetIsRelocate(false);
 			return NodeResult;
 		}
 		else if (targetActor->GetIsDead())
 		{
+			//baseAICtrl->SetIsRelocate(false);
 			return EBTNodeResult::Succeeded;
 		}
 		else
 		{
+			// Setup attack strategy
 			FHitResult hitResult;
 			ECollisionChannel objectColType = (me->IsEnemy())? ECC_EnemyBody:ECC_HeroBody;
 			FCollisionQueryParams queryParams;
 			queryParams.AddIgnoredActor(me);
 
 			const bool bHit = GetWorld()->LineTraceSingleByObjectType(hitResult,
-				me->GetTargetLocation(), targetActor->GetTargetLocation(), objectColType, queryParams);
+				me->GetActorLocation(), targetActor->GetActorLocation(), objectColType, queryParams);
 			if (bHit)
 			{
 				UE_LOG(LogTemp, Log, TEXT("Friendly Ahead - UBTTast_StrafeAttack::ExecuteTask"));
-				return EBTNodeResult::Failed;
+
+				FRotator targetRotation = me->GetActorRotation();
+				targetRotation.Pitch = 0;
+				targetRotation.Roll = 0;
+
+				float sign = FMath::RandBool() ? 1 : -1;
+				targetRotation.Yaw = targetRotation.Yaw + sign * FMath::RandRange(60, 90);
+				FVector relocation = targetActor->GetActorLocation() + 250.0f * targetRotation.Vector();
+
+				UE_LOG(LogTemp, Log, TEXT("%f, %f, %f"), relocation.X, relocation.Y, relocation.Z);
+				DrawDebugSphere(GetWorld(), relocation, 5.0f, 8, FColor::Purple, false, 5);
+				baseAICtrl->SetTargetLocation_BBC(relocation);
+				baseAICtrl->SetIsRelocate(true);
+
+				return EBTNodeResult::Succeeded;
 			}
 
 
@@ -96,7 +119,7 @@ EBTNodeResult::Type UBTTast_StrafeAttack::ExecuteTask(UBehaviorTreeComponent & O
 				attackType = (FMath::RandBool()) ? EAIMeleeAttackType::Move : (EAIMeleeAttackType::Move_InPlace);
 
 			animRef->Attack(attackType);
-
+			baseAICtrl->SetIsRelocate(false);
 			return NodeResult;
 		}
 

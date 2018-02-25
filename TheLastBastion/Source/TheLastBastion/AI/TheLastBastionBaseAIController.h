@@ -39,6 +39,7 @@ private:
 		class UBlackboardComponent* mBBComp;
 
 	uint8
+		bRelocate_KeyID,
 		targetActor_KeyID,
 		targetLocation_KeyID,
 		CurrentActionState_KeyID,
@@ -79,8 +80,11 @@ public:
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE uint8 GetKeyID_CurrentActionState() const { return CurrentActionState_KeyID; }
 
-	void OnBeingHit(ECharacterType _characterType);
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE uint8 GetKeyID_bRelocate() const { return bRelocate_KeyID; }
 
+
+	void OnBeingHit(ECharacterType _characterType);
 
 	void SetTargetActor_BBC(AActor* _target);
 
@@ -96,6 +100,9 @@ public:
 
 	void SetToTargetActorDistanceSqr(float _disTanceSqr);
 
+	void SetIsRelocate(bool _val);
+
+
 
 	AActor* GetTargetActor_BBC() const;
 
@@ -110,4 +117,6 @@ public:
 	float GetToTargetLocationDistanceSqr() const;
 
 	float GetToTargetActorDistanceSqr()const;
+
+	bool GetIsRelocate() const;
 };

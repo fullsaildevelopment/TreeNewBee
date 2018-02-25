@@ -66,13 +66,15 @@ void ATheLastBastionBaseAIController::Possess(APawn* _possPawn)
 	CurrentActionState_KeyID = mBBComp->GetKeyID("CurrentActionState");
 	NewCommandIndex_KeyID = mBBComp->GetKeyID("NewCommandIndex");
 	OldCommandIndex_KeyID = mBBComp->GetKeyID("OldCommandIndex");
+	bRelocate_KeyID = mBBComp->GetKeyID("bRelocate");
 
 	mBBComp->SetValue<UBlackboardKeyType_Float>(ToTargetActorDistanceSqr_KeyId, MAX_FLT);
 	mBBComp->SetValue<UBlackboardKeyType_Vector>(targetLocation_KeyID, _possPawn->GetActorLocation());
 	mBBComp->SetValue<UBlackboardKeyType_Int>(NewCommandIndex_KeyID, 0);
 	mBBComp->SetValue<UBlackboardKeyType_Int>(OldCommandIndex_KeyID, 0);
 	mBBComp->SetValue<UBlackboardKeyType_Enum>(CurrentActionState_KeyID, static_cast<UBlackboardKeyType_Enum::FDataType>(EAIActionState::None));
-	//UE_LOG(LogTemp, Warning, TEXT("Possess, %s"), *_possPawn->GetName());
+
+	SetIsRelocate(false);
 	
 	// Launch behavior Tree
 	mBTComp->StartTree(*bt);
@@ -134,6 +136,11 @@ void ATheLastBastionBaseAIController::SetToTargetActorDistanceSqr(float _disTanc
 	Blackboard->SetValue<UBlackboardKeyType_Float>(ToTargetActorDistanceSqr_KeyId, _disTanceSqr);
 }
 
+void ATheLastBastionBaseAIController::SetIsRelocate(bool _val)
+{
+	Blackboard->SetValue<UBlackboardKeyType_Bool>(bRelocate_KeyID, _val);
+}
+
 AActor * ATheLastBastionBaseAIController::GetTargetActor_BBC() const
 {
 	AActor* targetActor = Cast<AActor>(Blackboard->GetValue<UBlackboardKeyType_Object>(targetActor_KeyID));
@@ -170,4 +177,9 @@ float ATheLastBastionBaseAIController::GetToTargetActorDistanceSqr() const
 {
 	return Blackboard->GetValue < UBlackboardKeyType_Float >(ToTargetActorDistanceSqr_KeyId);
 
+}
+
+bool ATheLastBastionBaseAIController::GetIsRelocate() const
+{
+	return Blackboard->GetValue < UBlackboardKeyType_Bool >(bRelocate_KeyID);
 }

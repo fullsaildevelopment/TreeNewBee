@@ -10,7 +10,7 @@
  * 
  */
 
-
+#define MaxEnemyGroupAmount 2
 
 UCLASS()
 class THELASTBASTION_API ASinglePlayerGM : public AGameModeBase
@@ -33,11 +33,11 @@ protected:
 
 protected:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = CharacterClass)
-		TSubclassOf<class ATheLastBastionCharacter> LannesterTrooper_T0_BP;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = CharacterClass)
+	//	TSubclassOf<class ATheLastBastionCharacter> LannesterTrooper_T0_BP;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = CharacterClass)
-		TSubclassOf<class ATheLastBastionCharacter> LannesterShooter_T0_BP;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = CharacterClass)
+	//	TSubclassOf<class ATheLastBastionCharacter> LannesterShooter_T0_BP;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GroupClass)
 		TSubclassOf<class AAllyGroup> AllyMeleeGroup_Bp;
@@ -46,40 +46,40 @@ protected:
 		TSubclassOf<class AAllyGroup> AllyRangeGroup_Bp;
 
 
-	FTimerHandle TimerHandle_EnemySpawner;
+	//FTimerHandle TimerHandle_EnemySpawner;
 
-	FTimerHandle TimerHandle_NextWaveStart;
+	//FTimerHandle TimerHandle_NextWaveStart;
 
-	// Bots to spawn in current wave
-	int32 NumOfEnemiesToSpawn;
+	//// Bots to spawn in current wave
+	//int32 NumOfEnemiesToSpawn;
 
-	int32 WaveCount;
+	//int32 WaveCount;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spawner")
-	float TimeBetweenWaves;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spawner")
+	//float TimeBetweenWaves;
 
-protected:
-	// Spawn a single enemy
-	void SpawnNewEnemy();
-
-	void SpawnEnemyTimerElapsed();
-
-	// Start Spawning Bots
-	void StartWave();
-
-	// Stop Spawning Bots
-	void EndWave();
-
-	// Set timer for next startwave
-	void PrepareForNextWave();
-
-	// Check enemy amount to determine if we're ready for next wave
-	void CheckWaveState();
+//protected:
+//	// Spawn a single enemy
+//	void SpawnNewEnemy();
+//
+//	void SpawnEnemyTimerElapsed();
+//
+//	// Start Spawning Bots
+//	void StartWave();
+//
+//	// Stop Spawning Bots
+//	void EndWave();
+//
+//	// Set timer for next startwave
+//	void PrepareForNextWave();
+//
+//	// Check enemy amount to determine if we're ready for next wave
+//	void CheckWaveState();
 
 
 private:
 
-	// resource
+	/// resource
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
 		TArray<class AAllyGroup*> Allies;
 
@@ -98,12 +98,22 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
 		int Rock;
 
-	//
-	UPROPERTY()
-		TArray<class ASpawnLocation*> LannesterSpawnLocations_One;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
-		int32 EnemyAmount;
+
+	/// Enemy
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
+		TArray<class AEnemyGroup*> Enemies;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
+		class AEnemyGroupSpawner* EnemyGroupSpawner;
+
+
+	//
+	//UPROPERTY()
+	//	TArray<class ASpawnLocation*> LannesterSpawnLocations_One;
+
+	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+	//	int32 EnemyAmount;
 
 	
 private:
@@ -112,9 +122,9 @@ private:
 
 public:
 
-	void UpdateEnemyAmount(int _val);
+	//void UpdateEnemyAmount(int _val);
 
-	void StartPlay() override;
+	//void StartPlay() override;
 
 	void Tick(float DeltaSeconds) override;
 
@@ -129,9 +139,19 @@ public:
 	void SpawnNewAllies(TSubclassOf<class ATheLastBastionAIBase> _classToSpawn,
 		int _totalNum, int _index, bool _isMeleeUnit);
 
+	FORCEINLINE int GetEnemyGroupAmount() const { Enemies.Num(); }
+
+	FORCEINLINE bool HasRoomNewEnemyGroup() const { Enemies.Num() < MaxEnemyGroupAmount; }
+
+	// Make a copy of a enemy group ref to game mode
+	FORCEINLINE void RegisterEnemyGroup(class AEnemyGroup* _enemyGroup) { Enemies.Add(_enemyGroup); }
+
 	// Called when player dismiss a group, destroy the group unit and group itself
 	void DestroyAllyGroupAt(int _index);
 
 	// Make a copy of a barrack ref to game mode
 	FORCEINLINE void RegisterBarracks(class ABarracks* _barrack) { Barracks = _barrack; }
+
+	// Make a copy of a enemySpawner ref to game mode
+	FORCEINLINE void RegisterEnemySpawner(class AEnemyGroupSpawner* _spawner) {EnemyGroupSpawner = _spawner;}
 };

@@ -23,10 +23,10 @@ ASinglePlayerGM::ASinglePlayerGM(const FObjectInitializer & _objectInitilizer) :
 	bUseSeamlessTravel = true;
 	
 	GetAllSpawnClass();
-	EnemyAmount = 0;
-	WaveCount = 0;
-	NumOfEnemiesToSpawn = 0;
-	TimeBetweenWaves = 10.0f;
+	//EnemyAmount = 0;
+	//WaveCount = 0;
+	//NumOfEnemiesToSpawn = 0;
+	//TimeBetweenWaves = 10.0f;
 
 	// Change the tick rate
 	PrimaryActorTick.bCanEverTick = true;
@@ -87,149 +87,141 @@ void ASinglePlayerGM::HandleSeamlessTravelPlayer(AController *& C)
 
 void ASinglePlayerGM::BeginPlay()
 {
-	TArray<AActor*> AllSpawnLocations;
-	ASpawnLocation* spawner = nullptr;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpawnLocation::StaticClass(), AllSpawnLocations);
-	for (size_t i = 0; i < AllSpawnLocations.Num(); i++)
-	{
-		spawner = Cast<ASpawnLocation>(AllSpawnLocations[i]);
-		if (spawner)
-		{
-			switch (spawner->GetSpawnLocationType())
-			{
-			case ESpawnWorldLocation::Lannester_S1:
-			{   
-				LannesterSpawnLocations_One.Add(spawner);
-				break;
-			}
-
-			case ESpawnWorldLocation::Lannester_S2:
-			{
-				//LannesterSpawnLocations_One.Add(spawner);
-				break;
-			}
-
-			case ESpawnWorldLocation::Lannester_S3:
-			{
-				//LannesterSpawnLocations_One.Add(spawner);
-				break;
-			}
-
-			case ESpawnWorldLocation::WhiteWalker_S1:
-			{
-				//LannesterSpawnLocations_One.Add(spawner);
-				break;
-			}
-			}
-		}
-
-		UE_LOG(LogTemp, Log, TEXT("%s"), *spawner->GetName());
-
-	}
-
-	/// Temp Code
-	/// Get All Allies on the scene, since we cant not spawn any ally unit yet
+	//TArray<AActor*> AllSpawnLocations;
+	//ASpawnLocation* spawner = nullptr;
+	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpawnLocation::StaticClass(), AllSpawnLocations);
+	//for (size_t i = 0; i < AllSpawnLocations.Num(); i++)
+	//{
+	//	spawner = Cast<ASpawnLocation>(AllSpawnLocations[i]);
+	//	if (spawner)
+	//	{
+	//		switch (spawner->GetSpawnLocationType())
+	//		{
+	//		case ESpawnWorldLocation::Lannester_S1:
+	//		{   
+	//			LannesterSpawnLocations_One.Add(spawner);
+	//			break;
+	//		}
+	//		case ESpawnWorldLocation::Lannester_S2:
+	//		{
+	//			//LannesterSpawnLocations_One.Add(spawner);
+	//			break;
+	//		}
+	//		case ESpawnWorldLocation::Lannester_S3:
+	//		{
+	//			//LannesterSpawnLocations_One.Add(spawner);
+	//			break;
+	//		}
+	//		case ESpawnWorldLocation::WhiteWalker_S1:
+	//		{
+	//			//LannesterSpawnLocations_One.Add(spawner);
+	//			break;
+	//		}
+	//		}
+	//	}
+	//	UE_LOG(LogTemp, Log, TEXT("%s"), *spawner->GetName());
+	//}
 
 	Allies.SetNum(4);
 }
 
-void ASinglePlayerGM::SpawnNewEnemy()
-{
-	if (LannesterTrooper_T0_BP && LannesterShooter_T0_BP)
-	{
-		UWorld* const world = GetWorld();
-		if (world && LannesterSpawnLocations_One.Num() != 0)
-		{   
-			for (int32 i = 0; i < LannesterSpawnLocations_One.Num(); i++)
-			{   
-				if (LannesterSpawnLocations_One[i]->IsWorking())
-				{
-					int32 EnemyTypeToSpawn = FMath::RandRange(0, 1);
-					FVector RandomSpawnPoint = LannesterSpawnLocations_One[i]->GetRandomSpawnPoint();
-					FActorSpawnParameters spawnParam;
-					spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-					switch (EnemyTypeToSpawn)
-					{
-					case 0:
-					{
-						ATheLastBastionCharacter* aiPawn = world->SpawnActor<ATheLastBastionCharacter>(LannesterTrooper_T0_BP, RandomSpawnPoint, FRotator::ZeroRotator, spawnParam);
-						if (aiPawn)
-							aiPawn->SpawnDefaultController();
-						else
-							UE_LOG(LogTemp, Warning, TEXT("SomeHow spawner cant spawn .... - ASinglePlayerGM::SpawnNewEnemy"));
+//void ASinglePlayerGM::SpawnNewEnemy()
+//{
+//	if (LannesterTrooper_T0_BP && LannesterShooter_T0_BP)
+//	{
+//		UWorld* const world = GetWorld();
+//		if (world && LannesterSpawnLocations_One.Num() != 0)
+//		{   
+//			for (int32 i = 0; i < LannesterSpawnLocations_One.Num(); i++)
+//			{   
+//				if (LannesterSpawnLocations_One[i]->IsWorking())
+//				{
+//					int32 EnemyTypeToSpawn = FMath::RandRange(0, 1);
+//					FVector RandomSpawnPoint = LannesterSpawnLocations_One[i]->GetRandomSpawnPoint();
+//					FActorSpawnParameters spawnParam;
+//					spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+//					switch (EnemyTypeToSpawn)
+//					{
+//					case 0:
+//					{
+//						ATheLastBastionCharacter* aiPawn = world->SpawnActor<ATheLastBastionCharacter>(LannesterTrooper_T0_BP, RandomSpawnPoint, FRotator::ZeroRotator, spawnParam);
+//						if (aiPawn)
+//							aiPawn->SpawnDefaultController();
+//						else
+//							UE_LOG(LogTemp, Warning, TEXT("SomeHow spawner cant spawn .... - ASinglePlayerGM::SpawnNewEnemy"));
+//
+//						break;
+//					}
+//					case 1:
+//					{
+//						ATheLastBastionCharacter* aiPawn = world->SpawnActor<ATheLastBastionCharacter>(LannesterShooter_T0_BP, RandomSpawnPoint, FRotator::ZeroRotator, spawnParam);
+//						if (aiPawn)
+//							aiPawn->SpawnDefaultController();
+//						else
+//							UE_LOG(LogTemp, Warning, TEXT("SomeHow spawner cant spawn .... - ASinglePlayerGM::SpawnNewEnemy"));
+//
+//						break;
+//					}
+//					}
+//					EnemyAmount++;
+//
+//				}
+//			}
+//		}
+//	}
+//
+//}
 
-						break;
-					}
-					case 1:
-					{
-						ATheLastBastionCharacter* aiPawn = world->SpawnActor<ATheLastBastionCharacter>(LannesterShooter_T0_BP, RandomSpawnPoint, FRotator::ZeroRotator, spawnParam);
-						if (aiPawn)
-							aiPawn->SpawnDefaultController();
-						else
-							UE_LOG(LogTemp, Warning, TEXT("SomeHow spawner cant spawn .... - ASinglePlayerGM::SpawnNewEnemy"));
+//void ASinglePlayerGM::SpawnEnemyTimerElapsed()
+//{
+//	SpawnNewEnemy();
+//	NumOfEnemiesToSpawn--;
+//	if (NumOfEnemiesToSpawn <= 0)
+//	{
+//		EndWave();
+//	}
+//}
 
-						break;
-					}
-					}
-					EnemyAmount++;
+//void ASinglePlayerGM::StartWave()
+//{   
+//	WaveCount++;
+//	NumOfEnemiesToSpawn = WaveCount * 2.0f;
+//	GetWorldTimerManager().SetTimer(TimerHandle_EnemySpawner, this, &ASinglePlayerGM::SpawnEnemyTimerElapsed, 1.0f, true, 0.0f);
+//}
 
-				}
-			}
-		}
-	}
+//void ASinglePlayerGM::EndWave()
+//{
+//	GetWorldTimerManager().ClearTimer(TimerHandle_EnemySpawner);
+//}
 
-}
+//void ASinglePlayerGM::PrepareForNextWave()
+//{
+//	GetWorldTimerManager().SetTimer(TimerHandle_NextWaveStart, this, &ASinglePlayerGM::StartWave, TimeBetweenWaves, false);
+//}
 
-void ASinglePlayerGM::SpawnEnemyTimerElapsed()
-{
-	SpawnNewEnemy();
-	NumOfEnemiesToSpawn--;
-	if (NumOfEnemiesToSpawn <= 0)
-	{
-		EndWave();
-	}
-}
-
-void ASinglePlayerGM::StartWave()
-{   
-	WaveCount++;
-	NumOfEnemiesToSpawn = WaveCount * 2.0f;
-	GetWorldTimerManager().SetTimer(TimerHandle_EnemySpawner, this, &ASinglePlayerGM::SpawnEnemyTimerElapsed, 1.0f, true, 0.0f);
-}
-
-void ASinglePlayerGM::EndWave()
-{
-	GetWorldTimerManager().ClearTimer(TimerHandle_EnemySpawner);
-}
-
-void ASinglePlayerGM::PrepareForNextWave()
-{
-	GetWorldTimerManager().SetTimer(TimerHandle_NextWaveStart, this, &ASinglePlayerGM::StartWave, TimeBetweenWaves, false);
-}
-
-void ASinglePlayerGM::CheckWaveState()
-{   
-	bool bIsPreparingForNextWave = GetWorldTimerManager().IsTimerActive(TimerHandle_NextWaveStart);
-
-	// If we still have enemies to spawn or we already prepare for next wave, do not execute the preparefornextwave function
-	if (NumOfEnemiesToSpawn > 0 || bIsPreparingForNextWave)
-	{
-		return;
-	}
-	if (EnemyAmount == 0)
-	{
-		PrepareForNextWave();
-	}
-}
+//void ASinglePlayerGM::CheckWaveState()
+//{   
+//	bool bIsPreparingForNextWave = GetWorldTimerManager().IsTimerActive(TimerHandle_NextWaveStart);
+//
+//	// If we still have enemies to spawn or we already prepare for next wave, do not execute the preparefornextwave function
+//	if (NumOfEnemiesToSpawn > 0 || bIsPreparingForNextWave)
+//	{
+//		return;
+//	}
+//	if (EnemyAmount == 0)
+//	{
+//		PrepareForNextWave();
+//	}
+//}
 
 void ASinglePlayerGM::GetAllSpawnClass()
 {
 
-	if (LannesterTrooper_T0_BP == nullptr)
-		UCustomType::FindClass<ATheLastBastionCharacter>(LannesterTrooper_T0_BP, TEXT("/Game/Blueprints/AI/Lannester/Lan_Trooper_T0"));
+	//if (LannesterTrooper_T0_BP == nullptr)
+	//	UCustomType::FindClass<ATheLastBastionCharacter>(LannesterTrooper_T0_BP, TEXT("/Game/Blueprints/AI/Lannester/Lan_Trooper_T0"));
 
-	if (LannesterShooter_T0_BP == nullptr)
-		UCustomType::FindClass<ATheLastBastionCharacter>(LannesterShooter_T0_BP, TEXT("/Game/Blueprints/AI/Lannester/Lan_Crossbow_T0"));
+	//if (LannesterShooter_T0_BP == nullptr)
+	//	UCustomType::FindClass<ATheLastBastionCharacter>(LannesterShooter_T0_BP, TEXT("/Game/Blueprints/AI/Lannester/Lan_Crossbow_T0"));
 
 	if (AllyMeleeGroup_Bp == nullptr)
 		UCustomType::FindClass<AAllyGroup>(AllyMeleeGroup_Bp, TEXT("/Game/Blueprints/AI/GroupPreset/AllyMeleeGroup_Bp"));
@@ -239,21 +231,21 @@ void ASinglePlayerGM::GetAllSpawnClass()
 
 }
 
-void ASinglePlayerGM::UpdateEnemyAmount(int _val)
-{
-	EnemyAmount += _val;
-}
+//void ASinglePlayerGM::UpdateEnemyAmount(int _val)
+//{
+//	EnemyAmount += _val;
+//}
 
-void ASinglePlayerGM::StartPlay()
-{
-	Super::StartPlay();
-	PrepareForNextWave();
-}
+//void ASinglePlayerGM::StartPlay()
+//{
+//	Super::StartPlay();
+//	PrepareForNextWave();
+//}
 
 void ASinglePlayerGM::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	CheckWaveState();
+	//CheckWaveState();
 }
 
 bool ASinglePlayerGM::HasAllyGroupUnitAt(int _index)
@@ -312,6 +304,7 @@ void ASinglePlayerGM::SpawnNewAllies(TSubclassOf<class ATheLastBastionAIBase> _c
 
 	// register in controlled allies
 	Allies[_index] = newAllyGroup;
+	newAllyGroup->SetHUDIndex(_index);
 }
 
 void ASinglePlayerGM::DestroyAllyGroupAt(int _index)

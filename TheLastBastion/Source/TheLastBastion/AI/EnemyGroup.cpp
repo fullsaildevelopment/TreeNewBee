@@ -20,7 +20,7 @@
 
 AEnemyGroup::AEnemyGroup()
 {
-	MainTask = EM_ToCastle;
+	MainTask = EM_MeleeAgainstPlayer;
 
 	if (GroupHUD)
 	{
@@ -387,6 +387,14 @@ int AEnemyGroup::GetMaxRowCount() const
 	}
 	return 0;
 }
+
+void AEnemyGroup::MeleeAgainstPlayer_OnEnemyGroupMission()
+{
+	FVector marchLocation = PlayerHero->GetActorLocation();
+
+	SetMarchLocation(marchLocation, GC_GOTOLOCATION);
+}
+
 
 void AEnemyGroup::MeleeGroupAgainstPlayer()
 {
