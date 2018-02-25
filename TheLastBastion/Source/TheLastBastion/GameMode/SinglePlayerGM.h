@@ -139,9 +139,9 @@ public:
 	void SpawnNewAllies(TSubclassOf<class ATheLastBastionAIBase> _classToSpawn,
 		int _totalNum, int _index, bool _isMeleeUnit);
 
-	FORCEINLINE int GetEnemyGroupAmount() const { Enemies.Num(); }
+	FORCEINLINE int GetEnemyGroupAmount() const { return Enemies.Num(); }
 
-	FORCEINLINE bool HasRoomNewEnemyGroup() const { Enemies.Num() < MaxEnemyGroupAmount; }
+	FORCEINLINE bool HasRoomNewEnemyGroup() const { return Enemies.Num() < MaxEnemyGroupAmount; }
 
 	// Make a copy of a enemy group ref to game mode
 	FORCEINLINE void RegisterEnemyGroup(class AEnemyGroup* _enemyGroup) { Enemies.Add(_enemyGroup); }
