@@ -169,42 +169,45 @@ void UBase_AnimInstance::FxOnEquip()
 		{
 			UAudioComponent* AudioComp = mBaseCharacter->GetAudioComp();
 			USoundCue* sfx = UAudioManager::GetSFX(ESoundEffectType::EWeaponEquip);
-			//EGearType GearType = CurrentWeapon->GetGearType();
-			//int weaponType = 0;
-			//switch (GearType)
-			//{
-			//case EGearType::LongSword:
-			//case EGearType::DoubleHandWeapon:
-			//	weaponType = 0;
-			//	break;
+			EGearType GearType = CurrentWeapon->GetGearType();
+			int weaponType = 0;
+			switch (GearType)
+			{
+			case EGearType::LongSword:
+				weaponType = 0;
+				break;
 
-			//case EGearType::CrossBow:
-			//	weaponType = 1;
-			//	break;
+			case EGearType::DoubleHandWeapon:
+				weaponType = 1;
+				break;
 
-			//case EGearType::WarAxe:
-			//	weaponType = 2;
-			//	break;
+			case EGearType::CrossBow:
+				weaponType = 2;
+				break;
 
-			//case EGearType::Mace:
-			//	weaponType = 3;
-			//	break;
+			case EGearType::WarAxe:
+				weaponType = 3;
+				break;
 
-			//case EGearType::BattleAxe:
-			//case EGearType::GreatSword:
-			//	weaponType = 4;
-			//	break;
+			case EGearType::Mace:
+				weaponType = 4;
+				break;
 
-			//case EGearType::Hammer:
-			//	weaponType = 5;
-			//	break;
+			case EGearType::BattleAxe:
+			case EGearType::GreatSword:
+				weaponType = 5;
+				break;
 
-			//default:
-			//	return;
-			//}
+			case EGearType::Hammer:
+				weaponType = 6;
+				break;
+
+			default:
+				return;
+			}
 			AudioComp->SetSound(sfx);
-			AudioComp->SetIntParameter(TEXT("WeaponType"), 0);
-			AudioComp->Play();
+			AudioComp->SetIntParameter(TEXT("WeaponType"), weaponType);
+			AudioComp->Play(0.4f);
 		}
 	}
 }
