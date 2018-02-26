@@ -21,12 +21,21 @@ protected:
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (MakeEditWidget), Category = Spawning)
+		/** All Unit Spawn Position*/
 		TArray<FVector> SpawnPoints;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (MakeEditWidget), Category = Behavior)
+		/** Range unit hold position*/
+		TArray<FVector> ShootingPoints;
+
 
 	FTimerHandle SpawnTimer;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Spawning)
-	float SpawnFrequency;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
+		float SpawnFrequency;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
+		float FirstSpawnDelay;
 
 
 private:
@@ -34,6 +43,10 @@ private:
 	/// Enemy Group Preset
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = SpanwPreset, meta = (AllowPrivateAccess = "true"))
 		TSubclassOf<class AEnemyGroup> LanT0;
+
+	UPROPERTY()
+	/** Single Player Character ref*/
+		const class ACharacter* Hero;
 
 
 public:	
@@ -47,6 +60,5 @@ private:
 
 	void Spawn();
 
-	
-	
+	void GetSpawnLocationAndRotation(FVector& _location, FRotator& _rotation) const;
 };

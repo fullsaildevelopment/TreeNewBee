@@ -169,6 +169,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
 		FVector GroupTargetRight;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
+		int GroupIndex;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		bool bDisabled;
 
@@ -256,7 +259,8 @@ protected:
 
 	float GetDivider(int _index) const;
 
-public:	
+public:
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -317,6 +321,7 @@ public:
 	FORCEINLINE bool IsInBattle() const { return bInBattle; }
 	FORCEINLINE class UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
 	FORCEINLINE int GetGroupSize() const { return AICharactersInfo.Num(); }
+	FORCEINLINE void SetGroupIndex(int _index) { GroupIndex = _index; }
 	FORCEINLINE class ATheLastBastionAIBase* GetGroupMemberAt(int _index) const { return AICharactersInfo[_index].AICharacter; }
 
 	virtual int GetMaxColoumnCount() const;

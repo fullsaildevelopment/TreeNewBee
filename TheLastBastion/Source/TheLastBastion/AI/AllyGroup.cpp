@@ -3,8 +3,6 @@
 #include "AllyGroup.h"
 #include "AICharacters/TheLastBastionAIBase.h"
 
-
-
 #include "AI/TheLastBastionGroupAIController.h"
 #include "AI/TheLastBastionBaseAIController.h"
 
@@ -12,7 +10,6 @@
 #include "AICharacters/TheLastBastionEnemyCharacter.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "UI/Gameplay/AllyGroupHUD.h"
-
 
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Components/BoxComponent.h"
@@ -22,6 +19,9 @@
 #include "CustomType.h"
 #include "DrawDebugHelpers.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameMode/SinglePlayerGM.h"
+
 
 
 
@@ -66,8 +66,6 @@ void AAllyGroup::BeginPlay()
 
 	mFollowingLocation = GetActorLocation();
 }
-
-
 
 TSubclassOf<class ATheLastBastionAIBase> AAllyGroup::GetClassDuringAllySpawn(int _currentIndex) const
 {
@@ -529,7 +527,14 @@ void AAllyGroup::OnChildDeath(int _childIndex)
 
 	int totalCharacterCount = AICharactersInfo.Num();
 	if (totalCharacterCount == 0)
-	{
+	{		
+
+		// Unregister this group in game mode
+		ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (gm)
+			gm->UnRegisterAllyGroupAt(GroupIndex);
+
+		// destroy
 		Destroy();
 	}
 	else
@@ -825,6 +830,7 @@ void AAllyGroup::SetHUDIndex(int _index)
 	UAllyGroupHUD* hud = Cast<UAllyGroupHUD>(GroupHUD->GetUserWidgetObject());
 	if (hud)
 	{
-		hud->SetGroupIndexText(_index);
+		hud->SetGroupIndexText(_index + 1);
+		SetGroupIndex(_index);
 	}
 }

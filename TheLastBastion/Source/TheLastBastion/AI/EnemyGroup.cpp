@@ -17,6 +17,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "CustomType.h"
 
+#include "Kismet/GameplayStatics.h"
+#include "GameMode/SinglePlayerGM.h"
+
 
 AEnemyGroup::AEnemyGroup()
 {
@@ -61,14 +64,13 @@ void AEnemyGroup::SpawnChildGroup()
 				FActorSpawnParameters spawnParam;
 				spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-				// track max width for trigger volumn bounding calculation
-				float maxGroupWidth = -1.0f;
-				float maxGroupLength = 0.0f;
 				// offset on forward direction
 				float xOffset = 0.0f;
 				float yOffset = 0.0f;
 
-				int GroupIndex = 0;
+				float maxGroupWidth = -1, maxGroupLength = -1;
+
+				int childGroupIndex = 0;
 
 				// the first row of current class
 				int fi_currClassRowBase = 0;
@@ -125,8 +127,8 @@ void AEnemyGroup::SpawnChildGroup()
 							FVector spawnLocation = myLocation - xOffset * GetActorForwardVector() + yOffset * GetActorRightVector();
 							newCharacterInfo.AICharacter = world->SpawnActor<ATheLastBastionAIBase>(ClassToSpawn, spawnLocation, this->GetActorRotation(), spawnParam);
 							newCharacterInfo.AICharacter->SpawnDefaultController();
-							GroupIndex = AICharactersInfo.Num();
-							newCharacterInfo.AICharacter->SetParent(this, GroupIndex);
+							childGroupIndex = AICharactersInfo.Num();
+							newCharacterInfo.AICharacter->SetParent(this, childGroupIndex);
 
 							AICharactersInfo.Add(newCharacterInfo);
 						}
@@ -135,10 +137,11 @@ void AEnemyGroup::SpawnChildGroup()
 					fi_currClassRowBase += maxRow;
 					AIToSpawn[iClass].NumOfRow = maxRow;
 				}
-				maxGroupLength = xOffset - colPadding + SIDEPADDING * 0.5f;
-				maxGroupWidth = maxGroupWidth * 0.5f + SIDEPADDING;
 
-				SetGroupVisionVolumn(maxGroupLength, maxGroupWidth);
+				maxGroupWidth = maxGroupWidth * 0.5f + SIDEPADDING;
+				maxGroupLength = (xOffset - rowPadding);
+
+				SetGroupVisionVolumn(maxGroupWidth, maxGroupLength);
 				//GroupVolumn->SetBoxExtent(FVector(maxGroupLength, maxGroupWidth, GroupVolumn->GetUnscaledBoxExtent().Z), true);
 			}
 		}
@@ -163,22 +166,6 @@ void AEnemyGroup::OnReform()
 		float xOffset = 0;
 		float yOffset = 0;
 		float groupSpeed = MAX_FLT;
-
-		//FormationInfo.Empty();
-		//while (Remain > 0)
-		//{
-		//	int temp = Remain - maxRowSize;
-		//	if (temp > 0)
-		//	{
-		//		FormationInfo.Add(maxRowSize);
-		//		Remain = temp;
-		//	}
-		//	else
-		//	{
-		//		FormationInfo.Add(Remain);
-		//		break;
-		//	}
-		//}
 
 		int maxRow = FormationInfo.Num();
 
@@ -216,7 +203,6 @@ void AEnemyGroup::OnReform()
 void AEnemyGroup::SwapChildenOrder()
 {
 }
-
 
 void AEnemyGroup::SetMarchLocation(const FVector & _targetLocation, int _commandIndex)
 {
@@ -335,6 +321,11 @@ void AEnemyGroup::OnChildDeath(int _childIndex)
 		// if there is no section left
 		if (AIToSpawn.Num() == 0)
 		{
+			// Unregister this group in game mode
+			ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+			if (gm)
+				gm->UnRegisterEnemyGroupAt(GroupIndex);
+
 			// delete the group
 			Destroy();
 			return;
@@ -390,11 +381,10 @@ int AEnemyGroup::GetMaxRowCount() const
 
 void AEnemyGroup::MeleeAgainstPlayer_OnEnemyGroupMission()
 {
-	FVector marchLocation = PlayerHero->GetActorLocation();
+	FVector marchLocation = PlayerHero->GetActorLocation()- 90 * FVector::UpVector;
 
 	SetMarchLocation(marchLocation, GC_GOTOLOCATION);
 }
-
 
 void AEnemyGroup::MeleeGroupAgainstPlayer()
 {

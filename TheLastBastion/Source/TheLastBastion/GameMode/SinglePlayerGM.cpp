@@ -316,3 +316,22 @@ void ASinglePlayerGM::DestroyAllyGroupAt(int _index)
 		Allies[_index] = nullptr;
 	}
 }
+
+void ASinglePlayerGM::RegisterEnemyGroup(AEnemyGroup * _enemyGroup)
+{
+	Enemies.Add(_enemyGroup);
+	_enemyGroup->SetGroupIndex(Enemies.Num() - 1);
+}
+
+void ASinglePlayerGM::UnRegisterEnemyGroupAt(int _index)
+{
+	Enemies.RemoveAtSwap(_index);
+
+	// re - index each enemy group
+	for (int iEnemyGroup = 0; iEnemyGroup < Enemies.Num(); iEnemyGroup++)
+	{
+		Enemies[iEnemyGroup]->SetGroupIndex(iEnemyGroup);
+	}
+}
+
+

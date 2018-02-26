@@ -56,6 +56,9 @@ public:
 
 	int GetMaxRowCount() const override;
 
+	FORCEINLINE void SetSpawnInfoAtSection_TotalNum(int _totalNumber, int _sectionIndex) { AIToSpawn[_sectionIndex].TotalNumber = _totalNumber;}
+	FORCEINLINE void SetSpawnInfoAtSection_MaxCol(int _maxCol, int _sectionIndex) { AIToSpawn[_sectionIndex].MaxNumOfCol = _maxCol; }
+
 
 	/** AI Decision: Move to close to player and attack player by melee*/
 	void MeleeAgainstPlayer_OnEnemyGroupMission();

@@ -167,7 +167,9 @@ bool ATheLastBastionAIBase::OnGroupTaskStart()
 	if (IsHit)
 	{
 		//UE_LOG(LogTemp, Log, TEXT("Hit %s"), *Hit.GetActor()->GetName())
-		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 50.0f, 8, FColor::Red, false, 6.0f);
+		if (IsEnemy() == false)
+			DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 50.0f, 8, FColor::Red, false, 6.0f);
+
 		childtargetLocation = Hit.ImpactPoint;
 	}
 

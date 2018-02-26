@@ -36,7 +36,7 @@ EBTNodeResult::Type UBTTask_HitReaction::ExecuteTask(UBehaviorTreeComponent & Ow
 
 	const APawn* const me = baseAICtrl->GetPawn();
 
-	baseAICtrl->SetIsRelocate(false);
+	//baseAICtrl->SetIsRelocate(false);
 
 	if (animRef->GetCurrentActionState()== EAIActionState::GettingHurt)
 	{

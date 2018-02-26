@@ -124,7 +124,7 @@ public:
 
 	bool CanBeReformed() const;
 
-	/**Set Ally Index on HUD*/
+	/**Set Ally Index on HUD, _index is the index for TArray*/
 	void SetHUDIndex(int _index);
 
 

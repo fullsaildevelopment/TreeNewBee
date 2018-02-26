@@ -143,8 +143,6 @@ public:
 
 	FORCEINLINE bool HasRoomNewEnemyGroup() const { return Enemies.Num() < MaxEnemyGroupAmount; }
 
-	// Make a copy of a enemy group ref to game mode
-	FORCEINLINE void RegisterEnemyGroup(class AEnemyGroup* _enemyGroup) { Enemies.Add(_enemyGroup); }
 
 	// Called when player dismiss a group, destroy the group unit and group itself
 	void DestroyAllyGroupAt(int _index);
@@ -154,4 +152,14 @@ public:
 
 	// Make a copy of a enemySpawner ref to game mode
 	FORCEINLINE void RegisterEnemySpawner(class AEnemyGroupSpawner* _spawner) {EnemyGroupSpawner = _spawner;}
+
+	// Clear the copy of ally group ref at index 
+	FORCEINLINE void UnRegisterAllyGroupAt(int _index) { Allies[_index] = nullptr; }
+
+	// Make a copy of a enemy group ref to game mode
+	void RegisterEnemyGroup(class AEnemyGroup* _enemyGroup); 
+
+	// Clear the copy of enemy group ref at index 
+	void UnRegisterEnemyGroupAt(int _index); 
+
 };
