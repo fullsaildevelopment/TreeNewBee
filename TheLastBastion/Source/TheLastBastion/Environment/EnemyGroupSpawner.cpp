@@ -16,6 +16,7 @@ AEnemyGroupSpawner::AEnemyGroupSpawner()
 	FindAllEnemyGroupPreset();
 	SpawnFrequency = 10.0f;
 	FirstSpawnDelay = 5.0f;
+
 }
 
 // Called when the game starts or when spawned
@@ -47,6 +48,9 @@ void AEnemyGroupSpawner::FindAllEnemyGroupPreset()
 
 void AEnemyGroupSpawner::Spawn()
 {
+	if (!bEnableSpawning)
+		return;
+
 	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>
 		(UGameplayStatics::GetGameMode(GetWorld()));
 	if (gm == nullptr)

@@ -94,20 +94,24 @@ protected:
 		bool bEnableJump;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Movement)
+		/** if true, this jump is trigger by player, 
+		  * else trigger by falling edge*/
 		bool bTryToJump;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Movement)
+		/** Copy from movement Component*/
 		bool bIsInAir;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Movement)
+		/** true, if any move axis is not zero*/
 		bool bTryToMove;
 
-	/** Is Character currently sprinting*/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
+		/** Is Character currently sprinting*/
 		bool bIsSprinting;
 
-	/** Is Sprinting button is still pressed, only reset by button release */
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
+		/** Is Sprinting button is still pressed, only reset by button release */
 		bool bTryToSprint;
 
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
@@ -120,14 +124,15 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	FVector mAccelerationDirection;
 
-	UPROPERTY(BlueprintReadOnly, Category = Movement)
-	FVector mSpeedOverrideDirection;
+	//UPROPERTY(BlueprintReadOnly, Category = Movement)
+	//FVector mSpeedOverrideDirection;
 
 #pragma endregion
 
 #pragma region Bone Control
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = HeadTrack)
+		/** Head track blending speed*/
 		float HeadTrackRate;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = HeadTrack)
@@ -137,16 +142,19 @@ protected:
 		float HeadTrackPitch;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = HeadTrack)
+		/** Head track blending weight*/
 		float HeadTrackAlpha;
 
 	UPROPERTY(BlueprintReadOnly, Category = MeleeAttack)
-		/** spine angle to blend alpha*/
+		/** spine angle blend weight*/
 		float spineAngleOverrideAlpha;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Defend)
+		/** Current Defend pose  blend weight*/
 		float CurrentDefendPoseAlpha;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Defend)
+		/** Desired Defend pose blend weight*/
 		float TargetDefendPoseAlpha;
 
 	UPROPERTY(BlueprintReadOnly, Category = MeleeAttack)
@@ -239,6 +247,8 @@ protected:
 #pragma region RangeFire
 
 	UPROPERTY(BlueprintReadOnly, Category = Fire)
+		/** Only set while player try to zoom in when holding range weapon, 
+		* reset itself while the range weapon is switch off */
 		bool bTryToZoomIn;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)

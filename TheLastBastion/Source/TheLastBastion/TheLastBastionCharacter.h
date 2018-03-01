@@ -21,8 +21,11 @@ enum class ECharacterType : uint8
 	Ranger = 1            UMETA(DisplayName = "Ranger"),
 	Builder = 2           UMETA(DisplayName = "Builder"),
 	LanTrooper_T0 = 3 	  UMETA(DisplayName = "Lannester Trooper New Recruit"),
-	LanCB_T0 = 4          UMETA(DisplayName = "Lannester Shooter New Recruit")
-             
+	LanCB_T0 = 4          UMETA(DisplayName = "Lannester Shooter New Recruit"),
+	Lan_Heavy             UMETA(DisplayName = "Lannester Heavy"),
+	Lan_Legion            UMETA(DisplayName = "Lannester Legion"),
+	Lan_SharpShooter      UMETA(DisplayName = "Lannester SharpShooter"),
+	Lan_Elite             UMETA(DisplayName = "Lannester Elite")           
 };
 
 UCLASS(config=Game)
@@ -110,7 +113,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BlueprintProtected))
 		bool bIsGodMode;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		bool bIsEnemy;
 
 protected:

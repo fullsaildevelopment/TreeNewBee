@@ -23,10 +23,6 @@ ASinglePlayerGM::ASinglePlayerGM(const FObjectInitializer & _objectInitilizer) :
 	bUseSeamlessTravel = true;
 	
 	GetAllSpawnClass();
-	//EnemyAmount = 0;
-	//WaveCount = 0;
-	//NumOfEnemiesToSpawn = 0;
-	//TimeBetweenWaves = 10.0f;
 
 	// Change the tick rate
 	PrimaryActorTick.bCanEverTick = true;
@@ -125,95 +121,6 @@ void ASinglePlayerGM::BeginPlay()
 	Allies.SetNum(4);
 }
 
-//void ASinglePlayerGM::SpawnNewEnemy()
-//{
-//	if (LannesterTrooper_T0_BP && LannesterShooter_T0_BP)
-//	{
-//		UWorld* const world = GetWorld();
-//		if (world && LannesterSpawnLocations_One.Num() != 0)
-//		{   
-//			for (int32 i = 0; i < LannesterSpawnLocations_One.Num(); i++)
-//			{   
-//				if (LannesterSpawnLocations_One[i]->IsWorking())
-//				{
-//					int32 EnemyTypeToSpawn = FMath::RandRange(0, 1);
-//					FVector RandomSpawnPoint = LannesterSpawnLocations_One[i]->GetRandomSpawnPoint();
-//					FActorSpawnParameters spawnParam;
-//					spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-//					switch (EnemyTypeToSpawn)
-//					{
-//					case 0:
-//					{
-//						ATheLastBastionCharacter* aiPawn = world->SpawnActor<ATheLastBastionCharacter>(LannesterTrooper_T0_BP, RandomSpawnPoint, FRotator::ZeroRotator, spawnParam);
-//						if (aiPawn)
-//							aiPawn->SpawnDefaultController();
-//						else
-//							UE_LOG(LogTemp, Warning, TEXT("SomeHow spawner cant spawn .... - ASinglePlayerGM::SpawnNewEnemy"));
-//
-//						break;
-//					}
-//					case 1:
-//					{
-//						ATheLastBastionCharacter* aiPawn = world->SpawnActor<ATheLastBastionCharacter>(LannesterShooter_T0_BP, RandomSpawnPoint, FRotator::ZeroRotator, spawnParam);
-//						if (aiPawn)
-//							aiPawn->SpawnDefaultController();
-//						else
-//							UE_LOG(LogTemp, Warning, TEXT("SomeHow spawner cant spawn .... - ASinglePlayerGM::SpawnNewEnemy"));
-//
-//						break;
-//					}
-//					}
-//					EnemyAmount++;
-//
-//				}
-//			}
-//		}
-//	}
-//
-//}
-
-//void ASinglePlayerGM::SpawnEnemyTimerElapsed()
-//{
-//	SpawnNewEnemy();
-//	NumOfEnemiesToSpawn--;
-//	if (NumOfEnemiesToSpawn <= 0)
-//	{
-//		EndWave();
-//	}
-//}
-
-//void ASinglePlayerGM::StartWave()
-//{   
-//	WaveCount++;
-//	NumOfEnemiesToSpawn = WaveCount * 2.0f;
-//	GetWorldTimerManager().SetTimer(TimerHandle_EnemySpawner, this, &ASinglePlayerGM::SpawnEnemyTimerElapsed, 1.0f, true, 0.0f);
-//}
-
-//void ASinglePlayerGM::EndWave()
-//{
-//	GetWorldTimerManager().ClearTimer(TimerHandle_EnemySpawner);
-//}
-
-//void ASinglePlayerGM::PrepareForNextWave()
-//{
-//	GetWorldTimerManager().SetTimer(TimerHandle_NextWaveStart, this, &ASinglePlayerGM::StartWave, TimeBetweenWaves, false);
-//}
-
-//void ASinglePlayerGM::CheckWaveState()
-//{   
-//	bool bIsPreparingForNextWave = GetWorldTimerManager().IsTimerActive(TimerHandle_NextWaveStart);
-//
-//	// If we still have enemies to spawn or we already prepare for next wave, do not execute the preparefornextwave function
-//	if (NumOfEnemiesToSpawn > 0 || bIsPreparingForNextWave)
-//	{
-//		return;
-//	}
-//	if (EnemyAmount == 0)
-//	{
-//		PrepareForNextWave();
-//	}
-//}
-
 void ASinglePlayerGM::GetAllSpawnClass()
 {
 
@@ -230,17 +137,6 @@ void ASinglePlayerGM::GetAllSpawnClass()
 		UCustomType::FindClass<AAllyGroup>(AllyRangeGroup_Bp, TEXT("/Game/Blueprints/AI/GroupPreset/AllyRangeGroup_Bp"));
 
 }
-
-//void ASinglePlayerGM::UpdateEnemyAmount(int _val)
-//{
-//	EnemyAmount += _val;
-//}
-
-//void ASinglePlayerGM::StartPlay()
-//{
-//	Super::StartPlay();
-//	PrepareForNextWave();
-//}
 
 void ASinglePlayerGM::Tick(float DeltaSeconds)
 {
@@ -325,6 +221,13 @@ void ASinglePlayerGM::RegisterEnemyGroup(AEnemyGroup * _enemyGroup)
 
 void ASinglePlayerGM::UnRegisterEnemyGroupAt(int _index)
 {
+
+	/// this is for the enemy group that is not spawn by the game mode
+	if (Enemies.IsValidIndex(_index) == false)
+	{
+		return;
+	}
+
 	Enemies.RemoveAtSwap(_index);
 
 	// re - index each enemy group

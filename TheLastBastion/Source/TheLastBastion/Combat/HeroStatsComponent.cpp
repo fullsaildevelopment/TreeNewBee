@@ -66,7 +66,6 @@ void UHeroStatsComponent::OnFocus()
 	if (mHeroCharacter && mHeroCharacter->GetCharacterType() == ECharacterType::Ranger)
 	{
 		// if not focused, enter focus mode, else quit
-
 		UHero_AnimInstance* animRef = mHeroCharacter->GetAnimInstanceRef();
 		if (animRef)
 		{

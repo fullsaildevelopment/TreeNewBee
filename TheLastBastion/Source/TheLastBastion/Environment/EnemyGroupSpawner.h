@@ -37,6 +37,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		float FirstSpawnDelay;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
+		/** All Unit Spawn Position*/
+		bool bEnableSpawning;
+
+
 
 private:
 

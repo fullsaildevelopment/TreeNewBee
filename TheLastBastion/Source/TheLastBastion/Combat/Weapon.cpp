@@ -148,12 +148,12 @@ void AWeapon::GetRayCastPosition(FVector & _start, FVector & _end)
 	case EGearType::Hammer:
 	{
 
-		_start = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_start.Y + GetActorUpVector() * DamageEdgeOffset_start.Z;;
-		_end = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_end.Y;
-		//_rotator = this->GetActorRotation();
+		//_start = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_start.Y + GetActorUpVector() * DamageEdgeOffset_start.Z;;
+		//_end = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_end.Y;
+		////_rotator = this->GetActorRotation();
 
-		//_start = GetActorLocation() - GetActorRightVector() * DamageEdgeOffset_start.Y   + GetActorForwardVector() * DamageEdgeOffset_start;
-		//_end = GetActorLocation()   - GetActorRightVector() * DamageEdgeOffset_end.Y     + GetActorForwardVector() * DamageEdgeOffset_end;
+		_start = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_start.Y   + GetActorForwardVector() * DamageEdgeOffset_start.X;
+		_end = GetActorLocation()   + GetActorRightVector() * DamageEdgeOffset_end.Y     + GetActorForwardVector() * DamageEdgeOffset_end.X;
 		//_rotator = FRotator(this->GetActorRotation().Pitch, -this->GetActorRotation().Yaw, this->GetActorRotation().Roll);
 		break;
 	}

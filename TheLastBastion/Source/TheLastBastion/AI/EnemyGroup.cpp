@@ -19,6 +19,8 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "GameMode/SinglePlayerGM.h"
+#include "DrawDebugHelpers.h"
+
 
 
 AEnemyGroup::AEnemyGroup()
@@ -382,6 +384,9 @@ int AEnemyGroup::GetMaxRowCount() const
 void AEnemyGroup::MeleeAgainstPlayer_OnEnemyGroupMission()
 {
 	FVector marchLocation = PlayerHero->GetActorLocation()- 90 * FVector::UpVector;
+
+	DrawDebugSphere(GetWorld(), marchLocation, 50, 8, FColor::Purple, false, 6);
+
 
 	SetMarchLocation(marchLocation, GC_GOTOLOCATION);
 }
