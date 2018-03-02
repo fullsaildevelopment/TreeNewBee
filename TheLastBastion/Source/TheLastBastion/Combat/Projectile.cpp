@@ -113,7 +113,7 @@ void AProjectile::MakeStatic()
 }
 
 void AProjectile::Tick(float _deltaTime)
-{
+{   
 	//UE_LOG(LogTemp, Log, TEXT("Vel: %f"), ProjectileMovementComp->Velocity.SizeSquared());
 	if (bDamageIsEnable)
 	{
@@ -171,13 +171,13 @@ void AProjectile::Tick(float _deltaTime)
 
 				if (PenetrateLevel <= CurrentHitCount)
 				{
-					FActorSpawnParameters spawnParam;
-					spawnParam.Owner = damagedActor;
-					spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-					FVector attackLocation = GetActorLocation() + this->GetActorForwardVector() * StabInDistance;
-					AProjectile* copyProjectile = GetWorld()->SpawnActor<AProjectile>(this->GetClass(), attackLocation, GetActorRotation(), spawnParam);
-					copyProjectile->AttachToComponent
-					(Character->GetMesh(), FAttachmentTransformRules::KeepWorldTransform, DamageInfo.hitResult.BoneName);
+					//FActorSpawnParameters spawnParam;
+					//spawnParam.Owner = damagedActor;
+					//spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+					//FVector attackLocation = GetActorLocation() + this->GetActorForwardVector() * StabInDistance;
+					//AProjectile* copyProjectile = GetWorld()->SpawnActor<AProjectile>(this->GetClass(), attackLocation, GetActorRotation(), spawnParam);
+					//copyProjectile->AttachToComponent
+					//(Character->GetMesh(), FAttachmentTransformRules::KeepWorldTransform, DamageInfo.hitResult.BoneName);
 
 					Destroy();
 					//copyProjectile->MakeStatic();
@@ -190,6 +190,7 @@ void AProjectile::Tick(float _deltaTime)
 			}
 			else
 			{
+				return;
 				AShield* Shield = Cast<AShield>(damagedActor);
 				if (Shield)
 				{
@@ -228,12 +229,12 @@ void AProjectile::Tick(float _deltaTime)
 				}
 				else
 				{
-					FActorSpawnParameters spawnParam;
-					spawnParam.Owner = damagedActor;
-					spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+					//FActorSpawnParameters spawnParam;
+					//spawnParam.Owner = damagedActor;
+					//spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-					AProjectile* copyProjectile = GetWorld()->SpawnActor<AProjectile>(this->GetClass(), GetActorLocation(), GetActorRotation(), spawnParam);
-					copyProjectile->AttachToActor(damagedActor, FAttachmentTransformRules::KeepWorldTransform);
+					//AProjectile* copyProjectile = GetWorld()->SpawnActor<AProjectile>(this->GetClass(), GetActorLocation(), GetActorRotation(), spawnParam);
+					//copyProjectile->AttachToActor(damagedActor, FAttachmentTransformRules::KeepWorldTransform);
 					Destroy();
 
 				}
