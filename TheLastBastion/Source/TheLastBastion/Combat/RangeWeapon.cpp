@@ -102,7 +102,6 @@ void ARangeWeapon::Fire()
 
 void ARangeWeapon::NPCFire(const AActor* _target)
 {
-
 	GearOwner = Cast<ATheLastBastionCharacter>(GetOwner());
 	UWorld* world = GetWorld();
 

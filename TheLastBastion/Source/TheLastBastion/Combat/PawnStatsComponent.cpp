@@ -474,51 +474,6 @@ void UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), sfxSelected, _damageInfo.hitResult.Location);
 	}
 
-
-	//// Play SFX
-	//USoundCue* WeaponFleshImpact = nullptr;
-	//switch (GearType)
-	//{
-	//case EGearType::LongSword:
-	//{
-	//	WeaponFleshImpact = UAudioManager::GetSFX(ESoundEffectType::ESwordFleshImpact);
-	//	UGameplayStatics::PlaySoundAtLocation(world, WeaponFleshImpact, DamageInfo.hitResult.GetActor()->GetActorLocation());
-	//}
-
-	//case EGearType::WarAxe:
-	//	break;
-
-	//case EGearType::Mace:
-	//	break;
-
-	//case EGearType::DoubleHandWeapon:
-	//	break;
-
-	//default:
-	//	break;
-	//}
-
-
-
-
-
-	//switch (surefaceType)
-	//{
-	//case SURFACE_FLESH:
-	//	vfxSelected = UVfxManager::GetVfx(EVfxType::bloodImpact_sputtering);
-	//	break;
-	//case SURFACE_METAL:
-	//	vfxSelected = UVfxManager::GetVfx(EVfxType::metalImpact_sputtering);
-	//	break;
-	//default:
-	//	break;
-	//}
-
-
-
-
-
-
 	// apply damage type based on weapon 
 	switch (_damageInfo.applyDamageType)
 	{

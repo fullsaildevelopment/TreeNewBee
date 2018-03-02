@@ -276,6 +276,7 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 	const UDamageType * DamageType, AActor * DamageCauser)
 {
 
+	return;
 	if (bIsDead)
 		return;
 
