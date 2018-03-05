@@ -142,7 +142,7 @@ protected:
 			const class UDamageType* DamageType, AActor* DamageCauser) override;
 
 
-	virtual void KnockOut(const FVector& dir, const AActor* _damageCauser, const FName& _boneName) override;
+	virtual void KnockOut(const FVector& dir, const AActor* _damageCauser, FName _boneName) override;
 
 
 protected:

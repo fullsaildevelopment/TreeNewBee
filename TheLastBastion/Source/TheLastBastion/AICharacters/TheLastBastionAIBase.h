@@ -22,8 +22,6 @@ public:
 
 protected:
 
-
-
 	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
 		FText AiName;
 
@@ -54,6 +52,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
 		int AITier;
 
+	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
+		bool bIsRangeUnit;
+
 
 protected:
 
@@ -63,12 +64,13 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent)
 		UTexture2D* GetThumbNailImage() const;
-
 	UTexture2D* GetThumbNailImage_Implementation() const { return nullptr; }
-
 
 	UFUNCTION()
 		virtual void OnTargetDeathHandle();
+
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE bool IsRangeUnit() const { return bIsRangeUnit; }
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE class UPawnStatsComponent* GetEnemyStatsComponent() const { return AIStats; }
@@ -78,7 +80,6 @@ public:
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE class UAIBase_AnimInstance* GetAnimInstanceRef() const { return mAnimInstanceRef; }
-
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE class AAIGroupBase* GetGroup() const { return mGroup; }
@@ -93,7 +94,8 @@ public:
 
 	bool OnFriendFireCheck(const ATheLastBastionCharacter* _target);
 
-	void SetTarget(AActor* _target);
+	/** Set target to this AI, default to binding the target request delegate*/
+	void SetTarget(AActor* _target, bool _asGroupMember = false);
 
 	void SetParent(class AAIGroupBase* _Group, int _groupIndex);
 
@@ -121,10 +123,10 @@ protected:
 	virtual void EvaluateAttackerThreat(AActor* DamageCauser, float hp);
 
 	// Define how am I going to do with the damage causer
-	virtual void HitResponse(AActor* DamageCauser);
+	virtual void HitResponse(AActor* DamageCauser) {}
 
 	// Called on Hp = 0;
-	void OnDead(const FVector& dir, const AActor* _damageCauser, const FName& _boneName) override;
+	void OnDead(const FVector& dir, const AActor* _damageCauser, FName _boneName) override;
 
 
 };

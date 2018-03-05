@@ -42,6 +42,7 @@
 #define RangeUnitShootingRange 8000
 #define VisionHalfHeight 200.0f
 #define GroupFrontExtraVision 100.0f
+#define RangeGroupTargetAmount 4
 
 
 USTRUCT(BlueprintType)
@@ -95,7 +96,7 @@ struct FThreat
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		class AActor* Character;
+		class ATheLastBastionCharacter* Character;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		float GroupThreat;
@@ -104,7 +105,16 @@ struct FThreat
 		float Manhaton;
 };
 
+USTRUCT(BlueprintType)
+struct FRangeGroupPrimaryTarget
+{
+	GENERATED_BODY()
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class ATheLastBastionCharacter* PrimaryTarget = nullptr;
+
+	FDelegateHandle TargetRequestHandle;
+};
 
 UCLASS(BlueprintType)
 class THELASTBASTION_API AAIGroupBase : public APawn
@@ -124,9 +134,9 @@ protected:
 		// the dead group member should be remove from the character list, before execute the next command
 		TArray<int> RemovePendingList;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
 		// Look up map for check the individual character to this threat
-		TMap<class ATheLastBastionCharacter* , float> ThreatMap;
+		TMultiMap<class ATheLastBastionCharacter* , float> ThreatMap;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		/** The class and the number we about to spawn*/
@@ -228,6 +238,11 @@ protected:
 	// all unit target on the first threat, when there comes the first threat
 	void RangeTargetSelect_OnFirstOverlap(AActor* TargetActor);
 
+	//void SetRangeGroupTarget(AActor* TargetActor);
+
+	///** Called when group target is dead, assigned group with new target
+	//  * bind the target request delegate*/
+	//void OnGroupGroupTargetDeadHandle();
 
 
 	UFUNCTION()
@@ -252,7 +267,7 @@ protected:
 	/** Melee Unit version of OnTarget Request*/
 	AActor* OnTargetRequest_Melee(const ATheLastBastionCharacter* _requestSender);
 	/** Range Unit version of OnTarget Request*/
-	AActor* OnTargetRequest_Range(const ATheLastBastionCharacter* _requestSender);
+	AActor* OnTargetRequest_Range(const AActor* _requestSender);
 
 
 	virtual void SetGroupVisionVolumn(float _maxGroupWidth, float _maxGroupLength);
@@ -263,6 +278,8 @@ public:
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	FORCEINLINE bool HasThreat(const ATheLastBastionCharacter* _threat) const { return ThreatMap.Find(_threat) != nullptr; }
 
 	void KillAllChild();
 
@@ -282,7 +299,7 @@ public:
 
 	void AddThreat(class ATheLastBastionCharacter* _character, float _threat);
 	void AddThreatByGroup(class AAIGroupBase* _targetGroup);
-	void RemoveThreat(class ATheLastBastionCharacter* _character);
+	void RemoveThreat(class ATheLastBastionCharacter const* _character);
 	void RemoveThreatByGroup(class AAIGroupBase* _targetGroup);
 
 

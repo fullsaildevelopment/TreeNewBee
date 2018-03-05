@@ -81,9 +81,6 @@ void AAIGroupBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-
-
-
 	if (MeleeVision)
 	{
 		MeleeVision->OnComponentBeginOverlap.AddDynamic(this, &AAIGroupBase::OnMeleeVisionOverrlapBegin);
@@ -148,10 +145,49 @@ void AAIGroupBase::RangeTargetSelect_OnFirstOverlap(AActor* TargetActor)
 		if (CurrentAICharacter && !CurrentAICharacter->GetIsDead())
 		{
 			CurrentAICharacter->SetTarget(TargetActor);
-			//DrawDebugLine(GetWorld(), CurrentAICharacter->GetActorLocation(), TargetActor->GetActorLocation(), FColor::Cyan, false, 5.0f, 0, 2.0f);
 		}
 	}
 }
+
+//void AAIGroupBase::SetRangeGroupTarget_OnOverLap(TArray<FRangeGroupPrimaryTarget>& _targetList)
+//{
+//}
+
+//void AAIGroupBase::SetRangeGroupTarget_OnRequest()
+//{
+//
+//}
+
+
+//void AAIGroupBase::SetRangeGroupTarget(AActor* TargetActor)
+//{
+//
+//	for (int i = 0; i < AICharactersInfo.Num(); i++)
+//	{
+//		ATheLastBastionAIBase* CurrentAICharacter = AICharactersInfo[i].AICharacter;
+//		if (CurrentAICharacter && !CurrentAICharacter->GetIsDead())
+//		{
+//			CurrentAICharacter->SetTarget(TargetActor, true);
+//		}
+//	}
+//
+//	ATheLastBastionCharacter* groupTarget = Cast<ATheLastBastionCharacter>(TargetActor);
+//
+//	if (groupTarget && groupTarget->GetIsDead() == false)
+//	{
+//		groupTarget->OnBecomeUnvailbleTargetEvent.AddUObject(this, &AAIGroupBase::OnGroupGroupTargetDeadHandle);
+//	}
+//
+//
+//
+//}
+//
+//void AAIGroupBase::OnGroupGroupTargetDeadHandle()
+//{
+//	UE_LOG(LogTemp, Log, TEXT("AAIGroupBase :: OnGroupGroupTargetDeadHandle"));
+//	AActor* const groupTarget = OnTargetRequest_Range(this);
+//	SetRangeGroupTarget(groupTarget);
+//}
 
 void AAIGroupBase::OnMeleeVisionOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult) {}
@@ -276,7 +312,7 @@ void AAIGroupBase::AddThreat(ATheLastBastionCharacter * _character, float _threa
 	float* threat = ThreatMap.Find(_character);
 	if (threat == nullptr)
 	{
-		ThreatMap.Add(_character, _threat);
+		ThreatMap.AddUnique(_character, _threat);
 	}
 	else
 	{
@@ -294,7 +330,7 @@ void AAIGroupBase::AddThreatByGroup(AAIGroupBase * _targetGroup)
 	}
 }
 
-void AAIGroupBase::RemoveThreat(ATheLastBastionCharacter * _character)
+void AAIGroupBase::RemoveThreat(ATheLastBastionCharacter const * _character)
 {
 	ThreatMap.Remove(_character);
 	// check if we have remaining threat
@@ -320,19 +356,19 @@ void AAIGroupBase::RemoveThreatByGroup(AAIGroupBase * _targetGroup)
 
 }
 
-AActor * AAIGroupBase::OnTargetRequest(const ATheLastBastionCharacter* _requestSender)
+AActor* AAIGroupBase::OnTargetRequest(const ATheLastBastionCharacter* _requestSender)
 {
 	return OnTargetRequest_Melee(_requestSender);
 }
 
-AActor * AAIGroupBase::OnTargetRequest_Melee(const ATheLastBastionCharacter * _requestSender)
+AActor* AAIGroupBase::OnTargetRequest_Melee(const ATheLastBastionCharacter * _requestSender)
 {
-	ATheLastBastionCharacter* currentThreat = nullptr;
+	ATheLastBastionCharacter*  currentThreat = nullptr;
 	//filter out the dead threat
 	for (auto& Elem : ThreatMap)
 	{
 		currentThreat = Elem.Key;
-		if (currentThreat == nullptr || currentThreat->GetIsDead())
+		if (currentThreat->GetIsDead())
 			RemoveThreat(currentThreat);
 	}
 
@@ -376,16 +412,29 @@ AActor * AAIGroupBase::OnTargetRequest_Melee(const ATheLastBastionCharacter * _r
 
 }
 
-AActor * AAIGroupBase::OnTargetRequest_Range(const ATheLastBastionCharacter * _requestSender)
+AActor* AAIGroupBase::OnTargetRequest_Range(const AActor * _requestSender)
 {
-	ATheLastBastionCharacter* currentThreat = nullptr;
-	//filter out the dead threat
+	UE_LOG(LogTemp, Log, TEXT("OnTargetRequest_Range"));
+	ATheLastBastionCharacter*  currentThreat = nullptr;
+
 	for (auto& Elem : ThreatMap)
 	{
 		currentThreat = Elem.Key;
-		if (currentThreat == nullptr || currentThreat->GetIsDead())
+		//if (currentThreat == nullptr)
+		//{
+		//	UE_LOG(LogTemp, Warning, TEXT("AAIGroupBase::OnTargetRequest_Range - NULL THREAT"));
+		//	RemoveThreat(currentThreat);
+		//	continue;
+		//}
+
+		if (currentThreat->GetIsDead())
+		{
+			UE_LOG(LogTemp, Log, TEXT("AAIGroupBase::OnTargetRequest_Range - DEAD THREAT"));
 			RemoveThreat(currentThreat);
+		}
 	}
+
+	//ThreatMap.Shrink();
 
 	int ThreatCount = ThreatMap.Num();
 	if (ThreatCount == 0)
@@ -417,7 +466,9 @@ AActor * AAIGroupBase::OnTargetRequest_Range(const ATheLastBastionCharacter * _r
 	targetSelectionRandomRange = (targetSelectionRandomRange < 0) ? 0 : targetSelectionRandomRange;
 	int outIndex = FMath::RandRange(0, targetSelectionRandomRange);
 
-	return targetCandidates[outIndex].Character;
+	//return targetCandidates[outIndex].Character;
+	return targetCandidates[0].Character;
+
 }
 
 void AAIGroupBase::QuickSortThreatListByManDistance(TArray<FThreat>& _threatList, int _left, int _right) const
@@ -555,7 +606,6 @@ TArray<class ATheLastBastionAIBase*> AAIGroupBase::GetLeftLine() const
 	int leftLine = 0;
 	return GetColumnAt(leftLine);
 }
-
 
 void AAIGroupBase::SwapChildenOrder() {}
 
@@ -1301,8 +1351,6 @@ void AAIGroupBase::AssignColumnToColumn(AAIGroupBase * const _targetGroup, int _
 			else
 				theirCurrentCol = FMath::RandRange(0, theirColSize - 1);
 			ourColGroup[iRow]->SetTarget(theirColGroup[theirCurrentCol]);
-
-
 		}
 	}
 	else

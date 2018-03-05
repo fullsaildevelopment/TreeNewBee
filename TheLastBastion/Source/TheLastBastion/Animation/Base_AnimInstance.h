@@ -14,11 +14,17 @@
 #define MONTAGE_CB_FireOnce   TEXT("FireOnce")
 
 
+
+namespace
+{
+	UAnimMontage* Sh_HitReaction = nullptr;
+}
+
+
 UCLASS()
 class THELASTBASTION_API UBase_AnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
-
 
 public:
 
@@ -133,6 +139,13 @@ protected:
 public:
 
 	FORCEINLINE bool IsOnDefend() const { return bOnDefend; }
+
+private:
+
+	UAnimMontage* FindMontage(const TCHAR* _path);
+
+
+
 
 
 };

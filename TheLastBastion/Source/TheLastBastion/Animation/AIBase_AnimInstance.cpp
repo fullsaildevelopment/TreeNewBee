@@ -96,6 +96,7 @@ void UAIBase_AnimInstance::ResetOnBeingHit()
 
 void UAIBase_AnimInstance::OnBeingHit(FName boneName, const FVector & _damageCauseRelative, const FVector & _hitLocation)
 {
+	Hit_Montage = Sh_HitReaction;
 	if (Hit_Montage == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Hit Montage is nullptr"));

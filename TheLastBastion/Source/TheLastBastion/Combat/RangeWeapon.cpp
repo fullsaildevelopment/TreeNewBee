@@ -45,7 +45,7 @@ void ARangeWeapon::Fire()
 {   
 	//UE_LOG(LogTemp, Warning, TEXT("Fire in the hole"));
 
-	GearOwner = Cast<ATheLastBastionCharacter>(GetOwner());
+	//GearOwner = Cast<ATheLastBastionCharacter>(GetOwner());
 	UWorld* world = GetWorld();
 
 	// Trace the world from pawn eyes to crosshair location
@@ -85,11 +85,23 @@ void ARangeWeapon::Fire()
 		FVector LaunchLocation = MeshComp->GetSocketLocation(LaunchLocationName);
 		
 		// Create and Initialize the spawn parameters for the projectile
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		SpawnParams.Owner = this;
+		//FActorSpawnParameters SpawnParams;
+		//SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		//SpawnParams.Owner = this;
 
-		AProjectile* CrossbowProjectile = world->SpawnActor<AProjectile>(ProjectileClassBP, MuzzleLocation, EyesRotation, SpawnParams);
+		//AProjectile* CrossbowProjectile = world->SpawnActor<AProjectile>(ProjectileClassBP, MuzzleLocation, EyesRotation, SpawnParams);
+		FTransform spawnTransform;
+		spawnTransform.SetLocation(MuzzleLocation);
+		spawnTransform.SetRotation(EyesRotation.Quaternion());
+		spawnTransform.SetScale3D(FVector(1.5f, 1.5f, 1.5f));
+
+		AProjectile* CrossbowProjectile = 
+			world->SpawnActorDeferred<AProjectile>(ProjectileClassBP, 
+				spawnTransform, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+
+		CrossbowProjectile->ProjectileOnFire(this);
+		CrossbowProjectile->FinishSpawning(spawnTransform);
+
 		if (CrossbowProjectile)
 		{
 			FVector FlyDir = (TraceEnd - LaunchLocation).GetSafeNormal();
@@ -102,7 +114,6 @@ void ARangeWeapon::Fire()
 
 void ARangeWeapon::NPCFire(const AActor* _target)
 {
-	GearOwner = Cast<ATheLastBastionCharacter>(GetOwner());
 	UWorld* world = GetWorld();
 
 	// Trace the world from pawn eyes to crosshair location
@@ -154,7 +165,20 @@ void ARangeWeapon::NPCFire(const AActor* _target)
 		bool const IsHit = world->LineTraceSingleByChannel(Hit, MuzzleLocation, TraceEnd, ECollisionChannel::ECC_Visibility);
 
 
-		AProjectile* CrossbowProjectile = world->SpawnActor<AProjectile>(ProjectileClassBP, MuzzleLocation, MuzzleRotation, SpawnParams);
+		FTransform spawnTransform;
+		spawnTransform.SetLocation(MuzzleLocation);
+		spawnTransform.SetRotation(MuzzleRotation.Quaternion());
+		spawnTransform.SetScale3D(FVector(1.5f, 1.5f, 1.5f));
+
+		AProjectile* CrossbowProjectile =
+			world->SpawnActorDeferred<AProjectile>(ProjectileClassBP,
+				spawnTransform, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+
+		CrossbowProjectile->ProjectileOnFire(this);
+		CrossbowProjectile->FinishSpawning(spawnTransform);
+
+
+
 		if (CrossbowProjectile)
 		{
 			FVector horVel = FlyDir * BulletSpeed;

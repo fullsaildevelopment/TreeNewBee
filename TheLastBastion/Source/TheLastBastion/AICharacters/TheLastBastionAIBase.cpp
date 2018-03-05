@@ -204,7 +204,7 @@ bool ATheLastBastionAIBase::OnGroupTaskStart()
 	return true;
 }
 
-void ATheLastBastionAIBase::SetTarget(AActor * _target)
+void ATheLastBastionAIBase::SetTarget(AActor * _target, bool _asGroupMember)
 {
 	ATheLastBastionBaseAIController *baseAICtrl = Cast<ATheLastBastionBaseAIController>(GetController());
 
@@ -233,14 +233,13 @@ void ATheLastBastionAIBase::SetTarget(AActor * _target)
 	{
 		baseAICtrl->SetTargetActor_BBC(_target);
 		ATheLastBastionCharacter* aiTarget = Cast<ATheLastBastionCharacter>(_target);
-		if (aiTarget && !aiTarget->GetIsDead())
+		if (aiTarget && !aiTarget->GetIsDead() && !_asGroupMember)
 		{
 			aiTarget->OnBecomeUnvailbleTargetEvent.AddUObject(this, &ATheLastBastionAIBase::OnTargetDeathHandle);
 		}
 	}
+
 	baseAICtrl->SetNewCommandIndex_BBC(GC_FIGHT);
-
-
 }
 
 AActor * ATheLastBastionAIBase::GetTarget() const
@@ -276,7 +275,6 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 	const UDamageType * DamageType, AActor * DamageCauser)
 {
 
-	return;
 	if (bIsDead)
 		return;
 
@@ -284,9 +282,6 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 
 	// the relative position of damage causer to damaged actor
 	FVector damageCauserRelative = ShotFromDirection;
-	//damageCauserRelative.Z = 0.0f;
-	//damageCauserRelative = damageCauserRelative.GetUnsafeNormal();
-
 
 	float totalDamage = AIStats->CalculateDamage(Damage, DamageCauser, isCritical, isStun);
 	float currentHp = AIStats->GetHpCurrent();
@@ -297,13 +292,17 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 	if (heroAttacker)
 		GenerateFloatingText(HitLocation, heroAttacker, totalDamage, isCritical, isStun);
 
+	////////////////////////////////////////////// innocent line ////////////////////////////
+
+
 	EvaluateAttackerThreat(DamageCauser, currentHp);
 
-	// calculate impulse direction in case this ai is killed or stuned
-	FVector RagDollImpulse = HitLocation - DamageCauser->GetTargetLocation();
 
 	if (currentHp <= 0)
 	{
+		// calculate impulse direction in case this ai is killed
+		FVector RagDollImpulse = HitLocation - DamageCauser->GetActorLocation();
+
 		OnDead(RagDollImpulse, DamageCauser, BoneName);
 		return;
 	}
@@ -314,23 +313,23 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 	/// Check if we want to simulate physics or play animation
 	mAnimInstanceRef->ResetOnBeingHit();
 
+	////////////////////////////////////////////// innocent line ////////////////////////////
 	if (isStun)
 	{
-		// if this ai is not get simulate ragdoll physics, play hit animation
-		KnockOut(RagDollImpulse, DamageCauser,BoneName);
+		//// if this ai is not get simulate ragdoll physics, play hit animation
+		//KnockOut(RagDollImpulse, DamageCauser,BoneName);
 
-		AAIController* aiCtrl = Cast<AAIController>(GetController());
-		if (aiCtrl)
-		{
-			aiCtrl->ClearFocus(EAIFocusPriority::Gameplay);
-		}
+		//AAIController* aiCtrl = Cast<AAIController>(GetController());
+		//if (aiCtrl)
+		//{
+		//	aiCtrl->ClearFocus(EAIFocusPriority::Gameplay);
+		//}
 	}
 	else
 	{
-		// if this ai is not get stunned, play hit animation
+		//if this ai is not get stunned, play hit animation
 		mAnimInstanceRef->OnBeingHit(BoneName, damageCauserRelative, HitLocation);
 	}
-
 }
 
 void ATheLastBastionAIBase::GenerateFloatingText(const FVector & HitLocation,
@@ -338,17 +337,11 @@ void ATheLastBastionAIBase::GenerateFloatingText(const FVector & HitLocation,
 
 void ATheLastBastionAIBase::EvaluateAttackerThreat(AActor * DamageCauser, float hp) {}
 
-/** How I should response to damage causer */
-void ATheLastBastionAIBase::HitResponse(AActor* DamageCauser)
-{
-
-}
-
-void ATheLastBastionAIBase::OnDead(const FVector& dir, const AActor* _damageCauser, const FName& _boneName)
+void ATheLastBastionAIBase::OnDead(const FVector& dir, const AActor* _damageCauser, FName _boneName)
 {
 	bIsDead = true;
-	if (AI_HUD)
-		AI_HUD->ToggleUI(true, true);
+	//if (AI_HUD)
+	//	AI_HUD->ToggleUI(true, true);
 
 	// disable BT
 	ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(GetController());
@@ -358,10 +351,10 @@ void ATheLastBastionAIBase::OnDead(const FVector& dir, const AActor* _damageCaus
 	// Tell my Group that I am dead
 	mGroup->OnChildDeath(mGroupIndex);
 
-	// Launch kill timer
-	GetWorldTimerManager().SetTimer(mRagDollTimer, this, &ATheLastBastionAIBase::Kill, 1.0f, false, SecondBeforeKill);
-
 	Super::OnDead(dir, _damageCauser, _boneName);
+	
+	//// Launch kill timer
+	GetWorldTimerManager().SetTimer(mRagDollTimer, this, &ATheLastBastionAIBase::Kill, 1.0f, false, SecondBeforeKill);
 
 }
 
