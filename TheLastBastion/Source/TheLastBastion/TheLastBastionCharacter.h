@@ -135,11 +135,11 @@ protected:
 			const class UDamageType* DamageType, AActor* DamageCauser);
 
 	/** Turn character to ragdoll*/
-	virtual void KnockOut(const FVector& dir, const AActor* _damageCauser, const FName& _boneName);
+	virtual void KnockOut(const FVector& dir, const AActor* _damageCauser, FName _boneName);
 
 	/** Unregister all the group that I am a threat to it
 	* put character to ragdoll, Called on Hp = 0 */
-	virtual void OnDead(const FVector& dir, const AActor* _damageCauser, const FName& _boneName);
+	virtual void OnDead(const FVector& dir, const AActor* _damageCauser,  FName _boneName);
 
 
 	// Called ragdoll recover start

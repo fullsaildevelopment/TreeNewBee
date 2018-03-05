@@ -122,7 +122,7 @@ void ATheLastBastionCharacter::OnTakePointDamageHandle(AActor * DamagedActor, fl
 }
 
 
-void ATheLastBastionCharacter::KnockOut(const FVector& dir, const AActor* _damageCauser, const FName& _boneName)
+void ATheLastBastionCharacter::KnockOut(const FVector& dir, const AActor* _damageCauser, FName _boneName)
 {
 	//GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -169,21 +169,15 @@ void ATheLastBastionCharacter::KnockOut(const FVector& dir, const AActor* _damag
 
 }
 
-void ATheLastBastionCharacter::OnDead(const FVector& dir, const AActor* _damageCauser, const FName& _boneName)
+void ATheLastBastionCharacter::OnDead(const FVector& dir, const AActor* _damageCauser, FName _boneName)
 {
-	// condition for ragdoll
-	//GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//GetMesh()->SetSimulatePhysics(true);
-	//GetMesh()->SetCollisionResponseToChannel(
-	//	ECollisionChannel::ECC_WorldStatic,
-	//	ECollisionResponse::ECR_Block);
-	//GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	KnockOut(dir, _damageCauser, _boneName);
 
 	PawnStats->SetEnableWeapon(false, true, true);
 
-	UE_LOG(LogTemp, Warning, TEXT("%s is Dead - ATheLastBastionCharacter::OnDead"), *GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("%s is Dead - ATheLastBastionCharacter::OnDead"), *GetName());
 	// tell all the ai that target this actor to re choose target
+
 	OnBecomeUnvailbleTargetEvent.Broadcast();
 }
 

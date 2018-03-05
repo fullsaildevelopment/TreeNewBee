@@ -9,6 +9,11 @@
 /**
  * 
  */
+
+#define Bullets_DamageBoxExtend FVector(12, 1.5f, 1.5f)
+#define Bullets_DamageBoxOffset FVector(-3, 0, 0)
+#define StabInDistance 10.0f;
+
 UCLASS(BlueprintType)
 class THELASTBASTION_API AProjectile : public AGear
 {
@@ -16,7 +21,6 @@ class THELASTBASTION_API AProjectile : public AGear
 	
 protected:
 	// Components
-
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class USceneComponent* RootComp;
@@ -26,9 +30,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class UProjectileMovementComponent* ProjectileMovementComp;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DamageCollsion)
-		class USceneComponent* DamageSphereHolder;
 
 	UPROPERTY(BlueprintReadOnly, Category = DamageCollsion)
 		/** The actor to ignore in one shot*/
@@ -47,6 +48,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = DamageCollsion)
 		bool bDamageIsEnable;
 
+	UPROPERTY(BlueprintReadOnly, Category = DamageCollsion)
+		// Does this projectile should fly or stick onto something
+		bool bIsFlying;
+
 public:
 	// Sets default values for this actor's properties
 	AProjectile();
@@ -61,12 +66,27 @@ public:
 
 	void SetInitFireVelocity(const FVector& _hor, float flyTime);
 
-
 public:
 	/** Returns ProjectileMovement subobject **/
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovementComp() const { return ProjectileMovementComp; }
 
+	void ProjectileOnFire(class AGear* _rangeWeapon);
+
 private:
+
 	void MakeStatic();
-	
+
+	void SetMesh(UStaticMesh * _mesh);
+
+protected:
+
+	UFUNCTION(BlueprintNativeEvent)
+		class UStaticMesh* GetFlyingMesh() const;
+	UStaticMesh* GetFlyingMesh_Implementation() const { return nullptr; }
+
+
+	UFUNCTION(BlueprintNativeEvent)
+		class UStaticMesh* GetNonFlyingMesh() const;
+	UStaticMesh* GetNonFlyingMesh_Implementation() const { return nullptr; }
+
 };

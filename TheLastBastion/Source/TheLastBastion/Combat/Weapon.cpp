@@ -45,13 +45,8 @@ void AWeapon::Tick(float _deltaTime)
 	if (bShowBounding)
 	{
 		FVector startPosition, endPosition;
-		//FRotator rotation;
 
-		//startPosition = GetActorLocation() + DamageEdgeOffset_start;
-		//endPosition   = GetActorLocation() + DamageEdgeOffset_end;
-		GetRayCastPosition(startPosition, endPosition);
-
-
+ 		GetRayCastPosition(startPosition, endPosition);
 
 		FHitResult _hit;
 		const TArray<AActor* > ignoreActors;
@@ -94,7 +89,7 @@ void AWeapon::Tick(float _deltaTime)
 		DamageInfo.bIsProjectile = false;
 
 		UWorld* world = GetWorld();
-		bool IsHit = world->SweepSingleByObjectType(DamageInfo.hitResult, startPosition, endPosition, GetActorRotation().Quaternion(), ObjectParams,
+		bool IsHit = world->SweepSingleByObjectType(DamageInfo.hitResult, startPosition, endPosition, GetActorQuat(), ObjectParams,
 			FCollisionShape::MakeBox(DamageVolumnExtend), Params);
 		if (IsHit)
 		{

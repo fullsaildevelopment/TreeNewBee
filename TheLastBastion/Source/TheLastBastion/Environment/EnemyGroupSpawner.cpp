@@ -86,15 +86,17 @@ void AEnemyGroupSpawner::Spawn()
 		AEnemyGroup* newEnemyGroup
 			= GetWorld()->SpawnActorDeferred<AEnemyGroup>
 			(LanT0, spawnTransform, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+		if (newEnemyGroup)
+		{
+			FAISpawnInfo spawnInfo;
+			newEnemyGroup->SetSpawnInfoAtSection_TotalNum(FMath::RandRange(8, 12), 0);
+			newEnemyGroup->SetSpawnInfoAtSection_MaxCol(FMath::RandRange(4, 6), 0);
 
-		FAISpawnInfo spawnInfo;
-		newEnemyGroup->SetSpawnInfoAtSection_TotalNum (FMath::RandRange(8, 12), 0);
-		newEnemyGroup->SetSpawnInfoAtSection_MaxCol(FMath::RandRange(4, 6), 0);
+			UGameplayStatics::FinishSpawningActor(newEnemyGroup, spawnTransform);
+			newEnemyGroup->SpawnDefaultController();
 
-		UGameplayStatics::FinishSpawningActor(newEnemyGroup, spawnTransform);
-		newEnemyGroup->SpawnDefaultController();
-
-		gm->RegisterEnemyGroup(newEnemyGroup);
+			gm->RegisterEnemyGroup(newEnemyGroup);
+		}
 	}
 }
 

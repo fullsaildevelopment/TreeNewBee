@@ -1574,7 +1574,6 @@ bool UHero_AnimInstance::OnCounterAttack(const FVector & _damageCauserRelative)
 {
 	float dotFront = FVector::DotProduct(mCharacter->GetActorForwardVector(), _damageCauserRelative);
 
-	UE_LOG(LogTemp, Log, TEXT("dotFront: %f, UHero_AnimInstance::OnCounterAttack"), dotFront);
 	// Check if we are in defence mode
 	if (!bOnDefend)
 		return false;

@@ -7,13 +7,15 @@
 #include "Combat/Armor.h"
 #include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
+#include "ConstructorHelpers.h"
+
 #define SN_GetUpFromBack TEXT("GetUpFromBack")
 #define SN_GetUpFromFace TEXT("GetUpFromFace")
 
 
 UBase_AnimInstance::UBase_AnimInstance(const FObjectInitializer& _objectInitalizer)
 {
-	
+	Sh_HitReaction = FindMontage(TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_SSword_HitReaction"));
 }
 
 void UBase_AnimInstance::OnBeginPlay()
@@ -263,4 +265,13 @@ void UBase_AnimInstance::FxOnDraw()
 
 void UBase_AnimInstance::FxOnReload()
 {
+}
+
+UAnimMontage * UBase_AnimInstance::FindMontage(const TCHAR * _path)
+{
+	ConstructorHelpers::FObjectFinder<UAnimMontage> ps_finder(_path);
+	if (ps_finder.Succeeded())
+		return ps_finder.Object;
+	else
+		return nullptr;
 }

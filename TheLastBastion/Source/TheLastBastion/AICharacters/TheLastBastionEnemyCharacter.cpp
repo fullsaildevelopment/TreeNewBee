@@ -51,6 +51,10 @@ void ATheLastBastionEnemyCharacter::BeginPlay()
 
 void ATheLastBastionEnemyCharacter::HitResponse(AActor * DamageCauser)
 {
+
+	if (bIsRangeUnit)
+		return;
+
 	if (mGroup->IsInBattle())
 	{
 		const ATheLastBastionCharacter * attacker = Cast<ATheLastBastionCharacter>(DamageCauser);

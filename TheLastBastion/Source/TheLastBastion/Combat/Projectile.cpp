@@ -5,6 +5,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Combat/PawnStatsComponent.h"
+
+#include "Combat/RangeWeapon.h"
 #include "Combat/Shield.h"
 
 #include "PhysicalMaterials/PhysicalMaterial.h"
@@ -15,8 +17,6 @@
 #include "AudioManager.h"
 #include "Kismet/GameplayStatics.h"
 
-#define SPHERERADIUS 1.5f
-#define StabInDistance 10.0f;
 
 
 // Sets default values
@@ -30,13 +30,7 @@ AProjectile::AProjectile()
 	ProjectileMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectileMeshComp"));
 	ProjectileMeshComp->SetupAttachment(RootComp);
 	ProjectileMeshComp->SetCollisionProfileName(TEXT("NoCollision"));
-	ProjectileMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	DamageSphereHolder = CreateDefaultSubobject<USceneComponent>(TEXT("sphereCastPosition"));
-	DamageSphereHolder->SetupAttachment(ProjectileMeshComp);
-	DamageSphereHolder->SetActive(false);
-	DamageSphereHolder->RelativeLocation = FVector(0, 8, 0);
-	
+	ProjectileMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);	
 
 	// Use a ProjectileMovementComponent to govern this projectile's movement
 	ProjectileMovementComp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComp"));
@@ -51,43 +45,19 @@ AProjectile::AProjectile()
 	InitialLifeSpan = 20.0f;
 	PenetrateLevel = 1; 
 	CurrentHitCount = 0;
+	bIsFlying = false;
 
 	PrimaryActorTick.bCanEverTick = true;
+
 }
 
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	AGear* RangeWeapon = Cast<AGear>(GetOwner());
-	if (RangeWeapon)
-	{
-		//UE_LOG(LogTemp, Log, TEXT("From RangeWeapon - AProjectile::BeginPlay"));
-
-		//CombineDamage(RangeWeapon);
-		GearOwner = RangeWeapon->GetGearOwner();
-		ProjectileMovementComp->SetActive(true);
-		SetDamageIsEnabled(true);
-		RootComponent->SetWorldScale3D(FVector(2.0f, 2.0f, 2.0f));
-		if (GearOwner->IsA<ATheLastBastionHeroCharacter>())
-		{
-			ObjectParams.AddObjectTypesToQuery(ECC_HeroBody);
-			ObjectParams.AddObjectTypesToQuery(ECC_EnemyBody);
-		}
-		else
-			ObjectParams.AddObjectTypesToQuery((GearOwner->IsEnemy()) ? ECC_HeroBody : ECC_EnemyBody);
-
-		ObjectParams.AddObjectTypesToQuery(ECC_WorldStatic);
-		ObjectParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-		IgnoredActors.Add(this);
-		IgnoredActors.Add(RangeWeapon);
-		IgnoredActors.Add(GearOwner);
-	}
-	else
-	{
+	if (!bIsFlying)
 		MakeStatic();
-		//UE_LOG(LogTemp, Log, TEXT("From Hit - AProjectile::BeginPlay"));
-	}
-
+	else
+		ProjectileMovementComp->SetActive(true);
 }
 
 bool AProjectile::ShouldDestroy() const
@@ -103,21 +73,64 @@ void AProjectile::SetInitFireVelocity(const FVector & _hor, float flyTime)
 	//UE_LOG(LogTemp, Log, TEXT("%f, %f, %f - AProjectile::SetInitFireVelocity "), ProjectileMovementComp->Velocity.X, ProjectileMovementComp->Velocity.Y, ProjectileMovementComp->Velocity.Z);
 }
 
+void AProjectile::ProjectileOnFire(AGear * _rangeWeapon)
+{
+	if (_rangeWeapon)
+	{
+		bIsFlying = true;
+		GearOwner = _rangeWeapon->GetGearOwner();
+		SetDamageIsEnabled(true);
+		//RootComponent->SetWorldScale3D(FVector(2.0f, 2.0f, 2.0f));
+		if (GearOwner->IsA<ATheLastBastionHeroCharacter>())
+		{
+			ObjectParams.AddObjectTypesToQuery(ECC_HeroBody);
+			ObjectParams.AddObjectTypesToQuery(ECC_EnemyBody);
+		}
+		else
+			ObjectParams.AddObjectTypesToQuery((GearOwner->IsEnemy()) ? ECC_HeroBody : ECC_EnemyBody);
+
+		ObjectParams.AddObjectTypesToQuery(ECC_WorldStatic);
+		ObjectParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+
+		IgnoredActors.Add(this);
+		IgnoredActors.Add(_rangeWeapon);
+		IgnoredActors.Add(GearOwner);
+	}
+	else
+	{
+		bIsFlying = false;
+	}
+}
+
 void AProjectile::MakeStatic()
 {
 	SetDamageIsEnabled(false);
 	ProjectileMovementComp->SetActive(false);
 	ProjectileMovementComp->Velocity = FVector::ZeroVector;
 	SetActorScale3D(FVector(1.0f, 1.0f, 1.0f));
+	SetMesh(GetNonFlyingMesh());
 
 }
 
+void AProjectile::SetMesh(UStaticMesh * _mesh)
+{
+	if (_mesh)
+		ProjectileMeshComp->SetStaticMesh(_mesh);
+
+	//_mesh->StaticMaterials
+	//for (int i = 0; i < _mesh->Materials.Num(); i++)
+	//{
+	//	ProjectileMeshComp->SetMaterial(i, _mesh->Materials[i].MaterialInterface);
+	//	ProjectileMeshComp->Set
+	//}
+}
+
 void AProjectile::Tick(float _deltaTime)
-{   
+{
+
 	//UE_LOG(LogTemp, Log, TEXT("Vel: %f"), ProjectileMovementComp->Velocity.SizeSquared());
 	if (bDamageIsEnable)
 	{
-		FVector ArrowPosition = DamageSphereHolder->GetComponentLocation();
 
 		// if penetrate arrow, makes it wont hurt the same target
 		FCollisionQueryParams Params;
@@ -138,10 +151,14 @@ void AProjectile::Tick(float _deltaTime)
 		DamageInfo.damageType = DamageType;
 		DamageInfo.bIsProjectile = true;
 
-		UWorld* World = GetWorld();
-		bool const bHit = World ? World->SweepSingleByObjectType(DamageInfo.hitResult, 
-			ArrowPosition, ArrowPosition, FQuat::Identity, ObjectParams, FCollisionShape::MakeSphere(SPHERERADIUS), Params) : false;
 
+
+		FVector damageBoxLocation = GetActorLocation() + GetActorForwardVector() * Bullets_DamageBoxOffset.X;
+
+
+		UWorld* World = GetWorld();
+		bool const bHit = World ? World-> SweepSingleByObjectType(DamageInfo.hitResult, 
+			damageBoxLocation, damageBoxLocation, GetActorQuat(), ObjectParams, FCollisionShape::MakeBox(Bullets_DamageBoxExtend), Params) : false;
 
 		//DrawDebugSphere(World, ArrowPosition, SPHERERADIUS, 8, FColor::Red);
 
@@ -156,8 +173,6 @@ void AProjectile::Tick(float _deltaTime)
 			{   
 				CurrentHitCount++;
 
-
-
 				FVector damageCauserRelative = GearOwner->GetActorLocation()
 					- DamageInfo.hitResult.GetActor()->GetActorLocation();
 				damageCauserRelative.Z = 0.0f;
@@ -171,16 +186,14 @@ void AProjectile::Tick(float _deltaTime)
 
 				if (PenetrateLevel <= CurrentHitCount)
 				{
-					//FActorSpawnParameters spawnParam;
-					//spawnParam.Owner = damagedActor;
-					//spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-					//FVector attackLocation = GetActorLocation() + this->GetActorForwardVector() * StabInDistance;
-					//AProjectile* copyProjectile = GetWorld()->SpawnActor<AProjectile>(this->GetClass(), attackLocation, GetActorRotation(), spawnParam);
-					//copyProjectile->AttachToComponent
-					//(Character->GetMesh(), FAttachmentTransformRules::KeepWorldTransform, DamageInfo.hitResult.BoneName);
-
+					FActorSpawnParameters spawnParam;
+					spawnParam.Owner = damagedActor;
+					spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+					FVector attackLocation = GetActorLocation() + this->GetActorForwardVector() * StabInDistance;
+					AProjectile* copyProjectile = GetWorld()->SpawnActor<AProjectile>(this->GetClass(), attackLocation, GetActorRotation(), spawnParam);
+					copyProjectile->AttachToComponent
+					(Character->GetMesh(), FAttachmentTransformRules::KeepWorldTransform, DamageInfo.hitResult.BoneName);
 					Destroy();
-					//copyProjectile->MakeStatic();
 				}
 				else
 				{
@@ -190,7 +203,6 @@ void AProjectile::Tick(float _deltaTime)
 			}
 			else
 			{
-				return;
 				AShield* Shield = Cast<AShield>(damagedActor);
 				if (Shield)
 				{
@@ -202,10 +214,11 @@ void AProjectile::Tick(float _deltaTime)
 						FActorSpawnParameters spawnParam;
 						spawnParam.Owner = damagedActor;
 						spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;						
-						AProjectile* copyProjectile = GetWorld()->SpawnActor<AProjectile>(this->GetClass(), AttachLocation, GetActorRotation(), spawnParam);
-						copyProjectile->AttachToComponent
-						(Shield->GetMesh(), FAttachmentTransformRules::KeepWorldTransform);
-						copyProjectile->MakeStatic();
+						AProjectile* copyProjectile = 
+							GetWorld()->SpawnActor<AProjectile>(this->GetClass(), AttachLocation, GetActorRotation(), spawnParam);
+						copyProjectile->AttachToComponent(Shield->GetMesh(), FAttachmentTransformRules::KeepWorldTransform);
+
+						//copyProjectile->MakeStatic();
 						Destroy();
 					}
 					else
@@ -229,12 +242,12 @@ void AProjectile::Tick(float _deltaTime)
 				}
 				else
 				{
-					//FActorSpawnParameters spawnParam;
-					//spawnParam.Owner = damagedActor;
-					//spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+					FActorSpawnParameters spawnParam;
+					spawnParam.Owner = damagedActor;
+					spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-					//AProjectile* copyProjectile = GetWorld()->SpawnActor<AProjectile>(this->GetClass(), GetActorLocation(), GetActorRotation(), spawnParam);
-					//copyProjectile->AttachToActor(damagedActor, FAttachmentTransformRules::KeepWorldTransform);
+					AProjectile* copyProjectile = GetWorld()->SpawnActor<AProjectile>(this->GetClass(), GetActorLocation(), GetActorRotation(), spawnParam);
+					copyProjectile->AttachToActor(damagedActor, FAttachmentTransformRules::KeepWorldTransform);
 					Destroy();
 
 				}

@@ -46,6 +46,9 @@ void ATheLastBastionAllyCharacter::BeginPlay()
 
 void ATheLastBastionAllyCharacter::HitResponse(AActor * DamageCauser)
 {	
+	if (bIsRangeUnit)
+		return;
+
 	if (mGroup->IsInBattle())
 	{
 		const ATheLastBastionCharacter * attacker = Cast<ATheLastBastionCharacter>(DamageCauser);

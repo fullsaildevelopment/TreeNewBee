@@ -649,7 +649,7 @@ void ATheLastBastionHeroCharacter::OnTakePointDamageHandle(AActor * DamagedActor
 
 }
 
-void ATheLastBastionHeroCharacter::KnockOut(const FVector & dir, const AActor * _damageCauser, const FName & _boneName)
+void ATheLastBastionHeroCharacter::KnockOut(const FVector & dir, const AActor * _damageCauser, FName _boneName)
 {
 	Super::KnockOut(dir, _damageCauser, _boneName);
 	APlayerController* pc = Cast<APlayerController>(GetController());
