@@ -279,6 +279,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	FORCEINLINE bool HasThreat(const ATheLastBastionCharacter* _threat) const { return ThreatMap.Find(_threat) != nullptr; }
+
 	void KillAllChild();
 
 	void PairColumn(AAIGroupBase* const _enemyGroup, int _myColumn, int _theirColumn);

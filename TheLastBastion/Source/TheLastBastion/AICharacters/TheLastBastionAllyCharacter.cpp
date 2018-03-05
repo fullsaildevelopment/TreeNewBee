@@ -52,7 +52,8 @@ void ATheLastBastionAllyCharacter::HitResponse(AActor * DamageCauser)
 	if (mGroup->IsInBattle())
 	{
 		const ATheLastBastionCharacter * attacker = Cast<ATheLastBastionCharacter>(DamageCauser);
-		if (attacker && attacker->IsEnemy() && !attacker->GetIsDead())
+
+		if (attacker && attacker->IsEnemy() && !attacker->GetIsDead() && mGroup->HasThreat(attacker))
 			SetTarget(DamageCauser);
 	}
 }

@@ -238,6 +238,7 @@ void ATheLastBastionAIBase::SetTarget(AActor * _target, bool _asGroupMember)
 			aiTarget->OnBecomeUnvailbleTargetEvent.AddUObject(this, &ATheLastBastionAIBase::OnTargetDeathHandle);
 		}
 	}
+
 	baseAICtrl->SetNewCommandIndex_BBC(GC_FIGHT);
 }
 

@@ -1351,8 +1351,6 @@ void AAIGroupBase::AssignColumnToColumn(AAIGroupBase * const _targetGroup, int _
 			else
 				theirCurrentCol = FMath::RandRange(0, theirColSize - 1);
 			ourColGroup[iRow]->SetTarget(theirColGroup[theirCurrentCol]);
-
-
 		}
 	}
 	else
