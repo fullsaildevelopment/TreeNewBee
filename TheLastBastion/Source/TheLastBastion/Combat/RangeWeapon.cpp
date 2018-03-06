@@ -149,7 +149,7 @@ void ARangeWeapon::NPCFire(const AActor* _target)
 		FVector PredictedPosition = TraceEnd + (TargetActor->GetVelocity()*FlyTime);
 
 		// vertical offset
-		float offsetZModder = FlyDistance * 0.01f;
+		float offsetZModder = 0;// FlyDistance * 0.01f;
 		float VerticalRandomOffset = FMath::RandRange(MinVerticalAimOffset + offsetZModder, MaxVerticalAimOffset + offsetZModder);
 
 		// horizontal offset

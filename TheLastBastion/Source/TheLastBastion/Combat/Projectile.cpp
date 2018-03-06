@@ -68,9 +68,9 @@ bool AProjectile::ShouldDestroy() const
 
 void AProjectile::SetInitFireVelocity(const FVector & _hor, float flyTime)
 {
-	float vel_Z = flyTime * ProjectileMovementComp->GetGravityZ() * ProjectileMovementComp->ProjectileGravityScale;
-	ProjectileMovementComp->Velocity = _hor - 2.0f * FVector::UpVector * vel_Z;
-	//UE_LOG(LogTemp, Log, TEXT("%f, %f, %f - AProjectile::SetInitFireVelocity "), ProjectileMovementComp->Velocity.X, ProjectileMovementComp->Velocity.Y, ProjectileMovementComp->Velocity.Z);
+	float vel_Z = flyTime * ProjectileMovementComp->GetGravityZ();
+	ProjectileMovementComp->Velocity = _hor - 0.5f * FVector::UpVector * vel_Z;
+	//UE_LOG(LogTemp, Log, TEXT("%f - AProjectile::SetInitFireVelocity "), ProjectileMovementComp->GetGravityZ());
 }
 
 void AProjectile::ProjectileOnFire(AGear * _rangeWeapon)
