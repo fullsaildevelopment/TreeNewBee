@@ -103,7 +103,7 @@ void AEnemyGroupSpawner::Spawn()
 void AEnemyGroupSpawner::GetSpawnLocationAndRotation(FVector& _location, FRotator& _rotation) const
 {
 	int spawnSelection = FMath::RandRange(0, SpawnPoints.Num() - 1);
-	_location =  SpawnPoints[spawnSelection];
+	_location =  this->GetActorLocation() + SpawnPoints[spawnSelection];
 	FVector toHero = Hero->GetActorLocation() - _location;
 	_rotation = toHero.Rotation();
 	_rotation.Pitch = 0;
