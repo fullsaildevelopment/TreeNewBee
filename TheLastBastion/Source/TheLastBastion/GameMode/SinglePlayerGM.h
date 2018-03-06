@@ -10,7 +10,7 @@
  * 
  */
 
-#define MaxEnemyGroupAmount 1
+#define MaxEnemyGroupAmount 4
 
 UCLASS()
 class THELASTBASTION_API ASinglePlayerGM : public AGameModeBase

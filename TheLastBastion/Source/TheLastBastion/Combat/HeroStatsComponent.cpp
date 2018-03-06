@@ -376,7 +376,7 @@ void UHeroStatsComponent::MeleeFocus()
 	for (size_t i = 0; i < mPotentialTargets.Num(); i++)
 	{
 		// if this guy was not in our frustum recently, skip it
-		if (!mPotentialTargets[i]->WasRecentlyRendered())
+		if (!mPotentialTargets[i]->WasRecentlyRendered() || mPotentialTargets[i]->GetIsDead())
 		{
 			//UE_LOG(LogTemp, Warning, 
 			//	TEXT("%s, is not recently rendered"), *mPotentialTargets[i]->GetName());
