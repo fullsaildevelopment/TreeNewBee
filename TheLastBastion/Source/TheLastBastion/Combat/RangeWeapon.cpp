@@ -93,7 +93,7 @@ void ARangeWeapon::Fire()
 		FTransform spawnTransform;
 		spawnTransform.SetLocation(MuzzleLocation);
 		spawnTransform.SetRotation(EyesRotation.Quaternion());
-		spawnTransform.SetScale3D(FVector(1, 1, 1));
+		spawnTransform.SetScale3D(FVector(1.5f, 1.5f, 1.5f));
 
 		AProjectile* CrossbowProjectile = 
 			world->SpawnActorDeferred<AProjectile>(ProjectileClassBP, 
@@ -168,7 +168,7 @@ void ARangeWeapon::NPCFire(const AActor* _target)
 		FTransform spawnTransform;
 		spawnTransform.SetLocation(MuzzleLocation);
 		spawnTransform.SetRotation(MuzzleRotation.Quaternion());
-		spawnTransform.SetScale3D(FVector(1, 1, 1));
+		spawnTransform.SetScale3D(FVector(1.5f, 1.5f, 1.5f));
 
 		AProjectile* CrossbowProjectile =
 			world->SpawnActorDeferred<AProjectile>(ProjectileClassBP,

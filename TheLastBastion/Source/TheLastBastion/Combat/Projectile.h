@@ -12,7 +12,7 @@
 
 #define Bullets_DamageBoxExtend FVector(12, 1.5f, 1.5f)
 #define Bullets_DamageBoxOffset FVector(-3, 0, 0)
-#define StabInDistance 10.0f;
+#define StabInDistance 5.0f;
 
 UCLASS(BlueprintType)
 class THELASTBASTION_API AProjectile : public AGear
