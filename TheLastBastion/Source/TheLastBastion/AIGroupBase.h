@@ -153,16 +153,16 @@ protected:
 		/** Trigger volumn to present the group size and trigger group combat*/
 		class UBoxComponent* RangeVision;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-		/** Trigger volumn to present the group size and trigger group combat*/
-		class UFloatingPawnMovement* MoveComp;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	//	/** Trigger volumn to present the group size and trigger group combat*/
+	//	class UFloatingPawnMovement* MoveComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		/** Trigger volumn to present the group size and trigger group combat*/
 		class UArrowComponent* ArrowComp;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Behavior)
-		class UBehaviorTree* BehaviorTree;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Behavior)
+	//	class UBehaviorTree* BehaviorTree;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		class UWidgetComponent* GroupHUD;
@@ -170,13 +170,17 @@ protected:
 	UPROPERTY()
 		class ATheLastBastionHeroCharacter* PlayerHero;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Transform)
+		// last calculated group location
+		FVector LastGroupCenterLocation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Transform)
 		FVector GroupTargetLocation;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Transform)
 		FVector GroupTargetForward;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Transform)
 		FVector GroupTargetRight;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
@@ -188,6 +192,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Behavior)
 		/** The Group Already In Battle, group members already has target */
 		bool bInBattle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Transform)
+		bool bIsLocationUpdateDiabled;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Behavior)
 		bool bIsAgreesive;
@@ -207,9 +214,11 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// Update the estimated group center by 
+	// calculating average from the group memeber 
 	virtual void Update();
 
-	void UpdateGroupVolumnDuringBattle();
+	void UpdateGroupLocation();
 
 	virtual void SpawnChildGroup();
 
@@ -297,7 +306,7 @@ public:
 		virtual void OnChildDeath(int _childIndex);
 
 
-	void AddThreat(class ATheLastBastionCharacter* _character, float _threat);
+	void AddThreat(class ATheLastBastionCharacter* _character, float _threat, bool _addIfNone = true);
 	void AddThreatByGroup(class AAIGroupBase* _targetGroup);
 	void RemoveThreat(class ATheLastBastionCharacter const* _character);
 	void RemoveThreatByGroup(class AAIGroupBase* _targetGroup);
@@ -336,7 +345,7 @@ public:
 		virtual TArray<class ATheLastBastionAIBase*> GetRowAt(int _index) const;
 
 	FORCEINLINE bool IsInBattle() const { return bInBattle; }
-	FORCEINLINE class UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
+	//FORCEINLINE class UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
 	FORCEINLINE int GetGroupSize() const { return AICharactersInfo.Num(); }
 	FORCEINLINE void SetGroupIndex(int _index) { GroupIndex = _index; }
 	FORCEINLINE class ATheLastBastionAIBase* GetGroupMemberAt(int _index) const { return AICharactersInfo[_index].AICharacter; }
@@ -348,4 +357,8 @@ public:
 	FORCEINLINE FVector GetGroupTargetLocation() const { return GroupTargetLocation; }
 	FORCEINLINE FVector GetGroupTargetForward() const { return GroupTargetForward; }
 	FORCEINLINE FVector GetGroupTargetRight() const { return GroupTargetRight; }
+
+	/** Get the group center offset when not in battle*/
+	FVector GetGroupCenterOffset() const;
+
 };

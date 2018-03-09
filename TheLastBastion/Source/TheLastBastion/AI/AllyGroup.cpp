@@ -52,11 +52,11 @@ AAllyGroup::AAllyGroup()
 	}
 
 
-	ConstructorHelpers::FObjectFinder<UBehaviorTree> bt(TEXT("/Game/Blueprints/AI/GroupPreset/BT_AllyGroupAI"));
-	if (bt.Succeeded())
-		BehaviorTree = bt.Object;
-	else
-		UE_LOG(LogTemp, Error, TEXT("Can not find behaviorTree - AAllyGroup::AAllyGroup"));
+	//ConstructorHelpers::FObjectFinder<UBehaviorTree> bt(TEXT("/Game/Blueprints/AI/GroupPreset/BT_AllyGroupAI"));
+	//if (bt.Succeeded())
+	//	BehaviorTree = bt.Object;
+	//else
+	//	UE_LOG(LogTemp, Error, TEXT("Can not find behaviorTree - AAllyGroup::AAllyGroup"));
 
 }
 
@@ -124,8 +124,8 @@ void AAllyGroup::SpawnChildGroup()
 	int remain = totalAllyCount;
 	float xOffset = 0;
 
-	// Grab the minimum speed from group member as group speed
-	float groupSpeed = FLT_MAX;
+	//// Grab the minimum speed from group member as group speed
+	//float groupSpeed = FLT_MAX;
 
 	for (int iRow = 0; iRow < maxRowCount; iRow++)
 	{
@@ -159,10 +159,10 @@ void AAllyGroup::SpawnChildGroup()
 
 			AICharactersInfo.Add(newCharacterInfo);
 
-			// check if this should be the group speed
-			characterMaxSpeed = newCharacterInfo.AICharacter->GetCurrentMaxSpeed();
-			if (characterMaxSpeed < groupSpeed)
-				groupSpeed = characterMaxSpeed;
+			//// check if this should be the group speed
+			//characterMaxSpeed = newCharacterInfo.AICharacter->GetCurrentMaxSpeed();
+			//if (characterMaxSpeed < groupSpeed)
+			//	groupSpeed = characterMaxSpeed;
 		}
 		xOffset += CurrentPadding;
 		remain -= curColCount;
@@ -170,13 +170,13 @@ void AAllyGroup::SpawnChildGroup()
 
 	SetAllyGroupVisionVolumn();
 
-	MoveComp->MaxSpeed = groupSpeed;
+	//MoveComp->MaxSpeed = groupSpeed;
 }
 
 void AAllyGroup::OnReform()
 {
 	float xOffset = 0;
-	float groupSpeed = FLT_MAX;
+	//float groupSpeed = FLT_MAX;
 	int CurrentCharacterIndex = 0;
 
 	int totalAllyCount = AICharactersInfo.Num();
@@ -188,20 +188,20 @@ void AAllyGroup::OnReform()
 	else
 		SwitchToRow();
 
-	// Find Slowest Speed
-	float speed = 0.0f;
-	for (int iCharacter = 0; iCharacter < totalAllyCount; iCharacter++)
-	{
-		speed = AICharactersInfo[iCharacter].AICharacter->GetCurrentMaxSpeed();
-		groupSpeed = (speed < groupSpeed) ? speed : groupSpeed;
-	}
+	//// Find Slowest Speed
+	//float speed = 0.0f;
+	//for (int iCharacter = 0; iCharacter < totalAllyCount; iCharacter++)
+	//{
+	//	speed = AICharactersInfo[iCharacter].AICharacter->GetCurrentMaxSpeed();
+	//	groupSpeed = (speed < groupSpeed) ? speed : groupSpeed;
+	//}
 
 	float maxGroupWidth = (maxColCount - 1) * CurrentPadding * 0.5f + SIDEPADDING;
 	float maxGroupLength = (maxRowCount - 1) * CurrentPadding + 0.5 * SIDEPADDING;
 
 	SetGroupVisionVolumn(maxGroupWidth, maxGroupLength);
 
-	MoveComp->MaxSpeed = groupSpeed;
+	//MoveComp->MaxSpeed = groupSpeed;
 	bReformPending = false;
 }
 
@@ -392,12 +392,12 @@ UTexture2D * AAllyGroup::GetThumbNailImage() const
 
 void AAllyGroup::SetMarchLocation(const FVector & _targetLocation, int _commandIndex)
 {
-	ATheLastBastionGroupAIController* groupC = Cast<ATheLastBastionGroupAIController>(GetController());
-	if (groupC == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("groupC == nullptr - AAllyGroup::SetMarchLocation"));
-		return;
-	}
+	//ATheLastBastionGroupAIController* groupC = Cast<ATheLastBastionGroupAIController>(GetController());
+	//if (groupC == nullptr)
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("groupC == nullptr - AAllyGroup::SetMarchLocation"));
+	//	return;
+	//}
 
 	GroupTargetLocation = _targetLocation;
 
@@ -480,9 +480,9 @@ void AAllyGroup::SetMarchLocation(const FVector & _targetLocation, int _commandI
 	}
 	}
 
-	// give group march command
-	groupC->SetTargetLocation_BBC(GroupTargetLocation);
-	groupC->SetNewCommandIndex_BBC(_commandIndex);
+	//// give group march command
+	//groupC->SetTargetLocation_BBC(GroupTargetLocation);
+	//groupC->SetNewCommandIndex_BBC(_commandIndex);
 
 	SendGroupCommand(_commandIndex);
 }
@@ -772,7 +772,7 @@ void AAllyGroup::SetAllyGroupVisionVolumn()
 	int maxColCount = GetMaxColoumnCount();
 
 	float maxGroupWidth = (maxColCount - 1) * CurrentPadding * 0.5f + SIDEPADDING;
-	float maxGroupLength = (maxRowCount) * CurrentPadding + 0.5 * SIDEPADDING;
+	float maxGroupLength = (maxRowCount - 1) * CurrentPadding + 0.5 * SIDEPADDING;
 
 	SetGroupVisionVolumn(maxGroupWidth, maxGroupLength);
 }

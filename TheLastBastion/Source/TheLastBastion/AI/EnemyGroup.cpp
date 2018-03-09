@@ -34,6 +34,8 @@ AEnemyGroup::AEnemyGroup()
 		GroupHUD->SetWidgetClass(HUD_Class);
 	}
 
+	AIControllerClass = ATheLastBastionGroupAIController::StaticClass();
+	
 	if (MeleeVision)
 	{
 		MeleeVision->SetCollisionProfileName("EnemyMeleeTrigger");
@@ -141,10 +143,9 @@ void AEnemyGroup::SpawnChildGroup()
 				}
 
 				maxGroupWidth = maxGroupWidth * 0.5f + SIDEPADDING;
-				maxGroupLength = (xOffset - rowPadding);
+				maxGroupLength = (xOffset - rowPadding) + 0.5f + SIDEPADDING;
 
 				SetGroupVisionVolumn(maxGroupWidth, maxGroupLength);
-				//GroupVolumn->SetBoxExtent(FVector(maxGroupLength, maxGroupWidth, GroupVolumn->GetUnscaledBoxExtent().Z), true);
 			}
 		}
 		else
@@ -167,7 +168,7 @@ void AEnemyGroup::OnReform()
 		float rowPadding = AIToSpawn[0].RowPadding;
 		float xOffset = 0;
 		float yOffset = 0;
-		float groupSpeed = MAX_FLT;
+		//float groupSpeed = MAX_FLT;
 
 		int maxRow = FormationInfo.Num();
 
@@ -177,15 +178,15 @@ void AEnemyGroup::OnReform()
 			float rowWidth = (currentRowSize - 1) * colPadding;
 			float centerOffset = 0.5f * rowWidth;
 			int currentCharIndex;
-			float speed;
+			//float speed;
 			for (int  iCol = 0; iCol < currentRowSize; iCol++)
 			{
 				currentCharIndex = maxRowSize * iRow + iCol;
 				yOffset = iCol * colPadding - centerOffset;
 				AICharactersInfo[currentCharIndex].GroupRelativeOffset = FVector(xOffset, yOffset, 0.0f);
-				speed = AICharactersInfo[currentCharIndex].AICharacter->GetCurrentMaxSpeed();
-				if (speed < groupSpeed)
-					groupSpeed = speed;
+				//speed = AICharactersInfo[currentCharIndex].AICharacter->GetCurrentMaxSpeed();
+				//if (speed < groupSpeed)
+				//	groupSpeed = speed;
 			}
 			xOffset += rowPadding;
 		}
@@ -195,7 +196,7 @@ void AEnemyGroup::OnReform()
 
 		SetGroupVisionVolumn(groupWidth, groupLength);
 		//GroupVolumn->SetBoxExtent(FVector(groupLength, groupWidth, GroupVolumnZ), true);
-		MoveComp->MaxSpeed = groupSpeed;
+		//MoveComp->MaxSpeed = groupSpeed;
 	}
 
 
@@ -386,7 +387,6 @@ void AEnemyGroup::MeleeAgainstPlayer_OnEnemyGroupMission()
 	FVector marchLocation = PlayerHero->GetActorLocation()- 90 * FVector::UpVector;
 
 	DrawDebugSphere(GetWorld(), marchLocation, 50, 8, FColor::Purple, false, 6);
-
 
 	SetMarchLocation(marchLocation, GC_GOTOLOCATION);
 }

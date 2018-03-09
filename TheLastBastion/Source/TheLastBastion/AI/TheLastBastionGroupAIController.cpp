@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TheLastBastionGroupAIController.h"
-#include "AIGroupBase.h"
+#include "AI/EnemyGroup.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -22,7 +22,7 @@ void ATheLastBastionGroupAIController::Possess(APawn * _possPawn)
 
 	Super::Possess(_possPawn);
 
-	mGroupPawn = Cast<AAIGroupBase>(_possPawn);
+	mGroupPawn = Cast<AEnemyGroup>(_possPawn);
 	if (mGroupPawn == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("ATheLastBastionGroupAIController possess non - AAIGroupBase type, %s"), *_possPawn->GetName());

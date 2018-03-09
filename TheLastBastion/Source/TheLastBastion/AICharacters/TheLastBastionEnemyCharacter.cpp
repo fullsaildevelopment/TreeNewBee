@@ -58,7 +58,7 @@ void ATheLastBastionEnemyCharacter::HitResponse(AActor * DamageCauser)
 	if (mGroup->IsInBattle())
 	{
 		const ATheLastBastionCharacter * attacker = Cast<ATheLastBastionCharacter>(DamageCauser);
-		if (attacker && !attacker->IsEnemy() && !attacker->GetIsDead())
+		if (attacker && !attacker->IsEnemy() && !attacker->GetIsDead() && mGroup->HasThreat(attacker))
 			SetTarget(DamageCauser);
 	}
 
@@ -161,9 +161,9 @@ void ATheLastBastionEnemyCharacter::EvaluateAttackerThreat(AActor * DamageCauser
 		{
 			//attacker->RegisterThreat(mGroup);
 			if (hp > 0)
-				mGroup->AddThreat(attacker, ThreatGain_ByHit);
+				mGroup->AddThreat(attacker, ThreatGain_ByHit, false);
 			else
-				mGroup->AddThreat(attacker, ThreatGain_ByKill);
+				mGroup->AddThreat(attacker, ThreatGain_ByKill,false);
 		}
 
 	}

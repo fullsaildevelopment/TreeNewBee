@@ -28,6 +28,10 @@ protected:
 		/** The Strategy purpose of this enemy group unit*/
 		int MainTask;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
+		class UBehaviorTree* BehaviorTree;
+
+
 protected:
 	// Called when the game starts or when spawned
 	void BeginPlay() override;
@@ -42,26 +46,24 @@ protected:
 
 public:
 
+	/** Get the Strategy purpose of this enemy group unit*/
+	int GetMainTask() const { return MainTask; }
+	int GetMaxColoumnCount() const override;
+	int GetMaxRowCount() const override;
+	FORCEINLINE class UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
+
+
 	UFUNCTION()
 		void SetMarchLocation(const FVector& _location, int _commandIndex) override;
 
 	/** Set the Strategy purpose of this enemy group unit*/
 	FORCEINLINE void SetMainTask(int _task) { MainTask = _task; }
-	/** Get the Strategy purpose of this enemy group unit*/
-	int GetMainTask() const { return MainTask; }
-
-	void OnChildDeath(int _childIndex) override;
-
-	int GetMaxColoumnCount() const override;
-
-	int GetMaxRowCount() const override;
-
-	FORCEINLINE void SetSpawnInfoAtSection_TotalNum(int _totalNumber, int _sectionIndex) { AIToSpawn[_sectionIndex].TotalNumber = _totalNumber;}
+	FORCEINLINE void SetSpawnInfoAtSection_TotalNum(int _totalNumber, int _sectionIndex) { AIToSpawn[_sectionIndex].TotalNumber = _totalNumber; }
 	FORCEINLINE void SetSpawnInfoAtSection_MaxCol(int _maxCol, int _sectionIndex) { AIToSpawn[_sectionIndex].MaxNumOfCol = _maxCol; }
-
 
 	/** AI Decision: Move to close to player and attack player by melee*/
 	void MeleeAgainstPlayer_OnEnemyGroupMission();
+	void OnChildDeath(int _childIndex) override;
 
 protected:
 

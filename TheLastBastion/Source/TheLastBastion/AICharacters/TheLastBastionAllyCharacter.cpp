@@ -145,10 +145,10 @@ void ATheLastBastionAllyCharacter::EvaluateAttackerThreat(AActor * DamageCauser,
 	{
 		//attacker->RegisterThreat(mGroup);
 		if (hp > 0)
-			mGroup->AddThreat(attacker, ThreatGain_ByHit);
+			mGroup->AddThreat(attacker, ThreatGain_ByHit, false);
 		else
 		{
-			mGroup->AddThreat(attacker, ThreatGain_ByKill);
+			mGroup->AddThreat(attacker, ThreatGain_ByHit, false);
 		}
 	}
 }

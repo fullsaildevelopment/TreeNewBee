@@ -46,7 +46,7 @@ protected:
 private:
 
 	/// Enemy Group Preset
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = SpanwPreset, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = SpawnPreset, meta = (AllowPrivateAccess = "true"))
 		TSubclassOf<class AEnemyGroup> LanT0;
 
 	UPROPERTY()

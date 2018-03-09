@@ -196,7 +196,7 @@ void ASinglePlayerGM::SpawnNewAllies(TSubclassOf<class ATheLastBastionAIBase> _c
 	newAllyGroup->SetSpawnInfo(spawnInfo);
 
 	UGameplayStatics::FinishSpawningActor(newAllyGroup, groupSpawnTransform);
-	newAllyGroup->SpawnDefaultController();
+	//newAllyGroup->SpawnDefaultController();
 
 	// register in controlled allies
 	Allies[_index] = newAllyGroup;

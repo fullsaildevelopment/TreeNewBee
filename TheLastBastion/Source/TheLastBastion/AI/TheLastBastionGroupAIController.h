@@ -40,7 +40,7 @@ private:
 		class UBlackboardComponent* mBBComp;
 
 	UPROPERTY()
-		class AAIGroupBase* mGroupPawn;
+		class AEnemyGroup* mGroupPawn;
 
 	uint8
 		targetActor_KeyID,
