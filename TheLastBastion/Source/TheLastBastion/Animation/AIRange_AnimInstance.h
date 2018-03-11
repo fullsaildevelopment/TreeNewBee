@@ -30,14 +30,6 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		void OnPostEvaluate() override;
 
-	//UFUNCTION()
-	//	void OnMontageStartHandle(class UAnimMontage* _animMontage) override;
-
-	//UFUNCTION()
-	//	void OnMontageBlendOutStartHandle(class UAnimMontage* _animMontage, bool _bInterruptted) override;
-
-
-
 public:
 
 	UFUNCTION(BlueprintCallable)
@@ -45,10 +37,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void StopFire() override;
-
-	//void OnBeingHit(FName boneName,
-	//	const FVector& _shotFromDirection, const FVector& _hitLocation) override;
-
 
 protected:
 

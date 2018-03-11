@@ -19,10 +19,4 @@ class THELASTBASTION_API UBTTask_RangeAttack : public UBTTaskNode
 	* this function should be considered as const (don't modify state of object) if node is not instanced! */
 	EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	
-protected:
-
-	UPROPERTY(EditInstanceOnly, Category = CombatStrategy)
-	/** sqr distance to start a range attack*/
-	float RangeAttackDistanceSqr;
-
 };

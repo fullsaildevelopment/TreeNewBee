@@ -77,9 +77,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = RagDoll)
 		bool bIsRecoveringFromRagDoll;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
-		bool bIsWalking;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = RagDoll)
 		float RagDollBlendWeight;
 

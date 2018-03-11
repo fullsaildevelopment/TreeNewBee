@@ -58,7 +58,7 @@ void ATheLastBastionAllyCharacter::HitResponse(AActor * DamageCauser)
 	}
 }
 
-void ATheLastBastionAllyCharacter::GenerateFloatingText(const FVector & HitLocation,
+void ATheLastBastionAllyCharacter::OnTakeDamageFromHero(const FVector & HitLocation,
 	const ATheLastBastionHeroCharacter * heroAttacker, float totalDamage, bool isCritical, bool isStun)
 {
 	AI_HUD->ToggleUI(true, true);

@@ -43,34 +43,36 @@ EBTNodeResult::Type UBTTask_RangeAttack::ExecuteTask(UBehaviorTreeComponent & Ow
 	}
 
 
-	// check attack distance
-	float distanceSqr = (targetActor->GetActorLocation() - me->GetActorLocation()).SizeSquared();
-	bbc->SetValue<UBlackboardKeyType_Float>(enemyC->GetKeyID_ToTargetActorDistanceSqr(), distanceSqr);
+	//// check attack distance
+	//float distanceSqr = (targetActor->GetActorLocation() - me->GetActorLocation()).SizeSquared();
+	//bbc->SetValue<UBlackboardKeyType_Float>(enemyC->GetKeyID_ToTargetActorDistanceSqr(), distanceSqr);
 
 	const AActor* target = Cast<AActor>(bbc->GetValue<UBlackboardKeyType_Object>(enemyC->GetKeyID_TargetActor()));
+	NodeResult = EBTNodeResult::Succeeded;
 
-	if (distanceSqr > RangeAttackDistanceSqr)
-	{
-		//UE_LOG(LogTemp, Log, TEXT("Is too far too attack, failed this task, and move to next task"));
-		animRef->StopFire();
-		return NodeResult;
-	}
-	else
-	{
+	// if I am not doing anything shoot
+	if (animRef->CanFire())
+		animRef->Fire(target);
+	//UE_LOG(LogTemp, Warning, TEXT("Can't Fire - UBTTask_RangeAttack::ExecuteTask"));
 
-		if (animRef->GetCurrentActionState() == EAIActionState::None)
-		{
-			animRef->Fire(target);
-			NodeResult = EBTNodeResult::Succeeded;
-			return NodeResult;
-		}
+	return NodeResult;
 
-		return NodeResult;
-	}
-
-
-
-
+	//if (distanceSqr > RangeAttackDistanceSqr)
+	//{
+	//	//UE_LOG(LogTemp, Log, TEXT("Is too far too attack, failed this task, and move to next task"));
+	//	animRef->StopFire();
+	//	return NodeResult;
+	//}
+	//else
+	//{
+	//	if (animRef->GetCurrentActionState() == EAIActionState::None)
+	//	{
+	//		animRef->Fire(target);
+	//		NodeResult = EBTNodeResult::Succeeded;
+	//		return NodeResult;
+	//	}
+	//	return NodeResult;
+	//}
 	//if (animRef->GetCurrentActionState() != EAIActionState::None)
 	//{
 	//	UE_LOG(LogTemp, Log, TEXT("Is Attacking, failed this task, and move to next task"));

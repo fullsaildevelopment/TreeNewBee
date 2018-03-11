@@ -156,18 +156,20 @@ void AAIGroupBase::UpdateGroupLocation()
 	//UE_LOG(LogTemp, Log, TEXT("AAIGroupBase::UpdateGroupVolumnDuringBattle"));
 
 	FVector groupCenter = FVector::ZeroVector;
+	float groupYaw = 0;
 	int groupSize = AICharactersInfo.Num();
 	float divBy = GetDivider(groupSize);
 	for (int i = 0; i < groupSize; i++)
 	{
 		groupCenter += AICharactersInfo[i].AICharacter->GetActorLocation();
+		groupYaw += AICharactersInfo[i].AICharacter->GetActorRotation().Yaw;
 	}
 	groupCenter *= divBy;
+	groupYaw *= divBy;
 	//UE_LOG(LogTemp, Log, 
 	//	TEXT("AAIGroupBase::UpdateGroupVolumnDuringBattle %f, %f,%f   - %s"),
 	//	newLocation.X , newLocation.Y , newLocation.Z, *this->GetName());
 
-	SetActorLocation(groupCenter);
 
 	if (bInBattle == false)
 	{
@@ -177,6 +179,7 @@ void AAIGroupBase::UpdateGroupLocation()
 	else
 		SetActorLocation(groupCenter);
 
+	SetActorRotation(FRotator(0, groupYaw, 0));
 	LastGroupCenterLocation = groupCenter;
 }
 

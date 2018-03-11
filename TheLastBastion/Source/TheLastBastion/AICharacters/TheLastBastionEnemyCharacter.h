@@ -30,7 +30,7 @@ protected:
 
 	void HitResponse(AActor* DamageCauser) override;
 
-	void GenerateFloatingText(const FVector& HitLocation, const class ATheLastBastionHeroCharacter* heroAttacker,
+	void OnTakeDamageFromHero(const FVector& HitLocation, const class ATheLastBastionHeroCharacter* heroAttacker,
 		float totalDamage, bool isCritical, bool isStun) override;
 
 	void EvaluateAttackerThreat(AActor* DamageCauser, float hp) override;

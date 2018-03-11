@@ -14,7 +14,7 @@ bool UInGamePlayerRow::Initialize()
 	// Bind Delegetes to Widget components
 	bool bAllWidgetAreGood =
 		Name != nullptr && Level != nullptr &&
-		Class != nullptr && HpBar != nullptr && Hp != nullptr &&
+		Class != nullptr && HpBar != nullptr && Hp != nullptr && DpBar != nullptr &&
 		SpBar != nullptr && Sp != nullptr;
 
 
@@ -57,8 +57,13 @@ void UInGamePlayerRow::SetSpValue(float _currentSp, float _maxSp)
 
 void UInGamePlayerRow::SetSpPercentage(float _currentSp, float _divByMax)
 {
-	HpBar->SetPercent(_currentSp * _divByMax);
+	SpBar->SetPercent(_currentSp * _divByMax);
 
+}
+
+void UInGamePlayerRow::SetDpPercentage(float _currentDp, float _divByMax)
+{
+	DpBar->SetPercent(_currentDp * _divByMax);
 }
 
 void UInGamePlayerRow::SetLevel(int _Level)
@@ -78,3 +83,4 @@ void UInGamePlayerRow::SetSp(float _currentSp, float _maxSp, float _divByMax)
 	SetSpValue(_currentSp, _maxSp);
 	SetSpPercentage(_currentSp, _divByMax);
 }
+

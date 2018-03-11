@@ -15,9 +15,11 @@
 
 
 
-namespace
+namespace 
 {
-	UAnimMontage* Sh_HitReaction = nullptr;
+	UAnimMontage* AM_SingleHandWeapon_HitReaction = nullptr;
+	UAnimMontage* AM_CrossBow = nullptr;
+
 }
 
 
@@ -93,7 +95,7 @@ protected:
 		class ATheLastBastionCharacter* mBaseCharacter;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
-		/** Animation Montage to play when this character get hurt*/
+		/** current Animation Montage to play when this character get hurt*/
 		class UAnimMontage* Hit_Montage;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
@@ -116,16 +118,19 @@ protected:
 
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
-		/** angle between the acceleration and mesh forward*/
+		/** angle between the desired moving direction 
+		* (i.e. acceleration, control rotation, focus point) and mesh forward*/
 		float turn;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
 		float currentSpeed;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+		/** Speed component on X axis*/
 		float MoveForwardAxis;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
+		/** Speed component on Y axis*/
 		float MoveRightAxis;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Movement)
@@ -135,14 +140,13 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Defend)
 		bool bOnDefend;
 
-
 public:
 
 	FORCEINLINE bool IsOnDefend() const { return bOnDefend; }
 
 private:
 
-	UAnimMontage* FindMontage(const TCHAR* _path);
+	bool FindMontage(class UAnimMontage*& _animMontage, const TCHAR* _path);
 
 
 

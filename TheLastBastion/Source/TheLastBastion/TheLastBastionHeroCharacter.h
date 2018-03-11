@@ -10,9 +10,8 @@
  * 
  */
 
-#define  COMMANDRANGE 50000
-#define  HOLD_POSITION_BWD_OFFSET 100
-
+#define  COMMAND_RANGE 50000 // the maximum distance hero can send his troops to
+#define  HOLD_POSITION_BWD_OFFSET 100 
 
 UCLASS()
 class THELASTBASTION_API ATheLastBastionHeroCharacter : public ATheLastBastionCharacter
@@ -27,6 +26,9 @@ protected:
 
 	virtual void BeginPlay();
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	void Tick(float _deltaTime) override;
+
 
 protected:
 
@@ -144,7 +146,6 @@ protected:
 
 	virtual void KnockOut(const FVector& dir, const AActor* _damageCauser, FName _boneName) override;
 
-
 protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
@@ -152,6 +153,13 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Targeting)
 		class USphereComponent*    TargetDetector;
+
+	UPROPERTY()
+		/** swat under player command */
+		class AAllyGroup* CommandedGroup;
+
+	//UPROPERTY()
+	//	class AAIGroupBase* EnemyGroupTemp;
 
 	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (BlueprintProtected))
 		float Unfocus_CamRotationLagging = 30.0f;
@@ -164,9 +172,6 @@ protected:
 
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AnimationMovementControl)
 		float MoveRightAxis;
-
-
-
 
 public:
 
@@ -182,25 +187,11 @@ public:
 		/** Disable the update the control yaw input*/
 		bool bIsYawControllDisabled = false;
 
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = GroupControl)
 		bool bControlEnemyGroup;
 
-	UPROPERTY()
-		/** swat under player command */
-		class AAllyGroup* CommandedGroup;
-
-	UPROPERTY()
-	    class AAIGroupBase* EnemyGroupTemp;
-
 
 private:
-
-	/** Animation Bp Reference */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-		class UHero_AnimInstance*  mAnimInstanceRef;
-	UPROPERTY()
-		class UInGameHUD*          mInGameHUD;
 
 #pragma region  Camera
 
@@ -222,7 +213,26 @@ private:
 
 #pragma endregion
 
+	/** Animation Bp Reference */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		class UHero_AnimInstance*  mAnimInstanceRef;
+	UPROPERTY()
+		class UInGameHUD*          mInGameHUD;
+
+	/** Timer to handle hp recover delay after being hit*/
+	FTimerHandle HpRecoverTimer;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = CharacterStats)
+		/** Is Hp recovering */
+		bool bHpRecovering;
+
 	bool bIsInCommandMode;
+
+private:
+
+	void UpdateHeroStats();
+	FORCEINLINE void EnableHpRecovering()   { bHpRecovering = true; }
+	FORCEINLINE void DisnableHpRecovering() { bHpRecovering = false; }
 
 public:
 
@@ -231,6 +241,14 @@ public:
 	void OnGetUp() override;
 	void RagDollRecoverOnFinish() override;
 	void ToggleFireMode(bool _val);
+
+	/** true, if current sp is enought to perform melee attack, and consume sp*/
+	bool MeleeAttackSpCheck();
+	/** true, if current sp is enought to perform dodge, and consume sp*/
+	bool DodgeSpCheck();
+	/** true, if current sp is enought to perform counter attack, and consume sp*/
+	bool CounterAttackSpCheck();
+	bool IsDoingCounterAttack() const;
 
 	FORCEINLINE class USphereComponent* GetTargetDetector() const { return TargetDetector; }
 	/** Returns CameraBoom subobject **/
@@ -243,8 +261,8 @@ public:
 
 	FORCEINLINE float GetLockOnCameraRotationLag() const { return Focus_CamRotationLagging; }
 	FORCEINLINE float GetNonLockOnCameraRotationLag() const { return Unfocus_CamRotationLagging; }
-
 	FORCEINLINE class UInGameHUD* GetInGameHUD() const { return mInGameHUD; }
+	
 	
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE float GetMoveForwardAxis() const { return MoveForwardAxis; }
@@ -252,10 +270,7 @@ public:
 		FORCEINLINE float GetMoveRightAxis() const { return MoveRightAxis; }
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE bool IsInCommandMode() const { return bIsInCommandMode; }
-
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE class AAllyGroup* GetCommandGroup() const { return CommandedGroup; }
-
-
 
 };

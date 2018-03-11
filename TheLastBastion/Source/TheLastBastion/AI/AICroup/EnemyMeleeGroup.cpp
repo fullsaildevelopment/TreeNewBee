@@ -23,8 +23,8 @@ void AEnemyMeleeGroup::OnMeleeVisionOverrlapBegin(UPrimitiveComponent * Overlapp
 		AddThreat(hero, ThreatGain_HeroInit);
 		if (!bInBattle)
 		{
-			bInBattle = true;
 			MeleeGroupAgainstPlayer();
+			bInBattle = true;
 		}
 	}
 	else

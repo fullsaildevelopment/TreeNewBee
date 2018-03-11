@@ -134,6 +134,8 @@ void UHero_AnimInstance::OnUpdate(float _deltaTime)
 		if (mCharacter->IsRagDoll())
 			return;
 
+
+
 		// Head Track
 		HeadTrack();
 
@@ -963,9 +965,10 @@ void UHero_AnimInstance::OnMeleeAttack()
 	// Apply Input Filter
 	if (ignore)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UHero_AnimInstance::OnAttack"));
+		UE_LOG(LogTemp, Warning, TEXT("Abort - UHero_AnimInstance::OnAttack"));
 		return;
 	}
+
 
 	// equip weapon to weapon socket if we havent
 	if (ActivatedEquipment == EEquipType::Travel)
@@ -978,7 +981,6 @@ void UHero_AnimInstance::OnMeleeAttack()
 	case EAttackState::PostDodging:
 	{
 		// trigger the attack immediately, clear the next action marker
-		//UE_LOG(LogTemp, Warning, TEXT("trigger the attack immediately, clear the next action marker"));
 		LaunchCombo();
 		return;
 	}
@@ -997,6 +999,90 @@ void UHero_AnimInstance::OnMeleeAttack()
 		return;
 	}
 
+}
+
+bool UHero_AnimInstance::OnCounterAttack(const FVector & _damageCauserRelative)
+{
+	float dotFront = FVector::DotProduct(mCharacter->GetActorForwardVector(), _damageCauserRelative);
+
+	// Check if we are in defence mode
+	if (!bOnDefend)
+		return false;
+
+	// Check Stanima
+	if (mCharacter->CounterAttackSpCheck() == false)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No Enought Stamina - UHero_AnimInstance::LaunchCounterAttack"));
+		return false;
+	}
+
+	// Implement Counter Attack
+	if (CounterAttack_Montage == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CounterAttack_Montage == nullptr - UHero_AnimInstance::OnCounterAttack"));
+		return false;
+	}
+	// Check direction, Sns Has more counter attack chance 
+	FName sectionName;
+	switch (CurrentEquipment)
+	{
+	case EEquipType::ShieldSword:
+		if (dotFront < 0.5f)
+			return false;
+		else
+		{
+
+			if (dotFront > 0.99f)
+			{
+				sectionName = MONTAGE_SN_CA_SnsFront;
+			}
+			else
+			{
+				float dotRight = FVector::DotProduct(mCharacter->GetActorRightVector(), _damageCauserRelative);
+				if (dotRight > 0)
+					sectionName = MONTAGE_SN_CA_SnsRight;
+				else
+					sectionName = MONTAGE_SN_CA_SnsLeft;
+			}
+			LaunchCounterAttack(sectionName);
+			return true;
+		}
+	case EEquipType::TwoHandSword:
+		if (dotFront < 0.7f)
+			return false;
+		else
+		{
+			sectionName = MONTAGE_SN_CA_Katana;
+			LaunchCounterAttack(sectionName);
+			return true;
+		}
+	case EEquipType::HeavyWeapon:
+		if (dotFront < 0.7f)
+			return false;
+		else
+		{
+			AGear* currentWeapon = mCharacter->GetCurrentWeapon();
+			if (currentWeapon)
+			{
+				if (currentWeapon->GetGearType() == EGearType::BattleAxe)
+				{
+					sectionName = MONTAGE_SN_CA_BattleAxe;
+					LaunchCounterAttack(sectionName);
+					return true;
+				}
+				else
+				{
+					sectionName = MONTAGE_SN_CA_Hammer;
+					LaunchCounterAttack(sectionName);
+					return true;
+				}
+			}
+			return false;
+		}
+	default:
+		return false;
+
+	}
 }
 
 void UHero_AnimInstance::OnDefendOn_Sns()
@@ -1140,6 +1226,14 @@ void UHero_AnimInstance::OnZoomOut()
 
 void UHero_AnimInstance::LaunchCombo()
 {
+
+	// Stamina Check
+	if (mCharacter->MeleeAttackSpCheck() == false)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No Enought Stamina - UHero_AnimInstance::LaunchCombo"));
+		return;
+	}
+
 	if (CurrentComboIndex >= Current_AttackSectionName->Num())
 	{
 		// start over
@@ -1281,6 +1375,14 @@ void UHero_AnimInstance::OnDodge()
 }
 void UHero_AnimInstance::LaunchDodge()
 {
+	// Stamina Check
+	if (mCharacter->DodgeSpCheck() == false)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No Enought Stamina - UHero_AnimInstance::LaunchDodge"));
+		return;
+	}
+
+
 	// Update State
 	AttackState = EAttackState::Dodging;
 	// Clear Next Action Marker
@@ -1463,6 +1565,7 @@ FName UHero_AnimInstance::GetLeftDodgeSection() const
 		return MONTAGE_SN_HERO_HVDodgeLeft;
 	}
 }
+
 FName UHero_AnimInstance::GetBackDodgeSection() const
 {
 	switch (CurrentEquipment)
@@ -1570,85 +1673,6 @@ void UHero_AnimInstance::OnBeingHit(FName boneName, const FVector & _damageCause
 		UE_LOG(LogTemp, Error, TEXT("Hit_Montage is nullptr - UHero_AnimInstance::OnBeingHit"));
 }
 
-bool UHero_AnimInstance::OnCounterAttack(const FVector & _damageCauserRelative)
-{
-	float dotFront = FVector::DotProduct(mCharacter->GetActorForwardVector(), _damageCauserRelative);
-
-	// Check if we are in defence mode
-	if (!bOnDefend)
-		return false;
-
-	// Check Stanima
-
-
-	// Implement Counter Attack
-	if (CounterAttack_Montage == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("CounterAttack_Montage == nullptr - UHero_AnimInstance::OnCounterAttack"));
-		return false;
-	}
-	// Check direction, Sns Has more counter attack chance 
-	FName sectionName;
-	switch (CurrentEquipment)
-	{
-	case EEquipType::ShieldSword:
-		if (dotFront < 0.5f)
-			return false;
-		else
-		{
-
-			if (dotFront > 0.99f)
-			{
-				sectionName = MONTAGE_SN_CA_SnsFront;
-			}
-			else
-			{
-				float dotRight = FVector::DotProduct(mCharacter->GetActorRightVector(), _damageCauserRelative);
-				if (dotRight > 0)
-					sectionName = MONTAGE_SN_CA_SnsRight;
-				else
-					sectionName = MONTAGE_SN_CA_SnsLeft;
-			}
-			LaunchCounterAttack(sectionName);
-			return true;
-		}
-	case EEquipType::TwoHandSword:
-		if (dotFront < 0.7f)
-			return false;
-		else
-		{
-			sectionName = MONTAGE_SN_CA_Katana;
-			LaunchCounterAttack(sectionName);
-			return true;
-		}
-	case EEquipType::HeavyWeapon:
-		if (dotFront < 0.7f)
-			return false;
-		else
-		{
-			AGear* currentWeapon = mCharacter->GetCurrentWeapon();
-			if (currentWeapon)
-			{
-				if (currentWeapon->GetGearType() == EGearType::BattleAxe)
-				{
-					sectionName = MONTAGE_SN_CA_BattleAxe;
-					LaunchCounterAttack(sectionName);
-					return true;
-				}
-				else
-				{
-					sectionName = MONTAGE_SN_CA_Hammer;
-					LaunchCounterAttack(sectionName);
-					return true;
-				}
-			}
-			return false;
-		}
-	default:
-		return false;
-
-	}	
-}
 
 void UHero_AnimInstance::ResetOnBeingHit()
 {
@@ -1732,6 +1756,11 @@ void UHero_AnimInstance::AnimInstanceResetOnRagDoll()
 	
 
 
+}
+
+void UHero_AnimInstance::OnZeroSp()
+{
+	OnDefendOff();
 }
 
 void UHero_AnimInstance::HeadTrack()

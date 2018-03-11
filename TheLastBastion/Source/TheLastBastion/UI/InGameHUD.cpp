@@ -111,11 +111,28 @@ void UInGameHUD::ResetStats(const UHeroStatsComponent * _heroStats)
 
 void UInGameHUD::SetHpOnHealthChange(const UPawnStatsComponent * _pawnStats)
 {
-	float currentHp = FMath::Clamp(_pawnStats->GetHpCurrent(), 0.0f, MAX_FLT);
-
+    //float currentHp = FMath::Clamp(_pawnStats->GetHpCurrent(), 0.0f, MAX_FLT);
+	float currentHp = _pawnStats->GetHpCurrent();
 	PlayerRow->SetHpValue(currentHp, _pawnStats->GetHpMax());
 	PlayerRow->SetHpPercentage(currentHp, _pawnStats->GetDivByHpMax());
 }
+
+void UInGameHUD::SetSpOnStaminaChange(const UPawnStatsComponent * _pawnStats)
+{
+	//float currentSp = FMath::Clamp(_pawnStats->GetStaminaCurrent(), 0.0f, MAX_FLT);
+	float currentSp = _pawnStats->GetStaminaCurrent();
+	PlayerRow->SetSp(currentSp, _pawnStats->GetStaminaMax(), _pawnStats->GetDivBySpMax());
+}
+
+void UInGameHUD::SetDpOnDpChange(const UPawnStatsComponent * _pawnStats)
+{
+
+	//float currentDp = FMath::Clamp(_pawnStats->GetDpCurrent(), 0.0f, MAX_FLT);
+	float currentDp = _pawnStats->GetDpCurrent();
+	PlayerRow->SetDpPercentage(currentDp, _pawnStats->GetDivByHpMax());
+}
+
+
 
 void UInGameHUD::ToggleFireMode(bool _val)
 {

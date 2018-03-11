@@ -72,6 +72,10 @@ public:
 
 	void SetHpOnHealthChange(const class UPawnStatsComponent * _pawnStats);
 
+	void SetSpOnStaminaChange(const class UPawnStatsComponent * _pawnStats);
+
+	void SetDpOnDpChange(const class UPawnStatsComponent * _pawnStats);
+
 	void ToggleFireMode(bool _val);
 
 	void ToggleCommandList(bool _val);

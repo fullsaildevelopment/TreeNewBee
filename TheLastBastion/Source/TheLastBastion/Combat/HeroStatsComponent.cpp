@@ -23,6 +23,12 @@ UHeroStatsComponent::UHeroStatsComponent()
 	UCustomType::FindClass<AArmor>(Armor_ClassBp, TEXT("/Game/Blueprints/Gears/Tsun/Tsun_Armor"));
 	Level = 1;
 
+	HeroHpRecoverDelay_Scaler = 1.0f;
+	HeroHpRecoverRate_Scaler = 1.0f;
+	HeroSpRecoverRate_Scaler = 1.0f;
+	HeroSpConsumeRate_Scaler = 1.0f;
+	Hero_DpGainOnCA_Scaler = 1.0f;
+
 }
 
 void UHeroStatsComponent::BeginPlay()
@@ -59,6 +65,8 @@ void UHeroStatsComponent::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("mCharacter is NULL - UHeroStatsComponent::BeginPlay"));
 	}
 
+	UpdateSpCostOnWeaponChange(
+		GetCurrentRightHandWeapon()->GetGearType());
 }
 
 void UHeroStatsComponent::OnFocus()
@@ -187,6 +195,8 @@ bool UHeroStatsComponent::OnSwitchWeapon(EEquipType _nextEquip)
 
 		rightWeapon = WeaponSlots[nextEquip].RightHand;
 
+		UpdateSpCostOnWeaponChange(rightWeapon->GetGearType());
+
 		if (_nextEquip == EEquipType::CrossBow)
 			mHeroCharacter->ToggleFireMode(true);
 
@@ -198,7 +208,7 @@ bool UHeroStatsComponent::OnSwitchWeapon(EEquipType _nextEquip)
 			LastMeleeWeapon_Index = CurrentWeapon_Index;
 		}
 		CurrentWeapon_Index = nextEquip;
-		GenerateMaxStats();
+		GenerateMaxStats(false);
 		mHeroCharacter->GetInGameHUD()->SetCurrentWeaponImage(rightWeapon);
 	}
 
@@ -310,6 +320,69 @@ void UHeroStatsComponent::UpdateEquipHideOption()
 			if (WeaponSlots[i].RightHand  && i != CurrentWeapon_Index)
 				WeaponSlots[i].RightHand->ToggleVisibilty(!WeaponSlots[i].bHideWhenEquip);
 		}
+	}
+}
+
+bool UHeroStatsComponent::ApplyDamage(const FDamageInfo & _hit)
+{
+
+	// Gain Dp point by percentage on each successful hit during counter attack
+
+	bool successHit = Super::ApplyDamage(_hit);
+	if (successHit)
+	{
+		if (mHeroCharacter->IsDoingCounterAttack())
+		{
+			AddDpByPercent(GetDpGainPercentage_CounterAttack());
+			mHeroCharacter->GetInGameHUD()->SetDpOnDpChange(this);
+		}
+	}
+	return successHit;
+}
+
+void UHeroStatsComponent::UpdateSpCostOnWeaponChange(EGearType _gearType)
+{
+	switch (_gearType)
+	{
+	case EGearType::LongSword:
+		Hero_MeleeAttack_SpCost = HeroMeleeAttackSpCost_Init_SnSword;
+		Hero_CounterAttack_SpCost = HeroCounterAttackSpCost_Init_Katana_Sns;
+		Hero_Dodge_SpCost = HereDodgeSpCost_Init_Sns;
+		Hero_Defence_SpCost = HereDefenceSpCost_Init_Sns;
+		break;
+	case EGearType::Mace:
+	case EGearType::WarAxe:
+		Hero_MeleeAttack_SpCost = HeroMeleeAttackSpCost_Init_SnAxeMace;
+		Hero_CounterAttack_SpCost = HeroCounterAttackSpCost_Init_Katana_Sns;
+		Hero_Dodge_SpCost = HereDodgeSpCost_Init_Sns;
+		Hero_Defence_SpCost = HereDefenceSpCost_Init_Sns;
+		break;
+	case EGearType::Hammer:
+		Hero_MeleeAttack_SpCost = HeroMeleeAttackSpCost_Init_Hammer_BattleAxe;
+		Hero_CounterAttack_SpCost = HeroCounterAttackSpCost_Init_Hammer;
+		Hero_Dodge_SpCost = HereDodgeSpCost_Init_HammerBattleAxe;
+		Hero_Defence_SpCost = HereDefenceSpCost_Init_HammerBattleAxe;
+		break;
+	case EGearType::BattleAxe:
+		Hero_MeleeAttack_SpCost = HeroMeleeAttackSpCost_Init_Hammer_BattleAxe;
+		Hero_CounterAttack_SpCost = HeroCounterAttackSpCost_Init_BattleAxe_GreatSword;
+		Hero_Dodge_SpCost = HereDodgeSpCost_Init_HammerBattleAxe;
+		Hero_Defence_SpCost = HereDefenceSpCost_Init_HammerBattleAxe;
+		break;
+	case EGearType::GreatSword:
+		Hero_MeleeAttack_SpCost = HeroMeleeAttackSpCost_Init_GreatSword;
+		Hero_CounterAttack_SpCost = HeroCounterAttackSpCost_Init_BattleAxe_GreatSword;
+		Hero_Dodge_SpCost = HereDodgeSpCost_Init_GreatSword;
+		Hero_Defence_SpCost = HereDefenceSpCost_Init_GreatSword;
+		break;
+	case EGearType::DoubleHandWeapon:
+		Hero_MeleeAttack_SpCost = HeroMeleeAttackSpCost_Init_Katana;
+		Hero_CounterAttack_SpCost = HeroCounterAttackSpCost_Init_Katana_Sns;
+		Hero_Dodge_SpCost = HereDodgeSpCost_Init_Katana;
+		Hero_Defence_SpCost = HereDefenceSpCost_Init_Katana;
+		break;
+	default:
+		break;
 	}
 }
 
