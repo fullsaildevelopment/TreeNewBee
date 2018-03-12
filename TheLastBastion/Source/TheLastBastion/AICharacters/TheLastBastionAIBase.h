@@ -10,6 +10,7 @@
  * 
  */
 
+#define RangeUnitMinimumFirePlayBackTime 3.0f
 
 UCLASS()
 class THELASTBASTION_API ATheLastBastionAIBase : public ATheLastBastionCharacter
@@ -43,6 +44,8 @@ protected:
 	UPROPERTY()
 		class UInGameAIHUD* AI_HUD;
 
+
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GroupBehavior)
 		int mGroupIndex;
 
@@ -52,8 +55,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
 		int AITier;
 
+	UPROPERTY(EditAnywhere, Category = AiProperty)
+		/** The waiting time between each attack */
+		float AttackWait;
+
 	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
 		bool bIsRangeUnit;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
+		/* if true, this character will be walking instead of jogging*/
+		bool bIsWalkingUnit;
+
 
 
 protected:
@@ -83,6 +95,12 @@ public:
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE class AAIGroupBase* GetGroup() const { return mGroup; }
+
+	/** Get Waiting Time between two attack */
+	FORCEINLINE float GetAttackWait() const { return (bIsRangeUnit)? AttackWait : (AttackWait + RangeUnitMinimumFirePlayBackTime); }
+	/** Check if this ai is walking or jogging*/
+	FORCEINLINE bool IsWalking() const { return bIsWalkingUnit; }
+
 
 	FORCEINLINE void SetGroupIndex(int _groupIndex) { mGroupIndex = _groupIndex; }
 
@@ -117,8 +135,9 @@ protected:
 			class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
 			const class UDamageType* DamageType, AActor* DamageCauser) override;
 
-	virtual void GenerateFloatingText(const FVector& HitLocation, const class ATheLastBastionHeroCharacter* heroAttacker,
-		float totalDamage, bool isCritical, bool isStun);
+	/** Generate floating text to represent damage*/
+	virtual void OnTakeDamageFromHero(const FVector& HitLocation, const class ATheLastBastionHeroCharacter* heroAttacker,
+		float totalDamage, bool isCritical, bool isStun) {}
 
 	virtual void EvaluateAttackerThreat(AActor* DamageCauser, float hp);
 

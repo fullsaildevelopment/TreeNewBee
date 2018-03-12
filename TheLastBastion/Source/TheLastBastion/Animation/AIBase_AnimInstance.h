@@ -74,10 +74,6 @@ protected:
 		EAIActionState NextAction;
 
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat)
-		/** raise the weapon to eye*/
-		bool bAim;
-
 public:
 
 	FOnFinishAttackSignature OnFinishAttackDelegate;
@@ -97,14 +93,11 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	virtual void OnPostEvaluate();
 
-
-
 	UFUNCTION()
 		void OnMontageStartHandle(class UAnimMontage* _animMontage) override;
 
 	UFUNCTION()
 		void OnMontageBlendOutStartHandle(class UAnimMontage* _animMontage, bool _bInterruptted) override;
-
 
 
 public:
@@ -122,7 +115,6 @@ public:
 
 	void ResetOnBeingHit() override;
 
-
 	void OnBeingHit(FName boneName, const FVector& _damageCauseRelative,
 		const FVector& _hitLocation) override;
 
@@ -130,6 +122,11 @@ public:
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE EAIActionState GetCurrentActionState() const {return CurrentActionState;}
+
+	UFUNCTION(BlueprintPure)
+		/** Check if animation ready to perform next fire */
+		FORCEINLINE bool CanFire() const { return !Montage_IsPlaying(Fire_Montage) && CurrentActionState == EAIActionState::None;}
+
 
 protected:
 

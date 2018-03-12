@@ -76,12 +76,17 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 	bIsMovementDisabled = false;
 	bIsInCommandMode = false; 
 	bControlEnemyGroup = false;
+	bHpRecovering = false;
 
 	Focus_CamRotationLagging = 15.0f;
 	Unfocus_CamRotationLagging = 30.0f;
 
 	HeroStats = CreateDefaultSubobject<UHeroStatsComponent>(TEXT("Stats"));
 	PawnStats = HeroStats;	
+
+	// enable tick
+	PrimaryActorTick.bCanEverTick = true;
+
 }
 
 void ATheLastBastionHeroCharacter::BeginPlay()
@@ -108,6 +113,7 @@ void ATheLastBastionHeroCharacter::BeginPlay()
 	}
 	else
 		UE_LOG(LogTemp, Error, TEXT("pc is NULL - ATheLastBastionHeroCharacter::BeginPlay"));
+
 }
 
 void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -167,6 +173,11 @@ void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputCompone
 	PlayerInputComponent->BindAction("SelectedCrew_3", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSelectedCrew_3);
 	PlayerInputComponent->BindAction("SelectedCrew_4", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSelectedCrew_4);
 
+}
+
+void ATheLastBastionHeroCharacter::Tick(float _deltaTime)
+{
+	UpdateHeroStats();
 }
 
 #pragma region On Player Input
@@ -332,7 +343,7 @@ void ATheLastBastionHeroCharacter::OnCommandMarch()
 	GetActorEyesViewPoint(EyesLocation, EyesRotation);
 
 	FVector ShotDirection = EyesRotation.Vector();
-	FVector TraceEnd = EyesLocation + (ShotDirection * COMMANDRANGE);
+	FVector TraceEnd = EyesLocation + (ShotDirection * COMMAND_RANGE);
 
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
@@ -357,11 +368,12 @@ void ATheLastBastionHeroCharacter::OnCommandMarch()
 
 			CommandedGroup->SetMarchLocation(ImpactLocation, GC_GOTOLOCATION);
 
-		}// Temp code
-		if (EnemyGroupTemp && bControlEnemyGroup)
-		{
-			EnemyGroupTemp->SetMarchLocation(ImpactLocation, GC_GOTOLOCATION);
 		}
+		// Temp code
+		//if (EnemyGroupTemp && bControlEnemyGroup)
+		//{
+		//	EnemyGroupTemp->SetMarchLocation(ImpactLocation, GC_GOTOLOCATION);
+		//}
 	}
 }
 
@@ -544,6 +556,45 @@ void ATheLastBastionHeroCharacter::OnTABPressed()
 
 #pragma endregion
 
+void ATheLastBastionHeroCharacter::UpdateHeroStats()
+{
+	// Recover Hp by time
+	if (bHpRecovering)
+	{
+		if (HeroStats->IsFullHp() == false)
+		{
+			//UE_LOG(LogTemp, Log, TEXT("Recovering Hp - ATheLastBastionHeroCharacter::UpdateHeroStats"));
+			HeroStats->AddHpByPercent(HeroStats->GetHeroHpRecoverRate());
+			mInGameHUD->SetHpOnHealthChange(HeroStats);
+		}
+		else
+			DisnableHpRecovering();
+	}
+
+
+	if (mAnimInstanceRef->IsOnDefend())
+	{
+		//Reduce Sp by Time
+		//UE_LOG(LogTemp, Log, TEXT("Consuming Sp - ATheLastBastionHeroCharacter::UpdateHeroStats"));
+		HeroStats->AddSpBy(HeroStats->GetSpCost_Defence());
+		mInGameHUD->SetSpOnStaminaChange (HeroStats);
+		// if stamina == 0, then quit defend mode
+		if (HeroStats->GetStaminaCurrent() <= 0.0f)
+			mAnimInstanceRef->OnZeroSp();
+
+	}
+	else
+	{
+		// Recover Sp by Time
+		if (HeroStats->IsFullSp() == false)
+		{
+			//UE_LOG(LogTemp, Log, TEXT("Recovering Sp - ATheLastBastionHeroCharacter::UpdateHeroStats"));
+			HeroStats->AddSpByPercent(HeroStats->GetHeroSpRecoverRate());
+			mInGameHUD->SetSpOnStaminaChange(HeroStats);
+		}
+	}
+}
+
 FVector ATheLastBastionHeroCharacter::GetPawnViewLocation() const
 {
 	if (FollowCamera != nullptr)
@@ -573,10 +624,60 @@ void ATheLastBastionHeroCharacter::RagDollRecoverOnFinish()
 	}
 }
 
-
 void ATheLastBastionHeroCharacter::ToggleFireMode(bool _val)
 {
 	mInGameHUD->ToggleFireMode(_val);
+}
+
+bool ATheLastBastionHeroCharacter::MeleeAttackSpCheck()
+{
+
+	float spCost = HeroStats->GetSpCost_MeleeAttack();
+	float spRemain = HeroStats->GetStaminaCurrent() + spCost;
+
+	bool success = spRemain > 0;
+	if (success)
+	{
+		HeroStats->SetSp(spRemain);
+		mInGameHUD->SetSpOnStaminaChange(HeroStats);
+	}
+
+	return success;
+}
+
+bool ATheLastBastionHeroCharacter::DodgeSpCheck()
+{
+	float spCost = HeroStats->GetSpCost_Dodge();
+	float spRemain = HeroStats->GetStaminaCurrent() + spCost;
+
+	bool success = spRemain > 0;
+	if (success)
+	{
+		HeroStats->SetSp(spRemain);
+		mInGameHUD->SetSpOnStaminaChange(HeroStats);
+	}
+
+	return success;
+}
+
+bool ATheLastBastionHeroCharacter::CounterAttackSpCheck()
+{
+	float spCost = HeroStats->GetSpCost_CounterAttack();
+	float spRemain = HeroStats->GetStaminaCurrent() + spCost;
+
+	bool success = spRemain > 0;
+	if (success)
+	{
+		HeroStats->SetSp(spRemain);
+		mInGameHUD->SetSpOnStaminaChange(HeroStats);
+	}
+
+	return success;
+}
+
+bool ATheLastBastionHeroCharacter::IsDoingCounterAttack() const
+{
+	return mAnimInstanceRef->IsDoingCounterAttack();
 }
 
 
@@ -594,19 +695,18 @@ void ATheLastBastionHeroCharacter::OnTakePointDamageHandle(AActor * DamagedActor
 
 	// the relative position of damage causer to damaged actor
 	FVector damageCauserRelative = ShotFromDirection;
-	//damageCauserRelative.Z = 0.0f;
-	//damageCauserRelative = damageCauserRelative.GetUnsafeNormal();
-
-	//bool CounterAttackSuccessed = mAnimInstanceRef->OnCounterAttack(damageCauserRelative);
-	//if (CounterAttackSuccessed)
-	//	return;
 
 	float totalDamage = HeroStats->CalculateDamage(Damage, DamageCauser, isCritical, isStun);
 
-	/// update HUD hp bar
-	mInGameHUD->SetHpOnHealthChange(HeroStats);
+	bool HasDpLeft = HeroStats->GetDpCurrent() > 0;
 
-	/// pop floating number
+	/// update HUD hp or dp bar
+	mInGameHUD->SetDpOnDpChange(HeroStats);
+	if (!HasDpLeft)
+		mInGameHUD->SetHpOnHealthChange(HeroStats);
+
+#pragma region  Pop Up floating text
+
 	TSubclassOf<UUserWidget> fT_WBP = HeroStats->GetFloatingText_WBP();
 
 	if (fT_WBP == nullptr)
@@ -633,18 +733,33 @@ void ATheLastBastionHeroCharacter::OnTakePointDamageHandle(AActor * DamagedActor
 
 	}
 
+#pragma endregion
+
+	bool resetHpCovering = true; // are we reset the hp covering timer after this hit
+
+	/// Animation response to Hit
 	FVector RagDollImpulse = HitLocation - DamageCauser->GetTargetLocation();
-
-	//mAnimInstanceRef->
-
 	if (isStun)
 	{
-		KnockOut(RagDollImpulse, DamageCauser, BoneName);
-
+		//KnockOut(RagDollImpulse, DamageCauser, BoneName);
+		// play hit response and mark it for stun
+		mAnimInstanceRef->OnBeingHit(BoneName, damageCauserRelative, HitLocation);
 	}
 	else
 	{
-		mAnimInstanceRef->OnBeingHit(BoneName, damageCauserRelative, HitLocation);
+		// we have dp left, we will not react to the hit by animation
+		if (HasDpLeft == false)
+			mAnimInstanceRef->OnBeingHit(BoneName, damageCauserRelative, HitLocation);
+		else
+			resetHpCovering = false;
+	}
+
+	/// Hp recovering reset
+	if (resetHpCovering)
+	{
+		bHpRecovering = false;
+		GetWorldTimerManager().ClearTimer(HpRecoverTimer);
+		GetWorldTimerManager().SetTimer(HpRecoverTimer, this, &ATheLastBastionHeroCharacter::EnableHpRecovering, 0.1f, false, HeroStats->GetHeroHpRecoverDelay());
 	}
 
 }

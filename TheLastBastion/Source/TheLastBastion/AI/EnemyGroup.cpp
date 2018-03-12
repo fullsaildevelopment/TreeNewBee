@@ -48,9 +48,10 @@ void AEnemyGroup::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// temp code for testing
-	if (PlayerHero && PlayerHero->EnemyGroupTemp == nullptr)
-		PlayerHero->EnemyGroupTemp = this;
+	//// temp code for testing
+	//if (PlayerHero && PlayerHero->EnemyGroupTemp == nullptr)
+	//	PlayerHero->EnemyGroupTemp = this;
+
 	// set up marching routine
 
 }
@@ -262,11 +263,11 @@ void AEnemyGroup::SetMarchLocation(const FVector & _targetLocation, int _command
 	switch (_commandIndex)
 	{
 	case GC_GOTOLOCATION:
-	{
-		this->SetActorRotation(
-			UKismetMathLibrary::FindLookAtRotation(_targetLocation, _targetLocation + 10 * GroupTargetForward));
-		break;
-	}
+	//{
+	//	this->SetActorRotation(
+	//		UKismetMathLibrary::FindLookAtRotation(_targetLocation, _targetLocation + 10 * GroupTargetForward));
+	//	break;
+	//}
 	case GC_HOLDLOCATION:
 		break;
 	default:

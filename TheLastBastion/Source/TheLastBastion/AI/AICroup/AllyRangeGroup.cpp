@@ -41,8 +41,8 @@ void AAllyRangeGroup::OnRangeVisionOverrlapBegin(UPrimitiveComponent* Overlapped
 	{
 		// update threat list
 		AddThreat(EnemyCharacter, ThreatGain_AIInit);
-		bInBattle = true;
 		SetRangeGroupTarget_OnOverLap(EnemyCharacter);
+		bInBattle = true;
 		//if (bInBattle == false)
 		//{
 		//	//RangeTargetSelect_OnFirstOverlap(EnemyCharacter);

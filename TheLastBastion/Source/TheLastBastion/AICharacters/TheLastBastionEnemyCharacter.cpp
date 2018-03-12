@@ -64,7 +64,7 @@ void ATheLastBastionEnemyCharacter::HitResponse(AActor * DamageCauser)
 
 }
 
-void ATheLastBastionEnemyCharacter::GenerateFloatingText(const FVector & HitLocation,
+void ATheLastBastionEnemyCharacter::OnTakeDamageFromHero(const FVector & HitLocation,
 	const ATheLastBastionHeroCharacter * heroAttacker, float totalDamage, bool isCritical, bool isStun)
 {
 	// if this AI is not being locked on, 

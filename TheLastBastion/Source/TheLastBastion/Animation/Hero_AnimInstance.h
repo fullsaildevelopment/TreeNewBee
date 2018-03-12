@@ -347,7 +347,8 @@ public:
 
 	void AnimInstanceResetOnRagDoll() override;
 
-
+	/** Called when sp == 0*/
+	void OnZeroSp();
 
 private:
 
@@ -361,10 +362,7 @@ private:
 	/** Similar to SkipEquip, without change movement rules*/
 	void AttachWeapon();
 
-
 	void RecoverFromBeingHit(bool _bInterrupted);
-
-
 
 	///*** Melee Function ***///
 
@@ -373,7 +371,6 @@ private:
 
 	/** Called OnAttack is called and Player's current Equipment is melee weapon*/
 	void OnMeleeAttack();
-
 	// enter defend pose with single hand weapon and shield
 	void OnDefendOn_Sns();
 	// exit defend pose
@@ -382,7 +379,6 @@ private:
 	void OnDefendOn_Dh();
 
 	void LaunchCounterAttack(const FName& _sectionName);
-
 
 	void LaunchCombo();
 	/** Reset Combo when attack montage gets blended out without any interrupt*/
@@ -491,5 +487,6 @@ public:
 	FORCEINLINE bool GetIsFocus() const { return bIsFocused; }
 	FORCEINLINE bool GetFocusPendingEnter() const { return bIsFocusEnterPending; }
 	FORCEINLINE bool GetFocusPendingExit() const { return bIsFocusExitPending; }
+	FORCEINLINE bool IsDoingCounterAttack() const { return Montage_IsPlaying(CounterAttack_Montage); }
 
 };

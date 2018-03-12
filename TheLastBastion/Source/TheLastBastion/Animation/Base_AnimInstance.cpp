@@ -15,7 +15,10 @@
 
 UBase_AnimInstance::UBase_AnimInstance(const FObjectInitializer& _objectInitalizer)
 {
-	Sh_HitReaction = FindMontage(TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_SSword_HitReaction"));
+	FindMontage(AM_SingleHandWeapon_HitReaction, 
+		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_SSword_HitReaction"));
+	FindMontage(AM_CrossBow, 
+		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_CBFIre"));
 }
 
 void UBase_AnimInstance::OnBeginPlay()
@@ -267,11 +270,13 @@ void UBase_AnimInstance::FxOnReload()
 {
 }
 
-UAnimMontage * UBase_AnimInstance::FindMontage(const TCHAR * _path)
+bool UBase_AnimInstance::FindMontage(class UAnimMontage*& _animMontage, const TCHAR * _path)
 {
-	ConstructorHelpers::FObjectFinder<UAnimMontage> ps_finder(_path);
-	if (ps_finder.Succeeded())
-		return ps_finder.Object;
-	else
-		return nullptr;
+	if (_animMontage == nullptr)
+	{
+		ConstructorHelpers::FObjectFinder<UAnimMontage> ps_finder(_path);
+		_animMontage = ps_finder.Object;
+	}
+
+	return (_animMontage != nullptr);
 }

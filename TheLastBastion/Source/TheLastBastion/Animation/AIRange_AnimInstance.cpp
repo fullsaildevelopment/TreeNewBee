@@ -26,6 +26,7 @@ void UAIRange_AnimInstance::OnUpdate(float _deltaTime)
 {
 	Super::OnUpdate(_deltaTime);
 
+	//turn
 	//if (mCharacter == nullptr)
 	//	return;
 
@@ -86,14 +87,11 @@ void UAIRange_AnimInstance::Fire(const AActor * _target)
 
 		if (RangeWeapon)
 		{
-			bAim = true;
+			//bAim = true;
 			RangeWeapon->NPCFire(_target);
 			FName sectionToPlay;
-			//sectionToPlay = TEXT("SingleShot");
 			sectionToPlay = MONTAGE_CB_FireOnce;
-			PlayMontage(Fire_Montage, 1.0f, sectionToPlay);
-			//bAim = false;
-			//UE_LOG(LogTemp, Log, TEXT("FIre"));
+			PlayMontage(AM_CrossBow, 1.0f, sectionToPlay);
 		}
 	}
 
@@ -101,7 +99,7 @@ void UAIRange_AnimInstance::Fire(const AActor * _target)
 
 void UAIRange_AnimInstance::StopFire()
 {
-	bAim = false;
+	//bAim = false;
 }
 
 //void UAIRange_AnimInstance::OnBeingHit(FName boneName, 

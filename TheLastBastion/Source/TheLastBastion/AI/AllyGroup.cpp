@@ -447,17 +447,17 @@ void AAllyGroup::SetMarchLocation(const FVector & _targetLocation, int _commandI
 	switch (_commandIndex)
 	{
 	case GC_GOTOLOCATION:
-	{
-		this->SetActorRotation(UKismetMathLibrary::
-			FindLookAtRotation(GroupTargetLocation, GroupTargetLocation + 10 * GroupTargetForward));
-		break;
-	}
+	//{
+	//	//this->SetActorRotation(UKismetMathLibrary::
+	//	//	FindLookAtRotation(GroupTargetLocation, GroupTargetLocation + 10 * GroupTargetForward));
+	//	//break;
+	//}
 	case GC_HOLDLOCATION:
 	case GC_FOLLOW:
-	{
-		this->SetActorRotation(PlayerHero->GetActorRotation());
-		break;
-	}
+	//{
+	//	//this->SetActorRotation(PlayerHero->GetActorRotation());
+	//	//break;
+	//}
 	case GC_FORWARD:
 	case GC_BACKWARD:
 	default:
@@ -772,7 +772,7 @@ void AAllyGroup::SetAllyGroupVisionVolumn()
 	int maxColCount = GetMaxColoumnCount();
 
 	float maxGroupWidth = (maxColCount - 1) * CurrentPadding * 0.5f + SIDEPADDING;
-	float maxGroupLength = (maxRowCount - 1) * CurrentPadding + 0.5 * SIDEPADDING;
+	float maxGroupLength = (maxRowCount) * CurrentPadding + 0.5 * SIDEPADDING;
 
 	SetGroupVisionVolumn(maxGroupWidth, maxGroupLength);
 }

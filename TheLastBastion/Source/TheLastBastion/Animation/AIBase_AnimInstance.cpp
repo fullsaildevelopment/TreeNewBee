@@ -54,8 +54,17 @@ void UAIBase_AnimInstance::OnUpdate(float _deltaTime)
 	currentSpeed = velocity.SizeSquared();
 	FVector velocityLocalDir = UKismetMathLibrary::InverseTransformDirection(mCharacter->GetTransform(), velocity);
 	velocityLocalDir = FVector(velocityLocalDir.X, velocityLocalDir.Y, 0).GetSafeNormal();
-	MoveForwardAxis = velocityLocalDir.X;
-	MoveRightAxis = velocityLocalDir.Y;
+
+	if (mCharacter->IsWalking())
+	{
+		MoveForwardAxis = velocityLocalDir.X;
+		MoveRightAxis = velocityLocalDir.Y;
+	}
+	else
+	{
+		MoveForwardAxis = 2 * velocityLocalDir.X;
+		MoveRightAxis = 2 * velocityLocalDir.Y;
+	}
 
 	switch (CurrentActionState)
 	{
@@ -96,7 +105,7 @@ void UAIBase_AnimInstance::ResetOnBeingHit()
 
 void UAIBase_AnimInstance::OnBeingHit(FName boneName, const FVector & _damageCauseRelative, const FVector & _hitLocation)
 {
-	Hit_Montage = Sh_HitReaction;
+	Hit_Montage = AM_SingleHandWeapon_HitReaction;
 	if (Hit_Montage == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Hit Montage is nullptr"));
@@ -144,16 +153,18 @@ void UAIBase_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMont
 	}
 	else
 	{
-		// if get up is interrupt by something, only recover the focus
-		if (_animMontage == GetUp_Montage && mCharacter->IsOldKnockOut())
-		{
-			ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
-			// focus on target
-			AActor* target = baseAICtrl->GetTargetActor_BBC();
-			if (target)
-				baseAICtrl->SetFocus(target);
-		}
 
+
+
+		//// if get up is interrupt by something, only recover the focus
+		//if (_animMontage == GetUp_Montage && mCharacter->IsOldKnockOut())
+		//{
+		//	ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
+		//	// focus on target
+		//	AActor* target = baseAICtrl->GetTargetActor_BBC();
+		//	if (target)
+		//		baseAICtrl->SetFocus(target);
+		//}
 	}
 
 }

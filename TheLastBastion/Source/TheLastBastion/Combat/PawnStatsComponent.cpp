@@ -239,6 +239,7 @@ void UPawnStatsComponent::GenerateMaxStats(bool _setCurrentToMax)
 	StaminaMax = factorStamina * StaminaRaw + SpAdd;
 	CriticalMax = CriticalRow + criticalAdd;
 	StunMax = StunRow + stunAdd;
+	DpCurrent = 0;
 
 	if (_setCurrentToMax)
 	{
@@ -367,6 +368,7 @@ float UPawnStatsComponent::CalculateDamage(float baseDamage, AActor * _damageCau
 		return 0;
 	}
 
+	// For now we only consider physical damage
 	float weaponDamage = dcRightHandWeapon->GetPhysicalDamage();
 
 	if (dcLeftHandWeapon)
@@ -374,10 +376,21 @@ float UPawnStatsComponent::CalculateDamage(float baseDamage, AActor * _damageCau
 
 	float totalDamage = baseDamage + FMath::RandRange(10, 100) + weaponDamage;
 
-	if (!mCharacter->GetIsGodMode())
-		HpCurrent = HpCurrent - totalDamage;
+	if (DpCurrent > 0)
+	{
+		// if we have defence point, we are going to go reduce health
+		// total damage will be applied by dp Physical damage reduction
+		totalDamage *= DpPhysicalDamageReduction;
+		DpCurrent = DpCurrent - totalDamage;
+		DpCurrent = FMath::Clamp(DpCurrent, 0.0f, HpMax);
+	}
+	else
+	{
+		if (!mCharacter->GetIsGodMode())
+			HpCurrent = HpCurrent - totalDamage;
 
-	HpCurrent = FMath::Clamp(HpCurrent, 0.0f, HpMax);
+		HpCurrent = FMath::Clamp(HpCurrent, 0.0f, HpMax);
+	}
 
 	//UE_LOG(LogTemp, Log, TEXT("Enemy::OnTakePointDamageHandle, critical: %f, stun: %f"), criticalRate, stunRate);
 
@@ -418,7 +431,7 @@ void UPawnStatsComponent::PlaySFXForImpact(class USoundCue* _sfx, int _surfaceTy
 }
 
 
-void UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
+bool UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 {
 	// calculate the damage based on Gears
 	float damage = GetBaseDamage();
@@ -431,7 +444,7 @@ void UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 	// Check if this damage is caused by melee and been countered
 	if (_damageInfo.bIsProjectile == false)
 	{
-		// if this is not projectile
+		// if this is not projectile, then it maybe countered
 		ATheLastBastionCharacter* damageActor = Cast<ATheLastBastionCharacter>(_damageInfo.hitResult.GetActor());
 		if (damageActor && damageActor->OnCounterAttack(_damageInfo.hitDirection))
 		{
@@ -444,7 +457,7 @@ void UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), vfxSelected, _damageInfo.hitResult.Location);
 				UGameplayStatics::PlaySoundAtLocation(GetWorld(), sfxSelected, _damageInfo.hitResult.Location);
 			}
-			return;
+			return false;
 		}
 		else
 		{
@@ -459,7 +472,7 @@ void UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 	}
 	else
 	{
-		// this is projectile
+		// this is projectile, and can not be countered
 		EPhysicalSurface surfaceType = UPhysicalMaterial::DetermineSurfaceType(_damageInfo.hitResult.PhysMaterial.Get());
 
 		sfxSelected = UAudioManager::GetProjectileImpactByMaterial(surfaceType);
@@ -503,6 +516,7 @@ void UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 
 	}
 
+	return true;
 }
 
 AArmor * UPawnStatsComponent::GetCurrentArmor() const

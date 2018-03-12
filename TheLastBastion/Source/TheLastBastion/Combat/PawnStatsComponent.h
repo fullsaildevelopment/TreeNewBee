@@ -7,6 +7,7 @@
 #include "PawnStatsComponent.generated.h"
 
 
+#define DpPhysicalDamageReduction 0.5f
 
 enum class EGearType : uint8;
 
@@ -104,11 +105,10 @@ protected:
 		/** Once the armor is updated, update all connected client this change*/
 	class AArmor*    Armor;
 	
-
 #pragma region Character Stats
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = CharactorStats)
-		// Hp without any armor
+		// Hp & Dp without any armor
 		float HpRaw;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = CharactorStats)
@@ -116,10 +116,16 @@ protected:
 		float StaminaRaw;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+		// currrent maximum Hp & Dp
 		float HpMax;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+		// currrent Hp
 		float HpCurrent;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+		// currrent Dp
+		float DpCurrent;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		float StaminaMax;
@@ -128,6 +134,7 @@ protected:
 		float StaminaCurrent;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+		// divider for current max dp or hp
 		float DivByHpMax;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
@@ -157,24 +164,12 @@ protected:
 
 private:
 
-	//UFUNCTION()
-	//	void OnTakeAnyDamageHandle(AActor* DamagedActor, float Damage, const class UDamageType* DamageType
-	//	, class AController* InstigatedBy, AActor* DamageCauser);
-
-	//UFUNCTION()
-	//	void OnTakePointDamageHandle(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation,
-	//		class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
-	//		const class UDamageType* DamageType, AActor* DamageCauser);
-
-
 	virtual float GetBaseDamage();
 
 	void GenerateStatsAtBeginPlay();
 
 
 public:	
-
-	//void GenerateFloatingText(const FVector& _worldPos, bool _isCritical, bool _isStun, bool _isHeadHit);
 
 	// Calculate the damage, remain health that this character suffered
 	virtual float CalculateDamage(float baseDamage, AActor* _damageCauser, bool& _isCritical, bool& _isStun);
@@ -205,8 +200,7 @@ public:
 	// Called 
 	void Born();
 
-	UFUNCTION()
-		void ApplyDamage(const FDamageInfo& _hit);
+	virtual bool ApplyDamage(const FDamageInfo& _hit);
 
 public:
 
@@ -215,29 +209,45 @@ public:
 	FORCEINLINE float GetHpRaw() const { return HpRaw; }
 	FORCEINLINE float GetStamina() const { return StaminaRaw; }
 	FORCEINLINE float GetHpCurrent() const { return HpCurrent; }
+	FORCEINLINE float GetDpCurrent() const { return DpCurrent; }
 	FORCEINLINE float GetStaminaCurrent() const { return StaminaCurrent; }
+	/** Get Current Max Dp or Hp*/
 	FORCEINLINE float GetHpMax() const { return HpMax; }
 	FORCEINLINE float GetStaminaMax() const { return StaminaMax; }
 	FORCEINLINE float GetCriticalMax() const { return CriticalMax; }
 	FORCEINLINE float GetStunMax() const { return StunMax; }
-
 	FORCEINLINE float GetDivByHpMax() const { return DivByHpMax; }
 	FORCEINLINE float GetDivBySpMax() const { return DivByStaminaMax; }
 	FORCEINLINE int   GetLevel() const { return Level; }
+	FORCEINLINE bool IsFullHp() const { return HpCurrent == HpMax; }
+	FORCEINLINE bool IsFullSp() const { return StaminaCurrent == StaminaMax; }
+
 	FORCEINLINE AGear* GetCurrentRightHandWeapon() const { return WeaponSlots[CurrentWeapon_Index].RightHand; }
 	FORCEINLINE AGear* GetCurrentLeftHandWeapon() const { return WeaponSlots[CurrentWeapon_Index].LeftHand; }
 	FORCEINLINE int GetMaxNumOfWeaponSlot() const { return WeaponSlots.Num(); }
 	FORCEINLINE FWeaponSlot GetWeaponSlotAt(int _index) const { return WeaponSlots[_index]; }
-	FORCEINLINE void SetWeaponEquipVisibility(int _index, bool _val) { WeaponSlots[_index].bHideWhenEquip = _val; }
-
 	static TSubclassOf<class UUserWidget> GetFloatingText_WBP();
 
+
+	FORCEINLINE void SetWeaponEquipVisibility(int _index, bool _val) { WeaponSlots[_index].bHideWhenEquip = _val; }
+
+	/** Change hp by value, clamp is involved*/
+	FORCEINLINE void AddHpBy(float _delta) { HpCurrent = FMath::Clamp(HpCurrent + _delta, 0.0f, HpMax); }
+	/** Change dp by value, clamp is involved*/
+	FORCEINLINE void AddDpBy(float _delta) { DpCurrent = FMath::Clamp(DpCurrent + _delta, 0.0f, HpMax); }
+	/** Change sp by value, clamp is involved*/
+	FORCEINLINE void AddSpBy(float _delta) { StaminaCurrent = FMath::Clamp(StaminaCurrent + _delta, 0.0f, StaminaMax); }
+
+	/** Change hp by percentage, clamp is involved*/
+	FORCEINLINE void AddHpByPercent(float _delta) { HpCurrent = FMath::Clamp(HpCurrent + HpMax *_delta, 0.0f, HpMax); }
+	/** Change dp by percentage, clamp is involved*/
+	FORCEINLINE void AddDpByPercent(float _delta) { DpCurrent = FMath::Clamp(DpCurrent + HpMax * _delta, 0.0f, HpMax); }
+	/** Change sp by percentage, clamp is involved*/
+	FORCEINLINE void AddSpByPercent(float _delta) { StaminaCurrent = FMath::Clamp(StaminaCurrent + StaminaMax *_delta, 0.0f, StaminaMax); }
+
+	FORCEINLINE void SetSp(float _val) { StaminaCurrent = _val; }
+
+
 protected:
-
-
 	void PlaySFXForImpact(class USoundCue* _sfx, int _surfaceType, ATheLastBastionCharacter* _damagedCharacter) const;
-	//// Calculate the health that this character left after being attacked
-	//virtual float CalculateHealth(AActor* _otherActor);
-
-
 };

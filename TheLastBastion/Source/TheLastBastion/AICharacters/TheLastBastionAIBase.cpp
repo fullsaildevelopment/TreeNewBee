@@ -78,11 +78,11 @@ void ATheLastBastionAIBase::BeginPlay()
 
 	AI_HUD->SetVisibility(ESlateVisibility::Hidden);
 
-	if (bIsWalking)
+	// Set Character base speed
+	if (bIsWalkingUnit)
 		GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
 	else
 		GetCharacterMovement()->MaxWalkSpeed = JogSpeed;
-
 }
 
 void ATheLastBastionAIBase::ToggleAIHUD(bool _val)
@@ -122,6 +122,7 @@ bool ATheLastBastionAIBase::OnGroupTaskStart()
 	}
 
 	int groupCommand = baseAICtrl->GetNewCommandIndex_BBC();
+
 	// if am asked to fight, 
 	// fail the group task, enter individual combat branch
 	if (groupCommand == GC_FIGHT)
@@ -212,34 +213,43 @@ void ATheLastBastionAIBase::SetTarget(AActor * _target, bool _asGroupMember)
 	{
 		UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr - AAIGroupBase::SetTarget"));
 		baseAICtrl->SetOldCommandIndex_BBC(0);
-
 		return;
 	}
-
-	// check to see if we have new command
-
-	//int newCommand = baseAICtrl->GetNewCommandIndex_BBC();
-	//if (newCommand == 0)
-	//{
-	//}
-
 
 	AActor* currentTarget = baseAICtrl->GetTargetActor_BBC();
 
 	if (_target != nullptr)
 		baseAICtrl->SetFocus(_target, EAIFocusPriority::Gameplay);
+	else
+	{
+		baseAICtrl->SetTargetActor_BBC(_target);
+		baseAICtrl->ClearFocus(EAIFocusPriority::Gameplay);
 
+		// if the target is nullptr then it means no threat and battle is over at this point, 
+		// then clear the group fight command if this ai is doing group fight command
+
+		if (baseAICtrl->GetOldCommandIndex_BBC() == GC_FIGHT)
+		{
+			baseAICtrl->SetOldCommandIndex_BBC(0);
+			return;
+		}
+	}
+
+	// if our target is changed to a new target
 	if (_target != currentTarget)
 	{
 		baseAICtrl->SetTargetActor_BBC(_target);
 		ATheLastBastionCharacter* aiTarget = Cast<ATheLastBastionCharacter>(_target);
 		if (aiTarget && !aiTarget->GetIsDead() && !_asGroupMember)
-		{
 			aiTarget->OnBecomeUnvailbleTargetEvent.AddUObject(this, &ATheLastBastionAIBase::OnTargetDeathHandle);
-		}
 	}
 
-	baseAICtrl->SetNewCommandIndex_BBC(GC_FIGHT);
+	// if our group is marked as already in battle, then interrupt current group command, with fight
+	// if already in group fight, then do nothing
+	if (mGroup->IsInBattle() == false)
+	{
+		baseAICtrl->SetNewCommandIndex_BBC(GC_FIGHT);
+	}
 }
 
 AActor * ATheLastBastionAIBase::GetTarget() const
@@ -290,7 +300,10 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 
 	const ATheLastBastionHeroCharacter* heroAttacker = Cast<ATheLastBastionHeroCharacter>(DamageCauser);
 	if (heroAttacker)
-		GenerateFloatingText(HitLocation, heroAttacker, totalDamage, isCritical, isStun);
+	{
+		OnTakeDamageFromHero(HitLocation, heroAttacker, totalDamage, isCritical, isStun);
+
+	}
 
 	////////////////////////////////////////////// innocent line ////////////////////////////
 
@@ -331,9 +344,6 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 		mAnimInstanceRef->OnBeingHit(BoneName, damageCauserRelative, HitLocation);
 	}
 }
-
-void ATheLastBastionAIBase::GenerateFloatingText(const FVector & HitLocation,
-	const ATheLastBastionHeroCharacter * heroAttacker, float totalDamage, bool isCritical, bool isStun) {}
 
 void ATheLastBastionAIBase::EvaluateAttackerThreat(AActor * DamageCauser, float hp) {}
 
