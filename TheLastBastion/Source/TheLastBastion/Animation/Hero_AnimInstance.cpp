@@ -1265,7 +1265,7 @@ void UHero_AnimInstance::LaunchCombo()
 		CurrentComboIndex = 0;
 	}
 
-	float attackSpeed = (mCharacter->GetCurrentWeapon()->GetGearType() == EGearType::GreatSword) ? 1.2f : 1.0f;
+	float attackSpeed = (mCharacter->GetCurrentWeapon()->GetGearType() == EGearType::GreatSword) ? 1.1f : 1.0f;
 	this->PlayMontage(Attack_Montage, attackSpeed, (*Current_AttackSectionName)[CurrentComboIndex]);
 	bVelocityOverrideByAnim = true;
 
