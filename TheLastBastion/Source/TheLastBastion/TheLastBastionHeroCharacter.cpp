@@ -581,6 +581,8 @@ void ATheLastBastionHeroCharacter::UpdateHeroStats()
 		// if stamina == 0, then quit defend mode
 		if (HeroStats->GetStaminaCurrent() <= 0.0f)
 			mAnimInstanceRef->OnZeroSp();
+		//HeroStats->SetSp(120);
+		//mInGameHUD->SetSpOnStaminaChange(HeroStats);
 
 	}
 	else
@@ -591,6 +593,9 @@ void ATheLastBastionHeroCharacter::UpdateHeroStats()
 			//UE_LOG(LogTemp, Log, TEXT("Recovering Sp - ATheLastBastionHeroCharacter::UpdateHeroStats"));
 			HeroStats->AddSpByPercent(HeroStats->GetHeroSpRecoverRate());
 			mInGameHUD->SetSpOnStaminaChange(HeroStats);
+
+			//HeroStats->SetSp(120);
+
 		}
 	}
 }
@@ -679,7 +684,6 @@ bool ATheLastBastionHeroCharacter::IsDoingCounterAttack() const
 {
 	return mAnimInstanceRef->IsDoingCounterAttack();
 }
-
 
 void ATheLastBastionHeroCharacter::OnTakeAnyDamageHandle(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
 {

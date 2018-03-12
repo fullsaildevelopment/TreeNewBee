@@ -433,11 +433,6 @@ void UHero_AnimInstance::FxMeleeSwing()
 
 void UHero_AnimInstance::OnMontageStartHandle(UAnimMontage * _animMontage)
 {
-	if (_animMontage == CounterAttack_Montage)
-	{
-		bAnimInterruptRobust = true;
-		OnDefendOff();		
-	}
 }
 
 void UHero_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontage, bool _bInterruptted)
@@ -459,6 +454,7 @@ void UHero_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontag
 	else if (_animMontage == CounterAttack_Montage)
 	{
 		bAnimInterruptRobust = false;
+		// recover movement from melee attack
 		if (!_bInterruptted)
 			ResetCombo();
 	}
@@ -1094,14 +1090,29 @@ void UHero_AnimInstance::OnDefendOn_Sns()
 		return;
 	}
 
+	bool wrongState = AttackState == EAttackState::Dodging && Montage_IsPlaying(CounterAttack_Montage);
+	if (wrongState)
+		return;
+
+
+	if ((AttackState == EAttackState::ReadyForNext || AttackState == EAttackState::PreWinding) && Montage_IsPlaying(Attack_Montage))
+	{
+		// when interrupt combo, stop combo animation, and reset combo
+		Montage_Stop(0.2f);
+		ResetCombo();
+	}
+	else if (AttackState == EAttackState::PostDodging)
+	{
+		OnDodgeFinish(false);
+	}
+	else if (AttackState == EAttackState::BeingHit)
+	{
+		RecoverFromBeingHit(false);
+	}
+
+
 	bOnDefend = true;
 	TargetDefendPoseAlpha = 1.0f;
-}
-
-void UHero_AnimInstance::OnDefendOff()
-{
-	bOnDefend = false;
-	TargetDefendPoseAlpha = 0.0f;
 }
 
 void UHero_AnimInstance::OnDefendOn_Dh()
@@ -1121,14 +1132,15 @@ void UHero_AnimInstance::OnDefendOn_Dh()
 
 	bool wrongState = AttackState == EAttackState::BeingHit ||
 		AttackState == EAttackState::Attacking ||
-		AttackState == EAttackState::Dodging;
+		AttackState == EAttackState::Dodging ||
+		Montage_IsPlaying(CounterAttack_Montage);
 	if (wrongState)
 		return;
 
 
-	if (AttackState == EAttackState::ReadyForNext
-		|| AttackState == EAttackState::PreWinding)
+	if (AttackState == EAttackState::ReadyForNext || AttackState == EAttackState::PreWinding)
 	{
+		// when interrupt combo, stop combo animation, and reset combo
 		Montage_Stop(0.2f);
 		ResetCombo();
 	}
@@ -1141,8 +1153,15 @@ void UHero_AnimInstance::OnDefendOn_Dh()
 	TargetDefendPoseAlpha = 1.0f;
 }
 
+void UHero_AnimInstance::OnDefendOff()
+{
+	bOnDefend = false;
+	TargetDefendPoseAlpha = 0.0f;
+}
+
 void UHero_AnimInstance::LaunchCounterAttack(const FName & _sectionName)
 {
+	UE_LOG(LogTemp, Log, TEXT(" UHero_AnimInstance::LaunchCounterAttack"));
 
 	this->PlayMontage(CounterAttack_Montage, 1.0f, _sectionName);
 	bVelocityOverrideByAnim = true;
@@ -1155,6 +1174,11 @@ void UHero_AnimInstance::LaunchCounterAttack(const FName & _sectionName)
 
 	AttackState = EAttackState::PreWinding;
 	NextAction = EActionType::None;
+
+	// Counter attack will not be interrupted by hit response
+	bAnimInterruptRobust = true;	
+	// reset defend pose
+	OnDefendOff();
 }
 
 void UHero_AnimInstance::OnRangeAttack()
@@ -1241,7 +1265,8 @@ void UHero_AnimInstance::LaunchCombo()
 		CurrentComboIndex = 0;
 	}
 
-	this->PlayMontage(Attack_Montage, 1.0f, (*Current_AttackSectionName)[CurrentComboIndex]);
+	float attackSpeed = (mCharacter->GetCurrentWeapon()->GetGearType() == EGearType::GreatSword) ? 1.2f : 1.0f;
+	this->PlayMontage(Attack_Montage, attackSpeed, (*Current_AttackSectionName)[CurrentComboIndex]);
 	bVelocityOverrideByAnim = true;
 
 	if (!bIsFocused)
@@ -1257,7 +1282,7 @@ void UHero_AnimInstance::LaunchCombo()
 
 void UHero_AnimInstance::ResetCombo()
 {
-	UE_LOG(LogTemp, Log, TEXT("Reset Combo"));
+	//UE_LOG(LogTemp, Log, TEXT("Reset Combo"));
 	AttackState = EAttackState::None;
 	NextAction = EActionType::None;
 
@@ -1511,8 +1536,6 @@ void UHero_AnimInstance::OnDodgeFinish(bool _bInterruptted)
 	if (!bIsFocused)
 	{
 		mCharacter->bUsePreviousMovementAxis = false;
-		//mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = true;
-		//mCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 	}
 
 	// if we have a pending focus, this is a time to do it
@@ -1673,7 +1696,6 @@ void UHero_AnimInstance::OnBeingHit(FName boneName, const FVector & _damageCause
 		UE_LOG(LogTemp, Error, TEXT("Hit_Montage is nullptr - UHero_AnimInstance::OnBeingHit"));
 }
 
-
 void UHero_AnimInstance::ResetOnBeingHit()
 {
 	mCharacter->bIsMovementDisabled = true;
@@ -1691,6 +1713,8 @@ void UHero_AnimInstance::ResetOnBeingHit()
 
 	CurrentComboIndex = 0;
 	OnDisableDamage(false, true);
+	// for case, that counter attack failed, such attack from back
+	OnDefendOff();
 }
 
 void UHero_AnimInstance::RecoverFromBeingHit(bool _bInterrupted)
@@ -1700,7 +1724,6 @@ void UHero_AnimInstance::RecoverFromBeingHit(bool _bInterrupted)
 		// Take a other hit, cuz only hit can interrupt hit
 		return;
 	}
-
 
 	AttackState = EAttackState::None;
 	bVelocityOverrideByAnim = false;	
