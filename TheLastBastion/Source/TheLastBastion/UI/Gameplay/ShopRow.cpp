@@ -12,8 +12,11 @@ bool UShopRow::Initialize()
 
 	// Bind Delegetes to Widget components
 	bool bAllWidgetAreGood =
-		SHWeapon_Long && SHWeapon_Short && RangeWeapon && Armor && THWeapon 
-		&& HeavyWeapon_Axe && HeavyWeapon_Hammer && ItemRow;
+		LongSword && WarAxe && Mace && CrossBow  && Armor && THWeapon
+		&& BattleAxe && Hammer && GreatSword && ItemRow;
+
+		//SHWeapon_Long && SHWeapon_Short && RangeWeapon && Armor && THWeapon 
+		//&& HeavyWeapon_Axe && HeavyWeapon_Hammer && ItemRow;
 
 	if (bAllWidgetAreGood)
 	{

@@ -34,13 +34,15 @@ enum class EInventoryGearType : uint8
 UENUM(BlueprintType)
 enum class EUpgradeGearType : uint8
 {
-	SHWeapon_Long = 0,
-	SHWeapon_Short,
-	RangeWeapon,
-	Armor,
-	THWeapon,
-	HeavyWeapon_Axe,
-	HeavyWeapon_Hammer
+	LongSword = 0,
+	WarAxe,
+	Mace,
+	CrossBow,
+	Armor ,
+	Katana,
+	BattleAxe,
+	Hammer,
+	GreatSword
 };
 
 

@@ -12,7 +12,7 @@
 #include "PCs/SinglePlayerPC.h"
 
 
-#define ShopRowSize 7
+#define ShopRowSize 9
 
 UTradeMenu::UTradeMenu(const FObjectInitializer & ObjectInit) : Super(ObjectInit)
 {

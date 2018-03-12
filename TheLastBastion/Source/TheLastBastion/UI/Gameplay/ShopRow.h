@@ -24,14 +24,26 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UHorizontalBox* ItemRow;
 
-	UPROPERTY(meta = (BindWidget))
-		class UTradeMenuSlot* SHWeapon_Long;
+	//UPROPERTY(meta = (BindWidget))
+	//	class UTradeMenuSlot* SHWeapon_Long;
+
+	//UPROPERTY(meta = (BindWidget))
+	//	class UTradeMenuSlot* SHWeapon_Short;
+
+	//UPROPERTY(meta = (BindWidget))
+	//	class UTradeMenuSlot* SHWeapon_Short;
 
 	UPROPERTY(meta = (BindWidget))
-		class UTradeMenuSlot* SHWeapon_Short;
+		class UTradeMenuSlot* LongSword;
 
 	UPROPERTY(meta = (BindWidget))
-		class UTradeMenuSlot* RangeWeapon;
+		class UTradeMenuSlot* WarAxe;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTradeMenuSlot* Mace;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTradeMenuSlot* CrossBow;
 
 	UPROPERTY(meta = (BindWidget))
 		class UTradeMenuSlot* Armor;
@@ -39,11 +51,23 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UTradeMenuSlot* THWeapon;
 
-	UPROPERTY(meta = (BindWidget))
-		class UTradeMenuSlot* HeavyWeapon_Axe;
+	//UPROPERTY(meta = (BindWidget))
+	//	class UTradeMenuSlot* SHWeapon_Short;
+
+	//UPROPERTY(meta = (BindWidget))
+	//	class UTradeMenuSlot* SHWeapon_Short;
+
+	//UPROPERTY(meta = (BindWidget))
+	//	class UTradeMenuSlot* HeavyWeapon_Hammer;
 
 	UPROPERTY(meta = (BindWidget))
-		class UTradeMenuSlot* HeavyWeapon_Hammer;
+		class UTradeMenuSlot* BattleAxe;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTradeMenuSlot* Hammer;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTradeMenuSlot* GreatSword;
 
 
 public:

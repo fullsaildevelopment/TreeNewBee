@@ -14,17 +14,19 @@
 
 
 
-UENUM()
-enum class EType : uint8
-{
-	SHWeapon_Long = 0,
-	SHWeapon_Short,
-	RangeWeapon,
-	Armor ,
-	THWeapon,
-	HeavyWeapon_Axe,
-	HeavyWeapon_Hammer
-};
+//UENUM()
+//enum class EType : uint8
+//{
+//	LongSword = 0,
+//	WarAxe,
+//	Mace,
+//	CrossBow,
+//	Armor ,
+//	THWeawpon,
+//	BattleAxe,
+//	Hammer,
+//	GreatSword
+//};
 
 
 

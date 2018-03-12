@@ -84,8 +84,9 @@ bool UTradeMenuSlot::NativeOnDrop(const FGeometry & InGeometry, const FDragDropE
 			}
 			break;
 		}
-		case EUpgradeGearType::SHWeapon_Long:
-		case EUpgradeGearType::SHWeapon_Short:
+		case EUpgradeGearType::LongSword:
+		case EUpgradeGearType::WarAxe:
+		case EUpgradeGearType::Mace:
 		{
 			if (InventoryGearType == EInventoryGearType::SHWeapon)
 			{
@@ -94,7 +95,7 @@ bool UTradeMenuSlot::NativeOnDrop(const FGeometry & InGeometry, const FDragDropE
 			}
 			break;
 		}
-		case EUpgradeGearType::THWeapon:
+		case EUpgradeGearType::Katana:
 		{
 			if (InventoryGearType == EInventoryGearType::THWeapon)
 			{
@@ -103,7 +104,7 @@ bool UTradeMenuSlot::NativeOnDrop(const FGeometry & InGeometry, const FDragDropE
 			}
 			break;
 		}
-		case EUpgradeGearType::RangeWeapon:
+		case EUpgradeGearType::CrossBow:
 		{
 			if (InventoryGearType == EInventoryGearType::RangeWeapon)
 			{
@@ -112,8 +113,9 @@ bool UTradeMenuSlot::NativeOnDrop(const FGeometry & InGeometry, const FDragDropE
 			}
 			break;
 		}
-		case EUpgradeGearType::HeavyWeapon_Axe:
-		case EUpgradeGearType::HeavyWeapon_Hammer:
+		case EUpgradeGearType::BattleAxe:
+		case EUpgradeGearType::Hammer:
+		case EUpgradeGearType::GreatSword:
 		{
 			if (InventoryGearType == EInventoryGearType::HeavyWeapon)
 			{
