@@ -11,7 +11,7 @@
 #include "GI_TheLastBastion.h"
 
 
-#define SinglePlayerMap  TEXT("/Game/Maps/SinglePlayer?listen")
+#define SinglePlayerMap  TEXT("/Game/Maps/GameWorld?listen")
 
 bool UStartMenu::Initialize()
 {
