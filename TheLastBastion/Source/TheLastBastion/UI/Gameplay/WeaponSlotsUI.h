@@ -14,6 +14,8 @@ class THELASTBASTION_API UWeaponSlotsUI : public UUserWidget
 {
 	GENERATED_BODY()
 	
+protected:
+	bool Initialize() override;
 
 protected:
 

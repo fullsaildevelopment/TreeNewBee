@@ -147,8 +147,10 @@ public:
 	FORCEINLINE float GetDpGainPercentage_CounterAttack() const { return HeroDpGainOnCA_Init * Hero_DpGainOnCA_Scaler * 0.01f; }
 
 
-	/** Called on Switch Weapon*/
-	void UpdateSpCostOnWeaponChange(EGearType _gearType);
+	/** Called on Switch Weapon, 
+	* update Sp Cost
+	* update Skill animation section name*/
+	void UpdateOnWeaponChange(EGearType _gearType);
 
 
 private:

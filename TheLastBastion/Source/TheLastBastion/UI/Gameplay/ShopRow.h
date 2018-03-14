@@ -24,15 +24,6 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UHorizontalBox* ItemRow;
 
-	//UPROPERTY(meta = (BindWidget))
-	//	class UTradeMenuSlot* SHWeapon_Long;
-
-	//UPROPERTY(meta = (BindWidget))
-	//	class UTradeMenuSlot* SHWeapon_Short;
-
-	//UPROPERTY(meta = (BindWidget))
-	//	class UTradeMenuSlot* SHWeapon_Short;
-
 	UPROPERTY(meta = (BindWidget))
 		class UTradeMenuSlot* LongSword;
 
@@ -50,15 +41,6 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 		class UTradeMenuSlot* THWeapon;
-
-	//UPROPERTY(meta = (BindWidget))
-	//	class UTradeMenuSlot* SHWeapon_Short;
-
-	//UPROPERTY(meta = (BindWidget))
-	//	class UTradeMenuSlot* SHWeapon_Short;
-
-	//UPROPERTY(meta = (BindWidget))
-	//	class UTradeMenuSlot* HeavyWeapon_Hammer;
 
 	UPROPERTY(meta = (BindWidget))
 		class UTradeMenuSlot* BattleAxe;

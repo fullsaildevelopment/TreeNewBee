@@ -13,6 +13,43 @@
 #define  COMMAND_RANGE 50000 // the maximum distance hero can send his troops to
 #define  HOLD_POSITION_BWD_OFFSET 100 
 
+#define  Skill__Combo 0
+#define  Skill__PowerHit 1    
+#define  Skill__Taunt 2 
+#define  Skill__WeaponCastingIce 3
+#define  Skill__WeaponCastingFire 4   
+#define  Skill__Heal 5        
+#define  Skill__BattleCommand 6
+
+DECLARE_DELEGATE(FOnSkillUsed)
+
+USTRUCT(BlueprintType)
+struct FSkillSlot
+{
+	GENERATED_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		// true, if the skill has already passed the cool down time
+		bool bIsUnlocked = true;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		// the time delay between using this skill
+		float CoolDownTime = 1.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		// the Sp Cost this skill
+		float SpCost = -25.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		FName AM_sectionName;
+
+	//FOnSkillUsed OnSkillUsedDelegate;
+
+	///** Handle Cool Down*/
+	//FTimerHandle SkillTimer;
+};
+
+
 UCLASS()
 class THELASTBASTION_API ATheLastBastionHeroCharacter : public ATheLastBastionCharacter
 {
@@ -103,34 +140,30 @@ protected:
 	void OnPause();
 
 	void OnCommandMarch();
-
 	void OnCommandHold();
-
 	// Set group to be scatter or compact
 	void OnCommandDistribute();
-
 	// Set group to be square or row
 	void OnCommandReform();
-
 	void OnCommandForward();
-
 	void OnCommandBackward();
-
 	void OnCommandFollowing();
-
 	void OnCommandPressed();
-
 	void OnCommandReleased();
 
 	void OnSelectedCrew_1();
-
 	void OnSelectedCrew_2();
-
 	void OnSelectedCrew_3();
-
 	void OnSelectedCrew_4();
-
 	void OnSelectedCrewOnIndex(int _index);
+
+	void OnSkillPressed_0();
+	void OnSkillPressed_1();
+	void OnSkillPressed_2();
+	void OnSkillPressed_3();
+	void OnSkillPressed_4();
+	void OnSkillPressed_5();
+	void OnSkillPressed_6();
 
 #pragma endregion
 
@@ -158,20 +191,25 @@ protected:
 		/** swat under player command */
 		class AAllyGroup* CommandedGroup;
 
-	//UPROPERTY()
-	//	class AAIGroupBase* EnemyGroupTemp;
-
 	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (BlueprintProtected))
 		float Unfocus_CamRotationLagging = 30.0f;
 
 	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (BlueprintProtected))
 		float Focus_CamRotationLagging = 15.0f;
 
-		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AnimationMovementControl)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AnimationMovementControl)
 		float MoveForwardAxis;
 
-		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AnimationMovementControl)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AnimationMovementControl)
 		float MoveRightAxis;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
+		/** The index of skill that play try to use in the skill list*/
+		int TryToUseSkill;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
+		/** Hero Skill sets*/
+		TArray<FSkillSlot> SkillSlots;
 
 public:
 
@@ -216,6 +254,7 @@ private:
 	/** Animation Bp Reference */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		class UHero_AnimInstance*  mAnimInstanceRef;
+
 	UPROPERTY()
 		class UInGameHUD*          mInGameHUD;
 
@@ -248,6 +287,11 @@ public:
 	bool DodgeSpCheck();
 	/** true, if current sp is enought to perform counter attack, and consume sp*/
 	bool CounterAttackSpCheck();
+	/** true, 
+	* if current sp is enought to perform skill, and consume sp
+	* if cool down time is passed*/
+	bool SkillCheck(int _skillIndex);
+
 	bool IsDoingCounterAttack() const;
 
 	FORCEINLINE class USphereComponent* GetTargetDetector() const { return TargetDetector; }
@@ -262,7 +306,19 @@ public:
 	FORCEINLINE float GetLockOnCameraRotationLag() const { return Focus_CamRotationLagging; }
 	FORCEINLINE float GetNonLockOnCameraRotationLag() const { return Unfocus_CamRotationLagging; }
 	FORCEINLINE class UInGameHUD* GetInGameHUD() const { return mInGameHUD; }
-	
+
+	bool IsSkillCooled(int _index) const;
+	FORCEINLINE float GetSkillCoolDownTimeAt(int _index) const { return SkillSlots[_index].CoolDownTime; }
+	FORCEINLINE float GetSkillSpCostAt(int _index) const { return SkillSlots[_index].SpCost; }
+
+	bool IsIntentedSkillCooled() const;
+	FORCEINLINE float GetIntentedSkillCoolDownTimeAt() const { return SkillSlots[TryToUseSkill].CoolDownTime; }
+	FORCEINLINE float GetIntentedSkillSpCostAt() const { return SkillSlots[TryToUseSkill].SpCost; }
+	FORCEINLINE FName GetSkillSectionNameAt(int _skillIndex) const { return SkillSlots[_skillIndex].AM_sectionName; }
+
+	FORCEINLINE void SetSkillSectionNameAt(int _skillIndex, FName _sectionName) { SkillSlots[_skillIndex].AM_sectionName = _sectionName; }
+
+
 	
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE float GetMoveForwardAxis() const { return MoveForwardAxis; }
@@ -272,5 +328,4 @@ public:
 		FORCEINLINE bool IsInCommandMode() const { return bIsInCommandMode; }
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE class AAllyGroup* GetCommandGroup() const { return CommandedGroup; }
-
 };

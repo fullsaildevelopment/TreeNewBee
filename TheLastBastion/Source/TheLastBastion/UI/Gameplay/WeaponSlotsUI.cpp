@@ -4,6 +4,15 @@
 #include "Combat/HeroStatsComponent.h"
 #include "Combat/Gear.h"
 
+bool UWeaponSlotsUI::Initialize()
+{
+	if (Super::Initialize() == false)
+	{
+		return false;
+	}
+	return true;
+}
+
 void UWeaponSlotsUI::OnInitStats(const UHeroStatsComponent * _heroStats)
 {
 	AGear* gear = nullptr;
@@ -39,6 +48,8 @@ void UWeaponSlotsUI::OnInitStats(const UHeroStatsComponent * _heroStats)
 	gear = _heroStats->GetCurrentRightHandWeapon();
 	if (gear)
 		CurrentWeapon = gear->GetThumbNailImage();
+
+
 }
 
 void UWeaponSlotsUI::SetCurrentWeaponImage(const AGear * _gear)

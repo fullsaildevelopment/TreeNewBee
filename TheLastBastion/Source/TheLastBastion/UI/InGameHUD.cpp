@@ -10,6 +10,7 @@
 #include "UI/InGameTeamRow.h"
 #include "UI/Gameplay/WeaponSlotsUI.h"
 #include "UI/Gameplay/CrewBarUI.h"
+#include "UI/Gameplay/SkillBarUI.h"
 
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
@@ -52,7 +53,6 @@ bool UInGameHUD::Initialize()
 		return false;
 
 	GroupCommandList->SetVisibility(ESlateVisibility::Hidden);
-
 	return true;
 }
 
@@ -169,6 +169,16 @@ void UInGameHUD::SetCurrentWeaponImage(const AGear * _gear)
 void UInGameHUD::OnSelectedCrewAt(int _index)
 {
 	CrewBar->OnSelectedCrewAt(_index);
+}
+
+void UInGameHUD::OnLaunchSkillAt(int _skillIndex, float _cdDuration)
+{
+	SkillBar->OnLaunchSkillAt(_skillIndex, _cdDuration);
+}
+
+bool UInGameHUD::IsSkilledCooledDown(int _skillIndex) const
+{
+	return 	SkillBar->IsCooledDownAt(_skillIndex);
 }
 
 

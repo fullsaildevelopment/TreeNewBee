@@ -329,4 +329,16 @@ AGear * ATheLastBastionCharacter::GetCurrentWeapon() const
 	}
 }
 
+AGear * ATheLastBastionCharacter::GetCurrentSecondaryWeapon() const
+{
+	if (PawnStats)
+	{
+		return PawnStats->GetCurrentLeftHandWeapon();
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
 
