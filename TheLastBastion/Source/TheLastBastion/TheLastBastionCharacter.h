@@ -194,7 +194,10 @@ public:
 
 	float GetCurrentMaxSpeed() const;
 	class AArmor* GetCurrentArmor() const;
+	/** Get Current Right Hand Weapon*/
 	class AGear* GetCurrentWeapon() const;
+	/** Get Current Left Hand Weapon*/
+	class AGear* GetCurrentSecondaryWeapon() const;
 
 };
 

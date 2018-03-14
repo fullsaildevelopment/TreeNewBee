@@ -19,6 +19,7 @@ namespace
 {
 	UAnimMontage* AM_SingleHandWeapon_HitReaction = nullptr;
 	UAnimMontage* AM_CrossBow = nullptr;
+	UAnimMontage* AM_Skill = nullptr;
 
 }
 
@@ -78,7 +79,7 @@ protected:
 		virtual void FxFootStep();
 
 	//UFUNCTION(BlueprintCallable, Category = Effects)
-		virtual void FxMeleeSwing();
+		virtual void FxMeleeSwing(bool _rightHand = true);
 
 	UFUNCTION(BlueprintCallable, Category = Effects)
 		virtual void FxOnEquip();

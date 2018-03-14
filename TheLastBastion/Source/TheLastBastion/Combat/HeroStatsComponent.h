@@ -28,7 +28,7 @@ enum class EEquipType : uint8;
 #define HeroCounterAttackSpCost_Init_Katana_Sns -20.0f;
 
 #define HereDodgeSpCost_Init_HammerBattleAxe -50.0f 
-#define HereDodgeSpCost_Init_GreatSword -350.0f
+#define HereDodgeSpCost_Init_GreatSword -35.0f
 #define HereDodgeSpCost_Init_Katana     -20.0f
 #define HereDodgeSpCost_Init_Sns        -25.0f
 
@@ -147,8 +147,10 @@ public:
 	FORCEINLINE float GetDpGainPercentage_CounterAttack() const { return HeroDpGainOnCA_Init * Hero_DpGainOnCA_Scaler * 0.01f; }
 
 
-	/** Called on Switch Weapon*/
-	void UpdateSpCostOnWeaponChange(EGearType _gearType);
+	/** Called on Switch Weapon, 
+	* update Sp Cost
+	* update Skill animation section name*/
+	void UpdateOnWeaponChange(EGearType _gearType);
 
 
 private:

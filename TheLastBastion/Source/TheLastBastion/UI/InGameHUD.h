@@ -48,6 +48,10 @@ protected:
 		class UWeaponSlotsUI* WeaponSlots;
 
 	UPROPERTY(meta = (BindWidget))
+		class USkillBarUI* SkillBar;
+
+
+	UPROPERTY(meta = (BindWidget))
 		class UWidgetSwitcher* GroupCommandList;
 
 	UPROPERTY(meta = (BindWidget))
@@ -83,5 +87,9 @@ public:
 	void SetCurrentWeaponImage(const class AGear* _gear);
 
 	void OnSelectedCrewAt(int _index);
+
+	void OnLaunchSkillAt(int _skillIndex, float _cdDuration);
+
+	bool IsSkilledCooledDown(int _skillIndex) const;
 
 };

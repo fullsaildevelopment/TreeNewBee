@@ -6,6 +6,17 @@
 #include "Animation/Base_AnimInstance.h"
 #include "Hero_AnimInstance.generated.h"
 
+
+#define Montage_SN_SkillCombo_LongSword  TEXT("Combo_LongSword")
+#define Montage_SN_SkillCombo_AxeMace    TEXT("Combo_AxeMace")
+#define Montage_SN_SkillCombo_Katana     TEXT("Combo_Katana")
+#define Montage_SN_SkillCombo_BA_GS      TEXT("Combo_BA_GS")
+#define Montage_SN_SkillCombo_Hammer     TEXT("Combo_Hammer")
+#define Montage_SN_SkillPowerHit_Sns     TEXT("PH_Sns")
+#define Montage_SN_SkillPowerHit_Katana  TEXT("PH_Katana")
+#define Montage_SN_SkillPowerHit_HV      TEXT("PH_HV")
+
+
 /**
  * 
  */
@@ -45,10 +56,16 @@ enum class EAttackState : uint8
 UENUM(BlueprintType)
 enum class EActionType : uint8
 {
-	None = 0   UMETA(DisplayName = "None"),
-	Attack = 1  UMETA(DisplayName = "Attack"),
-	Skill = 2  UMETA(DisplayName = "Skill"),
-	Dodge = 3   UMETA(DisplayName = "Dodge")
+	None = 0				  UMETA(DisplayName = "None"),
+	Attack = 1				  UMETA(DisplayName = "Attack"),
+	Skill_Combo = 2           UMETA(DisplayName = "Combo"),
+	Skill_PowerHit            UMETA(DisplayName = "PowerHit"),
+	Skill_Taunt               UMETA(DisplayName = "Taunt"),
+	Skill_WeaponCastingIce    UMETA(DisplayName = "WeaponCastingIce"),
+	Skill_WeaponCastingFire   UMETA(DisplayName = "WeaponCastingFire"),
+	Skill_Heal                UMETA(DisplayName = "Heal"),
+	Skill_BattleCommand       UMETA(DisplayName = "BattleCommand"),
+	Dodge                     UMETA(DisplayName = "Dodge")
 };
 
 UENUM(BlueprintType)
@@ -216,6 +233,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = CounterAttack)
 		class UAnimMontage* CounterAttack_Montage;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = CounterAttack)
+		class UAnimMontage* Skill_Montage;
+
+
 	/** A pointer point to the combo list for current melee weapon, 
 	    when change weapon and equip to determine which combo list we used for melee attack */
 	const TArray<FName>* Current_AttackSectionName;
@@ -282,7 +303,7 @@ protected:
 		void OnPostEvaluate() override;
 
 	UFUNCTION(BlueprintCallable)
-		void FxMeleeSwing() override;
+		void FxMeleeSwing(bool _rightHand = true) override;
 
 
 	UFUNCTION()
@@ -331,10 +352,14 @@ public:
 	/** Called to end Change Weapon event*/
 	void OnChangeWeaponFinsh();
 
+	/** Called when player try to launch combo skill*/
+	void OnSkill(int _skillIndex);
+
+	void LaunchSkill(int _skillIndex);
+
 #pragma endregion
 
 	
-
 	void OnBeingHit
 	(FName boneName, const FVector& _damageCauseRelative, const FVector& _hitLocation) override;
 
@@ -437,7 +462,7 @@ protected:
 	/** Called when Character draw his weapon during animation,
 	toggle on use desired control rotation*/
 	UFUNCTION(BlueprintCallable)
-		virtual void OnEquipWeapon();
+		virtual void OnEquipWeapon(bool _playSfx = true);
 
 	/** Called when Character draw his weapon during animation,
 	toggle off use desired control rotation*/

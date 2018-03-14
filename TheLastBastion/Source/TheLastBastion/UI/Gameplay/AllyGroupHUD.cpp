@@ -22,6 +22,8 @@ bool UAllyGroupHUD::Initialize()
 	else
 		return false;
 
+	bCanEverTick = false;
+
 	return true;
 }
 

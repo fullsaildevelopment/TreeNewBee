@@ -19,6 +19,10 @@ UBase_AnimInstance::UBase_AnimInstance(const FObjectInitializer& _objectInitaliz
 		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_SSword_HitReaction"));
 	FindMontage(AM_CrossBow, 
 		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_CBFIre"));
+	FindMontage(AM_Skill,
+		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_HeroSkills"));
+
+
 }
 
 void UBase_AnimInstance::OnBeginPlay()
@@ -129,11 +133,11 @@ void UBase_AnimInstance::FxFootStep()
 	}
 }
 
-void UBase_AnimInstance::FxMeleeSwing()
+void UBase_AnimInstance::FxMeleeSwing(bool _rightHand)
 {
 	if (mBaseCharacter)
 	{
-		AGear* CurrentWeapon = mBaseCharacter->GetCurrentWeapon();
+		AGear* CurrentWeapon = (_rightHand)? mBaseCharacter->GetCurrentWeapon() : mBaseCharacter->GetCurrentSecondaryWeapon();
 		if (CurrentWeapon)
 		{   
 			UAudioComponent* AudioComp = mBaseCharacter->GetAudioComp();
@@ -153,6 +157,7 @@ void UBase_AnimInstance::FxMeleeSwing()
 			case EGearType::BattleAxe:
 			case EGearType::GreatSword:
 			case EGearType::Hammer:
+			case EGearType::Shield:
 				weaponType = 2;
 				break;
 			default:

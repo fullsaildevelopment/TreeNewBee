@@ -55,6 +55,8 @@ bool UTradeMenu::Initialize()
 		WolfRow->SetEachSlotAction(WolfRow_GearUI);
 	}
 
+	bCanEverTick = false;
+
 	return true;
 }
 

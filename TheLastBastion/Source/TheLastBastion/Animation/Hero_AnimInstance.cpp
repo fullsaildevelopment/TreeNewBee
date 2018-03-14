@@ -98,6 +98,8 @@ UHero_AnimInstance::UHero_AnimInstance(const FObjectInitializer& _objectInitaliz
 	CameraEquipOffset = FVector(100, 50, 0);
 	CameraZoomOffset = FVector(200, 50, 10);
 
+	Skill_Montage = AM_Skill;
+
 }
 
 void UHero_AnimInstance::OnBeginPlay()
@@ -115,9 +117,6 @@ void UHero_AnimInstance::OnBeginPlay()
 	UpdateComboList(EGearType::LongSword);
 
 	Super::OnBeginPlay();
-	//OnMontageStarted.AddDynamic(this, &UHero_AnimInstance::OnMontageStartHandle);
-	//OnMontageBlendingOut.AddDynamic(this, &UHero_AnimInstance::OnMontageBlendOutStartHandle);
-
 }
 
 void UHero_AnimInstance::OnInit()
@@ -419,14 +418,14 @@ void UHero_AnimInstance::OnPostEvaluate()
 {
 }
 
-void UHero_AnimInstance::FxMeleeSwing()
+void UHero_AnimInstance::FxMeleeSwing(bool _rightHand)
 {
 	if (AttackState == EAttackState::BeingHit)
 	{
 		return;
 	}
 
-	Super::FxMeleeSwing();
+	Super::FxMeleeSwing(_rightHand);
 }
 
 #pragma endregion
@@ -451,7 +450,7 @@ void UHero_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontag
 	{
 		RecoverFromBeingHit(_bInterruptted);
 	}
-	else if (_animMontage == CounterAttack_Montage)
+	else if (_animMontage == CounterAttack_Montage || _animMontage == Skill_Montage)
 	{
 		bAnimInterruptRobust = false;
 		// recover movement from melee attack
@@ -576,7 +575,10 @@ void UHero_AnimInstance::StartOverrideSpeed()
 void UHero_AnimInstance::StopOverrideSpeed()
 {
 
-	bool ignore = AttackState == EAttackState::Dodging || AttackState == EAttackState::Attacking;
+	bool ignore = 
+		AttackState == EAttackState::Dodging || 
+		AttackState == EAttackState::Attacking ||
+		AttackState == EAttackState::PreWinding;
 	if (ignore)
 		return;	
 
@@ -858,13 +860,14 @@ void UHero_AnimInstance::OnChangeWeaponFinsh()
 }
 
 // Draw weapon
-void UHero_AnimInstance::OnEquipWeapon()
+void UHero_AnimInstance::OnEquipWeapon(bool _playSfx)
 {
 	ActivatedEquipment = CurrentEquipment;
 	mCharacter->GetHeroStatsComp()->OnEquipWeapon();
 	mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = true;
 	mCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
-	FxOnDraw();
+	if (_playSfx)
+		FxOnDraw();
 }
 
 // Sheath Weapon
@@ -887,7 +890,7 @@ void UHero_AnimInstance::OnSheathWeapon()
 /** Skip equipAnimation direction to equip mode, change the movement role to strafe*/
 void UHero_AnimInstance::SkipEquip()
 {
-	OnEquipWeapon();
+	OnEquipWeapon(false);
 	bVelocityOverrideByAnim = false;
 }
 
@@ -1181,6 +1184,94 @@ void UHero_AnimInstance::LaunchCounterAttack(const FName & _sectionName)
 	OnDefendOff();
 }
 
+void UHero_AnimInstance::OnSkill(int _skillIndex)
+{
+	// Apply Input Filter
+	bool ignore =
+		(bIsInAir)
+		|| Skill_Montage == nullptr; //	Montage_IsPlaying(Hit_Montage)
+
+	if (ignore)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Abort - UHero_AnimInstance::OnSkill_0"));
+		return;
+	}
+
+	// equip weapon to weapon socket if we havent
+	if (ActivatedEquipment == EEquipType::Travel)
+		SkipEquip();
+
+	switch (AttackState)
+	{
+	case EAttackState::None:
+	case EAttackState::ReadyForNext:
+	case EAttackState::PostDodging:
+	case EAttackState::BeingHit:
+	{
+		// trigger the skill immediately, clear the next action marker
+		LaunchSkill(_skillIndex);
+		return;
+	}
+	case EAttackState::Attacking:
+	case EAttackState::Dodging:
+	{
+		// catch action, update next action marker, 
+		// and wait if not being updated by later input
+		//UE_LOG(LogTemp, Warning, TEXT("catch attack action, update next action marker"));
+		NextAction = EActionType(_skillIndex + 2);
+		return;
+	}
+	case EAttackState::PreWinding:
+	default:
+		//UE_LOG(LogTemp, Warning, TEXT("current attack state ignore attack action"));
+		return;
+	}
+
+}
+
+void UHero_AnimInstance::LaunchSkill(int _skillIndex)
+{
+
+	if (mCharacter->SkillCheck(_skillIndex) == false)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No Enough Stamina - UHero_AnimInstance::LaunchSkill"));
+		return;
+	}
+
+
+	FName sectionToPlay = mCharacter->GetSkillSectionNameAt(_skillIndex);
+
+	EActionType skill = EActionType(_skillIndex + 2);
+	switch (skill)
+	{
+	case EActionType::Skill_Combo:
+		break;
+	case EActionType::Skill_PowerHit:
+		break;
+	case EActionType::Skill_WeaponCastingIce:
+	case EActionType::Skill_WeaponCastingFire:
+		break;
+	case EActionType::Skill_Taunt:
+	case EActionType::Skill_Heal:
+	case EActionType::Skill_BattleCommand:
+		break;
+	default:
+		break;
+	}
+
+	this->PlayMontage(Skill_Montage, 1.0f, sectionToPlay);
+	bVelocityOverrideByAnim = true;
+
+	if (!bIsFocused)
+	{
+		mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = true;
+		mCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
+	}
+
+	AttackState = EAttackState::PreWinding;
+	NextAction = EActionType::None;
+}
+
 void UHero_AnimInstance::OnRangeAttack()
 {
 	// Condition Check
@@ -1265,7 +1356,7 @@ void UHero_AnimInstance::LaunchCombo()
 		CurrentComboIndex = 0;
 	}
 
-	float attackSpeed = (mCharacter->GetCurrentWeapon()->GetGearType() == EGearType::GreatSword) ? 1.2f : 1.0f;
+	float attackSpeed = (mCharacter->GetCurrentWeapon()->GetGearType() == EGearType::GreatSword) ? 1.1f : 1.0f;
 	this->PlayMontage(Attack_Montage, attackSpeed, (*Current_AttackSectionName)[CurrentComboIndex]);
 	bVelocityOverrideByAnim = true;
 
@@ -1335,7 +1426,14 @@ void UHero_AnimInstance::OnNextAttack()
 	case EActionType::Attack:
 		LaunchCombo();
 		break;
-	case EActionType::Skill:
+	case EActionType::Skill_Combo:
+	case EActionType::Skill_PowerHit:
+	case EActionType::Skill_WeaponCastingFire:
+	case EActionType::Skill_WeaponCastingIce:
+	case EActionType::Skill_Taunt:
+	case EActionType::Skill_Heal:
+	case EActionType::Skill_BattleCommand:
+		LaunchSkill((int)NextAction - 2);
 		break;
 	case EActionType::Dodge:
 		LaunchDodge();
@@ -1514,7 +1612,14 @@ void UHero_AnimInstance::OnDodgePost()
 	case EActionType::Attack:
 		LaunchCombo();
 		break;
-	case EActionType::Skill:
+	case EActionType::Skill_Combo:
+	case EActionType::Skill_PowerHit:
+	case EActionType::Skill_Taunt:
+	case EActionType::Skill_WeaponCastingIce:
+	case EActionType::Skill_WeaponCastingFire:
+	case EActionType::Skill_Heal:
+	case EActionType::Skill_BattleCommand:
+		LaunchSkill((int)(NextAction)-2);
 		break;
 	}
 }

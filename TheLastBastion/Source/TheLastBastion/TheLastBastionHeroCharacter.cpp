@@ -64,9 +64,6 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 
 	GetMesh()->SetCollisionProfileName("HeroBody");
 
-	//CapHalfSize = 90.0f;
-	//CapRadius = 34.0f;
-
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(34.0f, 90.0f);
 	GetCapsuleComponent()->SetCollisionProfileName("Hero");
@@ -84,9 +81,11 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 	HeroStats = CreateDefaultSubobject<UHeroStatsComponent>(TEXT("Stats"));
 	PawnStats = HeroStats;	
 
-	// enable tick
+	// Enable tick
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Init Skill Slot
+	SkillSlots.SetNum(7);
 }
 
 void ATheLastBastionHeroCharacter::BeginPlay()
@@ -101,18 +100,20 @@ void ATheLastBastionHeroCharacter::BeginPlay()
 	mBaseAnimRef = mAnimInstanceRef;
 
 	ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(GetController());
-	if (pc)
+	if (pc == nullptr)
 	{
-		mInGameHUD = pc->GetInGameHUD();
-		if (mInGameHUD)
-		{
-			mInGameHUD->InitStats(HeroStats);
-		}
-		else
-			UE_LOG(LogTemp, Error, TEXT("mInGameHUD is NULL - ATheLastBastionHeroCharacter::BeginPlay"));
-	}
-	else
 		UE_LOG(LogTemp, Error, TEXT("pc is NULL - ATheLastBastionHeroCharacter::BeginPlay"));
+		return;
+	}
+
+	mInGameHUD = pc->GetInGameHUD();
+	if (mInGameHUD == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("mInGameHUD is NULL - ATheLastBastionHeroCharacter::BeginPlay"));
+		return;
+	}
+
+	mInGameHUD->InitStats(HeroStats);
 
 }
 
@@ -172,6 +173,14 @@ void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputCompone
 	PlayerInputComponent->BindAction("SelectedCrew_2", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSelectedCrew_2);
 	PlayerInputComponent->BindAction("SelectedCrew_3", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSelectedCrew_3);
 	PlayerInputComponent->BindAction("SelectedCrew_4", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSelectedCrew_4);
+
+	PlayerInputComponent->BindAction("Skill_0", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSkillPressed_0);
+	PlayerInputComponent->BindAction("Skill_1", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSkillPressed_1);
+	PlayerInputComponent->BindAction("Skill_2", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSkillPressed_2);
+	PlayerInputComponent->BindAction("Skill_3", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSkillPressed_3);
+	PlayerInputComponent->BindAction("Skill_4", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSkillPressed_4);
+	PlayerInputComponent->BindAction("Skill_5", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSkillPressed_5);
+	PlayerInputComponent->BindAction("Skill_6", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSkillPressed_6);
 
 }
 
@@ -549,6 +558,50 @@ void ATheLastBastionHeroCharacter::OnSelectedCrewOnIndex(int _index)
 
 }
 
+void ATheLastBastionHeroCharacter::OnSkillPressed_0()
+{
+	TryToUseSkill = Skill__Combo;
+	mAnimInstanceRef->OnSkill(TryToUseSkill);
+}
+
+void ATheLastBastionHeroCharacter::OnSkillPressed_1()
+{
+	TryToUseSkill = Skill__PowerHit;
+	mAnimInstanceRef->OnSkill(TryToUseSkill);
+}
+
+void ATheLastBastionHeroCharacter::OnSkillPressed_2()
+{
+	TryToUseSkill = Skill__Taunt;
+	mAnimInstanceRef->OnSkill(TryToUseSkill);
+}
+
+void ATheLastBastionHeroCharacter::OnSkillPressed_3()
+{
+	TryToUseSkill = Skill__WeaponCastingIce;
+	mAnimInstanceRef->OnSkill(TryToUseSkill);
+}
+
+void ATheLastBastionHeroCharacter::OnSkillPressed_4()
+{
+	TryToUseSkill = Skill__WeaponCastingFire;
+	mAnimInstanceRef->OnSkill(TryToUseSkill);
+}
+
+void ATheLastBastionHeroCharacter::OnSkillPressed_5()
+{
+	TryToUseSkill = Skill__Heal;
+	mAnimInstanceRef->OnSkill(TryToUseSkill);
+}
+
+void ATheLastBastionHeroCharacter::OnSkillPressed_6()
+{
+	TryToUseSkill = Skill__BattleCommand;
+	mAnimInstanceRef->OnSkill(TryToUseSkill);
+}
+
+
+
 void ATheLastBastionHeroCharacter::OnTABPressed()
 {
 	mAnimInstanceRef->OnSwapBetweenMeleeAndRange();
@@ -680,9 +733,35 @@ bool ATheLastBastionHeroCharacter::CounterAttackSpCheck()
 	return success;
 }
 
+bool ATheLastBastionHeroCharacter::SkillCheck(int _skillIndex)
+{
+	float spCost = GetSkillSpCostAt(_skillIndex);
+	float spRemain = HeroStats->GetStaminaCurrent() + spCost;
+	bool success = spRemain > 0 && IsSkillCooled(_skillIndex);
+
+	if (success)
+	{
+		HeroStats->SetSp(spRemain);
+		mInGameHUD->SetSpOnStaminaChange(HeroStats);
+		mInGameHUD->OnLaunchSkillAt(_skillIndex, GetSkillCoolDownTimeAt(_skillIndex));
+	}
+	return success;
+}
+
 bool ATheLastBastionHeroCharacter::IsDoingCounterAttack() const
 {
 	return mAnimInstanceRef->IsDoingCounterAttack();
+}
+
+bool ATheLastBastionHeroCharacter::IsSkillCooled(int _index) const
+{
+	return	mInGameHUD->IsSkilledCooledDown(_index);
+}
+
+bool ATheLastBastionHeroCharacter::IsIntentedSkillCooled() const
+{
+	return 	mInGameHUD->IsSkilledCooledDown(TryToUseSkill);
+
 }
 
 void ATheLastBastionHeroCharacter::OnTakeAnyDamageHandle(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)

@@ -65,7 +65,7 @@ void UHeroStatsComponent::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("mCharacter is NULL - UHeroStatsComponent::BeginPlay"));
 	}
 
-	UpdateSpCostOnWeaponChange(
+	UpdateOnWeaponChange(
 		GetCurrentRightHandWeapon()->GetGearType());
 }
 
@@ -195,7 +195,7 @@ bool UHeroStatsComponent::OnSwitchWeapon(EEquipType _nextEquip)
 
 		rightWeapon = WeaponSlots[nextEquip].RightHand;
 
-		UpdateSpCostOnWeaponChange(rightWeapon->GetGearType());
+		UpdateOnWeaponChange(rightWeapon->GetGearType());
 
 		if (_nextEquip == EEquipType::CrossBow)
 			mHeroCharacter->ToggleFireMode(true);
@@ -293,9 +293,10 @@ void UHeroStatsComponent::OnTradeMenuAccept(UInventoryUI * _inventoryMenu)
 			shield->ToggleVisibilty(false);
 	}
 
+	EGearType currentGearType = GetCurrentRightHandWeapon()->GetGearType();
 
-
-	animRef->UpdateComboList(GetCurrentRightHandWeapon()->GetGearType());
+	UpdateOnWeaponChange(currentGearType);
+	animRef->UpdateComboList(currentGearType);
 	GenerateMaxStats();
 }
 
@@ -340,7 +341,7 @@ bool UHeroStatsComponent::ApplyDamage(const FDamageInfo & _hit)
 	return successHit;
 }
 
-void UHeroStatsComponent::UpdateSpCostOnWeaponChange(EGearType _gearType)
+void UHeroStatsComponent::UpdateOnWeaponChange(EGearType _gearType)
 {
 	switch (_gearType)
 	{
@@ -349,6 +350,9 @@ void UHeroStatsComponent::UpdateSpCostOnWeaponChange(EGearType _gearType)
 		Hero_CounterAttack_SpCost = HeroCounterAttackSpCost_Init_Katana_Sns;
 		Hero_Dodge_SpCost = HereDodgeSpCost_Init_Sns;
 		Hero_Defence_SpCost = HereDefenceSpCost_Init_Sns;
+
+		mHeroCharacter->SetSkillSectionNameAt(Skill__Combo, Montage_SN_SkillCombo_LongSword);
+		mHeroCharacter->SetSkillSectionNameAt(Skill__PowerHit, Montage_SN_SkillPowerHit_Sns);
 		break;
 	case EGearType::Mace:
 	case EGearType::WarAxe:
@@ -356,30 +360,45 @@ void UHeroStatsComponent::UpdateSpCostOnWeaponChange(EGearType _gearType)
 		Hero_CounterAttack_SpCost = HeroCounterAttackSpCost_Init_Katana_Sns;
 		Hero_Dodge_SpCost = HereDodgeSpCost_Init_Sns;
 		Hero_Defence_SpCost = HereDefenceSpCost_Init_Sns;
+
+		mHeroCharacter->SetSkillSectionNameAt(Skill__Combo, Montage_SN_SkillCombo_AxeMace);
+		mHeroCharacter->SetSkillSectionNameAt(Skill__PowerHit, Montage_SN_SkillPowerHit_Sns);
 		break;
 	case EGearType::Hammer:
 		Hero_MeleeAttack_SpCost = HeroMeleeAttackSpCost_Init_Hammer_BattleAxe;
 		Hero_CounterAttack_SpCost = HeroCounterAttackSpCost_Init_Hammer;
 		Hero_Dodge_SpCost = HereDodgeSpCost_Init_HammerBattleAxe;
 		Hero_Defence_SpCost = HereDefenceSpCost_Init_HammerBattleAxe;
+
+		mHeroCharacter->SetSkillSectionNameAt(Skill__Combo, Montage_SN_SkillCombo_Hammer);
+		mHeroCharacter->SetSkillSectionNameAt(Skill__PowerHit, Montage_SN_SkillPowerHit_HV);
 		break;
 	case EGearType::BattleAxe:
 		Hero_MeleeAttack_SpCost = HeroMeleeAttackSpCost_Init_Hammer_BattleAxe;
 		Hero_CounterAttack_SpCost = HeroCounterAttackSpCost_Init_BattleAxe_GreatSword;
 		Hero_Dodge_SpCost = HereDodgeSpCost_Init_HammerBattleAxe;
 		Hero_Defence_SpCost = HereDefenceSpCost_Init_HammerBattleAxe;
+
+		mHeroCharacter->SetSkillSectionNameAt(Skill__Combo, Montage_SN_SkillCombo_BA_GS);
+		mHeroCharacter->SetSkillSectionNameAt(Skill__PowerHit, Montage_SN_SkillPowerHit_HV);
 		break;
 	case EGearType::GreatSword:
 		Hero_MeleeAttack_SpCost = HeroMeleeAttackSpCost_Init_GreatSword;
 		Hero_CounterAttack_SpCost = HeroCounterAttackSpCost_Init_BattleAxe_GreatSword;
 		Hero_Dodge_SpCost = HereDodgeSpCost_Init_GreatSword;
 		Hero_Defence_SpCost = HereDefenceSpCost_Init_GreatSword;
+
+		mHeroCharacter->SetSkillSectionNameAt(Skill__Combo, Montage_SN_SkillCombo_BA_GS);
+		mHeroCharacter->SetSkillSectionNameAt(Skill__PowerHit, Montage_SN_SkillPowerHit_HV);
 		break;
 	case EGearType::DoubleHandWeapon:
 		Hero_MeleeAttack_SpCost = HeroMeleeAttackSpCost_Init_Katana;
 		Hero_CounterAttack_SpCost = HeroCounterAttackSpCost_Init_Katana_Sns;
 		Hero_Dodge_SpCost = HereDodgeSpCost_Init_Katana;
 		Hero_Defence_SpCost = HereDefenceSpCost_Init_Katana;
+
+		mHeroCharacter->SetSkillSectionNameAt(Skill__Combo, Montage_SN_SkillCombo_Katana);
+		mHeroCharacter->SetSkillSectionNameAt(Skill__PowerHit, Montage_SN_SkillPowerHit_Katana);
 		break;
 	default:
 		break;
