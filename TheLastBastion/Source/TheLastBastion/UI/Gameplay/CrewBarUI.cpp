@@ -44,6 +44,17 @@ void UCrewBarUI::OnSelectedCrewAt(int _index)
 	}
 	mCurrentIndex = _index;
 	mCrewBar[mCurrentIndex].Crew_TEXT->SetColorAndOpacity(FLinearColor(FColor::Green));
+}
+
+void UCrewBarUI::UpdateCrewSizeAt(int _index, int _groupSize)
+{
+	mCrewBar[_index].Crew->SetUnitNumber(_groupSize);
+}
+
+void UCrewBarUI::UpdateCrewInfoAt(int _index, int _groupSize, UTexture2D * _thumbNail)
+{
+	mCrewBar[_index].Crew->SetUnitNumber(_groupSize);
+	mCrewBar[_index].Crew->SetImage(_thumbNail);
 
 
 }

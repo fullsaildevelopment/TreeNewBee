@@ -168,9 +168,10 @@ void AAllyGroup::SpawnChildGroup()
 		remain -= curColCount;
 	}
 
-	SetAllyGroupVisionVolumn();
+	// set thumbNail in UI
+	
 
-	//MoveComp->MaxSpeed = groupSpeed;
+	SetAllyGroupVisionVolumn();
 }
 
 void AAllyGroup::OnReform()

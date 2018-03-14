@@ -61,6 +61,9 @@ private:
 public:
 
 	void OnSelectedCrewAt(int _index);
+
+	void UpdateCrewSizeAt(int _index, int _groupSize);
 	
-	
+	void UpdateCrewInfoAt(int _index, int _groupSize, UTexture2D* _thumbNail);
+
 };

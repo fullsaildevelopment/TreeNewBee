@@ -164,7 +164,10 @@ protected:
 	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Behavior)
 	//	class UBehaviorTree* BehaviorTree;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UI)
+		class UTexture2D* ThumbNail;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UI)
 		class UWidgetComponent* GroupHUD;
 
 	UPROPERTY()
@@ -241,8 +244,6 @@ protected:
 	void MeleeTargetSelect_TAtF_FR(AAIGroupBase * const _targetGroup);
 	void MeleeTargetSelect_TFL_Face2Us(AAIGroupBase * const _targetGroup);
 	void MeleeTargetSelect_TFR_Face2Us(AAIGroupBase * const _targetGroup);
-
-
 
 	// all unit target on the first threat, when there comes the first threat
 	void RangeTargetSelect_OnFirstOverlap(AActor* TargetActor);
@@ -357,6 +358,7 @@ public:
 	FORCEINLINE FVector GetGroupTargetLocation() const { return GroupTargetLocation; }
 	FORCEINLINE FVector GetGroupTargetForward() const { return GroupTargetForward; }
 	FORCEINLINE FVector GetGroupTargetRight() const { return GroupTargetRight; }
+	FORCEINLINE UTexture2D* GetThumbNail() const { return ThumbNail; };
 
 	/** Get the group center offset when not in battle*/
 	FVector GetGroupCenterOffset() const;

@@ -62,6 +62,7 @@ public:
 	FORCEINLINE TSubclassOf<class ATheLastBastionAIBase> GetUnitClass() const { return Unit_Data.Unit_Bp; }
 	FORCEINLINE bool IsMeleeGroup() const { return Unit_Data.IsMelee; }
 	FORCEINLINE void SetUnitClass(TSubclassOf<class ATheLastBastionAIBase> _class) { Unit_Data.Unit_Bp = _class; }
+	/** Set thumbNail Image*/
 	FORCEINLINE void SetImage(UTexture2D* _image) override { Unit_Data.Unit_Image = _image; }
 	FORCEINLINE void SetAllyIndex(float _index) { AllyIndex = _index; }
 	/** set the player cost by this unit*/
