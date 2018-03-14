@@ -154,7 +154,7 @@ public:
 	FORCEINLINE void RegisterEnemySpawner(class AEnemyGroupSpawner* _spawner) {EnemyGroupSpawner = _spawner;}
 
 	// Clear the copy of ally group ref at index 
-	FORCEINLINE void UnRegisterAllyGroupAt(int _index) { Allies[_index] = nullptr; }
+	void UnRegisterAllyGroupAt(int _index);
 
 	// Make a copy of a enemy group ref to game mode
 	void RegisterEnemyGroup(class AEnemyGroup* _enemyGroup); 

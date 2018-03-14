@@ -57,6 +57,9 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UCrewBarUI* CrewBar;
 
+	UPROPERTY(meta = (BindWidget))
+		class URadarHUD* RadarHUD;
+
 	UPROPERTY()
 		bool bIsRanger;
 
@@ -91,5 +94,14 @@ public:
 	void OnLaunchSkillAt(int _skillIndex, float _cdDuration);
 
 	bool IsSkilledCooledDown(int _skillIndex) const;
+
+
+	// Radar Interface
+	void AddAllyGroupIconAt(int _index);
+	void AddEnemyGroupIcon();
+	void RemoveAllyIconAt(int _index);
+	void RemoveEnemyGroupAt(int _index);
+
+
 
 };

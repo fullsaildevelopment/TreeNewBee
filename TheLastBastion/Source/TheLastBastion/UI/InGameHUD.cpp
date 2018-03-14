@@ -11,6 +11,7 @@
 #include "UI/Gameplay/WeaponSlotsUI.h"
 #include "UI/Gameplay/CrewBarUI.h"
 #include "UI/Gameplay/SkillBarUI.h"
+#include "UI/Gameplay/RadarHUD.h"
 
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
@@ -42,7 +43,7 @@ bool UInGameHUD::Initialize()
 	bool bAllWidgetAreGood =
 		PlayerRow != nullptr && TeamWindow != nullptr
 		&& GoldValue != nullptr && WoodValue != nullptr && MetalValue != nullptr && RockValue != nullptr && CrossHair != nullptr
-		&& CrossHair && WeaponSlots && GroupCommandList && CrewBar;
+		&& CrossHair && WeaponSlots && GroupCommandList && CrewBar && RadarHUD;
 
 	if (!bAllWidgetAreGood)
 	{
@@ -179,6 +180,26 @@ void UInGameHUD::OnLaunchSkillAt(int _skillIndex, float _cdDuration)
 bool UInGameHUD::IsSkilledCooledDown(int _skillIndex) const
 {
 	return 	SkillBar->IsCooledDownAt(_skillIndex);
+}
+
+void UInGameHUD::AddAllyGroupIconAt(int _index)
+{
+	RadarHUD->AddAllyGroupIconAt(_index);
+}
+
+void UInGameHUD::AddEnemyGroupIcon()
+{
+	RadarHUD->AddEnemyGroupIcon();
+}
+
+void UInGameHUD::RemoveAllyIconAt(int _index)
+{
+	RadarHUD->RemoveAllyIconAt(_index);
+}
+
+void UInGameHUD::RemoveEnemyGroupAt(int _index)
+{
+	RadarHUD->RemoveEnemyGroupAt(_index);
 }
 
 

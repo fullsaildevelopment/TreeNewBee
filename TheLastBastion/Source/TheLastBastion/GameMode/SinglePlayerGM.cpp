@@ -10,6 +10,7 @@
 #include "AI/AllyGroup.h"
 #include "AudioManager.h"
 #include "Environment/Barracks.h"
+#include "UI/InGameHUD.h"
 
 
 ASinglePlayerGM::ASinglePlayerGM(const FObjectInitializer & _objectInitilizer) : Super(_objectInitilizer)
@@ -201,6 +202,10 @@ void ASinglePlayerGM::SpawnNewAllies(TSubclassOf<class ATheLastBastionAIBase> _c
 	// register in controlled allies
 	Allies[_index] = newAllyGroup;
 	newAllyGroup->SetHUDIndex(_index);
+
+	ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (pc)
+		pc->GetInGameHUD()->AddAllyGroupIconAt(_index);
 }
 
 void ASinglePlayerGM::DestroyAllyGroupAt(int _index)
@@ -210,13 +215,30 @@ void ASinglePlayerGM::DestroyAllyGroupAt(int _index)
 	{
 		GroupToBeKilled->KillAllChild();
 		Allies[_index] = nullptr;
+		ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+		if (pc)
+			pc->GetInGameHUD()->RemoveAllyIconAt(_index);
 	}
+}
+
+void ASinglePlayerGM::UnRegisterAllyGroupAt(int _index)
+{
+	Allies[_index] = nullptr;
+
+	ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(
+		UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (pc)
+		pc->GetInGameHUD()->RemoveAllyIconAt(_index);
 }
 
 void ASinglePlayerGM::RegisterEnemyGroup(AEnemyGroup * _enemyGroup)
 {
 	Enemies.Add(_enemyGroup);
 	_enemyGroup->SetGroupIndex(Enemies.Num() - 1);
+
+	ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (pc)
+		pc->GetInGameHUD()->AddEnemyGroupIcon();
 }
 
 void ASinglePlayerGM::UnRegisterEnemyGroupAt(int _index)
@@ -230,11 +252,16 @@ void ASinglePlayerGM::UnRegisterEnemyGroupAt(int _index)
 
 	Enemies.RemoveAtSwap(_index);
 
+	ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (pc)
+		pc->GetInGameHUD()->RemoveEnemyGroupAt(_index);
+
 	// re - index each enemy group
 	for (int iEnemyGroup = 0; iEnemyGroup < Enemies.Num(); iEnemyGroup++)
 	{
 		Enemies[iEnemyGroup]->SetGroupIndex(iEnemyGroup);
 	}
+
 }
 
 
