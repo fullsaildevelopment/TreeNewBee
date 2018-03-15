@@ -5,6 +5,7 @@
 #include "Components/Overlay.h"
 #include "Components/OverlaySlot.h"
 #include "GameMode/SinglePlayerGM.h"
+#include "TimerManager.h"
 
 URadarHUD::URadarHUD(const FObjectInitializer & _objectInitilizer) : Super(_objectInitilizer)
 {   
@@ -18,6 +19,8 @@ URadarHUD::URadarHUD(const FObjectInitializer & _objectInitilizer) : Super(_obje
 	AllyGroupIcons.SetNum(4);
 
 	InverseRadarScale = 0.01f;
+
+	bIsTimerActivated = false;
 }
 
 bool URadarHUD::Initialize()
@@ -34,39 +37,15 @@ bool URadarHUD::Initialize()
 }
 
 void URadarHUD::NativeTick(const FGeometry & MyGeometry, float InDeltaTime)
-{
+{   
+	if (bIsTimerActivated == false)
+	{
+		// Start a timer
+		GetOwningPlayer()->GetWorldTimerManager().SetTimer(RadarTickTimer, this, &URadarHUD::UpdateRadar, 0.5f, true, 0.1f);
+		bIsTimerActivated = true;
+	}
 	float bearing = GetOwningPlayer()->GetCharacter()->GetActorRotation().Yaw;
 	RadarOverlay->SetRenderAngle(-1.0F*bearing);
-
-	ASinglePlayerGM* CurrentGameMode = Cast<ASinglePlayerGM>(GetWorld()->GetAuthGameMode());
-
-	if (CurrentGameMode)
-	{   
-		// Get Player current position first
-		FVector PlayerCurrentPosition = GetOwningPlayer()->GetCharacter()->GetActorLocation();
-
-		// Update Ally Marker On Radar
-		for (int i = 0; i < 4; i++)
-		{
-			if (AllyGroupIcons[i] != nullptr)
-			{
-				FVector CurrentAllyGroupPosition = CurrentGameMode->GetAllyGroupUnitAt(i)->GetActorLocation();
-				FVector2D GroupMarkerRenderTranslation = CalculateGroupLocationOnRadar(PlayerCurrentPosition, CurrentAllyGroupPosition);
-				AllyGroupIcons[i]->SetRenderTranslation(GroupMarkerRenderTranslation);
-			}
-		}
-
-		// Update Enemy Marker On Radar
-		for (int j = 0; j < EnemyGroupIcons.Num(); j++)
-		{
-			if (EnemyGroupIcons[j] != nullptr)
-			{
-				FVector CurrentEnemyGroupPosition = CurrentGameMode->GetEnemyGroupUnitAt(j)->GetActorLocation();
-				FVector2D GroupMarkerRenderTranslation = CalculateGroupLocationOnRadar(PlayerCurrentPosition, CurrentEnemyGroupPosition);
-				EnemyGroupIcons[j]->SetRenderTranslation(GroupMarkerRenderTranslation);
-			}
-		}
-	}
 }
 
 void URadarHUD::AddAllyGroupIconAt(int _index)
@@ -122,4 +101,37 @@ FVector2D URadarHUD::CalculateGroupLocationOnRadar(FVector PlayerWorldLocation, 
 
 	return GroupLocationOnRadar;
 	
+}
+
+void URadarHUD::UpdateRadar()
+{
+	ASinglePlayerGM* CurrentGameMode = Cast<ASinglePlayerGM>(GetWorld()->GetAuthGameMode());
+
+	if (CurrentGameMode)
+	{
+		// Get Player current position first
+		FVector PlayerCurrentPosition = GetOwningPlayer()->GetCharacter()->GetActorLocation();
+
+		// Update Ally Marker On Radar
+		for (int i = 0; i < 4; i++)
+		{
+			if (AllyGroupIcons[i] != nullptr)
+			{
+				FVector CurrentAllyGroupPosition = CurrentGameMode->GetAllyGroupUnitAt(i)->GetActorLocation();
+				FVector2D GroupMarkerRenderTranslation = CalculateGroupLocationOnRadar(PlayerCurrentPosition, CurrentAllyGroupPosition);
+				AllyGroupIcons[i]->SetRenderTranslation(GroupMarkerRenderTranslation);
+			}
+		}
+
+		// Update Enemy Marker On Radar
+		for (int j = 0; j < EnemyGroupIcons.Num(); j++)
+		{
+			if (EnemyGroupIcons[j] != nullptr)
+			{
+				FVector CurrentEnemyGroupPosition = CurrentGameMode->GetEnemyGroupUnitAt(j)->GetActorLocation();
+				FVector2D GroupMarkerRenderTranslation = CalculateGroupLocationOnRadar(PlayerCurrentPosition, CurrentEnemyGroupPosition);
+				EnemyGroupIcons[j]->SetRenderTranslation(GroupMarkerRenderTranslation);
+			}
+		}
+	}
 }
