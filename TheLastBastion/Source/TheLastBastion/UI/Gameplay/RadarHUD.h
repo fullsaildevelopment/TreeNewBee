@@ -37,6 +37,10 @@ protected:
 	TSubclassOf<UUserWidget> AllyGroupIcon_BP;
 	TSubclassOf<UUserWidget> EnemyGroupIcon_BP;
 
+	FTimerHandle RadarTickTimer;
+
+	bool bIsTimerActivated;
+
 public:
 
 	void AddAllyGroupIconAt(int _index);
@@ -55,4 +59,6 @@ private:
 	float RadarRadius = 140.0f;
 
 	FVector2D CalculateGroupLocationOnRadar(FVector PlayerWorldLocation, FVector GroupWorldLocation);
+
+	void UpdateRadar();
 };
