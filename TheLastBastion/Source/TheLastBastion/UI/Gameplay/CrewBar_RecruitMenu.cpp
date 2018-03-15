@@ -78,7 +78,7 @@ void UCrewBar_RecruitMenu::OnOpenRecruitMenu()
 		}
 
 		currCrewSlot->SetUnitClass(currGroup->GetAllyGroupClass());
-		currCrewSlot->SetImage(currGroup->GetThumbNailImage());
+		currCrewSlot->SetImage(currGroup->GetThumbNail());
 		currentGroupAmount = currGroup->GetGroupSize();
 		totalAmount += currentGroupAmount;
 		AllCrewBlock[iCrew]->SetCrewNum(currentGroupAmount);

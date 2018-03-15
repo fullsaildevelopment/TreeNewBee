@@ -53,8 +53,11 @@ void UCrewBarUI::UpdateCrewSizeAt(int _index, int _groupSize)
 
 void UCrewBarUI::UpdateCrewInfoAt(int _index, int _groupSize, UTexture2D * _thumbNail)
 {
-	mCrewBar[_index].Crew->SetUnitNumber(_groupSize);
+
+	if (_thumbNail == nullptr)
+		mCrewBar[_index].Crew->ClearNumericValue();
+	else
+		mCrewBar[_index].Crew->SetUnitNumber(_groupSize);
+
 	mCrewBar[_index].Crew->SetImage(_thumbNail);
-
-
 }

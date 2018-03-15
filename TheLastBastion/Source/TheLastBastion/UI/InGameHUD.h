@@ -102,6 +102,8 @@ public:
 	void RemoveAllyIconAt(int _index);
 	void RemoveEnemyGroupAt(int _index);
 
-
+	// CrewBar Interface
+	void UpdateCrewSizeAt(int _index, int _groupSize);
+	void UpdateCrewInfoAt(int _index, int _groupSize, UTexture2D* _thumbNail);
 
 };

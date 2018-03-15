@@ -147,6 +147,9 @@ void AEnemyGroup::SpawnChildGroup()
 				maxGroupLength = (xOffset - rowPadding) + 0.5f + SIDEPADDING;
 
 				SetGroupVisionVolumn(maxGroupWidth, maxGroupLength);
+				// set thumbNail Image for UI
+				ThumbNail = AICharactersInfo[0].AICharacter->GetThumbNailImage();
+
 			}
 		}
 		else

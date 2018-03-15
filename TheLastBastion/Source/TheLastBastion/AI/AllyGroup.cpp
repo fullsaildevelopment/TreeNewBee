@@ -10,6 +10,7 @@
 #include "AICharacters/TheLastBastionEnemyCharacter.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "UI/Gameplay/AllyGroupHUD.h"
+#include "UI/InGameHUD.h"
 
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Components/BoxComponent.h"
@@ -164,7 +165,7 @@ void AAllyGroup::SpawnChildGroup()
 	}
 
 	// set thumbNail in UI
-	
+	ThumbNail = AICharactersInfo[0].AICharacter->GetThumbNailImage();
 
 	SetAllyGroupVisionVolumn();
 }
@@ -381,10 +382,10 @@ void AAllyGroup::UpdateFormationInfoByTotalNum(int _totalNum)
 	}
 }
 
-UTexture2D * AAllyGroup::GetThumbNailImage() const
-{
-	return AICharactersInfo[0].AICharacter->GetThumbNailImage();
-}
+//UTexture2D * AAllyGroup::GetThumbNailImage() const
+//{
+//	return AICharactersInfo[0].AICharacter->GetThumbNailImage();
+//}
 
 void AAllyGroup::SetMarchLocation(const FVector & _targetLocation, int _commandIndex)
 {
@@ -528,7 +529,10 @@ void AAllyGroup::OnChildDeath(int _childIndex)
 		// Unregister this group in game mode
 		ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
 		if (gm)
+		{
 			gm->UnRegisterAllyGroupAt(GroupIndex);
+			PlayerHero->GetInGameHUD()->UpdateCrewInfoAt(CrewIndex, 0, nullptr);
+		}
 
 		// destroy
 		Destroy();
@@ -543,6 +547,11 @@ void AAllyGroup::OnChildDeath(int _childIndex)
 		}
 
 		bReformPending = true;
+
+		ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (gm)
+			PlayerHero->GetInGameHUD()->UpdateCrewSizeAt(CrewIndex, GetGroupSize());
+
 	}
 }
 
@@ -826,6 +835,7 @@ void AAllyGroup::SetHUDIndex(int _index)
 	UAllyGroupHUD* hud = Cast<UAllyGroupHUD>(GroupHUD->GetUserWidgetObject());
 	if (hud)
 	{
+		CrewIndex = _index;
 		hud->SetGroupIndexText(_index + 1);
 		SetGroupIndex(_index);
 	}

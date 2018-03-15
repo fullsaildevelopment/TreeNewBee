@@ -81,6 +81,11 @@ void UCrewSlotUI::SetUnitData(const FUnitData & _data, bool _bShowPrice)
 		SetPrice(Unit_Data.Price);
 }
 
+void UCrewSlotUI::ClearNumericValue()
+{
+	NumericValue->SetText(FText::GetEmpty());
+}
+
 void UCrewSlotUI::SetPrice(int _price)
 {
 	NumericValue->SetText(FText::AsNumber(_price));	

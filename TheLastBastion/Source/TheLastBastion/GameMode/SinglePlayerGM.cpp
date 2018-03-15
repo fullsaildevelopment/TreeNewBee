@@ -196,7 +196,19 @@ void ASinglePlayerGM::SpawnNewAllies(TSubclassOf<class ATheLastBastionAIBase> _c
 
 	ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	if (pc)
-		pc->GetInGameHUD()->AddAllyGroupIconAt(_index);
+	{
+		UInGameHUD* gameHUD = pc->GetInGameHUD();
+		// Add Ally on Radar
+		gameHUD->AddAllyGroupIconAt(_index);
+		// Add Ally on Crew Bar
+		gameHUD->UpdateCrewInfoAt(_index, newAllyGroup->GetGroupSize(), newAllyGroup->GetThumbNail());
+
+
+
+	}
+
+	
+
 }
 
 void ASinglePlayerGM::DestroyAllyGroupAt(int _index)

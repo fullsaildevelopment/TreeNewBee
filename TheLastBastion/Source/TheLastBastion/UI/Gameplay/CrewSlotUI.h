@@ -65,6 +65,8 @@ public:
 	/** Set thumbNail Image*/
 	FORCEINLINE void SetImage(UTexture2D* _image) override { Unit_Data.Unit_Image = _image; }
 	FORCEINLINE void SetAllyIndex(float _index) { AllyIndex = _index; }
+
+	void ClearNumericValue();
 	/** set the player cost by this unit*/
 	void SetPrice(int _price);
 

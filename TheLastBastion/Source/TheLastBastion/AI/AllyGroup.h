@@ -43,6 +43,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Formation)
 		float CurrentPadding;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		float CrewIndex;
+
+
 private:
 
 	FTimerHandle mFollowingTimer;
@@ -86,7 +90,7 @@ private:
 public:
 
 	TSubclassOf<class ATheLastBastionAIBase> GetAllyGroupClass() const { return AIToSpawn[0].AIClassBP; }
-	UTexture2D* GetThumbNailImage() const;
+	//UTexture2D* GetThumbNailImage() const;
 
 	UFUNCTION()
 		void SetMarchLocation(const FVector& _location, int _commandIndex) override;
@@ -123,9 +127,9 @@ public:
 	void SetSpawnInfo(const FAISpawnInfo& _aiToSpawn); 
 
 	bool CanBeReformed() const;
+	
+	FORCEINLINE int GetCrewIndex() const { return CrewIndex; }
 
 	/**Set Ally Index on HUD, _index is the index for TArray*/
 	void SetHUDIndex(int _index);
-
-
 };

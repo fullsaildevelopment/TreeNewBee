@@ -202,6 +202,16 @@ void UInGameHUD::RemoveEnemyGroupAt(int _index)
 	RadarHUD->RemoveEnemyGroupAt(_index);
 }
 
+void UInGameHUD::UpdateCrewSizeAt(int _index, int _groupSize)
+{
+	CrewBar->UpdateCrewSizeAt(_index, _groupSize);
+}
+
+void UInGameHUD::UpdateCrewInfoAt(int _index, int _groupSize, UTexture2D * _thumbNail)
+{
+	CrewBar->UpdateCrewInfoAt(_index, _groupSize, _thumbNail);
+}
+
 
 
 
