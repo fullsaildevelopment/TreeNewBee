@@ -27,9 +27,15 @@ protected:
 
 protected:
 
-	TArray<UUserWidget*> AllyIcons;
+	TArray<UUserWidget*> AllyGroupIcons;
 
-	TArray<UUserWidget*> EnemyIcons;
+	TArray<UUserWidget*> EnemyGroupIcons;
+
+	UPROPERTY(meta = (BindWidget))
+	class UOverlay* RadarOverlay;
+
+	TSubclassOf<UUserWidget> AllyGroupIcon_BP;
+	TSubclassOf<UUserWidget> EnemyGroupIcon_BP;
 
 public:
 
@@ -43,10 +49,10 @@ public:
 	// Remove enemy icon, dont preserve array order();
 	void RemoveEnemyGroupAt(int _index);
 
-	
+private:
+	float InverseRadarScale;
 
+	float RadarRadius = 140.0f;
 
-
-
-
+	FVector2D CalculateGroupLocationOnRadar(FVector PlayerWorldLocation, FVector GroupWorldLocation);
 };
