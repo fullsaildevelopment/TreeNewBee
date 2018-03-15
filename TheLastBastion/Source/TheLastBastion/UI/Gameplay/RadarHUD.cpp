@@ -17,7 +17,7 @@ URadarHUD::URadarHUD(const FObjectInitializer & _objectInitilizer) : Super(_obje
 
 	AllyGroupIcons.SetNum(4);
 
-	InverseRadarScale = 0.02f;
+	InverseRadarScale = 0.01f;
 }
 
 bool URadarHUD::Initialize()
@@ -50,9 +50,20 @@ void URadarHUD::NativeTick(const FGeometry & MyGeometry, float InDeltaTime)
 		{
 			if (AllyGroupIcons[i] != nullptr)
 			{
-				FVector CurrentGroupPosition = CurrentGameMode->GetAllyGroupUnitAt(i)->GetActorLocation();
-				FVector2D GroupMarkerRenderTranslation = CalculateGroupLocationOnRadar(PlayerCurrentPosition, CurrentGroupPosition);
+				FVector CurrentAllyGroupPosition = CurrentGameMode->GetAllyGroupUnitAt(i)->GetActorLocation();
+				FVector2D GroupMarkerRenderTranslation = CalculateGroupLocationOnRadar(PlayerCurrentPosition, CurrentAllyGroupPosition);
 				AllyGroupIcons[i]->SetRenderTranslation(GroupMarkerRenderTranslation);
+			}
+		}
+
+		// Update Enemy Marker On Radar
+		for (int j = 0; j < EnemyGroupIcons.Num(); j++)
+		{
+			if (EnemyGroupIcons[j] != nullptr)
+			{
+				FVector CurrentEnemyGroupPosition = CurrentGameMode->GetEnemyGroupUnitAt(j)->GetActorLocation();
+				FVector2D GroupMarkerRenderTranslation = CalculateGroupLocationOnRadar(PlayerCurrentPosition, CurrentEnemyGroupPosition);
+				EnemyGroupIcons[j]->SetRenderTranslation(GroupMarkerRenderTranslation);
 			}
 		}
 	}
@@ -69,7 +80,11 @@ void URadarHUD::AddAllyGroupIconAt(int _index)
 
 void URadarHUD::AddEnemyGroupIcon()
 {
-
+	UUserWidget* EnemyGroupMarker = CreateWidget<UUserWidget>(GetWorld(), EnemyGroupIcon_BP);
+	UOverlaySlot* EnemyGroupOverlaySlot = RadarOverlay->AddChildToOverlay(EnemyGroupMarker);
+	EnemyGroupOverlaySlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Center);
+	EnemyGroupOverlaySlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
+	EnemyGroupIcons.Add(EnemyGroupMarker);
 }
 
 void URadarHUD::RemoveAllyIconAt(int _index)
@@ -80,6 +95,8 @@ void URadarHUD::RemoveAllyIconAt(int _index)
 
 void URadarHUD::RemoveEnemyGroupAt(int _index)
 {
+	EnemyGroupIcons[_index]->RemoveFromViewport();
+	EnemyGroupIcons.RemoveAtSwap(_index);
 }
 
 FVector2D URadarHUD::CalculateGroupLocationOnRadar(FVector PlayerWorldLocation, FVector GroupWorldLocation)
