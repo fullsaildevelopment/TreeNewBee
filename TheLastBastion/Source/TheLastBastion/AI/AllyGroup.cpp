@@ -52,11 +52,6 @@ AAllyGroup::AAllyGroup()
 	}
 
 
-	//ConstructorHelpers::FObjectFinder<UBehaviorTree> bt(TEXT("/Game/Blueprints/AI/GroupPreset/BT_AllyGroupAI"));
-	//if (bt.Succeeded())
-	//	BehaviorTree = bt.Object;
-	//else
-	//	UE_LOG(LogTemp, Error, TEXT("Can not find behaviorTree - AAllyGroup::AAllyGroup"));
 
 }
 

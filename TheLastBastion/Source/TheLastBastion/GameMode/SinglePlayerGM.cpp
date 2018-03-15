@@ -150,15 +150,6 @@ bool ASinglePlayerGM::HasAllyGroupUnitAt(int _index)
 	return 	Allies.IsValidIndex(_index);
 }
 
-AAllyGroup * ASinglePlayerGM::GetAllyGroupUnitAt(int _index)
-{
-	if (Allies.IsValidIndex(_index))
-	{
-		return Allies[_index];
-	}
-	return nullptr;
-}
-
 void ASinglePlayerGM::ToggleAllGroupUI(bool _val)
 {
 	// toggle all allies HUD

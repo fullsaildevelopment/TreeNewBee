@@ -33,48 +33,12 @@ protected:
 
 protected:
 
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = CharacterClass)
-	//	TSubclassOf<class ATheLastBastionCharacter> LannesterTrooper_T0_BP;
-
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = CharacterClass)
-	//	TSubclassOf<class ATheLastBastionCharacter> LannesterShooter_T0_BP;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GroupClass)
 		TSubclassOf<class AAllyGroup> AllyMeleeGroup_Bp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GroupClass)
 		TSubclassOf<class AAllyGroup> AllyRangeGroup_Bp;
 
-
-	//FTimerHandle TimerHandle_EnemySpawner;
-
-	//FTimerHandle TimerHandle_NextWaveStart;
-
-	//// Bots to spawn in current wave
-	//int32 NumOfEnemiesToSpawn;
-
-	//int32 WaveCount;
-
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spawner")
-	//float TimeBetweenWaves;
-
-//protected:
-//	// Spawn a single enemy
-//	void SpawnNewEnemy();
-//
-//	void SpawnEnemyTimerElapsed();
-//
-//	// Start Spawning Bots
-//	void StartWave();
-//
-//	// Stop Spawning Bots
-//	void EndWave();
-//
-//	// Set timer for next startwave
-//	void PrepareForNextWave();
-//
-//	// Check enemy amount to determine if we're ready for next wave
-//	void CheckWaveState();
 
 
 private:
@@ -107,14 +71,6 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
 		class AEnemyGroupSpawner* EnemyGroupSpawner;
 
-
-	//
-	//UPROPERTY()
-	//	TArray<class ASpawnLocation*> LannesterSpawnLocations_One;
-
-	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
-	//	int32 EnemyAmount;
-
 	
 private:
 
@@ -122,15 +78,12 @@ private:
 
 public:
 
-	//void UpdateEnemyAmount(int _val);
-
-	//void StartPlay() override;
-
 	void Tick(float DeltaSeconds) override;
 
 	bool HasAllyGroupUnitAt(int _index);
 
-	class AAllyGroup* GetAllyGroupUnitAt(int _index);
+	FORCEINLINE class AAllyGroup* GetAllyGroupUnitAt(int _index) {return (Allies.IsValidIndex(_index)) ? Allies[_index] : nullptr;}
+	FORCEINLINE class AEnemyGroup* GetEnemyGroupUnitAt(int _index) { return (Enemies.IsValidIndex(_index)) ? Enemies[_index] : nullptr; }
 
 	FORCEINLINE bool HasValidAlliesAt(int _index) const { return Allies.IsValidIndex(_index); }
 
