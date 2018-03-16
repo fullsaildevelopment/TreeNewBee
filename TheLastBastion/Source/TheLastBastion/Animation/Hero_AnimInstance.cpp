@@ -1238,35 +1238,25 @@ void UHero_AnimInstance::LaunchSkill(int _skillIndex)
 		return;
 	}
 
+	// Skill can launch during being hit, if we are being hit, we will get a recover from that
+	if (AttackState == EAttackState::BeingHit)
+		RecoverFromBeingHit(false);
+
 
 	FName sectionToPlay = mCharacter->GetSkillSectionNameAt(_skillIndex);
 
-	EActionType skill = EActionType(_skillIndex + 2);
-	switch (skill)
-	{
-	case EActionType::Skill_Combo:
-		break;
-	case EActionType::Skill_PowerHit:
-		break;
-	case EActionType::Skill_WeaponCastingIce:
-	case EActionType::Skill_WeaponCastingFire:
-		break;
-	case EActionType::Skill_Taunt:
-	case EActionType::Skill_Heal:
-	case EActionType::Skill_BattleCommand:
-		break;
-	default:
-		break;
-	}
+	float attackSpeed = (mCharacter->GetCurrentWeapon()->GetGearType() == EGearType::GreatSword) ? 1.1f : 1.0f;
 
-	this->PlayMontage(Skill_Montage, 1.0f, sectionToPlay);
+	this->PlayMontage(Skill_Montage, attackSpeed, sectionToPlay);
 	bVelocityOverrideByAnim = true;
+	bAnimInterruptRobust = true;
 
 	if (!bIsFocused)
 	{
 		mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = true;
 		mCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 	}
+
 
 	AttackState = EAttackState::PreWinding;
 	NextAction = EActionType::None;
@@ -1754,9 +1744,9 @@ void UHero_AnimInstance::OnBeingHit(FName boneName, const FVector & _damageCause
 
 	if (Hit_Montage)
 	{
-		// reset the attack state and movement override, cuz we are being attack
-		ResetOnBeingHit();
 
+		// reset the attack state and movement override, cuz we are being attack except we are doing counter attack or skill
+		ResetOnBeingHit();
 
 		bool HitFromFront = FVector::DotProduct(mCharacter->GetActorForwardVector(), _damageCauseRelative) > 0.3f;
 		FName sectionName;

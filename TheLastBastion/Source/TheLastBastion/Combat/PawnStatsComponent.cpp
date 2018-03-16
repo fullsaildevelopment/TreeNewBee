@@ -174,6 +174,7 @@ void UPawnStatsComponent::GenerateRawStatsByLevel(int _level)
 		{
 			HpRaw = RangerInitHp + _level * 15;
 			StaminaRaw = 120.0f;
+			DpCurrent = 0;
 			break;
 		}
 		case ECharacterType::Builder:
@@ -239,7 +240,11 @@ void UPawnStatsComponent::GenerateMaxStats(bool _setCurrentToMax)
 	StaminaMax = factorStamina * StaminaRaw + SpAdd;
 	CriticalMax = CriticalRow + criticalAdd;
 	StunMax = StunRow + stunAdd;
-	DpCurrent = 0;
+	//DpCurrent = 0;
+
+	HpCurrent = (HpCurrent > HpMax) ? HpMax : HpCurrent;
+	DpCurrent = (DpCurrent > HpMax) ? HpMax : DpCurrent;
+	StaminaCurrent = (StaminaCurrent > StaminaMax) ? StaminaMax : StaminaCurrent;
 
 	if (_setCurrentToMax)
 	{

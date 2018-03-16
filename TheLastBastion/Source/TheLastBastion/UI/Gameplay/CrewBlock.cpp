@@ -122,16 +122,16 @@ void UCrewBlock::OnDismissClick()
 		return;
 
 
+	// update total amount on crew bar
+	int TotalAmount = mCrewBar->GetTotalAmount();
+	TotalAmount -= CrewNum;
+	mCrewBar->SetTotalAmount(TotalAmount);
+
 	// Clear crew slot
 	CrewNum = 0;
 	CrewSlot->SetImage(nullptr);
 	CrewSlot->SetUnitClass(nullptr);
 	CrewNum_Text->SetText(FText::AsNumber(CrewNum));
-
-	// update total amount on crew bar
-	int TotalAmount = mCrewBar->GetTotalAmount();
-	TotalAmount -= CrewNum;
-	mCrewBar->SetTotalAmount(TotalAmount);
 
 	// Kill the group
 	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));

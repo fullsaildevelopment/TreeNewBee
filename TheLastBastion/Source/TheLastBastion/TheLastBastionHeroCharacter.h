@@ -270,8 +270,6 @@ private:
 private:
 
 	void UpdateHeroStats();
-	FORCEINLINE void EnableHpRecovering()   { bHpRecovering = true; }
-	FORCEINLINE void DisnableHpRecovering() { bHpRecovering = false; }
 
 public:
 
@@ -317,6 +315,8 @@ public:
 	FORCEINLINE FName GetSkillSectionNameAt(int _skillIndex) const { return SkillSlots[_skillIndex].AM_sectionName; }
 
 	FORCEINLINE void SetSkillSectionNameAt(int _skillIndex, FName _sectionName) { SkillSlots[_skillIndex].AM_sectionName = _sectionName; }
+	FORCEINLINE void EnableHpRecovering() { bHpRecovering = true; }
+	FORCEINLINE void DisnableHpRecovering() { bHpRecovering = false; }
 
 
 	

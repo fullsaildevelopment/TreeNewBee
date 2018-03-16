@@ -15,10 +15,12 @@ class THELASTBASTION_API AShield : public AWeapon
 	GENERATED_BODY()
 
 public:
+
 	AShield();
 
 protected:
-	virtual void BeginPlay() override;
+
+	void BeginPlay() override;
 
 protected:
 

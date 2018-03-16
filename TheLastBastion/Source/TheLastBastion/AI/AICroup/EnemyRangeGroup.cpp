@@ -26,6 +26,8 @@ AEnemyRangeGroup::AEnemyRangeGroup()
 		BehaviorTree = bt.Object;
 	else
 		UE_LOG(LogTemp, Error, TEXT("Can not find behaviorTree - AEnemyRangeGroup::AEnemyRangeGroup"));
+
+	PrimaryTargets.SetNum(RangeGroupTargetAmount);
 }
 
 void AEnemyRangeGroup::OnRangeVisionOverrlapBegin(UPrimitiveComponent* OverlappedComponent, 
@@ -53,11 +55,12 @@ void AEnemyRangeGroup::OnRangeVisionOverrlapEnd(UPrimitiveComponent* OverlappedC
 	AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	// Cast overlapped actor to an enemy and check if it's valid
-	ATheLastBastionAllyCharacter* allyCharacter = Cast<ATheLastBastionAllyCharacter>(OtherActor);
-	if (allyCharacter)
+	ATheLastBastionCharacter* allyCharacter = Cast<ATheLastBastionCharacter>(OtherActor);
+	if (allyCharacter && allyCharacter->IsEnemy() == false)
 	{
 		// Remove this enemy from threat map
 		RemoveThreat(allyCharacter);
+		SetRangeGroupTarget_OnOverLapEnd(allyCharacter);
 
 	}
 }
@@ -136,6 +139,7 @@ void AEnemyRangeGroup::SetRangeGroupTarget_OnOverLapEnd(ATheLastBastionCharacter
 	if (_target->GetIsDead())
 		return;
 
+	// unbind target request event that on the out of range target
 	for (int iTarget = 0; iTarget < RangeGroupTargetAmount; iTarget++)
 	{
 		if (PrimaryTargets[iTarget].PrimaryTarget == _target)
@@ -147,6 +151,7 @@ void AEnemyRangeGroup::SetRangeGroupTarget_OnOverLapEnd(ATheLastBastionCharacter
 		}
 	}
 
+	// Retargetting
 	// find all invalid index in primary targets
 	TArray<int> availableTarget;
 

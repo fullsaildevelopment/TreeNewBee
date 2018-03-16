@@ -208,8 +208,20 @@ bool UHeroStatsComponent::OnSwitchWeapon(EEquipType _nextEquip)
 			LastMeleeWeapon_Index = CurrentWeapon_Index;
 		}
 		CurrentWeapon_Index = nextEquip;
+
+		// Update Stats caused by gear switch	
 		GenerateMaxStats(false);
-		mHeroCharacter->GetInGameHUD()->SetCurrentWeaponImage(rightWeapon);
+
+		if (HpCurrent < HpMax)
+			mHeroCharacter->EnableHpRecovering();
+
+		// Update UI
+		UInGameHUD* gameHud = mHeroCharacter->GetInGameHUD();
+		
+		gameHud->SetCurrentWeaponImage(rightWeapon);
+		gameHud->SetHpOnHealthChange(this);
+		gameHud->SetDpOnDpChange(this);
+		gameHud->SetSpOnStaminaChange(this);
 	}
 
 	return accept;

@@ -57,7 +57,7 @@ public:
 
 	void SetDamageIsEnabled(bool _val);
 
-	void Tick(float _deltaTime) override;	
+	virtual void Tick(float _deltaTime) override;	
 
 	class USceneComponent* GetMesh() const override;
 

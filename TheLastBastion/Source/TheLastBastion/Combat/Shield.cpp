@@ -17,10 +17,18 @@ AShield::AShield()
 	ShieldBox->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));
 	ShieldBox->SetCollisionProfileName(TEXT("Shield"));
 	ShieldBox->RelativeLocation = FVector(Thickness *.5f, 0, 0);
+
+	DamageEdgeOffset_start = FVector::ZeroVector;
+	DamageEdgeOffset_end = DamageEdgeOffset_start;
+
+	DamageVolumnExtend = FVector(Thickness * 0.5f, MeshArea.X * 0.5f, MeshArea.Y * 0.5f);
+
 }
+
 
 void AShield::BeginPlay()
 {
+	Super::BeginPlay();
 	FVector box = ShieldBox->GetUnscaledBoxExtent();
 	CollisionArea = FVector2D(box.Y, box.Z);
 	WidthMeshColRatio = MeshArea.X / CollisionArea.X;
@@ -31,6 +39,14 @@ void AShield::Equip(USkeletalMeshComponent * const _skeletonMeshComponent)
 {
 	Super::Equip(_skeletonMeshComponent);
 	ShieldBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// delete all attach actor
+	TArray<AActor*> attachedBullets;
+	GetAttachedActors(attachedBullets);
+	for (int iBullets = 0; iBullets < attachedBullets.Num(); iBullets++)
+	{
+		attachedBullets[iBullets]->Destroy();
+	}
 }
 
 void AShield::Arm(USkeletalMeshComponent * const _skeletonMeshComponent)

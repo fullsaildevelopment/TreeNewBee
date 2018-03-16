@@ -19,7 +19,10 @@ AWeapon::AWeapon()
 	DamageEdgeOffset_start = FVector(0, 0, 95.0f);
 	DamageEdgeOffset_end = FVector(0, 0, 15.0f);
 	DamageVolumnExtend = FVector(1.0f, 1.0f, 0.0f);
+
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
+
 	bDamageIsEnable = false;
 	bEnableCutOpenDamage = false;
 	bShowBounding = false;
@@ -42,6 +45,9 @@ void AWeapon::SetDamageIsEnabled(bool _val)
 
 void AWeapon::Tick(float _deltaTime)
 {
+
+	//UE_LOG(LogTemp, Log, TEXT("AWeapon::Tick - %s"), *GetName());
+
 	if (bShowBounding)
 	{
 		FVector startPosition, endPosition;
@@ -153,12 +159,14 @@ void AWeapon::GetRayCastPosition(FVector & _start, FVector & _end)
 		break;
 	}
 	case EGearType::TwinBlade:
-	case EGearType::Shield:
 	{
 		_start = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_start;
-		_end = GetActorLocation()   + GetActorForwardVector() * DamageEdgeOffset_end;
-		//_rotator = this->GetActorRotation();
-
+		_end = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_end;
+	}
+	case EGearType::Shield:
+	{
+		_start = GetActorLocation() + DamageEdgeOffset_start;
+		_end = GetActorLocation()   + DamageEdgeOffset_end;
 		break;
 	}
 	default:
