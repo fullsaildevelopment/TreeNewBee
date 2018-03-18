@@ -6,6 +6,17 @@
 #include "GameFramework/Actor.h"
 #include "EnemyGroupSpawner.generated.h"
 
+USTRUCT(BlueprintType)
+struct FMarchPath
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (MakeEditWidget), Category = Path)
+		/** All Unit Spawn Position*/
+		TArray<FTransform> WayPoints;
+
+};
+
 UCLASS()
 class THELASTBASTION_API AEnemyGroupSpawner : public AActor
 {
@@ -21,8 +32,8 @@ protected:
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (MakeEditWidget), Category = Spawning)
-		/** All Unit Spawn Position*/
-		TArray<FVector> SpawnPoints;
+		/** All Availble Path*/
+		TArray<FMarchPath> Paths;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (MakeEditWidget), Category = Behavior)
 		/** Range unit hold position*/
@@ -58,6 +69,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	FTransform GetNextWayPointFrom(int _pathIndex, int _nextWaypoint) const;
+	FORCEINLINE bool HasNextWayPointOnPath
+	(int _pathIndex, int _wayPointIndex) const { return Paths[_pathIndex].WayPoints.IsValidIndex(_wayPointIndex); }
 
 private:
 
@@ -65,5 +79,5 @@ private:
 
 	void Spawn();
 
-	void GetSpawnLocationAndRotation(FVector& _location, FRotator& _rotation) const;
+	void SelectedPath(FVector& _location, FQuat& _rotation, int& _pathIndex) const;
 };

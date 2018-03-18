@@ -46,7 +46,8 @@ private:
 	uint8
 		targetActor_KeyID,
 		targetLocation_KeyID,
-		newCommandIndex_KeyID;
+		bIsMoving_KeyID,
+		bAtDestination_KeyID;
 public:
 
 	UFUNCTION(BlueprintPure)
@@ -59,18 +60,26 @@ public:
 		FORCEINLINE uint8 GetKeyID_TargetLocation() const { return targetLocation_KeyID; }
 
 	UFUNCTION(BlueprintPure)
-		FORCEINLINE uint8 GetKeyID_NewCommandIndex() const { return newCommandIndex_KeyID; }
+		FORCEINLINE uint8 GetKeyID_IsMoving() const { return bIsMoving_KeyID; }
+
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE uint8 GetKeyID_AtDestination() const { return bAtDestination_KeyID; }
 
 
 	void SetTargetLocation_BBC(const FVector& _targetLocation);
 
-	void SetNewCommandIndex_BBC(int _newCommand);
+	void SetIsMoving_BBC(bool _val);
+
+	void SetAtDestination_BBC(bool _val);
 
 	//void SetOldCommandIndex_BBC(int _oldCommand);
 
 	FVector GetTargetLocation_BBC() const;
 
-	int GetNewCommandIndex_BBC() const;
+	bool GetIsMoving_BBC() const;
+
+	bool GetAtDestination_BBC() const;
+
 
 	//int GetOldCommandIndex_BBC() const;
 

@@ -151,6 +151,10 @@ bool ATheLastBastionAIBase::OnGroupTaskStart()
 		groupTargetForward * groupRelativeOffset.X + groupTargetRight * groupRelativeOffset.Y;
 
 
+	//UE_LOG(LogTemp, Log, TEXT("Group Target Fwd: %f, %f, %f"), groupTargetForward.X, groupTargetForward.Y, groupTargetForward.Z);
+	//UE_LOG(LogTemp, Log, TEXT("Group Target Right: %f, %f, %f"), groupTargetRight.X, groupTargetRight.Y, groupTargetRight.Z);
+
+
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
 	
@@ -185,15 +189,15 @@ bool ATheLastBastionAIBase::OnGroupTaskStart()
 			baseAICtrl->ClearFocus(EAIFocusPriority::Gameplay);
 			break;
 		case GC_HOLDLOCATION:
-		case GC_BACKWARD:
 		case GC_DISTRIBUTE:
 		case GC_REFORM:
 		case GC_FORWARD:
+		case GC_BACKWARD:
+
 			focusPoint = mGroup->GetActorLocation() + mGroup->GetActorForwardVector() * 1000000.0f;
 			baseAICtrl->ClearFocus(EAIFocusPriority::Gameplay);
 			baseAICtrl->SetFocalPoint(focusPoint, EAIFocusPriority::Gameplay);
 			break;
-
 		default:
 			break;
 		}

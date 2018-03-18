@@ -29,6 +29,15 @@ protected:
 		int MainTask;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
+		/** The selected path to castle */
+		int PathIndex;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
+		/** The current Waypoint of this group */
+		int CurrentWayPoint;
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
 		class UBehaviorTree* BehaviorTree;
 
 
@@ -56,14 +65,35 @@ public:
 	UFUNCTION()
 		void SetMarchLocation(const FVector& _location, int _commandIndex) override;
 
+	FORCEINLINE int GetCurrentWayPoint() const { return CurrentWayPoint; }
+	FORCEINLINE int GetPathIndex() const { return PathIndex; }
+
+	UFUNCTION(BlueprintCallable)
+		void GoToNextWayPoint();
+
+	UFUNCTION(BlueprintCallable)
+		void ReachWayPoint();
+
+
+	UFUNCTION(BlueprintPure)
+		/** Check if the distance in x-y space between 
+		the front line of this group location and target location is less than radius*/
+		bool IsNearTargetLocation(float radius_Sqr = 5000.0f) const;
+
+
 	/** Set the Strategy purpose of this enemy group unit*/
 	FORCEINLINE void SetMainTask(int _task) { MainTask = _task; }
+
+	/** Set the marching path, it should only be called during spawn*/
+	FORCEINLINE void SetPath(int _pathIndex) {PathIndex = _pathIndex; CurrentWayPoint = 0;}
 	FORCEINLINE void SetSpawnInfoAtSection_TotalNum(int _totalNumber, int _sectionIndex) { AIToSpawn[_sectionIndex].TotalNumber = _totalNumber; }
 	FORCEINLINE void SetSpawnInfoAtSection_MaxCol(int _maxCol, int _sectionIndex) { AIToSpawn[_sectionIndex].MaxNumOfCol = _maxCol; }
 
 	/** AI Decision: Move to close to player and attack player by melee*/
 	void MeleeAgainstPlayer_OnEnemyGroupMission();
 	void OnChildDeath(int _childIndex) override;
+
+	void SetInBattle(bool _val) override;
 
 protected:
 

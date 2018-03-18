@@ -28,7 +28,17 @@ void AEnemyGroupSpawner::BeginPlay()
 
 	GetWorldTimerManager().SetTimer(SpawnTimer, this, 
 		&AEnemyGroupSpawner::Spawn, SpawnFrequency, true, FirstSpawnDelay);
-	
+
+	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (gm == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("gm is null - ABarracks::BeginPlay"));
+		return;
+	}
+
+	gm->RegisterEnemySpawner(this);
+
+
 }
 
 // Called every frame
@@ -36,6 +46,11 @@ void AEnemyGroupSpawner::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+FTransform AEnemyGroupSpawner::GetNextWayPointFrom(int _pathIndex, int _nextWaypoint) const
+{
+	return Paths[_pathIndex].WayPoints[_nextWaypoint];
 }
 
 void AEnemyGroupSpawner::FindAllEnemyGroupPreset()
@@ -67,21 +82,16 @@ void AEnemyGroupSpawner::Spawn()
 		spawnParam.SpawnCollisionHandlingOverride =
 			ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-		FRotator spawnRotation;
-		FVector  spawnLocation;
-
-		GetSpawnLocationAndRotation(spawnLocation, spawnRotation);
+		FQuat spawnRotation;
+		FVector spawnLocation;
+		int pathIndex = 0;
+		SelectedPath(spawnLocation, spawnRotation, pathIndex);
 
 		FTransform spawnTransform;
 		spawnTransform.SetLocation(spawnLocation);
-		spawnTransform.SetRotation(spawnRotation.Quaternion());
+		spawnTransform.SetRotation(spawnRotation);
 		spawnTransform.SetScale3D(FVector(1, 1, 1));
 		
-		// Spawn new group
-	/*	AEnemyGroup* newEnemyGroup = GetWorld()
-			->SpawnActor<AEnemyGroup>(LanT0, spawnLocation, spawnRotation, spawnParam);
-		newEnemyGroup->SpawnDefaultController();*/
-
 		// spawn new group
 		AEnemyGroup* newEnemyGroup
 			= GetWorld()->SpawnActorDeferred<AEnemyGroup>
@@ -91,21 +101,29 @@ void AEnemyGroupSpawner::Spawn()
 			FAISpawnInfo spawnInfo;
 			newEnemyGroup->SetSpawnInfoAtSection_TotalNum(FMath::RandRange(8, 12), 0);
 			newEnemyGroup->SetSpawnInfoAtSection_MaxCol(FMath::RandRange(4, 6), 0);
+			newEnemyGroup->SetPath(pathIndex);
 
 			UGameplayStatics::FinishSpawningActor(newEnemyGroup, spawnTransform);
 			newEnemyGroup->SpawnDefaultController();
 
 			gm->RegisterEnemyGroup(newEnemyGroup);
+
+			//FVector forward = newEnemyGroup->GetActorForwardVector();
+			//UE_LOG(LogTemp, Log, TEXT(" forward: %f, %f, %f -- AEnemyGroupSpawner::Spawn"), 
+			//	forward.X, forward.Y, forward.Z );
 		}
 	}
 }
 
-void AEnemyGroupSpawner::GetSpawnLocationAndRotation(FVector& _location, FRotator& _rotation) const
+void AEnemyGroupSpawner::SelectedPath(FVector& _location, FQuat& _rotation, int& _pathIndex) const
 {
-	int spawnSelection = FMath::RandRange(0, SpawnPoints.Num() - 1);
-	_location =  this->GetActorLocation() + SpawnPoints[spawnSelection];
-	FVector toHero = Hero->GetActorLocation() - _location;
-	_rotation = toHero.Rotation();
-	_rotation.Pitch = 0;
+	_pathIndex = FMath::RandRange(0, Paths.Num() - 1);
+	_location =  this->GetActorLocation() + Paths[_pathIndex].WayPoints[0].GetLocation();
+
+	_rotation = Paths[_pathIndex].WayPoints[0].GetRotation();
+	
+	//FVector forward = Paths[spawnSelection].WayPoints[0].GetUnitAxis(EAxis::Type::X);
+	//UE_LOG(LogTemp, Log, TEXT("forward: %f, %f, %f -- AEnemyGroupSpawner::SelectedPath"), 
+	//	forward.X, forward.Y, forward.Z );
 }
 

@@ -115,4 +115,6 @@ public:
 	// Clear the copy of enemy group ref at index 
 	void UnRegisterEnemyGroupAt(int _index); 
 
+
+	FORCEINLINE class AEnemyGroupSpawner* GetEnemyGroupSpawner() const { return EnemyGroupSpawner; }
 };

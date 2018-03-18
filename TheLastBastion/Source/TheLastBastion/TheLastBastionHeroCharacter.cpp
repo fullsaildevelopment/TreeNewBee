@@ -417,6 +417,8 @@ void ATheLastBastionHeroCharacter::OnCommandDistribute()
 		if (CommandedGroup->IsFollowing())
 			CommandedGroup->OnStopFollowing();
 
+		if (CommandedGroup->IsInBattle())
+			CommandedGroup->RotateGroupByGroupMember();
 
 		FVector targetLocation = CommandedGroup->GetActorLocation() + CommandedGroup->GetActorForwardVector() * 100.0f; 
 		CommandedGroup->SetMarchLocation(targetLocation, GC_DISTRIBUTE);
@@ -436,6 +438,9 @@ void ATheLastBastionHeroCharacter::OnCommandReform()
 			if (CommandedGroup->IsFollowing())
 				CommandedGroup->OnStopFollowing();
 
+			if (CommandedGroup->IsInBattle())
+				CommandedGroup->RotateGroupByGroupMember();
+
 			FVector targetLocation = CommandedGroup->GetActorLocation() + CommandedGroup->GetActorForwardVector() * 300.0f;
 			CommandedGroup->SetMarchLocation(targetLocation, GC_REFORM);
 			DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
@@ -446,27 +451,34 @@ void ATheLastBastionHeroCharacter::OnCommandReform()
 
 void ATheLastBastionHeroCharacter::OnCommandForward()
 {
-	if (CommandedGroup)
-	{
-		if (CommandedGroup->IsFollowing())
-			CommandedGroup->OnStopFollowing();
-
-		FVector targetLocation = CommandedGroup->GetActorLocation() + CommandedGroup->GetActorForwardVector() * 1000.0f;
-		CommandedGroup->SetMarchLocation(targetLocation, GC_FORWARD);
-		DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
-	}
-
+	OnCommandFwdBwd(true);
 }
 
 void ATheLastBastionHeroCharacter::OnCommandBackward()
 {
+	OnCommandFwdBwd(false);
+}
+
+void ATheLastBastionHeroCharacter::OnCommandFwdBwd(bool _Fwd)
+{
+	int command = (_Fwd) ? GC_FORWARD : GC_BACKWARD;
+	int sign = (_Fwd) ? 1 : -1;
+
 	if (CommandedGroup)
 	{
 		if (CommandedGroup->IsFollowing())
 			CommandedGroup->OnStopFollowing();
 
-		FVector targetLocation = CommandedGroup->GetActorLocation() - CommandedGroup->GetActorForwardVector() * 1000.0f;
-		CommandedGroup->SetMarchLocation(targetLocation, GC_BACKWARD);
+		// if the group is not in battle, the group forward is nearly equal to group member's forward
+		// if the group is in battle, rotate the group based on the average yaw of group members
+		if (CommandedGroup->IsInBattle())
+		{
+			CommandedGroup->RotateGroupByGroupMember();
+		}
+
+		FVector targetLocation = CommandedGroup->GetFirstRowLocation() + sign * CommandedGroup->GetActorForwardVector() * 1000.0f;
+
+		CommandedGroup->SetMarchLocation(targetLocation, command);
 		DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
 	}
 }

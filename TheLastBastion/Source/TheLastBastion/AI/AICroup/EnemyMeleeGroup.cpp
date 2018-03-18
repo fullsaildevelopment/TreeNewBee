@@ -24,7 +24,9 @@ void AEnemyMeleeGroup::OnMeleeVisionOverrlapBegin(UPrimitiveComponent * Overlapp
 		if (!bInBattle)
 		{
 			MeleeGroupAgainstPlayer();
-			bInBattle = true;
+			//bInBattle = true;
+			SetInBattle(true);
+
 		}
 	}
 	else
@@ -36,7 +38,9 @@ void AEnemyMeleeGroup::OnMeleeVisionOverrlapBegin(UPrimitiveComponent * Overlapp
 			if (!bInBattle)
 			{
 				MeleeTargetSelectionOnOverlap(targetGroup);
-				bInBattle = true;
+				//bInBattle = true;
+				SetInBattle(true);
+
 			}
 		}
 

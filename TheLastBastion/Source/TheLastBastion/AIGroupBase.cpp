@@ -75,6 +75,8 @@ AAIGroupBase::AAIGroupBase()
 	bReformPending = false;
 	bIsAgreesive = false;
 	bIsLocationUpdateDiabled = false;
+	
+	SetInBattle(false);
 }
 
 // Called when the game starts or when spawned
@@ -107,7 +109,7 @@ void AAIGroupBase::BeginPlay()
 
 	// Setup For Update Group Position
 	GroupTargetLocation = this->GetActorLocation();
-	LastGroupCenterLocation = GroupTargetLocation + GetGroupCenterOffset();
+	//LastGroupCenterLocation = GroupTargetLocation + GetGroupCenterOffset();
 
 	GetWorldTimerManager().SetTimer(mGroupUpdateTimer, this, &AAIGroupBase::Update, 0.25f, true, 0.1f);
 }
@@ -121,66 +123,17 @@ void AAIGroupBase::Update()
 	}
 
 	UpdateGroupLocation();
-
-	//bool bUpdate = false;
-	//if (bInBattle)
-	//{
-	//	// if the group is in battle, always update the location
-	//	bUpdate = bInBattle;
-	//}
-	//else
-	//{
-	//	// if the group is not in battle, 
-	//	// update the location when the group is away from target location
-	//	// shift group target location with offset to get the group center
-	//	// compare current group center with last calculated group center
-	//	FVector2D targetGroupCenter = FVector2D(GroupTargetLocation + GetGroupCenterOffset());
-	//	FVector2D lastGroupCenter = FVector2D(LastGroupCenterLocation);
-	//	float toTargetLocation =
-	//		FVector2D::DistSquared(targetGroupCenter, lastGroupCenter);
-	//	bUpdate =
-	//		toTargetLocation > 100.0f;
-	//	UE_LOG(LogTemp, Log, TEXT("%s, bUpdate: %d, toTargetLocation: %f- AAIGroupBase::Update()"),
-	//		*this->GetName(), bUpdate, toTargetLocation);
-	//}
-
-	//if (bUpdate)
-	//{
-	//}
-
 }
 
 void AAIGroupBase::UpdateGroupLocation()
 {
+	FVector groupCenter = GetGroupCenter();
 
-	//UE_LOG(LogTemp, Log, TEXT("AAIGroupBase::UpdateGroupVolumnDuringBattle"));
+	SetActorLocation(groupCenter);
 
-	FVector groupCenter = FVector::ZeroVector;
-	float groupYaw = 0;
-	int groupSize = AICharactersInfo.Num();
-	float divBy = GetDivider(groupSize);
-	for (int i = 0; i < groupSize; i++)
-	{
-		groupCenter += AICharactersInfo[i].AICharacter->GetActorLocation();
-		groupYaw += AICharactersInfo[i].AICharacter->GetActorRotation().Yaw;
-	}
-	groupCenter *= divBy;
-	groupYaw *= divBy;
-	//UE_LOG(LogTemp, Log, 
-	//	TEXT("AAIGroupBase::UpdateGroupVolumnDuringBattle %f, %f,%f   - %s"),
-	//	newLocation.X , newLocation.Y , newLocation.Z, *this->GetName());
+	DrawDebugSphere(GetWorld(), GetFirstRowLocation(), 50, 6, FColor::Magenta, false, 3);
+	DrawDebugSphere(GetWorld(), GroupTargetLocation, 50, 6, FColor::Blue, false, 3);
 
-
-	if (bInBattle == false)
-	{
-		FVector groupLocation = groupCenter + GetActorForwardVector()* GroupFrontExtraVision;
-		SetActorLocation(groupLocation);
-	}
-	else
-		SetActorLocation(groupCenter);
-
-	SetActorRotation(FRotator(0, groupYaw, 0));
-	LastGroupCenterLocation = groupCenter;
 }
 
 void AAIGroupBase::SpawnChildGroup() {}
@@ -200,44 +153,6 @@ void AAIGroupBase::RangeTargetSelect_OnFirstOverlap(AActor* TargetActor)
 	}
 }
 
-//void AAIGroupBase::SetRangeGroupTarget_OnOverLap(TArray<FRangeGroupPrimaryTarget>& _targetList)
-//{
-//}
-
-//void AAIGroupBase::SetRangeGroupTarget_OnRequest()
-//{
-//
-//}
-
-//void AAIGroupBase::SetRangeGroupTarget(AActor* TargetActor)
-//{
-//
-//	for (int i = 0; i < AICharactersInfo.Num(); i++)
-//	{
-//		ATheLastBastionAIBase* CurrentAICharacter = AICharactersInfo[i].AICharacter;
-//		if (CurrentAICharacter && !CurrentAICharacter->GetIsDead())
-//		{
-//			CurrentAICharacter->SetTarget(TargetActor, true);
-//		}
-//	}
-//
-//	ATheLastBastionCharacter* groupTarget = Cast<ATheLastBastionCharacter>(TargetActor);
-//
-//	if (groupTarget && groupTarget->GetIsDead() == false)
-//	{
-//		groupTarget->OnBecomeUnvailbleTargetEvent.AddUObject(this, &AAIGroupBase::OnGroupGroupTargetDeadHandle);
-//	}
-//
-//
-//
-//}
-//
-//void AAIGroupBase::OnGroupGroupTargetDeadHandle()
-//{
-//	UE_LOG(LogTemp, Log, TEXT("AAIGroupBase :: OnGroupGroupTargetDeadHandle"));
-//	AActor* const groupTarget = OnTargetRequest_Range(this);
-//	SetRangeGroupTarget(groupTarget);
-//}
 
 void AAIGroupBase::OnMeleeVisionOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult) {}
@@ -250,18 +165,6 @@ void AAIGroupBase::OnRangeVisionOverrlapBegin(UPrimitiveComponent* OverlappedCom
 
 void AAIGroupBase::OnRangeVisionOverrlapEnd(UPrimitiveComponent* OverlappedComponent,
 	AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) {}
-
-//void AAIGroupBase::OnGroupVolumnOverrlapBegin(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
-//{
-//	UE_LOG(LogTemp, Warning, TEXT("overrlap with %s"), *OtherActor->GetName());
-//}
-//
-//void AAIGroupBase::OnGroupVolumnOverrlapEnd(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
-//{
-//
-//	UE_LOG(LogTemp, Warning, TEXT("overrlap end with %s"), *OtherActor->GetName());
-//
-//}
 
 void AAIGroupBase::SetGroupVisionVolumn(float _maxGroupWidth, float _maxGroupLength)
 {
@@ -347,10 +250,87 @@ void AAIGroupBase::CheckGroupCommand()
 		return;
 	}
 
-	bbcGroup->SetValue<UBlackboardKeyType_Int>(groupC->GetKeyID_NewCommandIndex(), 0);
+	bbcGroup->SetValue<UBlackboardKeyType_Int>(groupC->GetKeyID_IsMoving(), 0);
 }
 
 void AAIGroupBase::SetMarchLocation(const FVector & _targetLocation, int _commandIndex) {}
+
+void AAIGroupBase::RotateGroupByGroupMember()
+{
+	//FVector fwd = GetActorForwardVector();
+	//FVector right = GetActorRightVector();
+
+	//UE_LOG(LogTemp, Log, TEXT("Box Fwd: %f, %f, %f"), fwd.X, fwd.Y, fwd.Z);
+	//UE_LOG(LogTemp, Log, TEXT("Box Right: %f, %f, %f"), right.X, right.Y, right.Z);
+
+	//FVector currentGroupForward = FVector::ZeroVector;
+	float currentGroupYaw = 0;
+
+	int groupSize = GetGroupSize();
+	float divider = GetDivider(groupSize);
+
+	for (int iCharacter = 0; iCharacter < groupSize; iCharacter++)
+	{
+		currentGroupYaw += AICharactersInfo[iCharacter].AICharacter->GetActorRotation().Yaw;
+;
+		//currentGroupForward += AICharactersInfo[iCharacter].AICharacter->GetActorForwardVector();
+	}
+
+	currentGroupYaw *= divider;
+
+	this->SetActorRotation(FRotator(0, currentGroupYaw, 0));
+
+	//currentGroupForward = currentGroupForward * divider;
+	//currentGroupForward = currentGroupForward.GetUnsafeNormal();
+	//FVector currentGroupRight = FVector::CrossProduct(FVector::UpVector, currentGroupForward);
+
+	//GroupTargetForward = currentGroupForward;
+	//GroupTargetRight = currentGroupRight;
+
+
+	FVector DebugStart = GetActorLocation();
+	FVector ForwardEnd = DebugStart + GetActorForwardVector() * 500.0f;
+	FVector RightEnd = DebugStart + GetActorRightVector() * 500.0f;
+
+	
+	DrawDebugLine(GetWorld(), DebugStart, ForwardEnd, FColor::Red, false, 5);
+	DrawDebugLine(GetWorld(), DebugStart, RightEnd, FColor::Green, false, 5);
+
+	//UE_LOG(LogTemp, Log, TEXT("Group Target Fwd: %f, %f, %f"), GroupTargetForward.X, GroupTargetForward.Y, GroupTargetForward.Z);
+	//UE_LOG(LogTemp, Log, TEXT("Group Target Right: %f, %f, %f"), GroupTargetRight.X, GroupTargetRight.Y, GroupTargetRight.Z);
+
+}
+
+FVector AAIGroupBase::GetGroupCenter() const
+{
+	FVector groupCenter = FVector::ZeroVector;
+	//float groupYaw = 0;
+	int groupSize = AICharactersInfo.Num();
+	float divBy = GetDivider(groupSize);
+	for (int i = 0; i < groupSize; i++)
+	{
+		groupCenter += AICharactersInfo[i].AICharacter->GetActorLocation();
+		//groupYaw += AICharactersInfo[i].AICharacter->GetActorRotation().Yaw;
+	}
+	groupCenter *= divBy;
+
+	return groupCenter;
+}
+
+FVector AAIGroupBase::GetFirstRowLocation() const
+{
+	TArray<ATheLastBastionAIBase*> firstRow = GetRowAt(0);
+
+	FVector fRLocation = FVector::ZeroVector;
+	int rowSize = firstRow.Num();
+	float divider = GetDivider(rowSize);
+	for (int iChar = 0; iChar < rowSize; iChar++)
+	{
+		fRLocation += firstRow[iChar]->GetActorLocation();
+	}
+
+	return  fRLocation * divider;
+}
 
 void AAIGroupBase::OnChildDeath(int _childIndex) {}
 
@@ -385,7 +365,8 @@ void AAIGroupBase::RemoveThreat(ATheLastBastionCharacter const * _character)
 	if (ThreatMap.Num() == 0)
 	{
 		// there is no more threat
-		bInBattle = false;
+		//bInBattle = false;
+		SetInBattle(false);
 	}
 }
 
@@ -399,7 +380,8 @@ void AAIGroupBase::RemoveThreatByGroup(AAIGroupBase * _targetGroup)
 	if (ThreatMap.Num() == 0)
 	{
 		// there is no more threat
-		bInBattle = false;
+		// bInBattle = false;
+		SetInBattle(false);
 	}
 
 }
@@ -573,9 +555,21 @@ int AAIGroupBase::GetMaxRowCount() const
 	return 0;
 }
 
-FVector AAIGroupBase::GetGroupCenterOffset() const
+
+void AAIGroupBase::SetInBattle(bool _val)
 {
-	return MeleeVision->RelativeLocation.X * GetActorForwardVector();
+	bInBattle = _val;
+	if (bInBattle)
+	{
+		if (!MeleeVision->RelativeLocation.IsNearlyZero())
+			MeleeVision->AddLocalOffset(-MeleeVision->RelativeLocation);
+	}
+	else
+	{
+		if (MeleeVision->RelativeLocation.IsNearlyZero())
+			MeleeVision->AddLocalOffset(FVector(GroupFrontExtraVision, 0, 0)) ;
+	}
+
 }
 
 TArray<class ATheLastBastionAIBase*> AAIGroupBase::GetColumnAt(int _index) const

@@ -3,8 +3,8 @@
 #include "EnemyGroup.h"
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
-#include "GameFramework/FloatingPawnMovement.h"
-
+//#include "GameFramework/FloatingPawnMovement.h"
+#include "Environment/EnemyGroupSpawner.h"
 
 #include "AICharacters/TheLastBastionAIBase.h"
 
@@ -41,19 +41,12 @@ AEnemyGroup::AEnemyGroup()
 		MeleeVision->SetCollisionProfileName("EnemyMeleeTrigger");
 	}
 
-
+	CurrentWayPoint = 0;
 }
 
 void AEnemyGroup::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//// temp code for testing
-	//if (PlayerHero && PlayerHero->EnemyGroupTemp == nullptr)
-	//	PlayerHero->EnemyGroupTemp = this;
-
-	// set up marching routine
-
 }
 
 void AEnemyGroup::SpawnChildGroup()
@@ -144,7 +137,7 @@ void AEnemyGroup::SpawnChildGroup()
 				}
 
 				maxGroupWidth = maxGroupWidth * 0.5f + SIDEPADDING;
-				maxGroupLength = (xOffset - rowPadding) + 0.5f + SIDEPADDING;
+				maxGroupLength = ((xOffset - rowPadding) + FRONTPADDING) * 0.5f;
 
 				SetGroupVisionVolumn(maxGroupWidth, maxGroupLength);
 				// set thumbNail Image for UI
@@ -216,11 +209,13 @@ void AEnemyGroup::SetMarchLocation(const FVector & _targetLocation, int _command
 	ATheLastBastionGroupAIController* groupC = Cast<ATheLastBastionGroupAIController>(GetController());
 	if (groupC == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("groupC == nullptr - AAIGroupBase::SetMarchLocation"));
+		UE_LOG(LogTemp, Error, TEXT("groupC == nullptr - AEnemyGroup::SetMarchLocation"));
 		return;
 	}
 
+
 	GroupTargetLocation = _targetLocation;
+	groupC->SetTargetLocation_BBC(GroupTargetLocation);
 
 	if (bReformPending)
 		OnReform();
@@ -229,18 +224,19 @@ void AEnemyGroup::SetMarchLocation(const FVector & _targetLocation, int _command
 	// calculate the desired forward and right vector for child location padding
 	switch (_commandIndex)
 	{
-	case GC_GOTOLOCATION:
-	{
-		GroupTargetForward = _targetLocation - GetActorLocation();
-		FVector2D targetFwd2D = FVector2D(GroupTargetForward.X, GroupTargetForward.Y).GetSafeNormal();
-		GroupTargetForward = FVector(targetFwd2D.X, targetFwd2D.Y, 0);
-		GroupTargetRight = FVector(-targetFwd2D.Y, targetFwd2D.X, 0);
-		break;
-	}
-	case GC_HOLDLOCATION:
-	{
-		break;
-	}
+	//case GC_GOTOLOCATION:
+	//{
+	//	GroupTargetForward = _targetLocation - GetActorLocation();
+	//	FVector2D targetFwd2D = FVector2D(GroupTargetForward.X, GroupTargetForward.Y).GetSafeNormal();
+	//	GroupTargetForward = FVector(targetFwd2D.X, targetFwd2D.Y, 0);
+	//	GroupTargetRight = FVector(-targetFwd2D.Y, targetFwd2D.X, 0);
+	//	break;
+	//}
+	//case GC_GOTOLOCATION:
+	//case GC_HOLDLOCATION:
+	//{
+	//	break;
+	//}
 	default:
 		break;
 	case GC_FORWARD:
@@ -261,29 +257,85 @@ void AEnemyGroup::SetMarchLocation(const FVector & _targetLocation, int _command
 		SwapChildenOrder();
 	}
 
-	/// Command post - execure
-	// Immediate Change the rotation or reformat the group relative offset information based on command
-	switch (_commandIndex)
-	{
-	case GC_GOTOLOCATION:
+	///// Command post - execure
+	//// Immediate Change the rotation or reformat the group relative offset information based on command
+	//switch (_commandIndex)
 	//{
-	//	this->SetActorRotation(
-	//		UKismetMathLibrary::FindLookAtRotation(_targetLocation, _targetLocation + 10 * GroupTargetForward));
+	//case GC_GOTOLOCATION:
+	////{
+	////	this->SetActorRotation(
+	////		UKismetMathLibrary::FindLookAtRotation(_targetLocation, _targetLocation + 10 * GroupTargetForward));
+	////	break;
+	////}
+	//case GC_HOLDLOCATION:
+	//	break;
+	//default:
 	//	break;
 	//}
-	case GC_HOLDLOCATION:
-		break;
-	default:
-		break;
+	////// give group march command
+	////groupC->SetTargetLocation_BBC(GroupTargetLocation);
+	////groupC->SetNewCommandIndex_BBC(_commandIndex);
 
-	}
-
-	// give group march command
-	groupC->SetTargetLocation_BBC(GroupTargetLocation);
-	groupC->SetNewCommandIndex_BBC(_commandIndex);
+	groupC->SetIsMoving_BBC(true);
 
 	// give each child an march command
 	SendGroupCommand(_commandIndex);
+}
+
+void AEnemyGroup::GoToNextWayPoint()
+{
+	AEnemyGroupSpawner* enemyGroupSpawner = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()))
+		->GetEnemyGroupSpawner();
+
+	if (enemyGroupSpawner == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("enemyGroupSpawner == nullptr - AEnemyGroup::GoToNextWayPoint"));
+		return;
+	}
+
+	int NextWayPoint = CurrentWayPoint + 1;
+
+	bool bAtDestination = enemyGroupSpawner->HasNextWayPointOnPath(PathIndex, NextWayPoint) == false;
+
+	if (bAtDestination)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s, Reach destination - AEnemyGroup::GoToNextWayPoint"), *GetName());
+		ATheLastBastionGroupAIController* groupC = Cast<ATheLastBastionGroupAIController>(GetController());
+		if (groupC == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("groupC == nullptr - AEnemyGroup::GoToNextWayPoint"));
+			return;
+		}
+		groupC->SetAtDestination_BBC(true);
+
+		return;
+	}
+	else
+	{
+		// If this group has next valid way point, go there, by using the transform defined by way point transform
+		FTransform nextWayPointTransform = enemyGroupSpawner->GetNextWayPointFrom(PathIndex, NextWayPoint);
+
+		GroupTargetForward = nextWayPointTransform.GetUnitAxis(EAxis::Type::X);
+		GroupTargetRight = nextWayPointTransform.GetUnitAxis(EAxis::Type::Y);
+
+		SetMarchLocation(nextWayPointTransform.GetLocation(), GC_GOTOLOCATION);
+	}
+
+}
+
+void AEnemyGroup::ReachWayPoint()
+{
+	CurrentWayPoint ++;
+
+	ATheLastBastionGroupAIController* groupC = Cast<ATheLastBastionGroupAIController>(GetController());
+	if (groupC == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("groupC == nullptr - AEnemyGroup::ReachWayPoint"));
+		return;
+	}
+
+	groupC->SetIsMoving_BBC(false);
+
 }
 
 void AEnemyGroup::OnChildDeath(int _childIndex)
@@ -364,6 +416,22 @@ void AEnemyGroup::OnChildDeath(int _childIndex)
 	bReformPending = true;
 }
 
+void AEnemyGroup::SetInBattle(bool _val)
+{
+	Super::SetInBattle(_val);
+
+	if (_val)
+	{
+		ATheLastBastionGroupAIController* groupC = Cast<ATheLastBastionGroupAIController>(GetController());
+		if (groupC == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("groupC == nullptr - AEnemyGroup::ReachWayPoint"));
+			return;
+		}
+		groupC->SetIsMoving_BBC(false);
+	}
+}
+
 int AEnemyGroup::GetMaxColoumnCount() const
 {
 	int NumberOfSection = AIToSpawn.Num();
@@ -384,6 +452,16 @@ int AEnemyGroup::GetMaxRowCount() const
 		return AIToSpawn[0].NumOfRow;
 	}
 	return 0;
+}
+
+bool AEnemyGroup::IsNearTargetLocation(float radius_Sqr) const
+{
+	FVector2D firstRowLocation = FVector2D(GetFirstRowLocation());
+	FVector2D targetLocation = FVector2D(GroupTargetLocation);
+	float dist = FVector2D::DistSquared(firstRowLocation, targetLocation);
+	UE_LOG(LogTemp, Log, TEXT("disSq: %f"), dist);
+
+	return  dist < radius_Sqr;
 }
 
 void AEnemyGroup::MeleeAgainstPlayer_OnEnemyGroupMission()

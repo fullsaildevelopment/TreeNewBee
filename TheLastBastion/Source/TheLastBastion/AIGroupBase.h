@@ -8,7 +8,11 @@
 #include "AIGroupBase.generated.h"
 
 
-#define SIDEPADDING 200.0f
+#define SIDEPADDING 350.0f
+#define FRONTPADDING 500.0f
+#define GroupFrontExtraVision 200.0f
+#define RangeGroupTargetAmount 4
+
 #define GroupVolumnZ 10000.0f
 #define TARGETREQUEST_UpLimit 4
 
@@ -41,8 +45,6 @@
 #define MaxGroupSize 20
 #define RangeUnitShootingRange 8000
 #define VisionHalfHeight 200.0f
-#define GroupFrontExtraVision 100.0f
-#define RangeGroupTargetAmount 4
 
 
 USTRUCT(BlueprintType)
@@ -173,9 +175,9 @@ protected:
 	UPROPERTY()
 		class ATheLastBastionHeroCharacter* PlayerHero;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Transform)
-		// last calculated group location
-		FVector LastGroupCenterLocation;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Transform)
+	//	// last calculated group location
+	//	FVector LastGroupCenterLocation;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Transform)
 		FVector GroupTargetLocation;
@@ -284,6 +286,8 @@ protected:
 
 	float GetDivider(int _index) const;
 
+
+
 public:
 
 	// Called every frame
@@ -303,6 +307,22 @@ public:
 
 	UFUNCTION()
 		virtual void SetMarchLocation(const FVector& _location, int _commandIndex);
+
+	/** rotate the group based on the average yaw of group members*/	
+	void RotateGroupByGroupMember();
+
+	/** get the group center base off  the average location of group members*/
+	FVector GetGroupCenter() const;
+
+	/** get the first row location */
+	FVector GetFirstRowLocation() const;
+
+
+
+
+
+
+
 	UFUNCTION()
 		virtual void OnChildDeath(int _childIndex);
 
@@ -345,7 +365,8 @@ public:
 	UFUNCTION()
 		virtual TArray<class ATheLastBastionAIBase*> GetRowAt(int _index) const;
 
-	FORCEINLINE bool IsInBattle() const { return bInBattle; }
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE bool IsInBattle() const { return bInBattle; }
 	//FORCEINLINE class UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
 	FORCEINLINE int GetGroupSize() const { return AICharactersInfo.Num(); }
 	FORCEINLINE void SetGroupIndex(int _index) { GroupIndex = _index; }
@@ -360,7 +381,10 @@ public:
 	FORCEINLINE FVector GetGroupTargetRight() const { return GroupTargetRight; }
 	FORCEINLINE UTexture2D* GetThumbNail() const { return ThumbNail; };
 
-	/** Get the group center offset when not in battle*/
-	FVector GetGroupCenterOffset() const;
+	///** Get the group center offset for the melee vision box when not in battle*/
+	//FVector GetGroupCenterOffset() const;
+
+	/** Toggle bInBattle, if false, add relative location to melee vision*/
+	virtual void SetInBattle(bool _val);
 
 };

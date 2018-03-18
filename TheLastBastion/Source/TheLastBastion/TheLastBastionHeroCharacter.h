@@ -147,6 +147,7 @@ protected:
 	void OnCommandReform();
 	void OnCommandForward();
 	void OnCommandBackward();
+	void OnCommandFwdBwd(bool _Fwd);
 	void OnCommandFollowing();
 	void OnCommandPressed();
 	void OnCommandReleased();

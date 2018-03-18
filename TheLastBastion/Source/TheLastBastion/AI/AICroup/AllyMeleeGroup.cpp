@@ -18,7 +18,9 @@ void AAllyMeleeGroup::OnMeleeVisionOverrlapBegin(UPrimitiveComponent * Overlappe
 		if (!bInBattle)
 		{
 			MeleeTargetSelectionOnOverlap(targetGroup);
-			bInBattle = true;
+			//bInBattle = true;
+			SetInBattle(true);
+
 		}
 	}
 

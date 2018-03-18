@@ -50,11 +50,12 @@ void ATheLastBastionGroupAIController::Possess(APawn * _possPawn)
 	// Fetch the Keys
 	targetActor_KeyID = mBBComp->GetKeyID("targetActor");
 	targetLocation_KeyID = mBBComp->GetKeyID("targetLocation");
-	newCommandIndex_KeyID = mBBComp->GetKeyID("NewCommandIndex");
+	bIsMoving_KeyID = mBBComp->GetKeyID("bIsMoving");
+	bAtDestination_KeyID = mBBComp->GetKeyID("bAtDestination");
 
 	//UE_LOG(LogTemp, Warning, TEXT("Possess, %s"), *_possPawn->GetName());
 	mBBComp->SetValue<UBlackboardKeyType_Vector>(targetLocation_KeyID, FVector::ZeroVector);
-	mBBComp->SetValue<UBlackboardKeyType_Int>(newCommandIndex_KeyID, 0);
+	mBBComp->SetValue<UBlackboardKeyType_Int>(bIsMoving_KeyID, 0);
 
 	// Launch behavior Tree
 	mBTComp->StartTree(*bt);
@@ -72,18 +73,27 @@ void ATheLastBastionGroupAIController::SetTargetLocation_BBC(const FVector & _ta
 	mBBComp->SetValue<UBlackboardKeyType_Vector>(targetLocation_KeyID, _targetLocation);
 }
 
-void ATheLastBastionGroupAIController::SetNewCommandIndex_BBC(int _newCommand)
+void ATheLastBastionGroupAIController::SetIsMoving_BBC(bool _val)
 {
-	mBBComp->SetValue<UBlackboardKeyType_Int>(newCommandIndex_KeyID, _newCommand);
+	mBBComp->SetValue<UBlackboardKeyType_Bool>(bIsMoving_KeyID, _val);
+}
+
+void ATheLastBastionGroupAIController::SetAtDestination_BBC(bool _val)
+{
+	mBBComp->SetValue<UBlackboardKeyType_Bool>(bAtDestination_KeyID, _val);
 }
 
 FVector ATheLastBastionGroupAIController::GetTargetLocation_BBC() const
 {
 	return 	mBBComp->GetValue<UBlackboardKeyType_Vector>(targetLocation_KeyID);
-
 }
 
-int ATheLastBastionGroupAIController::GetNewCommandIndex_BBC() const
+bool ATheLastBastionGroupAIController::GetIsMoving_BBC() const
 {
-	return 	mBBComp->GetValue<UBlackboardKeyType_Int>(newCommandIndex_KeyID);
+	return 	mBBComp->GetValue<UBlackboardKeyType_Bool>(bIsMoving_KeyID);
+}
+
+bool ATheLastBastionGroupAIController::GetAtDestination_BBC() const
+{
+	return 	mBBComp->GetValue<UBlackboardKeyType_Bool>(bAtDestination_KeyID);
 }
