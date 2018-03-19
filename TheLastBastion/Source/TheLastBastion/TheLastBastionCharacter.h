@@ -28,6 +28,15 @@ enum class ECharacterType : uint8
 	Lan_Elite             UMETA(DisplayName = "Lannester Elite")           
 };
 
+UENUM(BlueprintType)
+enum class ECharacterVoiceType : uint8
+{
+	Hero = 0  UMETA(DisplayName = "Hero"),
+	Slim      UMETA(DisplayName = "Slim"),
+	Strong    UMETA(DisplayName = "Strong"),
+	Undead    UMETA(DisplayName = "Undead")
+};
+
 UCLASS(config=Game)
 class ATheLastBastionCharacter : public ACharacter
 {
@@ -160,7 +169,12 @@ public:
 	void DuringRagDoll();
 	virtual void RagDollRecoverOnFinish();
 	void DuringRagDollRecovering(float _deltaTime);
-	bool IsOldKnockOut() const { return oldRagDollIndex == newRagDollIndex; }
+	FORCEINLINE bool IsOldKnockOut() const { return oldRagDollIndex == newRagDollIndex; }
+
+	UFUNCTION(BlueprintNativeEvent)
+		ECharacterVoiceType GetCharacterVoiceType() const;
+	ECharacterVoiceType GetCharacterVoiceType_Implementation() const { return ECharacterVoiceType::Hero; }
+
 
 public:
 
