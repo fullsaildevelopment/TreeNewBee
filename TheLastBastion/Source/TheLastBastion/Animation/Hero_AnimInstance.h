@@ -135,6 +135,11 @@ protected:
 		/** A boolean needs to be toggle when equip or unequip gears*/
 		bool bTryToEquip;
 
+	UPROPERTY(BlueprintReadOnly, Category = Movement)
+		/** true, if this attack can gain dp if hit*/
+		bool bDuringGainDpAttack;
+
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Movement)
 	    FVector Acceleration_bodySpace;
 
@@ -512,6 +517,6 @@ public:
 	FORCEINLINE bool GetIsFocus() const { return bIsFocused; }
 	FORCEINLINE bool GetFocusPendingEnter() const { return bIsFocusEnterPending; }
 	FORCEINLINE bool GetFocusPendingExit() const { return bIsFocusExitPending; }
-	FORCEINLINE bool IsDoingCounterAttack() const { return Montage_IsPlaying(CounterAttack_Montage); }
+	FORCEINLINE bool IsDoingGainDpAttack() const { return Montage_IsPlaying(CounterAttack_Montage) || bDuringGainDpAttack; }
 
 };

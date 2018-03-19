@@ -24,6 +24,10 @@ public:
 
 protected:
 
+	// Should giving up the waypoint march and charge the player units or castle
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
+		bool bShouldCharge;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
 		/** The Strategy purpose of this enemy group unit*/
 		int MainTask;
@@ -36,9 +40,13 @@ protected:
 		/** The current Waypoint of this group */
 		int CurrentWayPoint;
 
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
 		class UBehaviorTree* BehaviorTree;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
+		/** The current Waypoint of this group */
+		FTransform NextWayPointTransform;
+
 
 
 protected:
@@ -69,16 +77,22 @@ public:
 	FORCEINLINE int GetPathIndex() const { return PathIndex; }
 
 	UFUNCTION(BlueprintCallable)
+		/** Called in BT before go to the next waypoint*/
 		void GoToNextWayPoint();
 
 	UFUNCTION(BlueprintCallable)
+		/** Called in BT after reach to the next waypoint*/
 		void ReachWayPoint();
+
+	UFUNCTION(BlueprintCallable)
+		/** Called in BT after enter the charging mode, search for closest player units, and go there*/
+		void FindClosestTarget();
 
 
 	UFUNCTION(BlueprintPure)
-		/** Check if the distance in x-y space between 
-		the front line of this group location and target location is less than radius*/
-		bool IsNearTargetLocation(float radius_Sqr = 5000.0f) const;
+		/** Check in x-y space whether there is a unDamaged group member has distance between its 
+		 target location is less than radius, if everyone is damage, then this group will do rage charge*/
+		bool IsNearTargetLocation(float radius_Sqr = 5000.0f);
 
 
 	/** Set the Strategy purpose of this enemy group unit*/

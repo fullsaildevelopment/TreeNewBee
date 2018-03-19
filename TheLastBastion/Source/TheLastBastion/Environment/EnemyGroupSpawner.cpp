@@ -55,9 +55,8 @@ FTransform AEnemyGroupSpawner::GetNextWayPointFrom(int _pathIndex, int _nextWayp
 
 void AEnemyGroupSpawner::FindAllEnemyGroupPreset()
 {
-	if (LanT0 == nullptr)
-		UCustomType::FindClass<AEnemyGroup>(LanT0,
-			TEXT("/Game/Blueprints/AI/GroupPreset/EnemyGroupPreset/LanT0_Bp"));
+	UCustomType::FindClass<AEnemyGroup>(LanT0,
+		TEXT("/Game/Blueprints/AI/GroupPreset/EnemyGroupPreset/LanT0_Bp"));
 
 }
 

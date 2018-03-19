@@ -119,7 +119,7 @@ void ASinglePlayerGM::BeginPlay()
 	//	UE_LOG(LogTemp, Log, TEXT("%s"), *spawner->GetName());
 	//}
 
-	Allies.SetNum(4);
+	Allies.SetNum(AllyGroupMaxAmount);
 }
 
 void ASinglePlayerGM::GetAllSpawnClass()

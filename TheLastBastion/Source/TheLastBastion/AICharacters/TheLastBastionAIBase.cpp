@@ -89,6 +89,11 @@ void ATheLastBastionAIBase::ToggleAIHUD(bool _val)
 {
 }
 
+bool ATheLastBastionAIBase::HasFullHealth() const
+{
+	return AIStats->GetHpCurrent() == AIStats->GetHpMax();
+}
+
 void ATheLastBastionAIBase::OnTargetDeathHandle()
 {
 	if (bIsDead == false)
@@ -147,7 +152,7 @@ bool ATheLastBastionAIBase::OnGroupTaskStart()
 
 	// Calculate the nav location point based on group offset
 	FVector groupRelativeOffset = mGroup->GetGroupRelativeOffsetAt(mGroupIndex);
-	FVector childtargetLocation = groupTargetLocation - 
+	ChildtargetLocation = groupTargetLocation - 
 		groupTargetForward * groupRelativeOffset.X + groupTargetRight * groupRelativeOffset.Y;
 
 
@@ -165,8 +170,8 @@ bool ATheLastBastionAIBase::OnGroupTaskStart()
 	FVector heightOffset = FVector::UpVector * NavPointHeightAdjustLimit;
 
 	// Shot a top - down ray
-	bool const IsHit = GetWorld()->LineTraceSingleByObjectType (Hit, childtargetLocation + heightOffset,
-		childtargetLocation - heightOffset, objQueryParams, QueryParams);
+	bool const IsHit = GetWorld()->LineTraceSingleByObjectType (Hit, ChildtargetLocation + heightOffset,
+		ChildtargetLocation - heightOffset, objQueryParams, QueryParams);
 
 	//DrawDebugLine(GetWorld(), childtargetLocation + heightOffset, childtargetLocation - heightOffset,FColor::Red, false, 6.0f);
 	if (IsHit)
@@ -175,7 +180,7 @@ bool ATheLastBastionAIBase::OnGroupTaskStart()
 		if (IsEnemy() == false)
 			DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 50.0f, 8, FColor::Red, false, 6.0f);
 
-		childtargetLocation = Hit.ImpactPoint;
+		ChildtargetLocation = Hit.ImpactPoint;
 	}
 
 	// Handle focus, if this AI current has no target, therefore currently dont have focus
@@ -203,7 +208,7 @@ bool ATheLastBastionAIBase::OnGroupTaskStart()
 		}
 	}
 
-	baseAICtrl->SetTargetLocation_BBC(childtargetLocation);
+	baseAICtrl->SetTargetLocation_BBC(ChildtargetLocation);
 	baseAICtrl->SetNewCommandIndex_BBC(0);
 	baseAICtrl->SetOldCommandIndex_BBC(groupCommand);
 	return true;

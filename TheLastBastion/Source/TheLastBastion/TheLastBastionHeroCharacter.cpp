@@ -163,7 +163,7 @@ void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputCompone
 
 	PlayerInputComponent->BindAction("MarchCommand", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnCommandMarch);
 	PlayerInputComponent->BindAction("Command_Hold", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnCommandHold);
-	PlayerInputComponent->BindAction("Command_Follow", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnCommandFollowing);
+	//PlayerInputComponent->BindAction("Command_Follow", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnCommandFollowing);
 	PlayerInputComponent->BindAction("Command_Reform", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnCommandReform);
 	PlayerInputComponent->BindAction("Command_Distribute", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnCommandDistribute);
 	PlayerInputComponent->BindAction("Command_Forward", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnCommandForward);
@@ -762,7 +762,7 @@ bool ATheLastBastionHeroCharacter::SkillCheck(int _skillIndex)
 
 bool ATheLastBastionHeroCharacter::IsDoingCounterAttack() const
 {
-	return mAnimInstanceRef->IsDoingCounterAttack();
+	return mAnimInstanceRef->IsDoingGainDpAttack();
 }
 
 bool ATheLastBastionHeroCharacter::IsSkillCooled(int _index) const

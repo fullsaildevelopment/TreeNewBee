@@ -86,7 +86,7 @@ UHero_AnimInstance::UHero_AnimInstance(const FObjectInitializer& _objectInitaliz
 
 	FocusDodgeDirection = EFocusDodgeDirection::None;
 	bIsFocused = false;
-
+	bDuringGainDpAttack = false;
 
 	
 	CurrentDefendPoseAlpha = 0.0f;
@@ -450,12 +450,26 @@ void UHero_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontag
 	{
 		RecoverFromBeingHit(_bInterruptted);
 	}
-	else if (_animMontage == CounterAttack_Montage || _animMontage == Skill_Montage)
+	else if (_animMontage == CounterAttack_Montage )
 	{
 		bAnimInterruptRobust = false;
 		// recover movement from melee attack
 		if (!_bInterruptted)
+		{
+			bDuringGainDpAttack = false;
 			ResetCombo();
+		}
+	}
+	else if (_animMontage == Skill_Montage)
+	{
+		bAnimInterruptRobust = false;
+		bDuringGainDpAttack = false;
+
+		// recover movement from melee attack
+		if (!_bInterruptted)
+		{
+			ResetCombo();
+		}
 	}
 }
 
@@ -1246,6 +1260,9 @@ void UHero_AnimInstance::LaunchSkill(int _skillIndex)
 	FName sectionToPlay = mCharacter->GetSkillSectionNameAt(_skillIndex);
 
 	float attackSpeed = (mCharacter->GetCurrentWeapon()->GetGearType() == EGearType::GreatSword) ? 1.1f : 1.0f;
+
+	if (sectionToPlay.Compare(Montage_SN_SkillPowerHit_Sns) == 0)
+		bDuringGainDpAttack = true;
 
 	this->PlayMontage(Skill_Montage, attackSpeed, sectionToPlay);
 	bVelocityOverrideByAnim = true;

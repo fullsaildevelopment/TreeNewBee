@@ -44,7 +44,8 @@ protected:
 	UPROPERTY()
 		class UInGameAIHUD* AI_HUD;
 
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GroupBehavior)
+		FVector ChildtargetLocation;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GroupBehavior)
 		int mGroupIndex;
@@ -85,6 +86,10 @@ public:
 		FORCEINLINE bool IsRangeUnit() const { return bIsRangeUnit; }
 
 	UFUNCTION(BlueprintPure)
+		FORCEINLINE bool IsNearTargetLocation(float _distSq) const { return FVector::DistSquared2D(GetActorLocation(), ChildtargetLocation) < _distSq; }
+
+
+	UFUNCTION(BlueprintPure)
 		FORCEINLINE class UPawnStatsComponent* GetEnemyStatsComponent() const { return AIStats; }
 
 	UFUNCTION(BlueprintPure)
@@ -109,6 +114,8 @@ public:
 
 	/** Toggle the AI hud to screen*/
 	virtual void ToggleAIHUD(bool _val);
+
+	bool HasFullHealth() const;
 
 	bool OnFriendFireCheck(const ATheLastBastionCharacter* _target);
 

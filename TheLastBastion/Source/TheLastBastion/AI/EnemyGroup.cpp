@@ -41,7 +41,9 @@ AEnemyGroup::AEnemyGroup()
 		MeleeVision->SetCollisionProfileName("EnemyMeleeTrigger");
 	}
 
+	// Init
 	CurrentWayPoint = 0;
+	bShouldCharge = false;
 }
 
 void AEnemyGroup::BeginPlay()
@@ -221,57 +223,60 @@ void AEnemyGroup::SetMarchLocation(const FVector & _targetLocation, int _command
 		OnReform();
 
 	/// command pre-execute
-	// calculate the desired forward and right vector for child location padding
-	switch (_commandIndex)
-	{
-	//case GC_GOTOLOCATION:
-	//{
-	//	GroupTargetForward = _targetLocation - GetActorLocation();
-	//	FVector2D targetFwd2D = FVector2D(GroupTargetForward.X, GroupTargetForward.Y).GetSafeNormal();
-	//	GroupTargetForward = FVector(targetFwd2D.X, targetFwd2D.Y, 0);
-	//	GroupTargetRight = FVector(-targetFwd2D.Y, targetFwd2D.X, 0);
-	//	break;
-	//}
-	//case GC_GOTOLOCATION:
-	//case GC_HOLDLOCATION:
-	//{
-	//	break;
-	//}
-	default:
-		break;
-	case GC_FORWARD:
-	case GC_BACKWARD:
-	{
-		GroupTargetForward = this->GetActorForwardVector();
-		GroupTargetRight = this->GetActorRightVector();
-		break;
-	}
-	}
-
-	// check for going backward
-	float dir = FVector::DotProduct(GetActorForwardVector(), GroupTargetForward);
-
-	// swap group offset if moving backward
-	if (dir < 0)
-	{
-		SwapChildenOrder();
-	}
-
-	///// Command post - execure
-	//// Immediate Change the rotation or reformat the group relative offset information based on command
+	//// calculate the desired forward and right vector for child location padding
 	//switch (_commandIndex)
 	//{
 	//case GC_GOTOLOCATION:
-	////{
-	////	this->SetActorRotation(
-	////		UKismetMathLibrary::FindLookAtRotation(_targetLocation, _targetLocation + 10 * GroupTargetForward));
-	////	break;
-	////}
-	//case GC_HOLDLOCATION:
-	//	break;
-	//default:
+	//{
+	//	//GroupTargetForward = _targetLocation - GetActorLocation();
+	//	//FVector2D targetFwd2D = FVector2D(GroupTargetForward.X, GroupTargetForward.Y).GetSafeNormal();
+	//	//GroupTargetForward = FVector(targetFwd2D.X, targetFwd2D.Y, 0);
+	//	//GroupTargetRight = FVector(-targetFwd2D.Y, targetFwd2D.X, 0);
+	//	//break;
 	//	break;
 	//}
+	////case GC_GOTOLOCATION:
+	////case GC_HOLDLOCATION:
+	////{
+	////	break;
+	////}
+	//default:
+	//	break;
+	//case GC_FORWARD:
+	//case GC_BACKWARD:
+	//{
+	//	GroupTargetForward = this->GetActorForwardVector();
+	//	GroupTargetRight = this->GetActorRightVector();
+	//	break;
+	//}
+	//}
+
+	//// check for going backward
+	//float dir = FVector::DotProduct(GetActorForwardVector(), GroupTargetForward);
+	//// swap group offset if moving backward
+	//if (dir < 0)
+	//{
+	//	SwapChildenOrder();
+	//}
+
+
+	GroupTargetForward = NextWayPointTransform.GetUnitAxis(EAxis::Type::X);
+	GroupTargetRight = NextWayPointTransform.GetUnitAxis(EAxis::Type::Y);
+
+
+	/// Command post - execure
+	// Immediate Change the rotation or reformat the group relative offset information based on command
+	switch (_commandIndex)
+	{
+	case GC_GOTOLOCATION:
+	default:
+		break;
+	case GC_HOLDLOCATION:
+	{
+		this->SetActorRotation(NextWayPointTransform.GetRotation());
+		break;
+	}
+	}
 	////// give group march command
 	////groupC->SetTargetLocation_BBC(GroupTargetLocation);
 	////groupC->SetNewCommandIndex_BBC(_commandIndex);
@@ -313,12 +318,9 @@ void AEnemyGroup::GoToNextWayPoint()
 	else
 	{
 		// If this group has next valid way point, go there, by using the transform defined by way point transform
-		FTransform nextWayPointTransform = enemyGroupSpawner->GetNextWayPointFrom(PathIndex, NextWayPoint);
+		NextWayPointTransform = enemyGroupSpawner->GetNextWayPointFrom(PathIndex, NextWayPoint);
 
-		GroupTargetForward = nextWayPointTransform.GetUnitAxis(EAxis::Type::X);
-		GroupTargetRight = nextWayPointTransform.GetUnitAxis(EAxis::Type::Y);
-
-		SetMarchLocation(nextWayPointTransform.GetLocation(), GC_GOTOLOCATION);
+		SetMarchLocation(NextWayPointTransform.GetLocation(), GC_HOLDLOCATION);
 	}
 
 }
@@ -335,6 +337,53 @@ void AEnemyGroup::ReachWayPoint()
 	}
 
 	groupC->SetIsMoving_BBC(false);
+
+}
+
+void AEnemyGroup::FindClosestTarget()
+{
+	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (gm == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("gm == nullptr - AEnemyGroup::FindClosestTarget"));
+		return;
+	}
+
+	float minimumDistance = MAX_FLT;
+	float distanceSqr = 0;
+	AAIGroupBase* targetGroup = nullptr;
+	AAIGroupBase* playerAllyGroup = nullptr;
+
+	// Find the cloest group
+	for (int iGroup = 0; iGroup < AllyGroupMaxAmount; iGroup++)
+	{
+		playerAllyGroup = gm->GetAllyGroupUnitAt(iGroup);
+		if (playerAllyGroup == nullptr)
+			continue;
+
+		distanceSqr = FVector2D::DistSquared(FVector2D(this->GetActorLocation()), FVector2D(playerAllyGroup->GetActorLocation()));
+		if (distanceSqr < minimumDistance)
+		{
+			minimumDistance = distanceSqr;
+			targetGroup = playerAllyGroup;
+		}
+	}
+
+	// Compare with player location
+	distanceSqr = FVector2D::DistSquared(FVector2D(this->GetActorLocation()), FVector2D(PlayerHero->GetActorLocation()));
+
+	if (distanceSqr <= minimumDistance)
+	{
+		// targeting player
+		
+		MeleeGroupAgainstPlayer();
+		SetInBattle(true);
+	}
+	else
+	{
+		// targeting player unit
+	}
+
 
 }
 
@@ -422,7 +471,8 @@ void AEnemyGroup::SetInBattle(bool _val)
 
 	if (_val)
 	{
-		ATheLastBastionGroupAIController* groupC = Cast<ATheLastBastionGroupAIController>(GetController());
+		ATheLastBastionGroupAIController* groupC = 
+			Cast<ATheLastBastionGroupAIController>(GetController());
 		if (groupC == nullptr)
 		{
 			UE_LOG(LogTemp, Error, TEXT("groupC == nullptr - AEnemyGroup::ReachWayPoint"));
@@ -454,14 +504,47 @@ int AEnemyGroup::GetMaxRowCount() const
 	return 0;
 }
 
-bool AEnemyGroup::IsNearTargetLocation(float radius_Sqr) const
+bool AEnemyGroup::IsNearTargetLocation(float radius_Sqr)
 {
-	FVector2D firstRowLocation = FVector2D(GetFirstRowLocation());
-	FVector2D targetLocation = FVector2D(GroupTargetLocation);
-	float dist = FVector2D::DistSquared(firstRowLocation, targetLocation);
-	UE_LOG(LogTemp, Log, TEXT("disSq: %f"), dist);
+	int GroupSize = GetGroupSize();
 
-	return  dist < radius_Sqr;
+	// check if all group member is damaged, 
+	// if there is one has not been damaged, we will keep the waypoint route
+	bool bAllDamaged = true;	
+	for (int iChar = 0; iChar < GroupSize; iChar++)
+	{
+		if (AICharactersInfo[iChar].AICharacter->HasFullHealth())
+		{
+			bAllDamaged = false;
+			return AICharactersInfo[iChar].AICharacter->IsNearTargetLocation(radius_Sqr);
+		}
+	}
+
+	if (bAllDamaged)
+		bShouldCharge = true;
+
+	if (bShouldCharge)
+	{
+		ATheLastBastionGroupAIController* groupC =
+			Cast<ATheLastBastionGroupAIController>(GetController());
+		if (groupC == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("groupC == nullptr - AEnemyGroup::IsNearTargetLocation"));
+			return false;
+		}
+
+		groupC->SetIsCharging_BBC(true);
+	}
+
+
+	return false;
+
+	//FVector2D firstRowLocation = FVector2D(GetFirstRowLocation());
+	//FVector2D targetLocation = FVector2D(GroupTargetLocation);
+	//float dist = FVector2D::DistSquared(firstRowLocation, targetLocation);
+	//UE_LOG(LogTemp, Log, TEXT("disSq: %f"), dist);
+
+	//return  dist < radius_Sqr;
 }
 
 void AEnemyGroup::MeleeAgainstPlayer_OnEnemyGroupMission()

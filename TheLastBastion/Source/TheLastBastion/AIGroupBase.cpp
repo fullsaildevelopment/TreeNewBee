@@ -319,17 +319,21 @@ FVector AAIGroupBase::GetGroupCenter() const
 
 FVector AAIGroupBase::GetFirstRowLocation() const
 {
-	TArray<ATheLastBastionAIBase*> firstRow = GetRowAt(0);
+	int RowCount = GetMaxRowCount();
 
-	FVector fRLocation = FVector::ZeroVector;
-	int rowSize = firstRow.Num();
-	float divider = GetDivider(rowSize);
-	for (int iChar = 0; iChar < rowSize; iChar++)
-	{
-		fRLocation += firstRow[iChar]->GetActorLocation();
-	}
+	float rowPadding = AIToSpawn[0].RowPadding;
 
-	return  fRLocation * divider;
+	//TArray<ATheLastBastionAIBase*> firstRow = GetRowAt(0);
+
+	//FVector fRLocation = FVector::ZeroVector;
+	//int rowSize = firstRow.Num();
+	//float divider = GetDivider(rowSize);
+	//for (int iChar = 0; iChar < rowSize; iChar++)
+	//{
+	//	fRLocation += firstRow[iChar]->GetActorLocation();
+	//}
+
+	return  GetActorLocation() + GetActorForwardVector() * (RowCount - 1) * rowPadding * 0.5f;
 }
 
 void AAIGroupBase::OnChildDeath(int _childIndex) {}
