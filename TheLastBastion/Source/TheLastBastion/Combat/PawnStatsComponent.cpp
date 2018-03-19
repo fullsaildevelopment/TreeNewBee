@@ -409,7 +409,10 @@ float UPawnStatsComponent::GetBaseDamage()
 #pragma endregion
 
 void UPawnStatsComponent::PlaySFXForImpact(class USoundCue* _sfx, int _surfaceType, ATheLastBastionCharacter* _damagedCharacter) const
-{
+{   
+	if (_damagedCharacter->GetIsDead() == true)
+		return;
+	
 	switch (_surfaceType)
 	{
 	case SURFACE_FLESH:

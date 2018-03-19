@@ -47,7 +47,7 @@ private:
 	// Melee Weapon Impact SFX
 	static class USoundCue* LightWeaponImpact;
 	static class USoundCue* HeavyWeaponImpact;
-	static class USoundCue* MeleeCounterAttackImpactpact;
+	static class USoundCue* MeleeCounterAttackImpact;
 
 	// Melee Weapon Swing SFX
 	static class USoundCue* MeleeWeaponSwing;
