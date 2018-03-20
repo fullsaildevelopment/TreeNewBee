@@ -85,7 +85,8 @@ public:
 		void ReachWayPoint();
 
 	UFUNCTION(BlueprintCallable)
-		/** Called in BT after enter the charging mode, search for closest player units, and go there*/
+		/** Called in BT after enter the charging mode (melee group Only), search for closest player units, and go there
+		* set target to group member and enter battle*/
 		void FindClosestTarget();
 
 
