@@ -59,6 +59,11 @@ const TArray<FName> KatanaAirAttack_Montage_SN
 #define MONTAGE_SN_CA_BattleAxe  TEXT("BattleAxe")
 #define MONTAGE_SN_CA_Katana     TEXT("Katana")
 
+#define JumpZ_Sns 800
+#define JumpZ_HV  700
+#define JumpZ_Katana 850
+#define JumpZ_Travel 900
+
 
 
 
@@ -282,7 +287,7 @@ void UHero_AnimInstance::MeleeRotateRateAndMaxSpeedUpdate(UCharacterMovementComp
 	// the more of the angle between forward vector and acceleration, the more rotation speed
 	if (ActivatedEquipment == EEquipType::Travel)
 	{
-		movementComp->JumpZVelocity = 1000.0f;
+		movementComp->JumpZVelocity = JumpZ_Travel;
 		movementComp->RotationRate.Yaw
 			= UKismetMathLibrary::MapRangeClamped(FMath::Abs(turn), 0, 180.0f,
 				mCharacter->GetMinTurnRateForTravel(),
@@ -306,7 +311,7 @@ void UHero_AnimInstance::MeleeRotateRateAndMaxSpeedUpdate(UCharacterMovementComp
 		switch (CurrentEquipment)
 		{
 		case EEquipType::ShieldSword:
-			movementComp->JumpZVelocity = 1100.0f;
+			movementComp->JumpZVelocity = JumpZ_Sns;
 			if (bOnDefend)
 			{
 				mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetWalkSpeed() + 50.0f;
@@ -319,7 +324,7 @@ void UHero_AnimInstance::MeleeRotateRateAndMaxSpeedUpdate(UCharacterMovementComp
 			}
 			break;
 		case EEquipType::HeavyWeapon:
-			movementComp->JumpZVelocity = 800.0f;
+			movementComp->JumpZVelocity = JumpZ_HV;
 			if (bIsSprinting)
 				mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetJogSpeed() - 100.0f;
 			else
@@ -330,7 +335,7 @@ void UHero_AnimInstance::MeleeRotateRateAndMaxSpeedUpdate(UCharacterMovementComp
 			}
 			break;
 		case EEquipType::TwoHandSword:
-			movementComp->JumpZVelocity = 1200.0f;
+			movementComp->JumpZVelocity = JumpZ_Katana;
 			if (bIsSprinting && MoveForwardAxis > 0 && MoveRightAxis == 0)
 			{
 				mCharacter->GetCharacterMovement()->MaxWalkSpeed = mCharacter->GetSprintSpeed();

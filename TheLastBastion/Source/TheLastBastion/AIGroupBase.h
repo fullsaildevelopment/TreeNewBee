@@ -293,6 +293,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	bool IsRangeGroup() const; 
+
 	FORCEINLINE bool HasThreat(const ATheLastBastionCharacter* _threat) const { return ThreatMap.Find(_threat) != nullptr; }
 
 	void KillAllChild();
