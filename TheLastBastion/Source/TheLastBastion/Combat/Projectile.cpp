@@ -210,7 +210,7 @@ void AProjectile::Tick(float _deltaTime)
 					FVector AttachLocation = Shield->GetArrowAttachLocation(GetActorLocation());
 					if (PenetrateLevel <= CurrentHitCount)
 					{
-						UE_LOG(LogTemp, Log, TEXT("Hit on Shield"));
+						//UE_LOG(LogTemp, Log, TEXT("Hit on Shield"));
 						FActorSpawnParameters spawnParam;
 						spawnParam.Owner = damagedActor;
 						spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;						
@@ -235,7 +235,7 @@ void AProjectile::Tick(float _deltaTime)
 
 					if (sfx && vfx)
 					{
-						UE_LOG(LogTemp, Log, TEXT("sfx && vfx - AProjectile::Tick"));
+						//UE_LOG(LogTemp, Log, TEXT("sfx && vfx - AProjectile::Tick"));
 						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), vfx, AttachLocation);
 						UGameplayStatics::PlaySoundAtLocation(GetWorld(), sfx, AttachLocation);
 					}					

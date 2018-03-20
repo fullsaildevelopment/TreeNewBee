@@ -60,6 +60,11 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = SpawnPreset, meta = (AllowPrivateAccess = "true"))
 		TSubclassOf<class AEnemyGroup> LanT0;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = SpawnPreset, meta = (AllowPrivateAccess = "true"))
+		TSubclassOf<class AEnemyGroup> LanT0_CB;
+
+
+
 	UPROPERTY()
 	/** Single Player Character ref*/
 		const class ACharacter* Hero;
