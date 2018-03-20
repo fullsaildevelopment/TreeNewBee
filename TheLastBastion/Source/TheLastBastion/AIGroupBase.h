@@ -326,7 +326,7 @@ public:
 	UFUNCTION()
 		virtual void OnChildDeath(int _childIndex);
 
-	virtual void OnChildTakingDamage() {}
+	virtual void OnChildTakingDamage(const ATheLastBastionCharacter * attacker) {}
 
 
 	void AddThreat(class ATheLastBastionCharacter* _character, float _threat, bool _addIfNone = true);

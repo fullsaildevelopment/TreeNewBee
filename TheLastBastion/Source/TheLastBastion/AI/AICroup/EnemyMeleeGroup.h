@@ -30,6 +30,6 @@ protected:
 public:
 
 	/** If this group arrive at its destination, and its children get hit*/
-	void OnChildTakingDamage() override;
+	void OnChildTakingDamage(const ATheLastBastionCharacter * attacker) override;
 	
 };

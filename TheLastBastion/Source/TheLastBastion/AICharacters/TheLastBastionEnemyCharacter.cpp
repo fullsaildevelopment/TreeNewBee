@@ -55,15 +55,17 @@ void ATheLastBastionEnemyCharacter::HitResponse(AActor * DamageCauser)
 	if (bIsRangeUnit)
 		return;
 
+	const ATheLastBastionCharacter * attacker = Cast<ATheLastBastionCharacter>(DamageCauser);
+
 	if (mGroup->IsInBattle())
 	{
-		const ATheLastBastionCharacter * attacker = Cast<ATheLastBastionCharacter>(DamageCauser);
+		//const ATheLastBastionCharacter * attacker = Cast<ATheLastBastionCharacter>(DamageCauser);
 		if (attacker && !attacker->IsEnemy() && !attacker->GetIsDead() && mGroup->HasThreat(attacker))
 			SetTarget(DamageCauser);
 	}
 	else
 	{
-		mGroup->OnChildTakingDamage();
+		mGroup->OnChildTakingDamage(attacker);
 	}
 
 }
