@@ -59,7 +59,7 @@ void AEnemyGroupSpawner::FindAllEnemyGroupPreset()
 		TEXT("/Game/Blueprints/AI/GroupPreset/EnemyGroupPreset/LanT0_Bp"));
 
 	UCustomType::FindClass<AEnemyGroup>(LanT0_CB,
-		TEXT("/Game/Blueprints/AI/GroupPreset/EnemyGroupPreset/LanT0_Bp"));
+		TEXT("/Game/Blueprints/AI/GroupPreset/EnemyGroupPreset/LanT0_CB_Bp"));
 
 
 }
@@ -95,10 +95,13 @@ void AEnemyGroupSpawner::Spawn()
 		spawnTransform.SetRotation(spawnRotation);
 		spawnTransform.SetScale3D(FVector(1, 1, 1));
 		
+
+		TSubclassOf<AEnemyGroup> classToSpawn = LanT0_CB;
 		// spawn new group
 		AEnemyGroup* newEnemyGroup
 			= GetWorld()->SpawnActorDeferred<AEnemyGroup>
-			(LanT0, spawnTransform, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+			(classToSpawn, spawnTransform, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+
 		if (newEnemyGroup)
 		{
 			FAISpawnInfo spawnInfo;
