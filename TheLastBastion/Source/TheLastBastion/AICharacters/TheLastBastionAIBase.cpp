@@ -319,6 +319,8 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 
 	EvaluateAttackerThreat(DamageCauser, currentHp);
 
+	//how he response to this hit
+	HitResponse(DamageCauser);
 
 	if (currentHp <= 0)
 	{
@@ -329,8 +331,6 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 		return;
 	}
 	
-	// if this ai is alive, how he response to this hit
-	HitResponse(DamageCauser);
 
 	/// Check if we want to simulate physics or play animation
 	mAnimInstanceRef->ResetOnBeingHit();

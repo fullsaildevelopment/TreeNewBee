@@ -228,6 +228,11 @@ void AAIGroupBase::Tick(float DeltaTime)
 
 }
 
+bool AAIGroupBase::IsRangeGroup() const
+{
+	return AICharactersInfo[0].AICharacter->IsRangeUnit();
+}
+
 void AAIGroupBase::KillAllChild()
 {
 	for (int iCharacter = 0; iCharacter < AICharactersInfo.Num(); iCharacter++)

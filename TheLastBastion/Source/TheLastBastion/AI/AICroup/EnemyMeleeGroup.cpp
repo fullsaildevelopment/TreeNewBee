@@ -73,8 +73,6 @@ void AEnemyMeleeGroup::OnChildTakingDamage(const ATheLastBastionCharacter * atta
 		else
 		{
 			const ATheLastBastionAIBase* aiAttacker = Cast<ATheLastBastionAIBase>(attacker);
-
-
 			AAIGroupBase* targetGroup = aiAttacker->GetGroup();
 
 			MeleeTargetSelectionOnOverlap(targetGroup);
