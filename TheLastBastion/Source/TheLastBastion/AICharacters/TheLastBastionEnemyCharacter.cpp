@@ -49,7 +49,7 @@ void ATheLastBastionEnemyCharacter::BeginPlay()
 	}
 }
 
-void ATheLastBastionEnemyCharacter::HitResponse(AActor * DamageCauser)
+void ATheLastBastionEnemyCharacter::HitResponse(AActor * DamageCauser, float _currentHp)
 {
 
 	if (bIsRangeUnit)
@@ -57,16 +57,26 @@ void ATheLastBastionEnemyCharacter::HitResponse(AActor * DamageCauser)
 
 	const ATheLastBastionCharacter * attacker = Cast<ATheLastBastionCharacter>(DamageCauser);
 
-	if (mGroup->IsInBattle())
+
+	if (_currentHp <= 0)
 	{
-		//const ATheLastBastionCharacter * attacker = Cast<ATheLastBastionCharacter>(DamageCauser);
-		if (attacker && !attacker->IsEnemy() && !attacker->GetIsDead() && mGroup->HasThreat(attacker))
-			SetTarget(DamageCauser);
+		// if this character is dead, then we just ask group to response
+
+		if (mGroup->IsInBattle() == false)
+			mGroup->OnChildTakingDamage(attacker);
+
 	}
 	else
 	{
-		mGroup->OnChildTakingDamage(attacker);
+		if (mGroup->IsInBattle())
+		{
+			if (attacker && !attacker->IsEnemy() && !attacker->GetIsDead() && mGroup->HasThreat(attacker))
+				SetTarget(DamageCauser);
+		}
+		else
+			mGroup->OnChildTakingDamage(attacker);
 	}
+
 
 }
 

@@ -320,7 +320,7 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 	EvaluateAttackerThreat(DamageCauser, currentHp);
 
 	//how he response to this hit
-	HitResponse(DamageCauser);
+	HitResponse(DamageCauser, currentHp);
 
 	if (currentHp <= 0)
 	{
@@ -330,6 +330,7 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 		OnDead(RagDollImpulse, DamageCauser, BoneName);
 		return;
 	}
+
 	
 
 	/// Check if we want to simulate physics or play animation

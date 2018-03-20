@@ -517,31 +517,31 @@ bool AEnemyGroup::IsNearTargetLocation(float radius_Sqr)
 
 	// check if all group member is damaged, 
 	// if there is one has not been damaged, we will keep the waypoint route
-	bool bAllDamaged = true;	
+	//bool bAllDamaged = true;	
 	for (int iChar = 0; iChar < GroupSize; iChar++)
 	{
 		if (AICharactersInfo[iChar].AICharacter->HasFullHealth())
 		{
-			bAllDamaged = false;
+			//bAllDamaged = false;
 			return AICharactersInfo[iChar].AICharacter->IsNearTargetLocation(radius_Sqr);
 		}
 	}
 
-	if (bAllDamaged)
-		bShouldCharge = true;
+	//if (bAllDamaged)
+	//	bShouldCharge = true;
 
-	if (bShouldCharge)
-	{
-		ATheLastBastionGroupAIController* groupC =
-			Cast<ATheLastBastionGroupAIController>(GetController());
-		if (groupC == nullptr)
-		{
-			UE_LOG(LogTemp, Error, TEXT("groupC == nullptr - AEnemyGroup::IsNearTargetLocation"));
-			return false;
-		}
+	//if (bShouldCharge)
+	//{
+	//	ATheLastBastionGroupAIController* groupC =
+	//		Cast<ATheLastBastionGroupAIController>(GetController());
+	//	if (groupC == nullptr)
+	//	{
+	//		UE_LOG(LogTemp, Error, TEXT("groupC == nullptr - AEnemyGroup::IsNearTargetLocation"));
+	//		return false;
+	//	}
 
-		groupC->SetIsCharging_BBC(true);
-	}
+	//	groupC->SetIsCharging_BBC(true);
+	//}
 
 
 	return false;
