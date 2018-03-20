@@ -431,6 +431,20 @@ void ATheLastBastionHeroCharacter::OnCommandDistribute()
 		if (CommandedGroup->IsInBattle())
 			CommandedGroup->RotateGroupByGroupMember();
 
+		// Play sfx here
+		USoundCue* VocalCommand = UAudioManager::GetSFX(ESoundEffectType::EPlayerVocalCommandsOnGroup);
+		AudioComp->SetSound(VocalCommand);
+
+		if (CommandedGroup->IsScatterFormation() == false)
+			AudioComp->SetIntParameter(TEXT("Command"), 5);
+
+		else if (CommandedGroup->IsScatterFormation() == true)
+			AudioComp->SetIntParameter(TEXT("Command"),6);
+
+		AudioComp->AttenuationSettings = VocalCommand->AttenuationSettings;
+		AudioComp->Play();
+
+		//
 		FVector targetLocation = CommandedGroup->GetActorLocation() + CommandedGroup->GetActorForwardVector() * 100.0f; 
 		CommandedGroup->SetMarchLocation(targetLocation, GC_DISTRIBUTE);
 		DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
@@ -452,28 +466,51 @@ void ATheLastBastionHeroCharacter::OnCommandReform()
 			if (CommandedGroup->IsInBattle())
 				CommandedGroup->RotateGroupByGroupMember();
 
-			FVector targetLocation = CommandedGroup->GetActorLocation() + CommandedGroup->GetActorForwardVector() * 300.0f;
-			CommandedGroup->SetMarchLocation(targetLocation, GC_REFORM);
-			DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
-
 			// Play sfx here
 			USoundCue* VocalCommand = UAudioManager::GetSFX(ESoundEffectType::EPlayerVocalCommandsOnGroup);
 			AudioComp->SetSound(VocalCommand);
-			AudioComp->SetIntParameter(TEXT("Command"), 0);
+
+			if (CommandedGroup->IsSquareFormation() == false)
+				AudioComp->SetIntParameter(TEXT("Command"), 1);
+
+			else if (CommandedGroup->IsSquareFormation() == true)
+				AudioComp->SetIntParameter(TEXT("Command"), 2);
+
 			AudioComp->AttenuationSettings = VocalCommand->AttenuationSettings;
 			AudioComp->Play();
+
+			//
+			FVector targetLocation = CommandedGroup->GetActorLocation() + CommandedGroup->GetActorForwardVector() * 300.0f;
+			CommandedGroup->SetMarchLocation(targetLocation, GC_REFORM);
+			DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
 		}
 	}
 
 }
 
 void ATheLastBastionHeroCharacter::OnCommandForward()
-{
+{   
+	// Play sfx here
+	USoundCue* VocalCommand = UAudioManager::GetSFX(ESoundEffectType::EPlayerVocalCommandsOnGroup);
+	AudioComp->SetSound(VocalCommand);
+	AudioComp->SetIntParameter(TEXT("Command"), 3);
+	AudioComp->AttenuationSettings = VocalCommand->AttenuationSettings;
+	AudioComp->Play();
+
+	//
 	OnCommandFwdBwd(true);
 }
 
 void ATheLastBastionHeroCharacter::OnCommandBackward()
-{
+{   
+	// Play sfx here
+	USoundCue* VocalCommand = UAudioManager::GetSFX(ESoundEffectType::EPlayerVocalCommandsOnGroup);
+	AudioComp->SetSound(VocalCommand);
+	AudioComp->SetIntParameter(TEXT("Command"), 4);
+	AudioComp->AttenuationSettings = VocalCommand->AttenuationSettings;
+	AudioComp->Play();
+
+	//
 	OnCommandFwdBwd(false);
 }
 
