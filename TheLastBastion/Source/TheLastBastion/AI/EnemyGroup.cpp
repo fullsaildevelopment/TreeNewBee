@@ -306,8 +306,6 @@ void AEnemyGroup::GoToNextWayPoint()
 
 void AEnemyGroup::ReachWayPoint()
 {
-
-
 	AEnemyGroupSpawner* enemyGroupSpawner = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()))
 		->GetEnemyGroupSpawner();
 	if (enemyGroupSpawner == nullptr)
@@ -482,7 +480,7 @@ void AEnemyGroup::SetInBattle(bool _val)
 			Cast<ATheLastBastionGroupAIController>(GetController());
 		if (groupC == nullptr)
 		{
-			UE_LOG(LogTemp, Error, TEXT("groupC == nullptr - AEnemyGroup::ReachWayPoint"));
+			UE_LOG(LogTemp, Error, TEXT("groupC == nullptr - AEnemyGroup::SetInBattle"));
 			return;
 		}
 		groupC->SetIsMoving_BBC(false);
