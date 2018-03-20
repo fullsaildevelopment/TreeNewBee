@@ -30,6 +30,10 @@
 #include "UI/InGameFloatingText.h"
 #include "UI/InGameHUD.h"
 
+#include "AudioManager.h"
+#include "Sound/SoundCue.h"
+#include "Components/AudioComponent.h"
+
 #include "DrawDebugHelpers.h"
 
 
@@ -396,6 +400,13 @@ void ATheLastBastionHeroCharacter::OnCommandHold()
 		FVector targetLocation = GetActorLocation() - GetActorForwardVector() * HOLD_POSITION_BWD_OFFSET;
 		CommandedGroup->SetMarchLocation(targetLocation, GC_HOLDLOCATION);
 		DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
+
+		// Play sfx here
+		USoundCue* VocalCommand = UAudioManager::GetSFX(ESoundEffectType::EPlayerVocalCommandsOnGroup);
+		AudioComp->SetSound(VocalCommand);
+		AudioComp->SetIntParameter(TEXT("Command"), 0);
+		AudioComp->AttenuationSettings = VocalCommand->AttenuationSettings;
+		AudioComp->Play();
 	}
 
 }
@@ -444,6 +455,13 @@ void ATheLastBastionHeroCharacter::OnCommandReform()
 			FVector targetLocation = CommandedGroup->GetActorLocation() + CommandedGroup->GetActorForwardVector() * 300.0f;
 			CommandedGroup->SetMarchLocation(targetLocation, GC_REFORM);
 			DrawDebugSphere(GetWorld(), targetLocation, 50.0f, 8, FColor::Green, false, 5.0f);
+
+			// Play sfx here
+			USoundCue* VocalCommand = UAudioManager::GetSFX(ESoundEffectType::EPlayerVocalCommandsOnGroup);
+			AudioComp->SetSound(VocalCommand);
+			AudioComp->SetIntParameter(TEXT("Command"), 0);
+			AudioComp->AttenuationSettings = VocalCommand->AttenuationSettings;
+			AudioComp->Play();
 		}
 	}
 
@@ -561,6 +579,12 @@ void ATheLastBastionHeroCharacter::OnSelectedCrewOnIndex(int _index)
 			spPC->OnSelectedCrewAt(_index);
 		}
 
+		// Play group selection sfx
+		USoundCue* PlayerVoice = UAudioManager::GetSFX(ESoundEffectType::EPlayerVoiceOnGroupSelection);
+		AudioComp->SetSound(PlayerVoice);
+		AudioComp->SetBoolParameter(TEXT("IsRangeGroup"), ally->IsRangeGroup());
+		AudioComp->AttenuationSettings = PlayerVoice->AttenuationSettings;
+		AudioComp->Play();
 	}
 	else
 	{
