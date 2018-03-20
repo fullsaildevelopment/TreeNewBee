@@ -50,3 +50,8 @@ void AEnemyMeleeGroup::OnMeleeVisionOverrlapBegin(UPrimitiveComponent * Overlapp
 void AEnemyMeleeGroup::OnMeleeVisionOverrlapEnd(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
 {
 }
+
+void AEnemyMeleeGroup::OnChildTakingDamage()
+{
+
+}

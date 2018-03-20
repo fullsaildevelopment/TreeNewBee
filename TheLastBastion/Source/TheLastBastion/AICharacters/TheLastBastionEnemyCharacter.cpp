@@ -61,6 +61,10 @@ void ATheLastBastionEnemyCharacter::HitResponse(AActor * DamageCauser)
 		if (attacker && !attacker->IsEnemy() && !attacker->GetIsDead() && mGroup->HasThreat(attacker))
 			SetTarget(DamageCauser);
 	}
+	else
+	{
+		mGroup->OnChildTakingDamage();
+	}
 
 }
 

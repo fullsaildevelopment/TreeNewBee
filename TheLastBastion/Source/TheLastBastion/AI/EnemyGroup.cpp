@@ -277,12 +277,8 @@ void AEnemyGroup::SetMarchLocation(const FVector & _targetLocation, int _command
 		break;
 	}
 	}
-	////// give group march command
-	////groupC->SetTargetLocation_BBC(GroupTargetLocation);
-	////groupC->SetNewCommandIndex_BBC(_commandIndex);
-
 	groupC->SetIsMoving_BBC(true);
-
+	// groupC->SetNewWayPoint_BBC(false);
 	// give each child an march command
 	SendGroupCommand(_commandIndex);
 }
@@ -303,7 +299,9 @@ void AEnemyGroup::GoToNextWayPoint()
 	// If this group has next valid way point, go there, by using the transform defined by way point transform
 	NextWayPointTransform = enemyGroupSpawner->GetNextWayPointFrom(PathIndex, NextWayPoint);
 
+	
 	SetMarchLocation(NextWayPointTransform.GetLocation(), GC_HOLDLOCATION);
+
 }
 
 void AEnemyGroup::ReachWayPoint()
@@ -329,10 +327,9 @@ void AEnemyGroup::ReachWayPoint()
 
 	CurrentWayPoint++;
 	groupC->SetIsMoving_BBC(false);
-
-	// Check if reaching the destination
 	int NextWayPoint = CurrentWayPoint + 1;
 
+	// Check if reaching the destination by checking the current waypoint has no following way point 
 	bool bAtDestination = enemyGroupSpawner->HasNextWayPointOnPath(PathIndex, NextWayPoint) == false;
 
 	if (bAtDestination)

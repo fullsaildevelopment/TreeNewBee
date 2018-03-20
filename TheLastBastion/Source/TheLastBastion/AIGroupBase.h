@@ -326,6 +326,8 @@ public:
 	UFUNCTION()
 		virtual void OnChildDeath(int _childIndex);
 
+	virtual void OnChildTakingDamage() {}
+
 
 	void AddThreat(class ATheLastBastionCharacter* _character, float _threat, bool _addIfNone = true);
 	void AddThreatByGroup(class AAIGroupBase* _targetGroup);
