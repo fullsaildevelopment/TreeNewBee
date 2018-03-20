@@ -105,6 +105,7 @@ USoundCue * UAudioManager::GetProjectileImpactByMaterial(EPhysicalSurface _surfa
 	case SURFACE_LightShield:
 	case SURFACE_HeavyShield:
 		return BoltsHitImpactOnShield;
+
 	default:
 		return nullptr;
 	}

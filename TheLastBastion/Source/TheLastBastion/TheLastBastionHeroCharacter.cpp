@@ -567,7 +567,7 @@ void ATheLastBastionHeroCharacter::OnSelectedCrewOnIndex(int _index)
 		UE_LOG(LogTemp, Warning, 
 			TEXT("Ally unit at index: %d is nullptr - ATheLastBastionHeroCharacter::OnSelectedCrewOnIndex(int _index)"), _index);
 	}
-
+	
 }
 
 void ATheLastBastionHeroCharacter::OnSkillPressed_0()
