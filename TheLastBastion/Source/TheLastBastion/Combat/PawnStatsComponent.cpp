@@ -417,23 +417,25 @@ void UPawnStatsComponent::PlaySFXForImpact(USoundCue* _sfx, int _surfaceType, AT
 	switch (_surfaceType)
 	{
 	case SURFACE_FLESH:
-	{
+	{   
 		UAudioComponent* AudioComp = _damagedCharacter->GetAudioComp();
 		AudioComp->SetSound(_sfx);
-		AudioComp->SetIntParameter(TEXT("DamagedActorType"), (int)_damagedCharacter->GetCharacterVoiceType());
 		AudioComp->SetIntParameter(TEXT("SurfaceType"), 0);
+		AudioComp->SetIntParameter(TEXT("DamagedActorType"), (int32)_damagedCharacter->GetCharacterVoiceType());
 		AudioComp->AttenuationSettings = _sfx->AttenuationSettings;
 		AudioComp->Play();
+		break;
 	}
 
 	case SURFACE_METAL:
-	{
+	{   
 		UAudioComponent* AudioComp = _damagedCharacter->GetAudioComp();
 		AudioComp->SetSound(_sfx);
-		AudioComp->SetIntParameter(TEXT("DamagedActorType"), (int)_damagedCharacter->GetCharacterVoiceType());
 		AudioComp->SetIntParameter(TEXT("SurfaceType"), 1);
+		AudioComp->SetIntParameter(TEXT("DamagedActorType"), (int32)_damagedCharacter->GetCharacterVoiceType());
 		AudioComp->AttenuationSettings = _sfx->AttenuationSettings;
 		AudioComp->Play();
+		break;
 	}
 
 	case SURFACE_LightShield:
@@ -443,6 +445,7 @@ void UPawnStatsComponent::PlaySFXForImpact(USoundCue* _sfx, int _surfaceType, AT
 		AudioComp->SetIntParameter(TEXT("SurfaceType"), 0);
 		AudioComp->AttenuationSettings = _sfx->AttenuationSettings;
 		AudioComp->Play();
+		break;
 	}
 
 	case SURFACE_HeavyShield:
@@ -452,6 +455,7 @@ void UPawnStatsComponent::PlaySFXForImpact(USoundCue* _sfx, int _surfaceType, AT
 		AudioComp->SetIntParameter(TEXT("SurfaceType"), 1);
 		AudioComp->AttenuationSettings = _sfx->AttenuationSettings;
 		AudioComp->Play();
+		break;
 	}
 
 	default:
@@ -503,8 +507,6 @@ bool UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 	else
 	{
 		// this is projectile, and can not be countered
-		EPhysicalSurface surfaceType = UPhysicalMaterial::DetermineSurfaceType(_damageInfo.hitResult.PhysMaterial.Get());
-
 		sfxSelected = UAudioManager::GetProjectileImpactByMaterial(surfaceType);
 		vfxSelected = UVfxManager::GetVfxBySurfaceType(surfaceType);
 	}
