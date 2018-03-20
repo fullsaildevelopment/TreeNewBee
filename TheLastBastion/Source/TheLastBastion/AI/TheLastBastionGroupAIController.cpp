@@ -53,11 +53,13 @@ void ATheLastBastionGroupAIController::Possess(APawn * _possPawn)
 	bIsMoving_KeyID = mBBComp->GetKeyID("bIsMoving");
 	bAtDestination_KeyID = mBBComp->GetKeyID("bAtDestination");
 	bIsCharging_KeyID = mBBComp->GetKeyID("bIsCharging");
+	bNewWayPoint_KeyID = mBBComp->GetKeyID("bNewWayPoint");
+
 
 	//UE_LOG(LogTemp, Warning, TEXT("Possess, %s"), *_possPawn->GetName());
 	mBBComp->SetValue<UBlackboardKeyType_Vector>(targetLocation_KeyID, FVector::ZeroVector);
 	mBBComp->SetValue<UBlackboardKeyType_Int>(bIsMoving_KeyID, 0);
-
+	SetNewWayPoint_BBC(true);
 	// Launch behavior Tree
 	mBTComp->StartTree(*bt);
 }
@@ -89,6 +91,11 @@ void ATheLastBastionGroupAIController::SetIsCharging_BBC(bool _val)
 	mBBComp->SetValue<UBlackboardKeyType_Bool>(bIsCharging_KeyID, _val);
 }
 
+void ATheLastBastionGroupAIController::SetNewWayPoint_BBC(bool _val)
+{
+	mBBComp->SetValue<UBlackboardKeyType_Bool>(bNewWayPoint_KeyID, _val);
+}
+
 FVector ATheLastBastionGroupAIController::GetTargetLocation_BBC() const
 {
 	return 	mBBComp->GetValue<UBlackboardKeyType_Vector>(targetLocation_KeyID);
@@ -107,4 +114,9 @@ bool ATheLastBastionGroupAIController::GetAtDestination_BBC() const
 bool ATheLastBastionGroupAIController::GetIsCharging_BBC() const
 {
 	return 	mBBComp->GetValue<UBlackboardKeyType_Bool>(bIsCharging_KeyID);
+}
+
+bool ATheLastBastionGroupAIController::GetNewWayPoint_BBC() const
+{
+	return 	mBBComp->GetValue<UBlackboardKeyType_Bool>(bNewWayPoint_KeyID);
 }

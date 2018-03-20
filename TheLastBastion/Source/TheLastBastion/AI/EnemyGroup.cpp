@@ -277,12 +277,8 @@ void AEnemyGroup::SetMarchLocation(const FVector & _targetLocation, int _command
 		break;
 	}
 	}
-	////// give group march command
-	////groupC->SetTargetLocation_BBC(GroupTargetLocation);
-	////groupC->SetNewCommandIndex_BBC(_commandIndex);
-
 	groupC->SetIsMoving_BBC(true);
-
+	// groupC->SetNewWayPoint_BBC(false);
 	// give each child an march command
 	SendGroupCommand(_commandIndex);
 }
@@ -300,34 +296,26 @@ void AEnemyGroup::GoToNextWayPoint()
 
 	int NextWayPoint = CurrentWayPoint + 1;
 
-	bool bAtDestination = enemyGroupSpawner->HasNextWayPointOnPath(PathIndex, NextWayPoint) == false;
+	// If this group has next valid way point, go there, by using the transform defined by way point transform
+	NextWayPointTransform = enemyGroupSpawner->GetNextWayPointFrom(PathIndex, NextWayPoint);
 
-	if (bAtDestination)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("%s, Reach destination - AEnemyGroup::GoToNextWayPoint"), *GetName());
-		ATheLastBastionGroupAIController* groupC = Cast<ATheLastBastionGroupAIController>(GetController());
-		if (groupC == nullptr)
-		{
-			UE_LOG(LogTemp, Error, TEXT("groupC == nullptr - AEnemyGroup::GoToNextWayPoint"));
-			return;
-		}
-		groupC->SetAtDestination_BBC(true);
-
-		return;
-	}
-	else
-	{
-		// If this group has next valid way point, go there, by using the transform defined by way point transform
-		NextWayPointTransform = enemyGroupSpawner->GetNextWayPointFrom(PathIndex, NextWayPoint);
-
-		SetMarchLocation(NextWayPointTransform.GetLocation(), GC_HOLDLOCATION);
-	}
+	
+	SetMarchLocation(NextWayPointTransform.GetLocation(), GC_HOLDLOCATION);
 
 }
 
 void AEnemyGroup::ReachWayPoint()
 {
-	CurrentWayPoint ++;
+
+
+	AEnemyGroupSpawner* enemyGroupSpawner = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()))
+		->GetEnemyGroupSpawner();
+	if (enemyGroupSpawner == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("enemyGroupSpawner == nullptr - AEnemyGroup::GoToNextWayPoint"));
+		return;
+	}
+
 
 	ATheLastBastionGroupAIController* groupC = Cast<ATheLastBastionGroupAIController>(GetController());
 	if (groupC == nullptr)
@@ -336,7 +324,23 @@ void AEnemyGroup::ReachWayPoint()
 		return;
 	}
 
+
+	CurrentWayPoint++;
 	groupC->SetIsMoving_BBC(false);
+	int NextWayPoint = CurrentWayPoint + 1;
+
+	// Check if reaching the destination by checking the current waypoint has no following way point 
+	bool bAtDestination = enemyGroupSpawner->HasNextWayPointOnPath(PathIndex, NextWayPoint) == false;
+
+	if (bAtDestination)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s, Reach destination - AEnemyGroup::GoToNextWayPoint"), *GetName());
+		groupC->SetAtDestination_BBC(true);
+	}
+	else
+	{
+		groupC->SetNewWayPoint_BBC(true);
+	}
 
 }
 
@@ -375,13 +379,16 @@ void AEnemyGroup::FindClosestTarget()
 	if (distanceSqr <= minimumDistance)
 	{
 		// targeting player
-		
+		AddThreat(PlayerHero, ThreatGain_HeroInit);
 		MeleeGroupAgainstPlayer();
 		SetInBattle(true);
 	}
 	else
 	{
 		// targeting player unit
+		AddThreatByGroup(targetGroup);
+		MeleeTargetSelectionOnOverlap(targetGroup);
+		SetInBattle(true);
 	}
 
 

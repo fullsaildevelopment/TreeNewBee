@@ -3,6 +3,7 @@
 #include "EnemyMeleeGroup.h"
 #include "TheLastBastionHeroCharacter.h"
 #include "AI/AllyGroup.h"
+#include "AI/TheLastBastionGroupAIController.h"
 #include "UObject/ConstructorHelpers.h"
 
 AEnemyMeleeGroup::AEnemyMeleeGroup()
@@ -49,4 +50,37 @@ void AEnemyMeleeGroup::OnMeleeVisionOverrlapBegin(UPrimitiveComponent * Overlapp
 
 void AEnemyMeleeGroup::OnMeleeVisionOverrlapEnd(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
 {
+}
+
+void AEnemyMeleeGroup::OnChildTakingDamage(const ATheLastBastionCharacter * attacker)
+{
+	ATheLastBastionGroupAIController* groupC = Cast<ATheLastBastionGroupAIController>(GetController());
+	if (groupC == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("groupC == nullptr, AEnemyMeleeGroup::OnChildTakingDamage"));
+		return;
+	}
+
+	if (groupC->GetAtDestination_BBC() == true)
+	{
+		// if this is player?
+		if (attacker == PlayerHero)
+		{
+			MeleeGroupAgainstPlayer();
+			//bInBattle = true;
+			SetInBattle(true);
+		}
+		else
+		{
+			const ATheLastBastionAIBase* aiAttacker = Cast<ATheLastBastionAIBase>(attacker);
+
+
+			AAIGroupBase* targetGroup = aiAttacker->GetGroup();
+
+			MeleeTargetSelectionOnOverlap(targetGroup);
+			//bInBattle = true;
+			SetInBattle(true);
+
+		}
+	}
 }

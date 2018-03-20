@@ -48,6 +48,7 @@ private:
 		targetLocation_KeyID,
 		bIsCharging_KeyID,
 		bIsMoving_KeyID,
+		bNewWayPoint_KeyID,
 		bAtDestination_KeyID;
 public:
 
@@ -69,6 +70,9 @@ public:
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE uint8 GetKeyID_IsCharging() const { return bIsCharging_KeyID; }
 
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE uint8 GetKeyID_NewWayPoint() const { return bNewWayPoint_KeyID; }
+
 
 	void SetTargetLocation_BBC(const FVector& _targetLocation);
 
@@ -77,6 +81,8 @@ public:
 	void SetAtDestination_BBC(bool _val);
 
 	void SetIsCharging_BBC(bool _val);
+
+	void SetNewWayPoint_BBC(bool _val);
 
 	//void SetOldCommandIndex_BBC(int _oldCommand);
 
@@ -87,6 +93,8 @@ public:
 	bool GetAtDestination_BBC() const;
 
 	bool GetIsCharging_BBC() const;
+
+	bool GetNewWayPoint_BBC() const;
 
 	//int GetOldCommandIndex_BBC() const;
 

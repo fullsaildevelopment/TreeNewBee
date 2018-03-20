@@ -26,5 +26,10 @@ protected:
 	UFUNCTION()
 		void OnMeleeVisionOverrlapEnd(UPrimitiveComponent* OverlappedComponent,
 			AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
+
+public:
+
+	/** If this group arrive at its destination, and its children get hit*/
+	void OnChildTakingDamage(const ATheLastBastionCharacter * attacker) override;
 	
 };
