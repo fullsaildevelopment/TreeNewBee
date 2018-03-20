@@ -13,10 +13,8 @@ UENUM()
 enum class ESoundEffectType : uint8
 {
 	ECrossBowFire = 0,
-	EBoltsFleshImpact,
-	EBoltsMetalImpact,
-	EBoltsStickToLightShield,
-	EBoltsStickToHeavyShield,
+	EBoltsHitImpactOnCharacter,
+	EBoltsHitImpactOnShield,
 	ELightWeaponImpact,
 	EHeavyWeaponImpact,
 	EMeleeCounterAttackImpact,
@@ -38,11 +36,8 @@ public:
 
 private:
 	static class USoundCue* CrossbowFire;
-
-	static class USoundCue* BoltsFleshImpact;
-	static class USoundCue* BoltsMetalImpact;
-	static class USoundCue* BoltsSticks_LightShield;
-	static class USoundCue* BoltsSticks_HeavyShield;
+	static class USoundCue* BoltsHitImpactOnCharacter;
+	static class USoundCue* BoltsHitImpactOnShield;
 
 	// Melee Weapon Impact SFX
 	static class USoundCue* LightWeaponImpact;

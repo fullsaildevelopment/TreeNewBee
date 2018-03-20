@@ -10,10 +10,8 @@
 
 
 USoundCue* UAudioManager::CrossbowFire = nullptr;
-USoundCue* UAudioManager::BoltsFleshImpact = nullptr;
-USoundCue* UAudioManager::BoltsMetalImpact = nullptr;
-USoundCue* UAudioManager::BoltsSticks_LightShield = nullptr;
-USoundCue* UAudioManager::BoltsSticks_HeavyShield = nullptr;
+USoundCue* UAudioManager::BoltsHitImpactOnCharacter = nullptr;
+USoundCue* UAudioManager::BoltsHitImpactOnShield = nullptr;
 USoundCue* UAudioManager::LightWeaponImpact = nullptr;
 USoundCue* UAudioManager::HeavyWeaponImpact = nullptr;
 USoundCue* UAudioManager::MeleeCounterAttackImpact = nullptr;
@@ -27,10 +25,8 @@ UAudioManager::UAudioManager()
 	// Find all the sound cues of our game
 	//Range Weapon
 	CrossbowFire = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/CrossBow/CrossBow_Fire"));
-	BoltsFleshImpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsImpactOnCharacter"));
-	BoltsSticks_LightShield = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsSticks_LightShield"));
-	BoltsSticks_HeavyShield = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsSticks_HeavyShield"));
-	BoltsMetalImpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsImpactOnMetal"));
+	BoltsHitImpactOnCharacter = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsHitImpactOnCharacter"));
+	BoltsHitImpactOnShield = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsHitImpactOnShield"));
 
 	// Melee Weapon Impact
 	LightWeaponImpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/MeleeWeaponHitImpact/LightWeaponImpact"));
@@ -64,17 +60,11 @@ USoundCue * UAudioManager::GetSFX(ESoundEffectType _sfxType)
 	case ESoundEffectType::ECrossBowFire:
 		return CrossbowFire;
 
-	case ESoundEffectType::EBoltsFleshImpact:
-		return BoltsFleshImpact;
+	case ESoundEffectType::EBoltsHitImpactOnCharacter:
+		return BoltsHitImpactOnCharacter;
 
-	case ESoundEffectType::EBoltsMetalImpact:
-		return BoltsMetalImpact;
-
-	case ESoundEffectType::EBoltsStickToLightShield:
-		return BoltsSticks_LightShield;
-
-	case ESoundEffectType::EBoltsStickToHeavyShield:
-		return BoltsSticks_HeavyShield;	
+	case ESoundEffectType::EBoltsHitImpactOnShield:
+		return BoltsHitImpactOnShield;
 
 	case ESoundEffectType::ELightWeaponImpact:
 		return LightWeaponImpact;
@@ -109,13 +99,12 @@ USoundCue * UAudioManager::GetProjectileImpactByMaterial(EPhysicalSurface _surfa
 	switch (_surfaceType)
 	{
 	case SURFACE_FLESH:
-		return BoltsFleshImpact;
 	case SURFACE_METAL:
-		return BoltsMetalImpact;
+		return BoltsHitImpactOnCharacter;
+
 	case SURFACE_LightShield:
-		return BoltsSticks_LightShield;
 	case SURFACE_HeavyShield:
-		return BoltsSticks_HeavyShield;
+		return BoltsHitImpactOnShield;
 	default:
 		return nullptr;
 	}
