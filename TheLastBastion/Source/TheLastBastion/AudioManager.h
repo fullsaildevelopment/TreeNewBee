@@ -14,14 +14,17 @@ enum class ESoundEffectType : uint8
 {
 	ECrossBowFire = 0,
 	EBoltsHitImpactOnCharacter,
-	EBoltsHitImpactOnShield,
+	EBoltsHitImpactOnLightShield,
+	EBoltsHitImpactOnHeavyShield,
 	ELightWeaponImpact,
 	EHeavyWeaponImpact,
 	EMeleeCounterAttackImpact,
 	EMeleeWeaponSwing,
 	EWeaponEquip,
 	EWeaponDraw,
-	ELightArmorFootStepOnDirt
+	ELightArmorFootStepOnDirt,
+	EPlayerVoiceOnGroupSelection,
+	EPlayerVocalCommandsOnGroup
 };
 /**
  * 
@@ -37,7 +40,8 @@ public:
 private:
 	static class USoundCue* CrossbowFire;
 	static class USoundCue* BoltsHitImpactOnCharacter;
-	static class USoundCue* BoltsHitImpactOnShield;
+	static class USoundCue* BoltsHitImpactOnLightShield;
+	static class USoundCue* BoltsHitImpactOnHeavyShield;
 
 	// Melee Weapon Impact SFX
 	static class USoundCue* LightWeaponImpact;
@@ -53,6 +57,10 @@ private:
 
 	// Foot Step
 	static class USoundCue* LightArmorFootStepOnDirt;
+
+	// Player Vocal
+	static class USoundCue* PlayerVoiceOnGroupSelection;
+	static class USoundCue* PlayerVocalCommandsOnGroup;
 
 public:
 

@@ -438,26 +438,6 @@ void UPawnStatsComponent::PlaySFXForImpact(USoundCue* _sfx, int _surfaceType, AT
 		break;
 	}
 
-	case SURFACE_LightShield:
-	{
-		UAudioComponent* AudioComp = _damagedCharacter->GetAudioComp();
-		AudioComp->SetSound(_sfx);
-		AudioComp->SetIntParameter(TEXT("SurfaceType"), 0);
-		AudioComp->AttenuationSettings = _sfx->AttenuationSettings;
-		AudioComp->Play();
-		break;
-	}
-
-	case SURFACE_HeavyShield:
-	{
-		UAudioComponent* AudioComp = _damagedCharacter->GetAudioComp();
-		AudioComp->SetSound(_sfx);
-		AudioComp->SetIntParameter(TEXT("SurfaceType"), 1);
-		AudioComp->AttenuationSettings = _sfx->AttenuationSettings;
-		AudioComp->Play();
-		break;
-	}
-
 	default:
 		break;
 	}
@@ -500,7 +480,6 @@ bool UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 		{
 			// counter attack fail, melee damage
 			vfxSelected = UVfxManager::GetVfxBySurfaceType(surfaceType);
-
 			sfxSelected = UAudioManager::GetMeleeWeaponImpactSFXByGearType(GetCurrentRightHandWeapon()->GetGearType());
 		}
 	}

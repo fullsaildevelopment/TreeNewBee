@@ -11,7 +11,8 @@
 
 USoundCue* UAudioManager::CrossbowFire = nullptr;
 USoundCue* UAudioManager::BoltsHitImpactOnCharacter = nullptr;
-USoundCue* UAudioManager::BoltsHitImpactOnShield = nullptr;
+USoundCue* UAudioManager::BoltsHitImpactOnLightShield = nullptr;
+USoundCue* UAudioManager::BoltsHitImpactOnHeavyShield = nullptr;
 USoundCue* UAudioManager::LightWeaponImpact = nullptr;
 USoundCue* UAudioManager::HeavyWeaponImpact = nullptr;
 USoundCue* UAudioManager::MeleeCounterAttackImpact = nullptr;
@@ -19,6 +20,8 @@ USoundCue* UAudioManager::MeleeWeaponSwing = nullptr;
 USoundCue* UAudioManager::WeaponEquip = nullptr;
 USoundCue* UAudioManager::WeaponDraw = nullptr;
 USoundCue* UAudioManager::LightArmorFootStepOnDirt = nullptr;
+USoundCue* UAudioManager::PlayerVoiceOnGroupSelection = nullptr;
+USoundCue* UAudioManager::PlayerVocalCommandsOnGroup = nullptr;
 
 UAudioManager::UAudioManager()
 {   
@@ -26,7 +29,8 @@ UAudioManager::UAudioManager()
 	//Range Weapon
 	CrossbowFire = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/CrossBow/CrossBow_Fire"));
 	BoltsHitImpactOnCharacter = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsHitImpactOnCharacter"));
-	BoltsHitImpactOnShield = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsHitImpactOnShield"));
+	BoltsHitImpactOnLightShield = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsHitImpactOnLightShield"));
+	BoltsHitImpactOnHeavyShield = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsHitImpactOnHeavyShield"));
 
 	// Melee Weapon Impact
 	LightWeaponImpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/MeleeWeaponHitImpact/LightWeaponImpact"));
@@ -42,6 +46,10 @@ UAudioManager::UAudioManager()
 
 	// FootStep
 	LightArmorFootStepOnDirt = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/FootStep/LightArmorFootStepOnDirt"));
+
+	// Player Vocal
+	PlayerVoiceOnGroupSelection = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Vocal/PlayerGroupSelection"));
+	PlayerVocalCommandsOnGroup = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Vocal/PlayerGroupCommands"));
 }
 
 USoundCue* UAudioManager::FindSoundCue(const TCHAR* _path)
@@ -63,8 +71,11 @@ USoundCue * UAudioManager::GetSFX(ESoundEffectType _sfxType)
 	case ESoundEffectType::EBoltsHitImpactOnCharacter:
 		return BoltsHitImpactOnCharacter;
 
-	case ESoundEffectType::EBoltsHitImpactOnShield:
-		return BoltsHitImpactOnShield;
+	case ESoundEffectType::EBoltsHitImpactOnLightShield:
+		return BoltsHitImpactOnLightShield;
+
+	case ESoundEffectType::EBoltsHitImpactOnHeavyShield:
+		return BoltsHitImpactOnHeavyShield;
 
 	case ESoundEffectType::ELightWeaponImpact:
 		return LightWeaponImpact;
@@ -87,6 +98,12 @@ USoundCue * UAudioManager::GetSFX(ESoundEffectType _sfxType)
 	case ESoundEffectType::ELightArmorFootStepOnDirt:
 		return LightArmorFootStepOnDirt;
 
+	case ESoundEffectType::EPlayerVoiceOnGroupSelection:
+		return PlayerVoiceOnGroupSelection;
+
+	case ESoundEffectType::EPlayerVocalCommandsOnGroup:
+		return PlayerVocalCommandsOnGroup;
+
 	default:
 		return nullptr;
 	}
@@ -103,8 +120,10 @@ USoundCue * UAudioManager::GetProjectileImpactByMaterial(EPhysicalSurface _surfa
 		return BoltsHitImpactOnCharacter;
 
 	case SURFACE_LightShield:
+		return BoltsHitImpactOnLightShield;
+
 	case SURFACE_HeavyShield:
-		return BoltsHitImpactOnShield;
+		return BoltsHitImpactOnHeavyShield;
 
 	default:
 		return nullptr;
