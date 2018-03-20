@@ -18,6 +18,7 @@
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "UI/InGameFloatingText.h"
 #include "TheLastBastionHeroCharacter.h"
+#include "Sound/SoundCue.h"
 #include "VfxManager.h"
 #include "AudioManager.h"
 #include "Components/AudioComponent.h"
@@ -408,7 +409,7 @@ float UPawnStatsComponent::GetBaseDamage()
 }
 #pragma endregion
 
-void UPawnStatsComponent::PlaySFXForImpact(class USoundCue* _sfx, int _surfaceType, ATheLastBastionCharacter* _damagedCharacter) const
+void UPawnStatsComponent::PlaySFXForImpact(USoundCue* _sfx, int _surfaceType, ATheLastBastionCharacter* _damagedCharacter) const
 {   
 	if (_damagedCharacter->GetIsDead() == true)
 		return;
@@ -419,8 +420,9 @@ void UPawnStatsComponent::PlaySFXForImpact(class USoundCue* _sfx, int _surfaceTy
 	{
 		UAudioComponent* AudioComp = _damagedCharacter->GetAudioComp();
 		AudioComp->SetSound(_sfx);
-		AudioComp->SetIntParameter(TEXT("DamagedActorType"), 0);
+		AudioComp->SetIntParameter(TEXT("DamagedActorType"), (int)_damagedCharacter->GetCharacterVoiceType());
 		AudioComp->SetIntParameter(TEXT("SurfaceType"), 0);
+		AudioComp->AttenuationSettings = _sfx->AttenuationSettings;
 		AudioComp->Play();
 	}
 
@@ -428,8 +430,27 @@ void UPawnStatsComponent::PlaySFXForImpact(class USoundCue* _sfx, int _surfaceTy
 	{
 		UAudioComponent* AudioComp = _damagedCharacter->GetAudioComp();
 		AudioComp->SetSound(_sfx);
-		AudioComp->SetIntParameter(TEXT("DamagedActorType"), 0);
+		AudioComp->SetIntParameter(TEXT("DamagedActorType"), (int)_damagedCharacter->GetCharacterVoiceType());
 		AudioComp->SetIntParameter(TEXT("SurfaceType"), 1);
+		AudioComp->AttenuationSettings = _sfx->AttenuationSettings;
+		AudioComp->Play();
+	}
+
+	case SURFACE_LightShield:
+	{
+		UAudioComponent* AudioComp = _damagedCharacter->GetAudioComp();
+		AudioComp->SetSound(_sfx);
+		AudioComp->SetIntParameter(TEXT("SurfaceType"), 0);
+		AudioComp->AttenuationSettings = _sfx->AttenuationSettings;
+		AudioComp->Play();
+	}
+
+	case SURFACE_HeavyShield:
+	{
+		UAudioComponent* AudioComp = _damagedCharacter->GetAudioComp();
+		AudioComp->SetSound(_sfx);
+		AudioComp->SetIntParameter(TEXT("SurfaceType"), 1);
+		AudioComp->AttenuationSettings = _sfx->AttenuationSettings;
 		AudioComp->Play();
 	}
 
@@ -449,16 +470,20 @@ bool UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 	UParticleSystem* vfxSelected = nullptr;
 	USoundCue* sfxSelected = nullptr;
 
+	// Use damageInfo find damagedActor and hitted surface
+	ATheLastBastionCharacter* damageActor = Cast<ATheLastBastionCharacter>(_damageInfo.hitResult.GetActor());
+	EPhysicalSurface surfaceType = UPhysicalMaterial::DetermineSurfaceType(_damageInfo.hitResult.PhysMaterial.Get());
+
 	// Check if this damage is caused by melee and been countered
 	if (_damageInfo.bIsProjectile == false)
 	{
 		// if this is not projectile, then it maybe countered
-		ATheLastBastionCharacter* damageActor = Cast<ATheLastBastionCharacter>(_damageInfo.hitResult.GetActor());
 		if (damageActor && damageActor->OnCounterAttack(_damageInfo.hitDirection))
 		{
 			// counter attack
 			vfxSelected = UVfxManager::GetVfx(EVfxType::metalImpact_sputtering);
 			sfxSelected = UAudioManager::GetSFX(ESoundEffectType::EMeleeCounterAttackImpact);
+
 			// play effects
 			if (vfxSelected && sfxSelected)		
 			{
@@ -470,12 +495,9 @@ bool UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 		else
 		{
 			// counter attack fail, melee damage
-			EPhysicalSurface surfaceType = UPhysicalMaterial::DetermineSurfaceType(_damageInfo.hitResult.PhysMaterial.Get());
 			vfxSelected = UVfxManager::GetVfxBySurfaceType(surfaceType);
 
 			sfxSelected = UAudioManager::GetMeleeWeaponImpactSFXByGearType(GetCurrentRightHandWeapon()->GetGearType());
-
-			PlaySFXForImpact(sfxSelected, surfaceType, damageActor);	
 		}
 	}
 	else
@@ -492,7 +514,7 @@ bool UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 	if (vfxSelected && sfxSelected)
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), vfxSelected, _damageInfo.hitResult.Location);
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), sfxSelected, _damageInfo.hitResult.Location);
+		PlaySFXForImpact(sfxSelected, surfaceType, damageActor);
 	}
 
 	// apply damage type based on weapon 
