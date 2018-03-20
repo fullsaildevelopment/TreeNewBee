@@ -148,8 +148,8 @@ protected:
 
 	virtual void EvaluateAttackerThreat(AActor* DamageCauser, float hp);
 
-	// Define how am I going to do with the damage causer
-	virtual void HitResponse(AActor* DamageCauser) {}
+	// Define how does this AI response to the damage causer
+	virtual void HitResponse(AActor* DamageCauser, float _currentHp) {  }
 
 	// Called on Hp = 0;
 	void OnDead(const FVector& dir, const AActor* _damageCauser, FName _boneName) override;

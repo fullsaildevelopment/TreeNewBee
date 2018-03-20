@@ -58,6 +58,10 @@ void AEnemyGroupSpawner::FindAllEnemyGroupPreset()
 	UCustomType::FindClass<AEnemyGroup>(LanT0,
 		TEXT("/Game/Blueprints/AI/GroupPreset/EnemyGroupPreset/LanT0_Bp"));
 
+	UCustomType::FindClass<AEnemyGroup>(LanT0_CB,
+		TEXT("/Game/Blueprints/AI/GroupPreset/EnemyGroupPreset/LanT0_Bp"));
+
+
 }
 
 void AEnemyGroupSpawner::Spawn()

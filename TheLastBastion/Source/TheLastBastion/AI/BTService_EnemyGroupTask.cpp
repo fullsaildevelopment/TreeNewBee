@@ -3,7 +3,9 @@
 #include "BTService_EnemyGroupTask.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
-#include "TheLastBastionBaseAIController.h"
+#include "AICharacters/TheLastBastionEnemyCharacter.h"
+
+#include "AI/TheLastBastionGroupAIController.h"
 #include "AI/EnemyGroup.h"
 
 
@@ -13,12 +15,13 @@ void UBTService_EnemyGroupTask::TickNode(UBehaviorTreeComponent & _ownerComp, ui
 
 	Super::TickNode(_ownerComp, _nodeMemory, _deltaSecond);
 
-	AAIController* aiCtrl = _ownerComp.GetAIOwner();
+	ATheLastBastionGroupAIController* aiCtrl = Cast<ATheLastBastionGroupAIController>(_ownerComp.GetAIOwner());
 	if (aiCtrl == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("aiCtrl == nullptr - UBTService_EnemyGroupTask::TickNode"));
 		return;
 	}
+
 	AEnemyGroup* aiGroup = Cast<AEnemyGroup>(aiCtrl->GetPawn());
 	if (aiGroup == nullptr)
 	{
@@ -26,24 +29,33 @@ void UBTService_EnemyGroupTask::TickNode(UBehaviorTreeComponent & _ownerComp, ui
 		return;
 	}
 
-	if (aiGroup->IsInBattle())
+	
+	int injuries = 0;
+
+	int groupMaxNumber = aiGroup->GetGroupSizeMax();
+	int currentGroupSize = aiGroup->GetGroupSize();
+	int deadNumber = groupMaxNumber - currentGroupSize;
+
+	injuries += deadNumber;
+	for (int iChar = 0; iChar < currentGroupSize; iChar++)
 	{
-		return;
+		if (aiGroup->GetGroupMemberAt(iChar)->HasFullHealth() == false)
+			injuries++;
 	}
 
-	int currentTask = aiGroup->GetMainTask();
 
-	switch (currentTask)
+	//UE_LOG(LogTemp, Log, TEXT(" %s, Injuries : %d:  - UBTService_EnemyGroupTask::TickNode"), *aiGroup->GetName(), injuries);
+
+	if (injuries > 0.5f * groupMaxNumber)
 	{
-	case EM_MeleeAgainstPlayer:
-		MeleeAgainstPlayer(aiGroup);
-		break;
-	default:
-		break;
+		UE_LOG(LogTemp, Warning, TEXT("%s: Rage !!!!!!!!!!!!!!!!! - UBTService_EnemyGroupTask::TickNode"), *aiGroup->GetName());
+		aiCtrl->SetIsCharging_BBC(true);
 	}
 
 
-	UE_LOG(LogTemp, Log, TEXT("dt: %f"), _deltaSecond);
+
+
+
 }
 
 void UBTService_EnemyGroupTask::MeleeAgainstPlayer(AEnemyGroup* const _aiGroup)

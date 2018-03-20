@@ -109,6 +109,13 @@ void AAIGroupBase::BeginPlay()
 
 	// Setup For Update Group Position
 	GroupTargetLocation = this->GetActorLocation();
+
+	// get the group size during spawn
+	GroupSizeMax = 0;
+	for (int iSection = 0; iSection < AIToSpawn.Num(); iSection++)
+	{
+		GroupSizeMax += AIToSpawn[iSection].TotalNumber;
+	}
 	//LastGroupCenterLocation = GroupTargetLocation + GetGroupCenterOffset();
 
 	GetWorldTimerManager().SetTimer(mGroupUpdateTimer, this, &AAIGroupBase::Update, 0.25f, true, 0.1f);

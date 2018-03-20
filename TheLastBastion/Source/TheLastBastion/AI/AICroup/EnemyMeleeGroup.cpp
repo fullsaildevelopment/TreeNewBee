@@ -61,7 +61,7 @@ void AEnemyMeleeGroup::OnChildTakingDamage(const ATheLastBastionCharacter * atta
 		return;
 	}
 
-	if (groupC->GetAtDestination_BBC() == true)
+	if (groupC->GetAtDestination_BBC() || groupC->GetIsCharging_BBC())
 	{
 		// if this is player?
 		if (attacker == PlayerHero)

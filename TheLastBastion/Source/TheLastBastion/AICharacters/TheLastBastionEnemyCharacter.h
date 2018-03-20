@@ -28,7 +28,7 @@ protected:
 	void BeginPlay() override;
 
 
-	void HitResponse(AActor* DamageCauser) override;
+	void HitResponse(AActor* DamageCauser, float _currentHp) override;
 
 	void OnTakeDamageFromHero(const FVector& HitLocation, const class ATheLastBastionHeroCharacter* heroAttacker,
 		float totalDamage, bool isCritical, bool isStun) override;

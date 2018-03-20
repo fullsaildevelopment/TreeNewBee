@@ -124,6 +124,11 @@ public:
 	int GetMaxRowCount() const override;
 
 	FORCEINLINE bool IsFollowing() const { return bIsFollowing; }
+
+	FORCEINLINE bool IsSquareFormation() const { return bUseSquareFormation; }
+	FORCEINLINE bool IsScatterFormation() const { return bUseScatterFormation; }
+
+
 	void SetSpawnInfo(const FAISpawnInfo& _aiToSpawn); 
 
 	bool CanBeReformed() const;

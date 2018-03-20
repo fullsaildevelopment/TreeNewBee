@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "CustomType.h"
 #include "SinglePlayerPC.generated.h"
 
 /**

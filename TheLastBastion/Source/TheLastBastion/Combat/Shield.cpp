@@ -60,7 +60,7 @@ FVector AShield::GetArrowAttachLocation(const FVector & _hitLocation) const
 	FVector arrowAttachLocation = _hitLocation - this->GetActorForwardVector() * Thickness;
 	arrowAttachLocation = UKismetMathLibrary::InverseTransformLocation(this->GetActorTransform(), arrowAttachLocation);
 	FVector surfaceOffset = arrowAttachLocation;	
-	UE_LOG(LogTemp, Log, TEXT("surfaceOffset: %f, %f, %f - AShield::GetArrowAttachLocation"), surfaceOffset.X, surfaceOffset.Y, surfaceOffset.Z);
+	//UE_LOG(LogTemp, Log, TEXT("surfaceOffset: %f, %f, %f - AShield::GetArrowAttachLocation"), surfaceOffset.X, surfaceOffset.Y, surfaceOffset.Z);
 	surfaceOffset.Y *= WidthMeshColRatio;
 	surfaceOffset.Z *= HeightMeshColRatio;
 	arrowAttachLocation = this->GetActorLocation() + 

@@ -191,6 +191,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
 		int GroupIndex;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
+		int GroupSizeMax;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		bool bDisabled;
 
@@ -206,6 +209,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Formation)
 		bool bReformPending;
+
+
 
 
 	FTimerHandle mGroupUpdateTimer;
@@ -295,6 +300,7 @@ public:
 
 	bool IsRangeGroup() const; 
 
+
 	FORCEINLINE bool HasThreat(const ATheLastBastionCharacter* _threat) const { return ThreatMap.Find(_threat) != nullptr; }
 
 	void KillAllChild();
@@ -371,8 +377,11 @@ public:
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE bool IsInBattle() const { return bInBattle; }
-	//FORCEINLINE class UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
+	/** Get Current Group Size*/
 	FORCEINLINE int GetGroupSize() const { return AICharactersInfo.Num(); }
+	/** Get Group Size During begin play*/
+	FORCEINLINE int GetGroupSizeMax() const { return GroupSizeMax; }
+
 	FORCEINLINE void SetGroupIndex(int _index) { GroupIndex = _index; }
 	FORCEINLINE class ATheLastBastionAIBase* GetGroupMemberAt(int _index) const { return AICharactersInfo[_index].AICharacter; }
 
