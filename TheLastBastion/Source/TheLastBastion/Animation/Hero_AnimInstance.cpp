@@ -176,6 +176,8 @@ void UHero_AnimInstance::OnUpdate(float _deltaTime)
 			MeleeUpdate(movementComp, _deltaTime);
 			break;
 		}
+
+
 	}
 }
 
