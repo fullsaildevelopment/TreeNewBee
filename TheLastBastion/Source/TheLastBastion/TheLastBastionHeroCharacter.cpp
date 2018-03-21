@@ -387,6 +387,13 @@ void ATheLastBastionHeroCharacter::OnCommandMarch()
 		//{
 		//	EnemyGroupTemp->SetMarchLocation(ImpactLocation, GC_GOTOLOCATION);
 		//}
+
+		// Play sfx here
+		USoundCue* VocalCommand = UAudioManager::GetSFX(ESoundEffectType::EPlayerVocalCommandsOnGroup);
+		AudioComp->SetSound(VocalCommand);
+		AudioComp->SetIntParameter(TEXT("Command"), 7);
+		AudioComp->AttenuationSettings = VocalCommand->AttenuationSettings;
+		AudioComp->Play();
 	}
 }
 
