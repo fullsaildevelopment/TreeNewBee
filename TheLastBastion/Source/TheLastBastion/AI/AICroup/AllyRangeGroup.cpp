@@ -97,8 +97,8 @@ void AAllyRangeGroup::SetGroupVisionVolumn(float _maxGroupWidth, float _maxGroup
 	Super::SetGroupVisionVolumn(_maxGroupWidth, _maxGroupLength);
 	//GroupCenterOffset = 0.5f * _maxGroupLength;
 
-	_maxGroupWidth += RangeUnitShootingRange;
-	_maxGroupLength += RangeUnitShootingRange;
+	_maxGroupWidth += AllyRangeUnitShootingRange;
+	_maxGroupLength += AllyRangeUnitShootingRange;
 
 	RangeVision->SetBoxExtent(FVector(_maxGroupLength, _maxGroupWidth, GroupVolumnZ), true);
 }

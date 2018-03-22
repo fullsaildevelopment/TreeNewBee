@@ -89,11 +89,10 @@ public:
 		* set target to group member and enter battle*/
 		void FindClosestTarget();
 
-
 	UFUNCTION(BlueprintPure)
-		/** Check in x-y space whether there is a unDamaged group member has distance between its 
-		 target location is less than radius, if everyone is damage, then this group will do rage charge*/
-		bool IsNearTargetLocation(float radius_Sqr = 5000.0f);
+		/** Check in x-y space whether there is a group member has distance between its
+		 target location is less than radius*/
+		bool IsNearTargetLocation(float radius_Sqr = 5000.0f) const;
 
 
 	/** Set the Strategy purpose of this enemy group unit*/

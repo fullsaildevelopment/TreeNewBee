@@ -271,7 +271,7 @@ private:
 
 private:
 
-	void UpdateHeroStats();
+	void UpdateHeroStats(float _deltaTime);
 
 public:
 

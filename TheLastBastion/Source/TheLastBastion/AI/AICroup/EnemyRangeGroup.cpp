@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "EnemyRangeGroup.h"
 #include "AICharacters/TheLastBastionAllyCharacter.h"
@@ -40,14 +40,11 @@ void AEnemyRangeGroup::OnRangeVisionOverrlapBegin(UPrimitiveComponent* Overlappe
 	{
 		AddThreat(allyCharacter, ThreatGain_AIInit);
 		SetRangeGroupTarget_OnOverLap(allyCharacter);
-		//bInBattle = true;
-		SetInBattle(true);
 
-		//if (bInBattle == false)
-		//{
-		//	RangeTargetSelect_OnFirstOverlap(allyCharacter);
-		//	bInBattle = true;
-		//}
+		if (bInBattle == false)
+		{
+			SetInBattle(true);
+		}
 	}
 
 }
@@ -71,8 +68,8 @@ void AEnemyRangeGroup::SetGroupVisionVolumn(float _maxGroupWidth, float _maxGrou
 
 	MeleeVision->SetBoxExtent(FVector(_maxGroupLength, _maxGroupWidth, GroupVolumnZ), true);
 
-	_maxGroupWidth += RangeUnitShootingRange;
-	_maxGroupLength += RangeUnitShootingRange;
+	_maxGroupWidth += EnemyRangeUnitShootingRange;
+	_maxGroupLength += EnemyRangeUnitShootingRange;
 
 	RangeVision->SetBoxExtent(FVector(_maxGroupLength, _maxGroupWidth, GroupVolumnZ), true);
 }

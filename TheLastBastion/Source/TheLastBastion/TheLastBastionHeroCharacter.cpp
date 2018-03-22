@@ -86,8 +86,8 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 	HeroStats = CreateDefaultSubobject<UHeroStatsComponent>(TEXT("Stats"));
 	PawnStats = HeroStats;	
 
-	// Enable tick
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	// Init Skill Slot
 	SkillSlots.SetNum(7);
@@ -191,7 +191,7 @@ void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputCompone
 
 void ATheLastBastionHeroCharacter::Tick(float _deltaTime)
 {
-	UpdateHeroStats();
+	UpdateHeroStats(_deltaTime);
 }
 
 #pragma region On Player Input
@@ -690,7 +690,7 @@ void ATheLastBastionHeroCharacter::OnTABPressed()
 
 #pragma endregion
 
-void ATheLastBastionHeroCharacter::UpdateHeroStats()
+void ATheLastBastionHeroCharacter::UpdateHeroStats(float _deltaTime)
 {
 	// Recover Hp by time
 	if (bHpRecovering)
@@ -698,7 +698,7 @@ void ATheLastBastionHeroCharacter::UpdateHeroStats()
 		if (HeroStats->IsFullHp() == false)
 		{
 			//UE_LOG(LogTemp, Log, TEXT("Recovering Hp - ATheLastBastionHeroCharacter::UpdateHeroStats"));
-			HeroStats->AddHpByPercent(HeroStats->GetHeroHpRecoverRate());
+			HeroStats->AddHpByPercent(_deltaTime * HeroStats->GetHeroHpRecoverRate());
 			mInGameHUD->SetHpOnHealthChange(HeroStats);
 		}
 		else
@@ -710,7 +710,7 @@ void ATheLastBastionHeroCharacter::UpdateHeroStats()
 	{
 		//Reduce Sp by Time
 		//UE_LOG(LogTemp, Log, TEXT("Consuming Sp - ATheLastBastionHeroCharacter::UpdateHeroStats"));
-		HeroStats->AddSpBy(HeroStats->GetSpCost_Defence());
+		HeroStats->AddSpBy(_deltaTime * HeroStats->GetSpCost_Defence());
 		mInGameHUD->SetSpOnStaminaChange (HeroStats);
 		// if stamina == 0, then quit defend mode
 		if (HeroStats->GetStaminaCurrent() <= 0.0f)
@@ -725,7 +725,7 @@ void ATheLastBastionHeroCharacter::UpdateHeroStats()
 		if (HeroStats->IsFullSp() == false)
 		{
 			//UE_LOG(LogTemp, Log, TEXT("Recovering Sp - ATheLastBastionHeroCharacter::UpdateHeroStats"));
-			HeroStats->AddSpByPercent(HeroStats->GetHeroSpRecoverRate());
+			HeroStats->AddSpByPercent(_deltaTime * HeroStats->GetHeroSpRecoverRate());
 			mInGameHUD->SetSpOnStaminaChange(HeroStats);
 
 			//HeroStats->SetSp(120);
@@ -921,7 +921,7 @@ void ATheLastBastionHeroCharacter::OnTakePointDamageHandle(AActor * DamagedActor
 	/// Hp recovering reset
 	if (resetHpCovering)
 	{
-		bHpRecovering = false;
+		bHpRecovering = false; 
 		GetWorldTimerManager().ClearTimer(HpRecoverTimer);
 		GetWorldTimerManager().SetTimer(HpRecoverTimer, this, &ATheLastBastionHeroCharacter::EnableHpRecovering, 0.1f, false, HeroStats->GetHeroHpRecoverDelay());
 	}

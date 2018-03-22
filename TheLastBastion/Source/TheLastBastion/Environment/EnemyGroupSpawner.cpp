@@ -18,8 +18,9 @@ AEnemyGroupSpawner::AEnemyGroupSpawner()
 
 	SpawnFrequency = 10.0f;
 	FirstSpawnDelay = 5.0f;
-
-
+	TestGroupAmount = 1;
+	TestGroupSize = 2;
+	TestGroup = LanT0_CB;
 
 }
 
@@ -145,15 +146,32 @@ void AEnemyGroupSpawner::Spawn()
 		return;
 	}
 
-	if (gm->HasRoomNewEnemyGroup())
+	bool HasRoomToSpawn = (bTestingMode) ? 
+		gm->GetEnemyGroupAmount() < TestGroupAmount : gm->HasRoomNewEnemyGroup();
+
+	if (HasRoomToSpawn)
 	{
 		FActorSpawnParameters spawnParam;
 		spawnParam.SpawnCollisionHandlingOverride =
 			ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 		
 		/** Get What to spawn, and path */		
-		TSubclassOf<AEnemyGroup> classToSpawn = AllWaves[CurrentWaveIndex].WaveUnits[CurrentWaveUnitIndex].GroupClass_Bp;
-		int pathIndex = AllWaves[CurrentWaveIndex].WaveUnits[CurrentWaveUnitIndex].Path;
+
+		TSubclassOf<AEnemyGroup> classToSpawn; 
+		int pathIndex;
+
+		if (bTestingMode)
+		{
+			classToSpawn = TestGroup;
+			pathIndex = 0;
+		}
+		else
+		{
+			classToSpawn = AllWaves[CurrentWaveIndex].WaveUnits[CurrentWaveUnitIndex].GroupClass_Bp;
+			pathIndex = AllWaves[CurrentWaveIndex].WaveUnits[CurrentWaveUnitIndex].Path;
+
+		}
+
 
 		/** Spawn Group*/
 		FQuat spawnRotation;
@@ -173,16 +191,26 @@ void AEnemyGroupSpawner::Spawn()
 		if (newEnemyGroup)
 		{
 			FAISpawnInfo spawnInfo;
-			newEnemyGroup->SetSpawnInfoAtSection_TotalNum(FMath::RandRange(8, 12), 0);
-			newEnemyGroup->SetSpawnInfoAtSection_MaxCol(FMath::RandRange(4, 6), 0);
-			newEnemyGroup->SetPath(pathIndex);
+			if (bTestingMode)
+			{
+				newEnemyGroup->SetSpawnInfoAtSection_TotalNum(TestGroupSize, 0);
+				newEnemyGroup->SetSpawnInfoAtSection_MaxCol(TestGroupSize, 0);
+				newEnemyGroup->SetPath(pathIndex);
+			}
+			else
+			{
+				newEnemyGroup->SetSpawnInfoAtSection_TotalNum(FMath::RandRange(8, 12), 0);
+				newEnemyGroup->SetSpawnInfoAtSection_MaxCol(FMath::RandRange(4, 6), 0);
+				newEnemyGroup->SetPath(pathIndex);
+			}
 
 			UGameplayStatics::FinishSpawningActor(newEnemyGroup, spawnTransform);
 			newEnemyGroup->SpawnDefaultController();
 
 			gm->RegisterEnemyGroup(newEnemyGroup);
 
-			OnSpawnFinished();
+			if (bTestingMode == false)
+				OnSpawnFinished();
 		}
 
 	}

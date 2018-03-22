@@ -127,6 +127,9 @@ void AProjectile::SetMesh(UStaticMesh * _mesh)
 
 void AProjectile::Tick(float _deltaTime)
 {
+	//FVector traceStart = GetActorLocation() + 10 * GetActorForwardVector();
+	//FVector traceEnd = GetActorLocation() - 18 * GetActorForwardVector();
+	//DrawDebugLine(GetWorld(), traceStart, traceEnd, FColor::Orange, false, -1.0f, 0, 10);
 
 	//UE_LOG(LogTemp, Log, TEXT("Vel: %f"), ProjectileMovementComp->Velocity.SizeSquared());
 	if (bDamageIsEnable)
@@ -138,7 +141,7 @@ void AProjectile::Tick(float _deltaTime)
 			Params.AddIgnoredActors(IgnoredActors);
 
 		Params.bReturnPhysicalMaterial = true;
-		Params.bTraceComplex = true;
+		//Params.bTraceComplex = true;
 
 		if (ObjectParams.IsValid() == false)
 		{
@@ -153,15 +156,20 @@ void AProjectile::Tick(float _deltaTime)
 
 
 
-		FVector damageBoxLocation = GetActorLocation() + GetActorForwardVector() * Bullets_DamageBoxOffset.X;
+		//FVector damageBoxLocation = GetActorLocation() + GetActorForwardVector() * Bullets_DamageBoxOffset.X;
 
-
+		FVector traceStart = GetActorLocation() + Bullets_HeadOffset * GetActorForwardVector();
+		FVector traceEnd = GetActorLocation() + Bullets_EndOffset * GetActorForwardVector();
 		UWorld* World = GetWorld();
-		bool const bHit = World ? World-> SweepSingleByObjectType(DamageInfo.hitResult, 
-			damageBoxLocation, damageBoxLocation, GetActorQuat(), ObjectParams, FCollisionShape::MakeBox(Bullets_DamageBoxExtend), Params) : false;
+		
+		bool const bHit = World ? World->LineTraceSingleByObjectType(DamageInfo.hitResult,
+			traceStart, traceEnd, ObjectParams, Params) : false;
 
-		//DrawDebugSphere(World, ArrowPosition, SPHERERADIUS, 8, FColor::Red);
 
+		//bool const bHit = World ? World-> SweepSingleByObjectType(DamageInfo.hitResult, 
+			//damageBoxLocation, damageBoxLocation, GetActorQuat(), ObjectParams, FCollisionShape::MakeBox(Bullets_DamageBoxExtend), Params) : false;
+
+	
 		if (bHit)
 		{
 			AActor* damagedActor = DamageInfo.hitResult.GetActor();
@@ -248,6 +256,11 @@ void AProjectile::Tick(float _deltaTime)
 
 					AProjectile* copyProjectile = GetWorld()->SpawnActor<AProjectile>(this->GetClass(), GetActorLocation(), GetActorRotation(), spawnParam);
 					copyProjectile->AttachToActor(damagedActor, FAttachmentTransformRules::KeepWorldTransform);
+
+
+
+
+
 					Destroy();
 
 				}

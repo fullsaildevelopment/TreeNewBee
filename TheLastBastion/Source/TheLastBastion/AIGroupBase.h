@@ -43,7 +43,9 @@
 #define TargetFromRight_FaceToUs 12 // being Flanked from Right
 
 #define MaxGroupSize 20
-#define RangeUnitShootingRange 8000
+#define AllyRangeUnitShootingRange 6500
+#define EnemyRangeUnitShootingRange 5500
+
 #define VisionHalfHeight 200.0f
 
 

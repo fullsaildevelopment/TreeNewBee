@@ -277,8 +277,9 @@ void AEnemyGroup::SetMarchLocation(const FVector & _targetLocation, int _command
 		break;
 	}
 	}
+
 	groupC->SetIsMoving_BBC(true);
-	// groupC->SetNewWayPoint_BBC(false);
+
 	// give each child an march command
 	SendGroupCommand(_commandIndex);
 }
@@ -509,21 +510,22 @@ int AEnemyGroup::GetMaxRowCount() const
 	return 0;
 }
 
-bool AEnemyGroup::IsNearTargetLocation(float radius_Sqr)
+bool AEnemyGroup::IsNearTargetLocation(float radius_Sqr) const
 {
 	int GroupSize = GetGroupSize();
 
-	// check if all group member is damaged, 
-	// if there is one has not been damaged, we will keep the waypoint route
-	//bool bAllDamaged = true;	
+	// check if there is any group member reach destination alive, 
 	for (int iChar = 0; iChar < GroupSize; iChar++)
 	{
-		if (AICharactersInfo[iChar].AICharacter->HasFullHealth())
+		if (AICharactersInfo[iChar].AICharacter->GetIsDead() == false)
 		{
-			//bAllDamaged = false;
-			return AICharactersInfo[iChar].AICharacter->IsNearTargetLocation(radius_Sqr);
+			bool bReach = AICharactersInfo[iChar].AICharacter->IsNearTargetLocation(radius_Sqr);
+			if (bReach)
+				return true;
 		}
 	}
+
+	return false;
 
 	//if (bAllDamaged)
 	//	bShouldCharge = true;
@@ -540,16 +542,6 @@ bool AEnemyGroup::IsNearTargetLocation(float radius_Sqr)
 
 	//	groupC->SetIsCharging_BBC(true);
 	//}
-
-
-	return false;
-
-	//FVector2D firstRowLocation = FVector2D(GetFirstRowLocation());
-	//FVector2D targetLocation = FVector2D(GroupTargetLocation);
-	//float dist = FVector2D::DistSquared(firstRowLocation, targetLocation);
-	//UE_LOG(LogTemp, Log, TEXT("disSq: %f"), dist);
-
-	//return  dist < radius_Sqr;
 }
 
 void AEnemyGroup::MeleeAgainstPlayer_OnEnemyGroupMission()

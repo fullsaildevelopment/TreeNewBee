@@ -46,15 +46,11 @@ void UBTService_EnemyGroupTask::TickNode(UBehaviorTreeComponent & _ownerComp, ui
 
 	//UE_LOG(LogTemp, Log, TEXT(" %s, Injuries : %d:  - UBTService_EnemyGroupTask::TickNode"), *aiGroup->GetName(), injuries);
 
-	if (injuries > 0.5f * groupMaxNumber)
+	if (injuries >= 0.5f * groupMaxNumber)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("%s: Rage !!!!!!!!!!!!!!!!! - UBTService_EnemyGroupTask::TickNode"), *aiGroup->GetName());
 		aiCtrl->SetIsCharging_BBC(true);
 	}
-
-
-
-
 
 }
 

@@ -16,7 +16,7 @@
 #include "UI/InGameAIHUD.h"
 #include "CustomType.h"
 
-#define NavPointHeightAdjustLimit 500.0f;
+#define NavPointHeightAdjustLimit 2000.0f;
 #define SecondBeforeKill 10.0f
 
 ATheLastBastionAIBase::ATheLastBastionAIBase()
@@ -253,12 +253,16 @@ void ATheLastBastionAIBase::SetTarget(AActor * _target, bool _asGroupMember)
 			aiTarget->OnBecomeUnvailbleTargetEvent.AddUObject(this, &ATheLastBastionAIBase::OnTargetDeathHandle);
 	}
 
-	// if our group is marked as already in battle, then interrupt current group command, with fight
+	// if our group is not marked in battle, then interrupt current group command, with fight
 	// if already in group fight, then do nothing
 	if (mGroup->IsInBattle() == false)
 	{
 		baseAICtrl->SetNewCommandIndex_BBC(GC_FIGHT);
 	}
+
+	// Enable Indi combat 
+	baseAICtrl->SetOldCommandIndex_BBC(GC_FIGHT);
+
 }
 
 AActor * ATheLastBastionAIBase::GetTarget() const

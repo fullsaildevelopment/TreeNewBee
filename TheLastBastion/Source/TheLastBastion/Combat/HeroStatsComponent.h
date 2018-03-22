@@ -131,9 +131,9 @@ public:
 	/** Get Hero Sp Recover Rate as a unit value*/
 	FORCEINLINE float GetHeroHpRecoverDelay() const { return HeroHpRecoverDelay_Init * HeroHpRecoverDelay_Scaler; }
 	/** return Hero Hp Recover percentage as a unit value*/
-	FORCEINLINE float GetHeroHpRecoverRate() const { return HeroHpRecoverRate_Init * HeroHpRecoverRate_Scaler* 0.01f; }
+	FORCEINLINE float GetHeroHpRecoverRate() const { return HeroHpRecoverRate_Init * HeroHpRecoverRate_Scaler; }
 	/** Get Hero Sp Recover by percentage as a unit value*/
-	FORCEINLINE float GetHeroSpRecoverRate() const { return HeroSpRecoverRate_Init * HeroSpRecoverRate_Scaler * 0.01f; }
+	FORCEINLINE float GetHeroSpRecoverRate() const { return HeroSpRecoverRate_Init * HeroSpRecoverRate_Scaler; }
 
 	/** Get Melee Attack sp cost */
 	FORCEINLINE float GetSpCost_MeleeAttack() const { return Hero_MeleeAttack_SpCost * HeroSpConsumeRate_Scaler; }
@@ -142,7 +142,7 @@ public:
 	/** Get Dodge sp cost*/
 	FORCEINLINE float GetSpCost_Dodge() const { return Hero_Dodge_SpCost * HeroSpConsumeRate_Scaler; }
 	/** Get Defence sp cost*/
-	FORCEINLINE float GetSpCost_Defence() const { return Hero_Defence_SpCost * HeroSpConsumeRate_Scaler; }
+	FORCEINLINE float GetSpCost_Defence() const { return Hero_Defence_SpCost * HeroSpConsumeRate_Scaler * 100.0f; }
 	/** Get Dp Gain By percentage on successful counter attack*/
 	FORCEINLINE float GetDpGainPercentage_CounterAttack() const { return HeroDpGainOnCA_Init * Hero_DpGainOnCA_Scaler * 0.01f; }
 

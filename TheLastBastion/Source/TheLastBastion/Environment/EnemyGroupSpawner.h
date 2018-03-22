@@ -75,6 +75,16 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
 		TArray<FWave> AllWaves;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpawnPreset, meta = (AllowPrivateAccess = "true"))
+		TSubclassOf<class AEnemyGroup> TestGroup;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpawnPreset, meta = (AllowPrivateAccess = "true"))
+		int TestGroupAmount;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpawnPreset, meta = (AllowPrivateAccess = "true"))
+		int TestGroupSize;
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		float SpawnFrequency;
 
@@ -92,6 +102,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
 		/** How many wave units we are going to spawn in current wave*/
 		int MaxWaveUnitAmount;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
+		/** Spawn a group without any pathing settings*/
+		bool bTestingMode;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		/** All Unit Spawn Position*/

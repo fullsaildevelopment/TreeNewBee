@@ -100,7 +100,8 @@ public:
 	FORCEINLINE int GetEnemyGroupAmount() const { return Enemies.Num(); }
 
 	FORCEINLINE bool HasRoomNewEnemyGroup() const { return Enemies.Num() < MaxEnemyGroupAmount; }
-
+	///** Spawn Valibility check during test*/
+	//FORCEINLINE bool HasRoomNewEnemyGroup_SingleTest() const { return Enemies.Num() < 1; }
 
 	// Called when player dismiss a group, destroy the group unit and group itself
 	void DestroyAllyGroupAt(int _index);
