@@ -14,8 +14,12 @@ AEnemyGroupSpawner::AEnemyGroupSpawner()
 
 
 	FindAllEnemyGroupPreset();
+
+
 	SpawnFrequency = 10.0f;
 	FirstSpawnDelay = 5.0f;
+
+
 
 }
 
@@ -24,6 +28,9 @@ void AEnemyGroupSpawner::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	EditWaves();
+	InitWaveSpawner();
+
 	Hero = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 
 	GetWorldTimerManager().SetTimer(SpawnTimer, this, 
@@ -39,6 +46,25 @@ void AEnemyGroupSpawner::BeginPlay()
 	gm->RegisterEnemySpawner(this);
 
 
+
+
+}
+
+void AEnemyGroupSpawner::EditWaves()
+{
+	AllWaves.SetNum(1);
+	// # Wave 1:
+	AllWaves[0].WaveUnits.SetNum(10);
+	AllWaves[0].WaveUnits[0].SetWaveUnit(LanT0_CB, South_ShooterRoute_0);
+	AllWaves[0].WaveUnits[1].SetWaveUnit(LanT0, South_TrooperToute_0);
+	AllWaves[0].WaveUnits[2].SetWaveUnit(LanT0, South_TrooperToute_0);
+	AllWaves[0].WaveUnits[3].SetWaveUnit(LanT0_CB, South_ShooterRoute_0);
+	AllWaves[0].WaveUnits[4].SetWaveUnit(LanT0, South_TrooperToute_0);
+	AllWaves[0].WaveUnits[5].SetWaveUnit(LanT0, South_TrooperToute_0);
+	AllWaves[0].WaveUnits[6].SetWaveUnit(LanT0_CB, South_ShooterRoute_0);
+	AllWaves[0].WaveUnits[7].SetWaveUnit(LanT0, South_TrooperToute_0);
+	AllWaves[0].WaveUnits[8].SetWaveUnit(LanT0, South_TrooperToute_0);
+	AllWaves[0].WaveUnits[9].SetWaveUnit(LanT0_CB, South_ShooterRoute_0);
 }
 
 // Called every frame
@@ -51,6 +77,47 @@ void AEnemyGroupSpawner::Tick(float DeltaTime)
 FTransform AEnemyGroupSpawner::GetNextWayPointFrom(int _pathIndex, int _nextWaypoint) const
 {
 	return Paths[_pathIndex].WayPoints[_nextWaypoint];
+}
+
+void AEnemyGroupSpawner::InitWaveSpawner()
+{
+	CurrentWaveIndex = 0;
+
+	InitCurrentWave();
+}
+
+void AEnemyGroupSpawner::InitCurrentWave()
+{
+	// if we are given a unvalid wave index, just restart from first wave
+	if (AllWaves.IsValidIndex(CurrentWaveIndex) == false)
+		CurrentWaveIndex = 0;
+
+	MaxWaveUnitAmount = AllWaves[CurrentWaveIndex].WaveUnits.Num();
+	CurrentWaveUnitIndex = 0;
+
+}
+
+//void AEnemyGroupSpawner::OnWaveBegin(int _waveIndex)
+//{
+//	// if we are given a unvalid wave index, just restart from first wave
+//}
+//
+//void AEnemyGroupSpawner::OnWaveEnd(int _waveIndex)
+//{
+//}
+
+void AEnemyGroupSpawner::OnSpawnFinished()
+{
+	CurrentWaveUnitIndex++;
+
+	// if the current wave is finished spawning
+	if (CurrentWaveUnitIndex >= MaxWaveUnitAmount)
+	{
+		CurrentWaveIndex++;
+		// spawn next wave
+		InitCurrentWave();
+	}
+
 }
 
 void AEnemyGroupSpawner::FindAllEnemyGroupPreset()
@@ -80,23 +147,24 @@ void AEnemyGroupSpawner::Spawn()
 
 	if (gm->HasRoomNewEnemyGroup())
 	{
-		/// just gonna spawn Lan T0 for now
 		FActorSpawnParameters spawnParam;
 		spawnParam.SpawnCollisionHandlingOverride =
 			ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		
+		/** Get What to spawn, and path */		
+		TSubclassOf<AEnemyGroup> classToSpawn = AllWaves[CurrentWaveIndex].WaveUnits[CurrentWaveUnitIndex].GroupClass_Bp;
+		int pathIndex = AllWaves[CurrentWaveIndex].WaveUnits[CurrentWaveUnitIndex].Path;
 
+		/** Spawn Group*/
 		FQuat spawnRotation;
 		FVector spawnLocation;
-		int pathIndex = 0;
-		SelectedPath(spawnLocation, spawnRotation, pathIndex);
+		GetSpawnTransform(spawnLocation, spawnRotation, pathIndex);
 
 		FTransform spawnTransform;
 		spawnTransform.SetLocation(spawnLocation);
 		spawnTransform.SetRotation(spawnRotation);
 		spawnTransform.SetScale3D(FVector(1, 1, 1));
 		
-
-		TSubclassOf<AEnemyGroup> classToSpawn = LanT0_CB;
 		// spawn new group
 		AEnemyGroup* newEnemyGroup
 			= GetWorld()->SpawnActorDeferred<AEnemyGroup>
@@ -114,16 +182,15 @@ void AEnemyGroupSpawner::Spawn()
 
 			gm->RegisterEnemyGroup(newEnemyGroup);
 
-			//FVector forward = newEnemyGroup->GetActorForwardVector();
-			//UE_LOG(LogTemp, Log, TEXT(" forward: %f, %f, %f -- AEnemyGroupSpawner::Spawn"), 
-			//	forward.X, forward.Y, forward.Z );
+			OnSpawnFinished();
 		}
+
 	}
 }
 
-void AEnemyGroupSpawner::SelectedPath(FVector& _location, FQuat& _rotation, int& _pathIndex) const
+void AEnemyGroupSpawner::GetSpawnTransform(FVector& _location, FQuat& _rotation, int _pathIndex) const
 {
-	_pathIndex = FMath::RandRange(0, Paths.Num() - 1);
+	//_pathIndex = 0;// FMath::RandRange(0, Paths.Num() - 1);
 	_location =  this->GetActorLocation() + Paths[_pathIndex].WayPoints[0].GetLocation();
 
 	_rotation = Paths[_pathIndex].WayPoints[0].GetRotation();

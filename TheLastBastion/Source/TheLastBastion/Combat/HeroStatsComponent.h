@@ -14,7 +14,7 @@ enum class EEquipType : uint8;
 
 #define HeroHpRecoverRate_Init 0.1f   // percentage
 #define HeroHpRecoverDelay_Init 5.0f  // seconds
-#define HeroSpRecoverRate_Init 0.1f   // percentage
+#define HeroSpRecoverRate_Init 0.115f   // percentage
 #define HeroDpGainOnCA_Init 10.0f	  // percentage
 
 #define HeroMeleeAttackSpCost_Init_Hammer_BattleAxe -30.0f;

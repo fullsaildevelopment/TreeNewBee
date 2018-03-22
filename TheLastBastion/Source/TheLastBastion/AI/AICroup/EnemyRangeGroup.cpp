@@ -162,7 +162,14 @@ void AEnemyRangeGroup::SetRangeGroupTarget_OnOverLapEnd(ATheLastBastionCharacter
 			availableTarget.Add(iTarget);
 	}
 
-	int maxIndex_availableTarget = availableTarget.Num() - 1;
+	int availableTargetNum = availableTarget.Num();
+
+	//if (availableTargetNum == 0)
+	//	return;
+
+	
+
+	int maxIndex_availableTarget = availableTargetNum - 1;
 	int targetIndex = 0;
 
 	// reassign all group member target 

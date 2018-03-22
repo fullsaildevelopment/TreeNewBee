@@ -6,6 +6,10 @@
 #include "GameFramework/Actor.h"
 #include "EnemyGroupSpawner.generated.h"
 
+
+#define South_ShooterRoute_0 0
+#define South_TrooperToute_0 1
+
 USTRUCT(BlueprintType)
 struct FMarchPath
 {
@@ -16,6 +20,32 @@ struct FMarchPath
 		TArray<FTransform> WayPoints;
 
 };
+
+
+USTRUCT(BlueprintType)
+struct FWaveUnit
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
+		TSubclassOf<class AEnemyGroup> GroupClass_Bp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
+		int Path;
+
+	FORCEINLINE void SetWaveUnit(TSubclassOf<class AEnemyGroup> _class, int _path) { GroupClass_Bp = _class; Path = _path; }
+};
+
+USTRUCT(BlueprintType)
+struct FWave
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
+		TArray<FWaveUnit> WaveUnits;
+
+};
+
 
 UCLASS()
 class THELASTBASTION_API AEnemyGroupSpawner : public AActor
@@ -42,15 +72,32 @@ protected:
 
 	FTimerHandle SpawnTimer;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
+		TArray<FWave> AllWaves;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		float SpawnFrequency;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		float FirstSpawnDelay;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
+		/** which surviving wave we are currently fight against*/
+		int CurrentWaveIndex;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
+		/** How many wave units we have spawned so far in current wave*/
+		int CurrentWaveUnitIndex;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
+		/** How many wave units we are going to spawn in current wave*/
+		int MaxWaveUnitAmount;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		/** All Unit Spawn Position*/
 		bool bEnableSpawning;
+
+
 
 
 
@@ -69,6 +116,9 @@ private:
 	/** Single Player Character ref*/
 		const class ACharacter* Hero;
 
+	/** Hard Coded spawn waves for game cycle*/
+	void EditWaves();
+
 
 public:	
 	// Called every frame
@@ -80,9 +130,24 @@ public:
 
 private:
 
+	/** Setup indexes that manipulate the spawn process */
+	void InitWaveSpawner();
+
+	void InitCurrentWave();
+
+	///** Called on wave begin */
+	//void OnWaveBegin(int _waveIndex);
+
+	///** Called on wave end */
+	//void OnWaveEnd(int _waveIndex);
+
+	/** Called EveryTime after successfully spawn a Group */
+	void OnSpawnFinished();
+
 	void FindAllEnemyGroupPreset();
 
 	void Spawn();
 
-	void SelectedPath(FVector& _location, FQuat& _rotation, int& _pathIndex) const;
+	/** Get Spawn Location and direction by path*/
+	void GetSpawnTransform(FVector& _location, FQuat& _rotation, int _pathIndex) const;
 };

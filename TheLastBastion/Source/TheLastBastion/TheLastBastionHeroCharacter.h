@@ -188,6 +188,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Targeting)
 		class USphereComponent*    TargetDetector;
 
+
 	UPROPERTY()
 		/** swat under player command */
 		class AAllyGroup* CommandedGroup;

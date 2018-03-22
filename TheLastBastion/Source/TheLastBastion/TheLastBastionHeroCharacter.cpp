@@ -66,6 +66,7 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 	TargetDetector->bHiddenInGame = false;
 	TargetDetector->SetCollisionProfileName("EnemyDetector");
 
+
 	GetMesh()->SetCollisionProfileName("HeroBody");
 
 	// Set size for collision capsule
