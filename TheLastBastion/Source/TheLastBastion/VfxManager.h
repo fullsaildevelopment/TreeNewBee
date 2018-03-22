@@ -17,7 +17,8 @@ UENUM()
 enum class EVfxType : uint8
 {
 	bloodImpact_sputtering = 0,
-	metalImpact_sputtering = 1
+	metalImpact_sputtering,
+	WeaponNormalTrail
 };
 
 UCLASS()
@@ -34,6 +35,8 @@ private:
 	static class UParticleSystem* bloodImpact_sputtering_PS;
 
 	static class UParticleSystem* metalImpact_sputtering_PS;
+
+	static class UParticleSystem* WeaponNormalTrail;
 
 	UParticleSystem* FindParticalSystem(const TCHAR* _path);
 

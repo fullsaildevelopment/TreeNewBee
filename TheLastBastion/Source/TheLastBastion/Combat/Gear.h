@@ -145,6 +145,7 @@ public:
 	FORCEINLINE TSubclassOf<AGear> GetLeftHandGear() const { return LeftHand; }
 	FORCEINLINE EGearType GetGearType() const { return GearType; }
 	FORCEINLINE virtual class USceneComponent* GetMesh() const { return nullptr; }
+	FORCEINLINE virtual class UParticleSystemComponent* GetParticleSystemComp() const { return nullptr; }
 	FORCEINLINE TSubclassOf<class UDamageType> GetDamageType() { return DamageType; }
 
 	FORCEINLINE float GetHpBonus() const { return HpBonus;}

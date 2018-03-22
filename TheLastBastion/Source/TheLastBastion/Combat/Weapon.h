@@ -30,6 +30,9 @@ private:
 		UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 		UStaticMeshComponent* Mesh;
 
+		UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+		class UParticleSystemComponent* ParticleSystemComp;
+
 protected:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = DamageCollision)
@@ -59,8 +62,9 @@ public:
 
 	virtual void Tick(float _deltaTime) override;	
 
-	class USceneComponent* GetMesh() const override;
+	FORCEINLINE class USceneComponent* GetMesh() const override {return Mesh;}
 
+	FORCEINLINE class UParticleSystemComponent* GetParticleSystemComp() const override { return ParticleSystemComp; }
 
 	void GetRayCastPosition(FVector& _start, FVector& _end);
 

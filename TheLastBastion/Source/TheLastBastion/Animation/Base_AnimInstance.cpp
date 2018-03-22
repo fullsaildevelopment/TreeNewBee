@@ -7,6 +7,10 @@
 #include "Combat/Armor.h"
 #include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
+#include "Combat/Weapon.h"
+#include "VfxManager.h"
+#include "Particles/ParticleSystem.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "ConstructorHelpers.h"
 
 #define SN_GetUpFromBack TEXT("GetUpFromBack")
@@ -273,6 +277,28 @@ void UBase_AnimInstance::FxOnDraw()
 
 void UBase_AnimInstance::FxOnReload()
 {
+}
+
+void UBase_AnimInstance::StartMeleeWeaponTrail()
+{
+	AWeapon* CurrentWeapon = Cast<AWeapon>(mBaseCharacter->GetCurrentWeapon());
+	if (CurrentWeapon)
+	{
+		UParticleSystemComponent* ParticleSystemComp = CurrentWeapon->GetParticleSystemComp();
+		UParticleSystem* WeaponNormalTrail = UVfxManager::GetVfx(EVfxType::WeaponNormalTrail);
+		ParticleSystemComp->Template = WeaponNormalTrail;
+		ParticleSystemComp->BeginTrails(TEXT("TrailStart"), TEXT("TrailEnd"), ETrailWidthMode::ETrailWidthMode_FromCentre, 1.0f);
+	}
+}
+
+void UBase_AnimInstance::EndMeleeWeaponTrail()
+{
+	AWeapon* CurrentWeapon = Cast<AWeapon>(mBaseCharacter->GetCurrentWeapon());
+	if (CurrentWeapon)
+	{
+		UParticleSystemComponent* ParticleSystemComp = CurrentWeapon->GetParticleSystemComp();
+		ParticleSystemComp->EndTrails();
+	}
 }
 
 bool UBase_AnimInstance::FindMontage(class UAnimMontage*& _animMontage, const TCHAR * _path)
