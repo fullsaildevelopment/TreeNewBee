@@ -90,6 +90,12 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = Effects)
 		virtual void FxOnReload();
 
+	UFUNCTION(BlueprintCallable, Category = Effects)
+		virtual void StartMeleeWeaponTrail();
+
+	UFUNCTION(BlueprintCallable, Category = Effects)
+		virtual void EndMeleeWeaponTrail();
+
 protected:
 
 	UPROPERTY()

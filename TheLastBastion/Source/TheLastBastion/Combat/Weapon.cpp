@@ -8,6 +8,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "AudioManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystemComponent.h"
 
 
 
@@ -26,6 +27,11 @@ AWeapon::AWeapon()
 	bDamageIsEnable = false;
 	bEnableCutOpenDamage = false;
 	bShowBounding = false;
+
+	// Particle System Component
+	ParticleSystemComp = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ParticleSystemComp"));
+	ParticleSystemComp->SetupAttachment(Mesh);
+	ParticleSystemComp->RelativeLocation = FVector::ZeroVector;
 }
 
 void AWeapon::BeginPlay()
@@ -116,11 +122,6 @@ void AWeapon::Tick(float _deltaTime)
 
 		}
 	}
-}
-
-USceneComponent * AWeapon::GetMesh() const
-{
-	return Mesh;
 }
 
 void AWeapon::GetRayCastPosition(FVector & _start, FVector & _end)
