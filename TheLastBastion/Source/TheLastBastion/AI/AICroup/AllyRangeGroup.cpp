@@ -42,21 +42,22 @@ void AAllyRangeGroup::OnRangeVisionOverrlapBegin(UPrimitiveComponent* Overlapped
 		// update threat list
 		AddThreat(EnemyCharacter, ThreatGain_AIInit);
 
+		// wont stop and continue with previous group command
+		if (bInBattle == false)
+			SetInBattle(true);
+		SetRangeGroupTarget_OnOverLap(EnemyCharacter);
 
-		if (EnemyCharacter->IsRangeUnit())
-		{
-			// wont stop and continue with previous group command
-			if (bInBattle == false)
-				SetInBattle(true);
-			SetRangeGroupTarget_OnOverLap(EnemyCharacter);
-		}
-		else
-		{
-			// will stop and shoot
-			SetRangeGroupTarget_OnOverLap(EnemyCharacter);
-			if (bInBattle == false)
-				SetInBattle(true);
-		}
+
+		//if (EnemyCharacter->IsRangeUnit())
+		//{
+		//}
+		//else
+		//{
+		//	// will stop and shoot
+		//	SetRangeGroupTarget_OnOverLap(EnemyCharacter);
+		//	if (bInBattle == false)
+		//		SetInBattle(true);
+		//}
 	}
 }
 
