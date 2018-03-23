@@ -279,25 +279,30 @@ void UBase_AnimInstance::FxOnReload()
 {
 }
 
-void UBase_AnimInstance::StartMeleeWeaponTrail()
+void UBase_AnimInstance::StartMeleeWeaponTrail(bool _rightHand)
 {
-	AWeapon* CurrentWeapon = Cast<AWeapon>(mBaseCharacter->GetCurrentWeapon());
+	
+	AGear* CurrentWeapon = _rightHand ? mBaseCharacter->GetCurrentWeapon() : mBaseCharacter->GetCurrentSecondaryWeapon();
 	if (CurrentWeapon)
 	{
 		UParticleSystemComponent* ParticleSystemComp = CurrentWeapon->GetParticleSystemComp();
-		UParticleSystem* WeaponNormalTrail = UVfxManager::GetVfx(EVfxType::WeaponNormalTrail);
-		ParticleSystemComp->Template = WeaponNormalTrail;
-		ParticleSystemComp->BeginTrails(TEXT("TrailStart"), TEXT("TrailEnd"), ETrailWidthMode::ETrailWidthMode_FromCentre, 1.0f);
+		if (ParticleSystemComp)
+		{
+			UParticleSystem* WeaponNormalTrail = UVfxManager::GetVfx(EVfxType::WeaponNormalTrail);
+			ParticleSystemComp->Template = WeaponNormalTrail;
+			ParticleSystemComp->BeginTrails(TEXT("TrailStart"), TEXT("TrailEnd"), ETrailWidthMode::ETrailWidthMode_FromCentre, 1.0f);
+		}
 	}
 }
 
-void UBase_AnimInstance::EndMeleeWeaponTrail()
+void UBase_AnimInstance::EndMeleeWeaponTrail(bool _rightHand)
 {
-	AWeapon* CurrentWeapon = Cast<AWeapon>(mBaseCharacter->GetCurrentWeapon());
+	AGear* CurrentWeapon = _rightHand ? mBaseCharacter->GetCurrentWeapon() : mBaseCharacter->GetCurrentSecondaryWeapon();
 	if (CurrentWeapon)
 	{
 		UParticleSystemComponent* ParticleSystemComp = CurrentWeapon->GetParticleSystemComp();
-		ParticleSystemComp->EndTrails();
+		if (ParticleSystemComp)
+			ParticleSystemComp->EndTrails();
 	}
 }
 

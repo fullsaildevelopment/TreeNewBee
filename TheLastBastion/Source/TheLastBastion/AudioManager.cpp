@@ -13,6 +13,7 @@ USoundCue* UAudioManager::CrossbowFire = nullptr;
 USoundCue* UAudioManager::BoltsHitImpactOnCharacter = nullptr;
 USoundCue* UAudioManager::BoltsHitImpactOnLightShield = nullptr;
 USoundCue* UAudioManager::BoltsHitImpactOnHeavyShield = nullptr;
+USoundCue* UAudioManager::BoltsHitImpactOnTerrain = nullptr;
 USoundCue* UAudioManager::LightWeaponImpact = nullptr;
 USoundCue* UAudioManager::HeavyWeaponImpact = nullptr;
 USoundCue* UAudioManager::MeleeCounterAttackImpact = nullptr;
@@ -31,6 +32,7 @@ UAudioManager::UAudioManager()
 	BoltsHitImpactOnCharacter = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsHitImpactOnCharacter"));
 	BoltsHitImpactOnLightShield = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsHitImpactOnLightShield"));
 	BoltsHitImpactOnHeavyShield = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsHitImpactOnHeavyShield"));
+	BoltsHitImpactOnTerrain = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsHitImpactOnTerrain"));
 
 	// Melee Weapon Impact
 	LightWeaponImpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/MeleeWeaponHitImpact/LightWeaponImpact"));
@@ -76,6 +78,9 @@ USoundCue * UAudioManager::GetSFX(ESoundEffectType _sfxType)
 
 	case ESoundEffectType::EBoltsHitImpactOnHeavyShield:
 		return BoltsHitImpactOnHeavyShield;
+
+	case ESoundEffectType::EBoltsHitImpactOnTerrain:
+		return BoltsHitImpactOnTerrain;
 
 	case ESoundEffectType::ELightWeaponImpact:
 		return LightWeaponImpact;

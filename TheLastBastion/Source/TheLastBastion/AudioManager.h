@@ -16,6 +16,7 @@ enum class ESoundEffectType : uint8
 	EBoltsHitImpactOnCharacter,
 	EBoltsHitImpactOnLightShield,
 	EBoltsHitImpactOnHeavyShield,
+	EBoltsHitImpactOnTerrain,
 	ELightWeaponImpact,
 	EHeavyWeaponImpact,
 	EMeleeCounterAttackImpact,
@@ -42,6 +43,7 @@ private:
 	static class USoundCue* BoltsHitImpactOnCharacter;
 	static class USoundCue* BoltsHitImpactOnLightShield;
 	static class USoundCue* BoltsHitImpactOnHeavyShield;
+	static class USoundCue* BoltsHitImpactOnTerrain;
 
 	// Melee Weapon Impact SFX
 	static class USoundCue* LightWeaponImpact;
