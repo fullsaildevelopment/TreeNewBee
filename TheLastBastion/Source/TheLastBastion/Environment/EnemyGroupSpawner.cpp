@@ -56,16 +56,16 @@ void AEnemyGroupSpawner::EditWaves()
 	AllWaves.SetNum(1);
 	// # Wave 1:
 	AllWaves[0].WaveUnits.SetNum(10);
-	AllWaves[0].WaveUnits[0].SetWaveUnit(LanT0_CB, South_ShooterRoute_0);
-	AllWaves[0].WaveUnits[1].SetWaveUnit(LanT0, South_TrooperToute_0);
-	AllWaves[0].WaveUnits[2].SetWaveUnit(LanT0, South_TrooperToute_0);
-	AllWaves[0].WaveUnits[3].SetWaveUnit(LanT0_CB, South_ShooterRoute_0);
-	AllWaves[0].WaveUnits[4].SetWaveUnit(LanT0, South_TrooperToute_0);
-	AllWaves[0].WaveUnits[5].SetWaveUnit(LanT0, South_TrooperToute_0);
-	AllWaves[0].WaveUnits[6].SetWaveUnit(LanT0_CB, South_ShooterRoute_0);
-	AllWaves[0].WaveUnits[7].SetWaveUnit(LanT0, South_TrooperToute_0);
-	AllWaves[0].WaveUnits[8].SetWaveUnit(LanT0, South_TrooperToute_0);
-	AllWaves[0].WaveUnits[9].SetWaveUnit(LanT0_CB, South_ShooterRoute_0);
+	AllWaves[0].WaveUnits[0].SetWaveUnit(LanT0, South_TrooperRoute_0);
+	AllWaves[0].WaveUnits[1].SetWaveUnit(LanT0, South_TrooperRoute_1);
+	AllWaves[0].WaveUnits[2].SetWaveUnit(LanT0_CB, South_ShooterRoute_0);
+	AllWaves[0].WaveUnits[3].SetWaveUnit(LanT0, South_TrooperRoute_0);
+	AllWaves[0].WaveUnits[4].SetWaveUnit(LanT0, South_TrooperRoute_1);
+	AllWaves[0].WaveUnits[5].SetWaveUnit(LanT0_CB, South_ShooterRoute_0);
+	AllWaves[0].WaveUnits[6].SetWaveUnit(LanT0, South_TrooperRoute_0);
+	AllWaves[0].WaveUnits[7].SetWaveUnit(LanT0, South_TrooperRoute_1);
+	AllWaves[0].WaveUnits[8].SetWaveUnit(LanT0_CB, South_ShooterRoute_0);
+	AllWaves[0].WaveUnits[9].SetWaveUnit(LanT0, South_TrooperRoute_1);
 }
 
 // Called every frame

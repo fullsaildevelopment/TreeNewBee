@@ -6,9 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "EnemyGroupSpawner.generated.h"
 
-
-#define South_ShooterRoute_0 0
-#define South_TrooperToute_0 1
+#define South_TrooperRoute_0 0
+#define South_TrooperRoute_1 1
+#define South_ShooterRoute_0 2
 
 USTRUCT(BlueprintType)
 struct FMarchPath

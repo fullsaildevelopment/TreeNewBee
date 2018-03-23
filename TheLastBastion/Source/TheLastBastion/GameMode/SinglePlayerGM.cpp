@@ -169,7 +169,11 @@ void ASinglePlayerGM::SpawnNewAllies(TSubclassOf<class ATheLastBastionAIBase> _c
 {
 	TSubclassOf<AAllyGroup> groupToSpawn = (_isMeleeUnit) ? AllyMeleeGroup_Bp : AllyRangeGroup_Bp;
 
-	FVector groupSpawnLocation = Barracks->GetSpawnLocationOffsetAt(_index) + Barracks->GetActorLocation();
+	FVector Offset = Barracks->GetSpawnLocationOffsetAt(_index);
+	FVector groupSpawnLocation = Offset.X *  Barracks ->GetActorForwardVector() +
+		Offset.Y * Barracks->GetActorRightVector() + Offset.Z * Barracks->GetActorUpVector() + 		
+		Barracks->GetActorLocation();
+
 	FRotator groupSpawnRotation = Barracks->GetActorRotation() + FRotator(0, 180, 0);
 	
 	FTransform groupSpawnTransform;

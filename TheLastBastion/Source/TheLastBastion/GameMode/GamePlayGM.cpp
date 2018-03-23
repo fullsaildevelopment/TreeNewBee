@@ -142,7 +142,6 @@ void AGamePlayGM::BeginPlay()
 }
 
 
-
 void AGamePlayGM::GrabProfileAndSpawnPlayer(const FPlayerProfile & _profile, int _index)
 {
 	// Upload the profile
