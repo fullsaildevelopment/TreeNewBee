@@ -15,6 +15,7 @@
 
 #include "VfxManager.h"
 #include "AudioManager.h"
+#include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -257,7 +258,17 @@ void AProjectile::Tick(float _deltaTime)
 					AProjectile* copyProjectile = GetWorld()->SpawnActor<AProjectile>(this->GetClass(), GetActorLocation(), GetActorRotation(), spawnParam);
 					copyProjectile->AttachToActor(damagedActor, FAttachmentTransformRules::KeepWorldTransform);
 
+					// Play effects here
+					USoundCue* sfx = nullptr;
+					//UParticleSystem* vfx = nullptr;
+					sfx = UAudioManager::GetSFX(ESoundEffectType::EBoltsHitImpactOnTerrain);
 
+					if (sfx)
+					{
+						//UE_LOG(LogTemp, Log, TEXT("sfx && vfx - AProjectile::Tick"));
+						//::SpawnEmitterAtLocation(GetWorld(), vfx, AttachLocation);
+						UGameplayStatics::PlaySoundAtLocation(GetWorld(), sfx, this->GetActorLocation());
+					}
 
 
 

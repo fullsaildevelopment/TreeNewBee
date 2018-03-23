@@ -91,10 +91,10 @@ protected:
 		virtual void FxOnReload();
 
 	UFUNCTION(BlueprintCallable, Category = Effects)
-		virtual void StartMeleeWeaponTrail();
+		virtual void StartMeleeWeaponTrail(bool _rightHand = true);
 
 	UFUNCTION(BlueprintCallable, Category = Effects)
-		virtual void EndMeleeWeaponTrail();
+		virtual void EndMeleeWeaponTrail(bool _rightHand = true);
 
 protected:
 
