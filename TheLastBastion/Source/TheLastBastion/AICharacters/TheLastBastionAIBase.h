@@ -79,6 +79,12 @@ public:
 		UTexture2D* GetThumbNailImage() const;
 	UTexture2D* GetThumbNailImage_Implementation() const { return nullptr; }
 
+	UFUNCTION(BlueprintNativeEvent)
+		float GetSiegePoint() const;
+	float GetSiegePoint_Implementation() const { return 1.0f; }
+
+
+
 	UFUNCTION()
 		virtual void OnTargetDeathHandle();
 

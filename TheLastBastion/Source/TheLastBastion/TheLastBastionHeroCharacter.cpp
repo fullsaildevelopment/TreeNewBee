@@ -83,6 +83,8 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 	Focus_CamRotationLagging = 15.0f;
 	Unfocus_CamRotationLagging = 30.0f;
 
+	CommanderPresence = 0.05f;
+
 	HeroStats = CreateDefaultSubobject<UHeroStatsComponent>(TEXT("Stats"));
 	PawnStats = HeroStats;	
 

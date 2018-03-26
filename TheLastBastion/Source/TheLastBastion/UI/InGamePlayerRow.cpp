@@ -15,8 +15,8 @@ bool UInGamePlayerRow::Initialize()
 	bool bAllWidgetAreGood =
 		Name != nullptr && Level != nullptr &&
 		Class != nullptr && HpBar != nullptr && Hp != nullptr && DpBar != nullptr &&
-		SpBar != nullptr && Sp != nullptr;
-
+		SpBar != nullptr && Sp != nullptr &&
+		ExpBar != nullptr && CastleBar != nullptr;
 
 	if (!bAllWidgetAreGood)
 	{
@@ -82,5 +82,15 @@ void UInGamePlayerRow::SetSp(float _currentSp, float _maxSp, float _divByMax)
 {
 	SetSpValue(_currentSp, _maxSp);
 	SetSpPercentage(_currentSp, _divByMax);
+}
+
+void UInGamePlayerRow::SetCastleHealth(float _val)
+{
+	CastleBar->SetPercent(_val);
+}
+
+void UInGamePlayerRow::SetExpBar(float _val)
+{
+	ExpBar->SetPercent(_val);
 }
 

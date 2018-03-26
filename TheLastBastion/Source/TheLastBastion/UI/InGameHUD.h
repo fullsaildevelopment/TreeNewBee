@@ -78,10 +78,11 @@ public:
 	void ResetStats(const class UHeroStatsComponent* _heroStats);
 
 	void SetHpOnHealthChange(const class UPawnStatsComponent * _pawnStats);
-
 	void SetSpOnStaminaChange(const class UPawnStatsComponent * _pawnStats);
-
 	void SetDpOnDpChange(const class UPawnStatsComponent * _pawnStats);
+	void SetExpBarValue(float _val);
+	void SetCastleBarValue(float _val);
+
 
 	void ToggleFireMode(bool _val);
 
@@ -105,5 +106,7 @@ public:
 	// CrewBar Interface
 	void UpdateCrewSizeAt(int _index, int _groupSize);
 	void UpdateCrewInfoAt(int _index, int _groupSize, UTexture2D* _thumbNail);
+
+	
 
 };

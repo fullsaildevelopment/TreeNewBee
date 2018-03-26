@@ -47,6 +47,13 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UProgressBar* SpBar;
 
+	UPROPERTY(meta = (BindWidget))
+		class UProgressBar* ExpBar;
+
+	UPROPERTY(meta = (BindWidget))
+		class UProgressBar* CastleBar;
+
+
 
 public:
 	
@@ -69,4 +76,11 @@ public:
 	void SetHp(float _currentHp, float _maxHp, float _divByMax);
 	/** Set the Sp value to the Text and percentage to Sp Bar*/
 	void SetSp(float _currentSp, float _maxSp, float _divByMax);
+
+	/** Set the percentatge of Castle Health Bar, 0 - 1*/
+	void SetCastleHealth(float _val);
+
+	/** Set the percentatge of Exp Bar, 0 - 1*/
+	void SetExpBar(float _val);
+
 }; 

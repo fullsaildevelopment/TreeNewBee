@@ -133,6 +133,16 @@ void UInGameHUD::SetDpOnDpChange(const UPawnStatsComponent * _pawnStats)
 	PlayerRow->SetDpPercentage(currentDp, _pawnStats->GetDivByHpMax());
 }
 
+void UInGameHUD::SetExpBarValue(float _val)
+{
+	PlayerRow->SetExpBar(_val);
+}
+
+void UInGameHUD::SetCastleBarValue(float _val)
+{
+	PlayerRow->SetCastleHealth(_val);
+}
+
 
 
 void UInGameHUD::ToggleFireMode(bool _val)

@@ -21,6 +21,8 @@
 #define  Skill__Heal 5        
 #define  Skill__BattleCommand 6
 
+#define CommandPresence_LevelUpDelta 0.05f
+
 DECLARE_DELEGATE(FOnSkillUsed)
 
 USTRUCT(BlueprintType)
@@ -260,6 +262,10 @@ private:
 	UPROPERTY()
 		class UInGameHUD*          mInGameHUD;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = Castle)
+		/** Castle damage reduction in percentage while hero is in castle*/
+		float CommanderPresence;
+
 	/** Timer to handle hp recover delay after being hit*/
 	FTimerHandle HpRecoverTimer;
 
@@ -319,7 +325,10 @@ public:
 	FORCEINLINE void SetSkillSectionNameAt(int _skillIndex, FName _sectionName) { SkillSlots[_skillIndex].AM_sectionName = _sectionName; }
 	FORCEINLINE void EnableHpRecovering() { bHpRecovering = true; }
 	FORCEINLINE void DisnableHpRecovering() { bHpRecovering = false; }
+	FORCEINLINE float GetCommandPresence() const { return CommanderPresence; }
 
+	FORCEINLINE void SetCommandPresence(float _val) { CommanderPresence = _val; }
+	FORCEINLINE void OnCommandPresenceLevelUp() { CommanderPresence += CommandPresence_LevelUpDelta; }
 
 	
 	UFUNCTION(BlueprintPure)
