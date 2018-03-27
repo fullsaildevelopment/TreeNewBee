@@ -95,7 +95,7 @@ void UInGameHUD::InitStats(const UHeroStatsComponent * _heroStats)
 {
 	PlayerRow->SetHpValue(_heroStats->GetHpCurrent(), _heroStats->GetHpMax());
 	PlayerRow->SetSpValue(_heroStats->GetStaminaCurrent(), _heroStats->GetStaminaMax());
-	PlayerRow->SetLevel(_heroStats->GetLevel());
+	PlayerRow->SetLevel(_heroStats->GetCharacterLevel());
 
 	WeaponSlots->OnInitStats(_heroStats);
 }
@@ -104,7 +104,7 @@ void UInGameHUD::ResetStats(const UHeroStatsComponent * _heroStats)
 {
 	PlayerRow->SetHp(_heroStats->GetHpCurrent(), _heroStats->GetHpMax(), _heroStats->GetDivByHpMax());
 	PlayerRow->SetSp(_heroStats->GetStaminaCurrent(), _heroStats->GetStaminaMax(), _heroStats->GetDivBySpMax());
-	PlayerRow->SetLevel(_heroStats->GetLevel());
+	PlayerRow->SetLevel(_heroStats->GetCharacterLevel());
 
 	WeaponSlots->OnInitStats(_heroStats);
 
@@ -141,6 +141,17 @@ void UInGameHUD::SetExpBarValue(float _val)
 void UInGameHUD::SetCastleBarValue(float _val)
 {
 	PlayerRow->SetCastleHealth(_val);
+}
+
+void UInGameHUD::SetPlayerRowOnLevelUp(const UHeroStatsComponent * _heroStats)
+{
+	PlayerRow->SetHp(_heroStats->GetHpCurrent(), 
+		_heroStats->GetHpMax(), 
+		_heroStats->GetDivByHpMax());
+	PlayerRow->SetSp(_heroStats->GetStaminaCurrent(), 
+		_heroStats->GetStaminaMax(), 
+		_heroStats->GetDivBySpMax());
+	PlayerRow->SetLevel(_heroStats->GetCharacterLevel());
 }
 
 

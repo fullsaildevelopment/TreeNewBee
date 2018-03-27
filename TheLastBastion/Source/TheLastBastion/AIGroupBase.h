@@ -327,12 +327,6 @@ public:
 	/** get the first row location */
 	FVector GetFirstRowLocation() const;
 
-
-
-
-
-
-
 	UFUNCTION()
 		virtual void OnChildDeath(int _childIndex);
 

@@ -33,12 +33,16 @@ bool UInGameAIHUD::Initialize()
 void UInGameAIHUD::InitRowHeader(const FAIHUDInitializer & _init)
 {
 	AIName->SetText(_init.AIName);
+	FString LevelText = FString::Printf(TEXT("Lv. %d"), _init.AILevel);
+	AILevel->SetText(FText::FromString(LevelText));
+
 	if (_init.bIsEnemy)
 	{
 		AIName->SetColorAndOpacity(FLinearColor::Red);
+		AILevel->SetColorAndOpacity(FLinearColor::Red);
 	}
-	FString LevelText = FString::Printf(TEXT("Lv. %d"), _init.AILevel);
-	AILevel->SetText(FText::FromString(LevelText));
+
+
 	AITier = _init.AITier;
 }
 

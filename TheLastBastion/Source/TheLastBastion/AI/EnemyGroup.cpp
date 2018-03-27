@@ -7,6 +7,7 @@
 #include "Environment/EnemyGroupSpawner.h"
 
 #include "AICharacters/TheLastBastionAIBase.h"
+#include "TheLastBastionHeroCharacter.h"
 
 
 #include "AI/TheLastBastionGroupAIController.h"
@@ -61,6 +62,9 @@ void AEnemyGroup::SpawnChildGroup()
 
 			if (world)
 			{
+				// the level for children is based on hero's level
+				int Level = PlayerHero->GetCharacerLevel();
+
 				FActorSpawnParameters spawnParam;
 				spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
@@ -120,17 +124,44 @@ void AEnemyGroup::SpawnChildGroup()
 						for (int iCol = 0; iCol < currentRowSize; iCol++)
 						{
 							yOffset = iCol * colPadding - centerOffset;
+							// Spawn
 							FAICharacterInfo newCharacterInfo;
 
-							FVector myLocation = this->GetActorLocation();
 							newCharacterInfo.GroupRelativeOffset = FVector(xOffset, yOffset, 0.0f);
-							FVector spawnLocation = myLocation - xOffset * GetActorForwardVector() + yOffset * GetActorRightVector();
-							newCharacterInfo.AICharacter = world->SpawnActor<ATheLastBastionAIBase>(ClassToSpawn, spawnLocation, this->GetActorRotation(), spawnParam);
-							newCharacterInfo.AICharacter->SpawnDefaultController();
-							childGroupIndex = AICharactersInfo.Num();
-							newCharacterInfo.AICharacter->SetParent(this, childGroupIndex);
 
-							AICharactersInfo.Add(newCharacterInfo);
+							FVector myLocation = this->GetActorLocation();
+							FVector spawnLocation = 
+								myLocation - xOffset * GetActorForwardVector() + 
+								yOffset * GetActorRightVector();
+							FTransform spawnTransform;
+							spawnTransform.SetLocation(spawnLocation);
+							spawnTransform.SetRotation(this->GetActorQuat());
+							spawnTransform.SetScale3D(FVector(1.0f, 1.0f, 1.0f));
+
+							//newCharacterInfo.AICharacter 
+							//	= world->SpawnActor<ATheLastBastionAIBase>(ClassToSpawn, spawnLocation, this->GetActorRotation(), spawnParam);
+							
+							newCharacterInfo.AICharacter
+								= world->SpawnActorDeferred<ATheLastBastionAIBase>(
+									ClassToSpawn, spawnTransform, nullptr, nullptr, 
+									ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+
+							if (newCharacterInfo.AICharacter)
+							{
+								newCharacterInfo.AICharacter->SetCharacterLevel(Level);
+
+								UGameplayStatics::FinishSpawningActor(newCharacterInfo.AICharacter, spawnTransform);
+
+								// End Spawn
+								newCharacterInfo.AICharacter->SpawnDefaultController();
+								childGroupIndex = AICharactersInfo.Num();
+								newCharacterInfo.AICharacter->SetParent(this, childGroupIndex);
+
+								AICharactersInfo.Add(newCharacterInfo);
+
+							}
+
+
 						}
 						xOffset += rowPadding;
 					}

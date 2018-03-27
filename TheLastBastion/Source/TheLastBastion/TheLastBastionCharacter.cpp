@@ -291,6 +291,16 @@ void ATheLastBastionCharacter::DuringRagDollRecovering(float _deltaTime)
 	}
 }
 
+void ATheLastBastionCharacter::SetCharacterLevel(int _level)
+{
+	PawnStats->SetCharacterLevel(_level);
+}
+
+int ATheLastBastionCharacter::GetCharacerLevel() const
+{
+	return PawnStats->GetCharacterLevel();
+}
+
 bool ATheLastBastionCharacter::IsOnDefend() const
 {
 	if (mBaseAnimRef)

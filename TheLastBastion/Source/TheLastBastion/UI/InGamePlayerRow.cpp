@@ -23,6 +23,9 @@ bool UInGamePlayerRow::Initialize()
 		UE_LOG(LogTemp, Error, TEXT("bAllWidgetAreGood is not true -- UInGamePlayerRow::Initialize"));
 		return false;
 	}
+
+	SetExpBar(0.0f);
+	SetCastleHealth(1.0f);
 	return true;
 }
 

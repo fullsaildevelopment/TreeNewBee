@@ -263,8 +263,22 @@ private:
 		class UInGameHUD*          mInGameHUD;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = Castle)
-		/** Castle damage reduction in percentage while hero is in castle*/
+		/** Castle damage reduction in percentage while hero is in castle */
 		float CommanderPresence;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = CharacterStats)
+		/** How many experience our hero has for current level */
+		float CurrentExp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = CharacterStats)
+		/** How many experience our hero need for level up */
+		float MaxExp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = CharacterStats)
+		/** Divider for How many experience our hero need for level up */
+		float MaxExpDiv;
+
+
 
 	/** Timer to handle hp recover delay after being hit*/
 	FTimerHandle HpRecoverTimer;
@@ -339,4 +353,6 @@ public:
 		FORCEINLINE bool IsInCommandMode() const { return bIsInCommandMode; }
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE class AAllyGroup* GetCommandGroup() const { return CommandedGroup; }
+
+	void AddExp(float _val);
 };

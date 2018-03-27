@@ -37,6 +37,7 @@ UPawnStatsComponent::UPawnStatsComponent()
 	bGenerateRawStatsAtBeginPlay = true;
 	bArmedFromBeginPlay = false;
 	CurrentWeapon_Index = 0;
+	Level = 1;
 
 	if (!FloatingText_WBP)
 		UCustomType::FindClass<UUserWidget>(FloatingText_WBP, TEXT("/Game/UI/In-Game/WBP_FloatingText"));
@@ -259,9 +260,10 @@ void UPawnStatsComponent::GenerateMaxStats(bool _setCurrentToMax)
 void UPawnStatsComponent::LevelUp()
 {
 	Level++;
+	// Update the row value, so the gear merits can add on
 	GenerateRawStatsByLevel(Level);
-	HpCurrent = HpMax;
-	StaminaCurrent = StaminaMax;
+	// apply the gear merits
+	GenerateMaxStats(true);
 }
 
 void UPawnStatsComponent::Born()

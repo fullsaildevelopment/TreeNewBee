@@ -11,6 +11,8 @@
 #include "Components/WidgetComponent.h"
 #include "Components/CapsuleComponent.h"
 
+#include "Combat/PawnStatsComponent.h"
+
 #include "AIGroupBase.h"
 
 #include "TheLastBastionHeroCharacter.h"
@@ -24,7 +26,7 @@ ATheLastBastionAllyCharacter::ATheLastBastionAllyCharacter()
 	GetCapsuleComponent()->SetCollisionProfileName("Ally");
 	GetMesh()->SetCollisionProfileName("HeroBody");
 	AiName = FText::FromString(TEXT("Base Ally"));
-	AILevel = 1;
+	//AILevel = 1;
 
 	bIsEnemy = false;
 
@@ -35,7 +37,8 @@ void ATheLastBastionAllyCharacter::BeginPlay()
 	Super::BeginPlay();
 	FAIHUDInitializer initializer;
 	initializer.AIName = AiName;
-	initializer.AILevel = AILevel;
+	//initializer.AILevel = AILevel;
+	initializer.AILevel = PawnStats->GetCharacterLevel();
 	initializer.bIsEnemy = bIsEnemy;
 
 	if (AI_HUD)

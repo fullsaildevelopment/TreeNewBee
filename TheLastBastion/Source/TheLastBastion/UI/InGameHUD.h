@@ -83,6 +83,7 @@ public:
 	void SetExpBarValue(float _val);
 	void SetCastleBarValue(float _val);
 
+	void SetPlayerRowOnLevelUp(const class UHeroStatsComponent * _heroStats);
 
 	void ToggleFireMode(bool _val);
 

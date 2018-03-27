@@ -84,6 +84,9 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 	Unfocus_CamRotationLagging = 30.0f;
 
 	CommanderPresence = 0.05f;
+	CurrentExp = 0.0f;
+	MaxExp = 100.0f;
+	MaxExpDiv = 1.0f / MaxExp;
 
 	HeroStats = CreateDefaultSubobject<UHeroStatsComponent>(TEXT("Stats"));
 	PawnStats = HeroStats;	
@@ -844,7 +847,19 @@ bool ATheLastBastionHeroCharacter::IsSkillCooled(int _index) const
 bool ATheLastBastionHeroCharacter::IsIntentedSkillCooled() const
 {
 	return 	mInGameHUD->IsSkilledCooledDown(TryToUseSkill);
+}
 
+void ATheLastBastionHeroCharacter::AddExp(float _val)
+{
+	CurrentExp += _val;
+	if (CurrentExp >= MaxExp)
+	{
+		HeroStats->LevelUp();
+		mInGameHUD->SetPlayerRowOnLevelUp(HeroStats);
+		CurrentExp = CurrentExp - MaxExp;
+	}
+
+	mInGameHUD->SetExpBarValue(CurrentExp * MaxExpDiv);
 }
 
 void ATheLastBastionHeroCharacter::OnTakeAnyDamageHandle(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)

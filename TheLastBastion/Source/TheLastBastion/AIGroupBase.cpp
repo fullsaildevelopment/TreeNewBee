@@ -83,6 +83,8 @@ AAIGroupBase::AAIGroupBase()
 void AAIGroupBase::BeginPlay()
 {
 	Super::BeginPlay();
+	// Player hero is needed for setup children level, get this done first before otheres
+	PlayerHero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
 	if (MeleeVision)
 	{
@@ -104,7 +106,6 @@ void AAIGroupBase::BeginPlay()
 
 
 	ToggleHUDVisibility(false);
-	PlayerHero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
 
 	// Setup For Update Group Position
@@ -159,7 +160,6 @@ void AAIGroupBase::RangeTargetSelect_OnFirstOverlap(AActor* TargetActor)
 		}
 	}
 }
-
 
 void AAIGroupBase::OnMeleeVisionOverrlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult) {}

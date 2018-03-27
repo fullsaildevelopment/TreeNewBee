@@ -8,6 +8,9 @@
 #include "AI/TheLastBastionGroupAIController.h"
 #include "AIGroupBase.h"
 
+#include "TheLastBastionHeroCharacter.h"
+#include "Kismet/GameplayStatics.h"
+
 #include "DrawDebugHelpers.h"
 
 #include "Combat/PawnStatsComponent.h"
@@ -93,6 +96,11 @@ bool ATheLastBastionAIBase::HasFullHealth() const
 {
 	return AIStats->GetHpCurrent() == AIStats->GetHpMax();
 }
+
+//void ATheLastBastionAIBase::SetLevel(int _level)
+//{
+//	PawnStats->SetC(_level);
+//}
 
 void ATheLastBastionAIBase::OnTargetDeathHandle()
 {
@@ -311,26 +319,27 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 
 	AI_HUD->UpdateHealthBar(AIStats);
 
-	const ATheLastBastionHeroCharacter* heroAttacker = Cast<ATheLastBastionHeroCharacter>(DamageCauser);
+	ATheLastBastionHeroCharacter* heroAttacker = Cast<ATheLastBastionHeroCharacter>(DamageCauser);
 	if (heroAttacker)
 	{
 		OnTakeDamageFromHero(HitLocation, heroAttacker, totalDamage, isCritical, isStun);
-
 	}
 
 	////////////////////////////////////////////// innocent line ////////////////////////////
-
 
 	EvaluateAttackerThreat(DamageCauser, currentHp);
 
 	//how he response to this hit
 	HitResponse(DamageCauser, currentHp);
 
+
 	if (currentHp <= 0)
 	{
+
+		AddExp(heroAttacker);
+		
 		// calculate impulse direction in case this ai is killed
 		FVector RagDollImpulse = HitLocation - DamageCauser->GetActorLocation();
-
 		OnDead(RagDollImpulse, DamageCauser, BoneName);
 		return;
 	}
@@ -380,6 +389,27 @@ void ATheLastBastionAIBase::OnDead(const FVector& dir, const AActor* _damageCaus
 	//// Launch kill timer
 	GetWorldTimerManager().SetTimer(mRagDollTimer, this, &ATheLastBastionAIBase::Kill, 1.0f, false, SecondBeforeKill);
 
+}
+
+void ATheLastBastionAIBase::AddExp(ATheLastBastionHeroCharacter * _heroAttacker)
+{
+
+	if (IsEnemy())
+	{
+		// if enemies defeated by hero, hero gain 1.5 x exp
+		if (_heroAttacker != nullptr)
+		{
+			_heroAttacker->AddExp(1.5f * this->GetExperience());
+		}
+		else
+		{
+			ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+			if (hero)
+			{
+				hero->AddExp(this->GetExperience());
+			}
+		}
+	}
 }
 
 void ATheLastBastionAIBase::Kill()

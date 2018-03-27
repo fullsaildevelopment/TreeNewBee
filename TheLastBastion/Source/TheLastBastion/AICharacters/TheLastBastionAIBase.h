@@ -50,8 +50,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GroupBehavior)
 		int mGroupIndex;
 
-	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
-		int AILevel;
+	//UPROPERTY(EditDefaultsOnly, Category = AiProperty)
+	//	int AILevel;
 
 	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
 		int AITier;
@@ -83,7 +83,10 @@ public:
 		float GetSiegePoint() const;
 	float GetSiegePoint_Implementation() const { return 1.0f; }
 
-
+	UFUNCTION(BlueprintNativeEvent)
+		/** The amount of exp that hero gain, when this character is defeated*/
+		float GetExperience() const;
+	float GetExperience_Implementation() const { return 120.0f; }
 
 	UFUNCTION()
 		virtual void OnTargetDeathHandle();
@@ -160,5 +163,7 @@ protected:
 	// Called on Hp = 0;
 	void OnDead(const FVector& dir, const AActor* _damageCauser, FName _boneName) override;
 
+
+	void AddExp(class ATheLastBastionHeroCharacter* _heroAttacker);
 
 };

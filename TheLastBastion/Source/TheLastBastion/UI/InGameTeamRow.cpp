@@ -35,7 +35,7 @@ void UInGameTeamRow::InitHeader(const FMatchPlayer & _member)
 
 	const UPawnStatsComponent* pawnStats = _member.character->GetPawnStatsComp_Const();
 	SetHpValue(pawnStats);
-	SetLevel(pawnStats->GetLevel());
+	SetLevel(pawnStats->GetCharacterLevel());
 } 
 
 void UInGameTeamRow::SetHpValue(const UPawnStatsComponent* _pawnComp)

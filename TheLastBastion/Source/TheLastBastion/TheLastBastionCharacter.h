@@ -198,6 +198,12 @@ public:
 	FORCEINLINE bool IsRagDoll() const { return bIsRagDoll; }
 	FORCEINLINE bool IsRagDollRecovereing() const { return bIsRecoveringFromRagDoll; }
 	FORCEINLINE class UAudioComponent* GetAudioComp() const { return AudioComp; }
+	
+
+	// Called during Spawn, setup the ai level, so the its raw stats can use
+	// its level to build the ai character stats
+	void SetCharacterLevel(int _level);
+	int GetCharacerLevel() const;
 
 
 	bool IsOnDefend() const;

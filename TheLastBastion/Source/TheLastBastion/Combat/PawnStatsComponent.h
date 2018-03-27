@@ -218,7 +218,7 @@ public:
 	FORCEINLINE float GetStunMax() const { return StunMax; }
 	FORCEINLINE float GetDivByHpMax() const { return DivByHpMax; }
 	FORCEINLINE float GetDivBySpMax() const { return DivByStaminaMax; }
-	FORCEINLINE int   GetLevel() const { return Level; }
+	FORCEINLINE int   GetCharacterLevel() const { return Level; }
 	FORCEINLINE bool IsFullHp() const { return HpCurrent == HpMax; }
 	FORCEINLINE bool IsFullSp() const { return StaminaCurrent == StaminaMax; }
 
@@ -230,6 +230,9 @@ public:
 
 
 	FORCEINLINE void SetWeaponEquipVisibility(int _index, bool _val) { WeaponSlots[_index].bHideWhenEquip = _val; }
+
+	FORCEINLINE void SetCharacterLevel(int _level) { Level = _level; }
+
 
 	/** Change hp by value, clamp is involved*/
 	FORCEINLINE void AddHpBy(float _delta) { HpCurrent = FMath::Clamp(HpCurrent + _delta, 0.0f, HpMax); }

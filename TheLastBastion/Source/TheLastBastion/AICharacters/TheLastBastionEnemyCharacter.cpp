@@ -6,6 +6,8 @@
 #include "Components/WidgetComponent.h"
 #include "Components/CapsuleComponent.h"
 
+#include "Combat/PawnStatsComponent.h"
+
 #include "UI/InGameAIHUD.h"
 #include "UI/InGameFloatingText.h"
 
@@ -25,7 +27,7 @@ ATheLastBastionEnemyCharacter::ATheLastBastionEnemyCharacter()
 	GetMesh()->SetCollisionProfileName("EnemyBody");
 
 	AiName = FText::FromString(TEXT("Base Enemy AI"));
-	AILevel = 1;
+	//AILevel = 1;
 	bIsEnemy = true;
 
 }
@@ -40,7 +42,8 @@ void ATheLastBastionEnemyCharacter::BeginPlay()
 
 	FAIHUDInitializer initializer;
 	initializer.AIName = AiName;
-	initializer.AILevel = AILevel;
+	//initializer.AILevel = AILevel;
+	initializer.AILevel = PawnStats->GetCharacterLevel();
 	initializer.bIsEnemy = bIsEnemy;
 
 	if (AI_HUD)

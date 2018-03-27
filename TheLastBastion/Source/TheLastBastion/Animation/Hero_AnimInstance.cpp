@@ -1259,6 +1259,10 @@ void UHero_AnimInstance::LaunchSkill(int _skillIndex)
 		return;
 	}
 
+	// Quit Defence Mode
+	OnDefendOff();
+
+
 	// Skill can launch during being hit, if we are being hit, we will get a recover from that
 	if (AttackState == EAttackState::BeingHit)
 		RecoverFromBeingHit(false);
@@ -1362,6 +1366,10 @@ void UHero_AnimInstance::LaunchCombo()
 		UE_LOG(LogTemp, Warning, TEXT("No Enought Stamina - UHero_AnimInstance::LaunchCombo"));
 		return;
 	}
+
+	// Quit Defence Mode
+	OnDefendOff();
+
 
 	if (CurrentComboIndex >= Current_AttackSectionName->Num())
 	{
@@ -1519,6 +1527,8 @@ void UHero_AnimInstance::LaunchDodge()
 		return;
 	}
 
+	// Quit Defence Mode
+	OnDefendOff();
 
 	// Update State
 	AttackState = EAttackState::Dodging;
