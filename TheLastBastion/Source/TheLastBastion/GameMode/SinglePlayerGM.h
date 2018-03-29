@@ -48,6 +48,9 @@ protected:
 
 private:
 
+	UPROPERTY()
+		class ASinglePlayerPC* HeroPC;
+
 	/// resource
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
 		TArray<class AAllyGroup*> Allies;
@@ -56,7 +59,7 @@ private:
 		class ABarracks* Barracks;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
-		int Gold;
+		int Food;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
 		int Wood;
@@ -65,7 +68,7 @@ private:
 		int Metal;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
-		int Rock;
+		int Stone;
 
 
 
@@ -121,6 +124,10 @@ public:
 	// Clear the copy of enemy group ref at index 
 	void UnRegisterEnemyGroupAt(int _index); 
 
-
 	FORCEINLINE class AEnemyGroupSpawner* GetEnemyGroupSpawner() const { return EnemyGroupSpawner; }
+
+	void AddFood(int _val);
+	void AddMetal(int _val);
+	void AddWood(int _val);
+	void AddStone(int _val);
 };

@@ -77,6 +77,7 @@ void ASinglePlayerGM::HandleSeamlessTravelPlayer(AController *& C)
 		if (spPC)
 		{
 			spPC->OnFinishSeamlessTravel();
+			HeroPC = spPC;
 		}
 	}
 
@@ -269,6 +270,30 @@ void ASinglePlayerGM::UnRegisterEnemyGroupAt(int _index)
 		Enemies[iEnemyGroup]->SetGroupIndex(iEnemyGroup);
 	}
 
+}
+
+void ASinglePlayerGM::AddFood(int _val)
+{
+	Food += _val;
+	if (HeroPC)
+	{
+	
+	}
+}
+
+void ASinglePlayerGM::AddMetal(int _val)
+{
+	Metal += _val;
+}
+
+void ASinglePlayerGM::AddWood(int _val)
+{
+	Wood += _val;
+}
+
+void ASinglePlayerGM::AddStone(int _val)
+{
+	Stone = _val;
 }
 
 

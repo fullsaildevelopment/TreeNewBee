@@ -4,6 +4,8 @@
 #include "Components/BoxComponent.h"
 #include "TheLastBastionHeroCharacter.h"
 #include "AICharacters/TheLastBastionEnemyCharacter.h"
+#include "AI/EnemyGroup.h"
+#include "AIGroupBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/InGameHUD.h"
 
@@ -15,22 +17,6 @@ ACastle::ACastle()
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
-
-	CastleMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Castle_Mesh"));
-	CastleMesh->SetMobility(EComponentMobility::Static);
-
-	this->SetRootComponent(CastleMesh);
-
-	CastleBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Castle_Volumn"));
-	CastleBox->SetupAttachment(CastleMesh);
-	CastleBox->bGenerateOverlapEvents = true;
-	CastleBox->SetCollisionProfileName(TEXT("Castle"));
-	CastleBox->InitBoxExtent(FVector(12000.0f, 12000.0f, 3000.0f));
-	CastleBox->SetMobility(EComponentMobility::Static);
-
-	// Init
-	
-	UpdateFreq = 1.0f;
 	MaxHp = 2000.0f;
 	CurrentHp = MaxHp;
 	DamageReduction = 0.0f;
@@ -44,44 +30,72 @@ void ACastle::BeginPlay()
 
 	MaxHpDiv = 1.0f / MaxHp;
 
-	if (CastleBox)
-	{
-		CastleBox->OnComponentBeginOverlap.AddDynamic(this, &ACastle::OnCastleBoxOverlap_Start);
-		CastleBox->OnComponentEndOverlap.AddDynamic(this, &ACastle::OnCastleBoxOverlap_End);
-	}
-
-	// Set Health update timer;
-	GetWorldTimerManager().SetTimer(HealthTimer, this, &ACastle::UpdateCastleHealth, UpdateFreq, true, 0.1f);
+	//if (CastleBox)
+	//{
+	//	CastleBox->OnComponentBeginOverlap.AddDynamic(this, &ACastle::OnCastleBoxOverlap_Start);
+	//	CastleBox->OnComponentEndOverlap.AddDynamic(this, &ACastle::OnCastleBoxOverlap_End);
+	//}
+	//// Set Health update timer;
+	//GetWorldTimerManager().SetTimer(HealthTimer, this, &ACastle::UpdateCastleHealth, UpdateFreq, true, 0.1f);
 }
 
 // Called every frame
 void ACastle::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
-void ACastle::UpdateCastleHealth()
+void ACastle::UpdateByTimer()
 {
 
 	float damageToCastle = 0.0f;
-	bool bGetDamaged = false;
-	for (int iEnemies = 0; iEnemies < Enemies.Num(); iEnemies++)
+
+	AAIGroupBase* currentEnemyGroup = nullptr;
+	ATheLastBastionAIBase* currentEnemy = nullptr;
+	int currentGroupSize = 0;
+
+	for (int iGroup = 0; iGroup < EnemiesGroup.Num(); iGroup++)
 	{
-		if (Enemies[iEnemies]->GetIsDead())
+		// first get the group member out of group, if the group is not empty
+		currentEnemyGroup = EnemiesGroup[iGroup];
+		if (currentEnemyGroup)
 		{
-			// if this is dead, clear it out of castle enemies list
-			Enemies.RemoveAtSwap(iEnemies);
+			currentGroupSize = currentEnemyGroup->GetGroupSize();
+			// stack up the siege point by group member to damage castle
+			for (int iEnemies = 0; iEnemies < currentGroupSize; iEnemies++)
+			{
+				currentEnemy = currentEnemyGroup->GetGroupMemberAt(iEnemies);
+				if (currentEnemy && currentEnemy->GetIsDead() == false)
+				{
+					damageToCastle += currentEnemy->GetSiegePoint();
+					bIsOccupied = true;
+				}
+			}
 		}
 		else
 		{
-			// if this is lived, add its siege point to the castle damage
-			damageToCastle += Enemies[iEnemies]->GetSiegePoint();
-			bGetDamaged = true;
+			// if this is empty group, we will remove it
+			EnemiesGroup.RemoveAtSwap(iGroup);
 		}
+
 	}
 
-	if (bGetDamaged)
+
+	//bool bGetDamaged = false;
+	//if (Enemies[iEnemies]->GetIsDead())
+	//{
+	//	// if this is dead, clear it out of castle enemies list
+	//	Enemies.RemoveAtSwap(iEnemies);
+	//}
+	//else
+	//{
+	//	// if this is lived, add its siege point to the castle damage
+	//	damageToCastle += Enemies[iEnemies]->GetSiegePoint();
+	//	bGetDamaged = true;
+	//}
+
+
+	if (bIsOccupied)
 	{
 		CurrentHp -= (bCommanderPresence) ? damageToCastle * DamageReduction : damageToCastle;
 		CurrentHp = FMath::Clamp(CurrentHp, 0.0f, MaxHp);
@@ -106,59 +120,83 @@ void ACastle::UpdateCastleHealth()
 
 }
 
-void ACastle::OnEnemiesEnter(class ATheLastBastionAIBase* _enemy)
-{
-	Enemies.Add(_enemy);
-}
+//void ACastle::OnEnemiesEnter(class ATheLastBastionAIBase* _enemy)
+//{
+//	Enemies.Add(_enemy);
+//}
+//
+//void ACastle::OnEnemiesLeave(ATheLastBastionAIBase * _enemy)
+//{
+//	Enemies.RemoveSingleSwap(_enemy);
+//}
 
-void ACastle::OnEnemiesLeave(ATheLastBastionAIBase * _enemy)
+void ACastle::OnOutPostBoxOverlap_Start(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
-	Enemies.RemoveSingleSwap(_enemy);
-}
-
-void ACastle::OnCastleBoxOverlap_Start(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
-{
-	ATheLastBastionCharacter* overlapCharacter = Cast<ATheLastBastionCharacter>(OtherActor);
-	if (overlapCharacter)
+	ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(OtherActor);
+	if (hero)
 	{
-		if (overlapCharacter->IsEnemy())
+		bCommanderPresence = true;
+		DamageReduction = 1 - hero->GetCommandPresence();
+	}
+	else
+	{
+		AEnemyGroup* enemyGroup = Cast<AEnemyGroup>(OtherActor);
+		if (enemyGroup)
 		{
-			ATheLastBastionAIBase* aiCharacter = Cast<ATheLastBastionAIBase>(overlapCharacter);
-			if (aiCharacter)
-				OnEnemiesEnter(aiCharacter);
-		}
-		else
-		{
-			ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(overlapCharacter);
-			if (hero)
-			{
-				bCommanderPresence = true;
-				DamageReduction = 1 - hero->GetCommandPresence();
-			}
+			EnemiesGroup.Add(enemyGroup);
 		}
 	}
+
+	//ATheLastBastionCharacter* overlapCharacter = Cast<ATheLastBastionCharacter>(OtherActor);
+	//if (overlapCharacter)
+	//{
+	//	if (overlapCharacter->IsEnemy())
+	//	{
+	//		ATheLastBastionAIBase* aiCharacter = Cast<ATheLastBastionAIBase>(overlapCharacter);
+	//		if (aiCharacter)
+	//			OnEnemiesEnter(aiCharacter);
+	//	}
+	//	else
+	//	{
+	//	}
+	//}
 }
 
-void ACastle::OnCastleBoxOverlap_End(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
+void ACastle::OnOutPostBoxOverlap_End(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
 {
-	ATheLastBastionCharacter* overlapCharacter = Cast<ATheLastBastionCharacter>(OtherActor);
-	if (overlapCharacter)
+
+	ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(OtherActor);
+	if (hero)
 	{
-		if (overlapCharacter->IsEnemy())
+		bCommanderPresence = false;
+	}
+	else
+	{
+		AEnemyGroup* enemyGroup = Cast<AEnemyGroup>(OtherActor);
+		if (enemyGroup)
 		{
-			ATheLastBastionAIBase* aiCharacter = Cast<ATheLastBastionAIBase>(overlapCharacter);
-			if (aiCharacter)
-				OnEnemiesLeave(aiCharacter);
-		}
-		else
-		{
-			ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(overlapCharacter);
-			if (hero)
-			{
-				bCommanderPresence = false;
-			}
+			EnemiesGroup.RemoveSingleSwap(enemyGroup);
 		}
 	}
+
+	//ATheLastBastionCharacter* overlapCharacter = Cast<ATheLastBastionCharacter>(OtherActor);
+	//if (overlapCharacter)
+	//{
+	//	if (overlapCharacter->IsEnemy())
+	//	{
+	//		ATheLastBastionAIBase* aiCharacter = Cast<ATheLastBastionAIBase>(overlapCharacter);
+	//		if (aiCharacter)
+	//			OnEnemiesLeave(aiCharacter);
+	//	}
+	//	else
+	//	{
+	//		ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(overlapCharacter);
+	//		if (hero)
+	//		{
+	//			bCommanderPresence = false;
+	//		}
+	//	}
+	//}
 
 }
 

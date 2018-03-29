@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "Environment/Outpost.h"
 #include "Castle.generated.h"
 
 UCLASS(BlueprintType)
-class THELASTBASTION_API ACastle : public AActor
+class THELASTBASTION_API ACastle : public AOutpost
 {
 	GENERATED_BODY()
 	
@@ -16,24 +16,6 @@ public:
 	ACastle();
 
 protected:
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CastleDefence)
-		/** Enemies that Inside the castle */
-		TArray<class ATheLastBastionAIBase*> Enemies;
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CastleDefence)
-		/** Box Volumn to check if there is enemy breach the castle*/
-		class UBoxComponent* CastleBox;
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CastleDefence)
-		class UStaticMeshComponent* CastleMesh;
-
-	/** Timer to control the castle update*/
-	FTimerHandle HealthTimer;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = CastleDefence)
-		/** Time gap to check on castle health*/
-		float UpdateFreq;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = CastleDefence)
 		/** Max value of castle hp*/
@@ -45,7 +27,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = CastleDefence)
 		/** Current value of castle hp*/
 		float CurrentHp;
-
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CastleDefence)
 		/** The percentage of damage is applied to castle due to commander presence*/
@@ -65,22 +46,18 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-private:
+protected:
 
 	/** Check castle health based on how many enemies inside the castle*/
-	void UpdateCastleHealth();
-
-	/** Called when lived enemies inside the castle*/
-	void OnEnemiesEnter(class ATheLastBastionAIBase* _enemy);
-
-	/** Called when enemies leave the castle*/
-	void OnEnemiesLeave(class ATheLastBastionAIBase* _enemy);
+	void UpdateByTimer() override;
 
 	UFUNCTION()
-		void OnCastleBoxOverlap_Start(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-			UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+		void OnOutPostBoxOverlap_Start(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+			UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, 
+			const FHitResult & SweepResult) override;
 
 	UFUNCTION()
-		void OnCastleBoxOverlap_End(UPrimitiveComponent* OverlappedComponent,
-			AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+		void OnOutPostBoxOverlap_End(UPrimitiveComponent* OverlappedComponent,
+			AActor* OtherActor, UPrimitiveComponent* OtherComp, 
+			int32 OtherBodyIndex) override;
 };
