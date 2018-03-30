@@ -3,6 +3,8 @@
 #include "Outpost.h"
 #include "Components/BoxComponent.h"
 #include "AI/EnemyGroup.h"
+#include "Gamemode/SinglePlayerGM.h"
+#include "Kismet/GameplayStatics.h"
 
 
 
@@ -73,22 +75,33 @@ void AOutpost::UpdateByTimer()
 
 	if (bIsOccupied == false)
 	{
+
+		ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (gm == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("gm == nullptr"));
+			return;
+		}
+
 		switch (OutpostType)
 		{
 		case EOutpostType::Food:
+			gm->AddFood(FoodIncrement);
 			break;
 		case EOutpostType::Metal:
+			gm->AddMetal(FoodIncrement);
 			break;
 		case EOutpostType::Stone:
+			gm->AddStone(StoneIncrement);
 			break;
 		case EOutpostType::Wood:
+			gm->AddWood(WoodIncrement);
 			break;
 		case EOutpostType::None:
 		default:
 			break;
 		}
 	}
-
 }
 
 void AOutpost::OnOutPostBoxOverlap_Start(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
@@ -97,6 +110,7 @@ void AOutpost::OnOutPostBoxOverlap_Start(UPrimitiveComponent * OverlappedCompone
 	if (enemyGroup)
 	{
 		EnemiesGroup.Add(enemyGroup);
+		bIsOccupied = true;
 	}
 
 }
@@ -108,6 +122,10 @@ void AOutpost::OnOutPostBoxOverlap_End(UPrimitiveComponent * OverlappedComponent
 	if (enemyGroup)
 	{
 		EnemiesGroup.RemoveSingleSwap(enemyGroup);
+		if (EnemiesGroup.Num() == 0)
+		{
+			bIsOccupied = false;
+		}
 	}
 }
 
