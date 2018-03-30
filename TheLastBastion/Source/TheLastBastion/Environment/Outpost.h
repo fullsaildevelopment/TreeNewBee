@@ -16,6 +16,12 @@ enum class EOutpostType : uint8
 	Stone = 4                 UMETA(DisplayName = "Stone")
 };
 
+#define FoodIncrement 10
+#define StoneIncrement 10
+#define MetalIncrement 6
+#define WoodIncrement 8
+
+
 UCLASS()
 class THELASTBASTION_API AOutpost : public AActor
 {

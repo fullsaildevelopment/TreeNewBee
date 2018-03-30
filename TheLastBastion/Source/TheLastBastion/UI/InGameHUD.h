@@ -30,7 +30,7 @@ protected:
 		class UVerticalBox* TeamWindow;
 
 	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* GoldValue;
+		class UTextBlock* FoodValue;
 
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* WoodValue;
@@ -39,7 +39,7 @@ protected:
 		class UTextBlock* MetalValue;
 
 	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* RockValue;
+		class UTextBlock* StoneValue;
 
 	UPROPERTY(meta = (BindWidget))
 		class UWidget* CrossHair;
@@ -107,6 +107,12 @@ public:
 	// CrewBar Interface
 	void UpdateCrewSizeAt(int _index, int _groupSize);
 	void UpdateCrewInfoAt(int _index, int _groupSize, UTexture2D* _thumbNail);
+
+	// Resource Interface
+	void SetWoodValue(int _val);
+	void SetStoneValue(int _val);
+	void SetMetalValue(int _val);
+	void SetFoodValue(int _val);
 
 	
 

@@ -77,7 +77,6 @@ void ASinglePlayerGM::HandleSeamlessTravelPlayer(AController *& C)
 		if (spPC)
 		{
 			spPC->OnFinishSeamlessTravel();
-			HeroPC = spPC;
 		}
 	}
 
@@ -121,6 +120,10 @@ void ASinglePlayerGM::BeginPlay()
 	//}
 
 	Allies.SetNum(AllyGroupMaxAmount);
+
+	HeroPC = Cast<ASinglePlayerPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (HeroPC == nullptr)
+		UE_LOG(LogTemp, Error, TEXT("HeroPC == nullptr - ASinglePlayerGM::AddFood"));
 }
 
 void ASinglePlayerGM::GetAllSpawnClass()
@@ -276,24 +279,28 @@ void ASinglePlayerGM::AddFood(int _val)
 {
 	Food += _val;
 	if (HeroPC)
-	{
-	
-	}
+		HeroPC->GetInGameHUD()->SetFoodValue(Food);
 }
 
 void ASinglePlayerGM::AddMetal(int _val)
 {
 	Metal += _val;
+	if (HeroPC)
+		HeroPC->GetInGameHUD()->SetMetalValue(Metal);
 }
 
 void ASinglePlayerGM::AddWood(int _val)
 {
 	Wood += _val;
+	if (HeroPC)
+		HeroPC->GetInGameHUD()->SetWoodValue(Wood);
 }
 
 void ASinglePlayerGM::AddStone(int _val)
 {
 	Stone = _val;
+	if (HeroPC)
+		HeroPC->GetInGameHUD()->SetStoneValue(Stone);
 }
 
 

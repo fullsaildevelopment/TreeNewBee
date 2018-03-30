@@ -42,7 +42,7 @@ bool UInGameHUD::Initialize()
 	// Bind Delegetes to Widget components
 	bool bAllWidgetAreGood =
 		PlayerRow != nullptr && TeamWindow != nullptr
-		&& GoldValue != nullptr && WoodValue != nullptr && MetalValue != nullptr && RockValue != nullptr && CrossHair != nullptr
+		&& FoodValue != nullptr && WoodValue != nullptr && MetalValue != nullptr && StoneValue != nullptr && CrossHair != nullptr
 		&& CrossHair && WeaponSlots && GroupCommandList && CrewBar && RadarHUD;
 
 	if (!bAllWidgetAreGood)
@@ -231,6 +231,26 @@ void UInGameHUD::UpdateCrewSizeAt(int _index, int _groupSize)
 void UInGameHUD::UpdateCrewInfoAt(int _index, int _groupSize, UTexture2D * _thumbNail)
 {
 	CrewBar->UpdateCrewInfoAt(_index, _groupSize, _thumbNail);
+}
+
+void UInGameHUD::SetWoodValue(int _val)
+{
+	WoodValue->SetText(FText::AsNumber(_val));
+}
+
+void UInGameHUD::SetStoneValue(int _val)
+{
+	StoneValue->SetText(FText::AsNumber(_val));
+}
+
+void UInGameHUD::SetMetalValue(int _val)
+{
+	MetalValue->SetText(FText::AsNumber(_val));
+}
+
+void UInGameHUD::SetFoodValue(int _val)
+{
+	FoodValue->SetText(FText::AsNumber(_val));
 }
 
 

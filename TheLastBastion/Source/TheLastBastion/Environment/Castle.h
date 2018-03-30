@@ -17,6 +17,8 @@ public:
 
 protected:
 
+
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = CastleDefence)
 		/** Max value of castle hp*/
 		float MaxHp;

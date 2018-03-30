@@ -39,6 +39,8 @@ UPawnStatsComponent::UPawnStatsComponent()
 	CurrentWeapon_Index = 0;
 	Level = 1;
 
+	DpCurrent = 0;
+
 	if (!FloatingText_WBP)
 		UCustomType::FindClass<UUserWidget>(FloatingText_WBP, TEXT("/Game/UI/In-Game/WBP_FloatingText"));
 	
@@ -176,7 +178,6 @@ void UPawnStatsComponent::GenerateRawStatsByLevel(int _level)
 		{
 			HpRaw = RangerInitHp + _level * 15;
 			StaminaRaw = 120.0f;
-			DpCurrent = 0;
 			break;
 		}
 		case ECharacterType::Builder:
