@@ -91,6 +91,12 @@ protected:
 		virtual void FxOnReload();
 
 	UFUNCTION(BlueprintCallable, Category = Effects)
+		virtual void FxOnJump();
+
+	UFUNCTION(BlueprintCallable, Category = Effects)
+		virtual void FxOnRoll();
+
+	UFUNCTION(BlueprintCallable, Category = Effects)
 		virtual void StartMeleeWeaponTrail(bool _rightHand = true);
 
 	UFUNCTION(BlueprintCallable, Category = Effects)

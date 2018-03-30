@@ -13,6 +13,7 @@ UENUM()
 enum class ESoundEffectType : uint8
 {
 	ECrossBowFire = 0,
+	ECrossbowReload,
 	EBoltsHitImpactOnCharacter,
 	EBoltsHitImpactOnLightShield,
 	EBoltsHitImpactOnHeavyShield,
@@ -24,6 +25,8 @@ enum class ESoundEffectType : uint8
 	EWeaponEquip,
 	EWeaponDraw,
 	ELightArmorFootStepOnDirt,
+	EJump,
+	ERoll,
 	EPlayerVoiceOnGroupSelection,
 	EPlayerVocalCommandsOnGroup
 };
@@ -40,6 +43,7 @@ public:
 
 private:
 	static class USoundCue* CrossbowFire;
+	static class USoundCue* CrossbowReload;
 	static class USoundCue* BoltsHitImpactOnCharacter;
 	static class USoundCue* BoltsHitImpactOnLightShield;
 	static class USoundCue* BoltsHitImpactOnHeavyShield;
@@ -59,6 +63,10 @@ private:
 
 	// Foot Step
 	static class USoundCue* LightArmorFootStepOnDirt;
+
+	// Jump and Roll
+	static class USoundCue* Jump;
+	static class USoundCue* Roll;
 
 	// Player Vocal
 	static class USoundCue* PlayerVoiceOnGroupSelection;

@@ -10,6 +10,7 @@
 
 
 USoundCue* UAudioManager::CrossbowFire = nullptr;
+USoundCue* UAudioManager::CrossbowReload = nullptr;
 USoundCue* UAudioManager::BoltsHitImpactOnCharacter = nullptr;
 USoundCue* UAudioManager::BoltsHitImpactOnLightShield = nullptr;
 USoundCue* UAudioManager::BoltsHitImpactOnHeavyShield = nullptr;
@@ -21,6 +22,8 @@ USoundCue* UAudioManager::MeleeWeaponSwing = nullptr;
 USoundCue* UAudioManager::WeaponEquip = nullptr;
 USoundCue* UAudioManager::WeaponDraw = nullptr;
 USoundCue* UAudioManager::LightArmorFootStepOnDirt = nullptr;
+USoundCue* UAudioManager::Jump = nullptr;
+USoundCue* UAudioManager::Roll = nullptr;
 USoundCue* UAudioManager::PlayerVoiceOnGroupSelection = nullptr;
 USoundCue* UAudioManager::PlayerVocalCommandsOnGroup = nullptr;
 
@@ -29,6 +32,7 @@ UAudioManager::UAudioManager()
 	// Find all the sound cues of our game
 	//Range Weapon
 	CrossbowFire = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/CrossBow/CrossBow_Fire"));
+	CrossbowReload = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/CrossBow/Crossbow_Reload"));
 	BoltsHitImpactOnCharacter = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsHitImpactOnCharacter"));
 	BoltsHitImpactOnLightShield = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsHitImpactOnLightShield"));
 	BoltsHitImpactOnHeavyShield = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/BoltsHitImpact/BoltsHitImpactOnHeavyShield"));
@@ -48,6 +52,10 @@ UAudioManager::UAudioManager()
 
 	// FootStep
 	LightArmorFootStepOnDirt = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/FootStep/LightArmorFootStepOnDirt"));
+
+	// Jump and Roll
+	Jump = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/RollAndJump/Jump"));
+	Roll = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/RollAndJump/Roll"));
 
 	// Player Vocal
 	PlayerVoiceOnGroupSelection = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Vocal/PlayerGroupSelection"));
@@ -69,6 +77,9 @@ USoundCue * UAudioManager::GetSFX(ESoundEffectType _sfxType)
 	{
 	case ESoundEffectType::ECrossBowFire:
 		return CrossbowFire;
+
+	case ESoundEffectType::ECrossbowReload:
+		return CrossbowReload;
 
 	case ESoundEffectType::EBoltsHitImpactOnCharacter:
 		return BoltsHitImpactOnCharacter;
@@ -102,6 +113,12 @@ USoundCue * UAudioManager::GetSFX(ESoundEffectType _sfxType)
 
 	case ESoundEffectType::ELightArmorFootStepOnDirt:
 		return LightArmorFootStepOnDirt;
+
+	case ESoundEffectType::EJump:
+		return Jump;
+
+	case ESoundEffectType::ERoll:
+		return Roll;
 
 	case ESoundEffectType::EPlayerVoiceOnGroupSelection:
 		return PlayerVoiceOnGroupSelection;
