@@ -5,6 +5,8 @@
 #include "AI/EnemyGroup.h"
 #include "Gamemode/SinglePlayerGM.h"
 #include "Kismet/GameplayStatics.h"
+#include "AudioManager.h"
+#include "Sound/SoundCue.h"
 
 
 
@@ -115,6 +117,33 @@ void AOutpost::OnOutPostBoxOverlap_Start(UPrimitiveComponent * OverlappedCompone
 	{
 		EnemiesGroup.Add(enemyGroup);
 		bIsOccupied = true;
+
+		// Play Vocal Notification
+		USoundCue* VocalWarning = nullptr;
+		switch (OutpostType)
+		{
+		case EOutpostType::Food:
+			VocalWarning = UAudioManager::GetSFX(ESoundEffectType::EFoodWarning);
+			break;
+		case EOutpostType::Metal:
+			VocalWarning = UAudioManager::GetSFX(ESoundEffectType::EMineWarning);
+			break;
+		case EOutpostType::Stone:
+			VocalWarning = UAudioManager::GetSFX(ESoundEffectType::EStoneWarning);
+			break;
+		case EOutpostType::Wood:
+			VocalWarning = UAudioManager::GetSFX(ESoundEffectType::EWoodWarning);
+			break;
+		case EOutpostType::None:
+		default:
+			break;
+		}
+
+		if (VocalWarning)
+		{
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), VocalWarning, FVector::ZeroVector);
+		}
+
 	}
 
 }

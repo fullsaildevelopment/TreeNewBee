@@ -28,7 +28,11 @@ enum class ESoundEffectType : uint8
 	EJump,
 	ERoll,
 	EPlayerVoiceOnGroupSelection,
-	EPlayerVocalCommandsOnGroup
+	EPlayerVocalCommandsOnGroup,
+	EFoodWarning,
+	EMineWarning,
+	EStoneWarning,
+	EWoodWarning
 };
 /**
  * 
@@ -71,6 +75,12 @@ private:
 	// Player Vocal
 	static class USoundCue* PlayerVoiceOnGroupSelection;
 	static class USoundCue* PlayerVocalCommandsOnGroup;
+
+	// Vocal Notification
+	static class USoundCue* FoodWarning;
+	static class USoundCue* MineWarning;
+	static class USoundCue* StoneWarning;
+	static class USoundCue* WoodWarning;
 
 public:
 

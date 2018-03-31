@@ -26,6 +26,10 @@ USoundCue* UAudioManager::Jump = nullptr;
 USoundCue* UAudioManager::Roll = nullptr;
 USoundCue* UAudioManager::PlayerVoiceOnGroupSelection = nullptr;
 USoundCue* UAudioManager::PlayerVocalCommandsOnGroup = nullptr;
+USoundCue* UAudioManager::FoodWarning = nullptr;
+USoundCue* UAudioManager::MineWarning = nullptr;
+USoundCue* UAudioManager::StoneWarning = nullptr;
+USoundCue* UAudioManager::WoodWarning = nullptr;
 
 UAudioManager::UAudioManager()
 {   
@@ -60,6 +64,13 @@ UAudioManager::UAudioManager()
 	// Player Vocal
 	PlayerVoiceOnGroupSelection = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Vocal/PlayerGroupSelection"));
 	PlayerVocalCommandsOnGroup = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Vocal/PlayerGroupCommands"));
+
+	// Vocal Notification
+	FoodWarning = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Vocal/FoodWarning"));
+	MineWarning = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Vocal/MineWarning"));
+	StoneWarning = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Vocal/StoneWarning"));
+	WoodWarning = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Vocal/WoodWarning"));
+
 }
 
 USoundCue* UAudioManager::FindSoundCue(const TCHAR* _path)
@@ -125,6 +136,18 @@ USoundCue * UAudioManager::GetSFX(ESoundEffectType _sfxType)
 
 	case ESoundEffectType::EPlayerVocalCommandsOnGroup:
 		return PlayerVocalCommandsOnGroup;
+
+	case ESoundEffectType::EFoodWarning:
+		return FoodWarning;
+
+	case ESoundEffectType::EMineWarning:
+		return MineWarning;
+
+	case ESoundEffectType::EStoneWarning:
+		return StoneWarning;
+
+	case ESoundEffectType::EWoodWarning:
+		return WoodWarning;
 
 	default:
 		return nullptr;
