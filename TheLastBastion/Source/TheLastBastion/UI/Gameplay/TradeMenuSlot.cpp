@@ -7,10 +7,10 @@
 #include "UI/Gameplay/DraggedItem.h"
 #include "Combat/Gear.h"
 #include "CustomType.h"
-
+#include "UI/Gameplay/TradeMenu_PopUp.h"
 #include "SlateBlueprintLibrary.h"
 
-#include <Runtime/Engine/Classes/Engine/Engine.h>
+//#include <Runtime/Engine/Classes/Engine/Engine.h>
 
 
 
@@ -154,14 +154,24 @@ void UTradeMenuSlot::NativeOnMouseEnter(const FGeometry & InGeometry, const FPoi
 	if (WBP_PopUpWidget && GearUI.Gear_Bp != nullptr)
 	{
 		PopUpWidget = CreateWidget<UUserWidget>(GetOwningPlayer(), WBP_PopUpWidget);
-		PopUpWidget->AddToViewport();	
 
+		FVector2D WidgetLocation = InGeometry.GetAbsolutePosition();
 		FVector2D MouseLocation = InMouseEvent.GetScreenSpacePosition();
-		
 
-		FVector2D pixelPosition, viewPortPosition;		
-		USlateBlueprintLibrary::AbsoluteToViewport(GetWorld(), MouseLocation, pixelPosition, viewPortPosition);		
-		PopUpWidget->SetRenderTranslation(viewPortPosition);
+		FVector2D pixelPosition, viewPortPosition;
+
+		USlateBlueprintLibrary::AbsoluteToViewport(GetWorld(), 
+			MouseLocation, pixelPosition, viewPortPosition);
+
+		PopUpWidget->SetAlignmentInViewport(FVector2D(1.0f, 0.0));
+		PopUpWidget->SetPositionInViewport(viewPortPosition);
+
+		UTradeMenu_PopUp* PopUp = Cast<UTradeMenu_PopUp>(PopUpWidget);
+		if (PopUp)
+		{
+			PopUp->OnPopUp(GearUI.Gear_Bp);
+			PopUp->AddToViewport();
+		}
 
 		//UE_LOG(LogTemp, Warning, TEXT("%f, %f UTradeMenuSlot::NativeOnMouseEnter"), renderPosition.X, renderPosition.Y);
 		//PopUpWidget->SetRenderTranslation(InMouseEvent.GetScreenSpacePosition());

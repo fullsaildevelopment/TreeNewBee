@@ -111,6 +111,18 @@ void AGear::Arm(USkeletalMeshComponent * const _skeletonMeshComponent)
 	this->AttachToComponent(_skeletonMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, SlotName);
 }
 
+TArray<int> AGear::GetCost_Implementation() const
+{
+
+	TArray<int> Cost;
+	Cost.SetNum(4);
+	for (int i = 0; i < 4; i++)
+	{
+		Cost[i] = 100;
+	}
+	return Cost;
+}
+
 void AGear::SetDamageIsEnabled(bool _val)
 {
 
@@ -126,13 +138,13 @@ void AGear::ToggleVisibilty(bool _val)
 	}
 }
 
-void AGear::CombineDamage(const AGear * _other)
-{
-	PhysicalDamage += _other->PhysicalDamage;
-	ElementalDamage += _other->ElementalDamage;
-	FireDamage += _other->FireDamage;
-	IceDamage  += _other->IceDamage;
-}
+//void AGear::CombineDamage(const AGear * _other)
+//{
+//	PhysicalDamage += _other->PhysicalDamage;
+//	//ElementalDamage += _other->ElementalDamage;
+//	//FireDamage += _other->FireDamage;
+//	//IceDamage  += _other->IceDamage;
+//}
 
 
 

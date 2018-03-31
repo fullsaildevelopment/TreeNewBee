@@ -76,17 +76,17 @@ protected:
 public:
 
 	UFUNCTION(BlueprintNativeEvent)
-		UTexture2D* GetThumbNailImage() const;
-	UTexture2D* GetThumbNailImage_Implementation() const { return nullptr; }
+		FORCEINLINE UTexture2D* GetThumbNailImage() const;
+		FORCEINLINE UTexture2D* GetThumbNailImage_Implementation() const { return nullptr; }
 
 	UFUNCTION(BlueprintNativeEvent)
-		float GetSiegePoint() const;
-	float GetSiegePoint_Implementation() const { return 1.0f; }
+		FORCEINLINE float GetSiegePoint() const;
+		FORCEINLINE float GetSiegePoint_Implementation() const { return 1.0f; }
 
 	UFUNCTION(BlueprintNativeEvent)
 		/** The amount of exp that hero gain, when this character is defeated*/
-		float GetExperience() const;
-	float GetExperience_Implementation() const { return 5.0f; }
+		FORCEINLINE float GetExperience() const;
+		FORCEINLINE float GetExperience_Implementation() const { return 5.0f; }
 
 	UFUNCTION()
 		virtual void OnTargetDeathHandle();

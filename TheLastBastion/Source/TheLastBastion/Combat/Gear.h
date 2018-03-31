@@ -71,13 +71,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = DamageCalculation)
 		TSubclassOf <class UDamageType> DamageType;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = UI)
-		/** Visual appearence as UI element*/
-		UTexture2D* ThumbNail;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = UI)
-		/** Name Showed Up On UI */
-		FText Name;
+	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = UI)
+	//	/** Visual appearence as UI element*/
+	//	UTexture2D* ThumbNail;
 
 private:
 
@@ -85,19 +81,7 @@ private:
 		float PhysicalDamage;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-		float ElementalDamage;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-		float FireDamage;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-		float IceDamage;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 		float PhysicalDefence;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-		float ElementalDefence;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 		float FireDefence;
@@ -132,14 +116,10 @@ private:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 		float CriticalForce;
 
-
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 		EElementalType ElementalType;
 
-
-
 public:
-
 
 	FORCEINLINE class ATheLastBastionCharacter* GetGearOwner() const { return GearOwner; }
 	FORCEINLINE TSubclassOf<AGear> GetLeftHandGear() const { return LeftHand; }
@@ -151,11 +131,11 @@ public:
 	FORCEINLINE float GetHpBonus() const { return HpBonus;}
 	FORCEINLINE float GetStaminaBonus() const { return StaminaBonus; }
 	FORCEINLINE float GetPhysicalDamage() const { return PhysicalDamage; }
-	FORCEINLINE float GetElementalDamage() const { return ElementalDamage; }
-	FORCEINLINE float GetFireDamage() const { return FireDamage; }
-	FORCEINLINE float GetIceDamage() const { return IceDamage; }
+	//FORCEINLINE float GetElementalDamage() const { return ElementalDamage; }
+	//FORCEINLINE float GetFireDamage() const { return FireDamage; }
+	//FORCEINLINE float GetIceDamage() const { return IceDamage; }
 	FORCEINLINE float GetPhysicalDefence() const { return PhysicalDefence; }
-	FORCEINLINE float GetElementalDefence() const { return ElementalDefence; }
+	//FORCEINLINE float GetElementalDefence() const { return ElementalDefence; }
 	FORCEINLINE float GetFireDefence() const { return FireDefence; }
 	FORCEINLINE float GetIceDefence() const { return IceDefence; }
 	FORCEINLINE float GetHpAdditive() const { return HpAdditive; }
@@ -166,18 +146,35 @@ public:
 	FORCEINLINE float GetCriticalForce() const { return CriticalForce; }
 	FORCEINLINE EElementalType GetElementalType() const { return ElementalType; }
 
-	UFUNCTION(BlueprintPure)
-		FORCEINLINE FText GetGearName() const { return Name; }
-	UFUNCTION(BlueprintPure)
-		FORCEINLINE UTexture2D* GetThumbNailImage() const { return ThumbNail; }
+	////UFUNCTION(BlueprintPure)
+	////	FORCEINLINE FText GetGearName() const { return Name; }
+
+	//UFUNCTION(BlueprintPure)
+	//	FORCEINLINE UTexture2D* GetThumbNailImage() const { return ThumbNail; }
+
+	UFUNCTION(BlueprintNativeEvent)
+		FORCEINLINE UTexture2D* GetThumbNailImage() const;
+	FORCEINLINE UTexture2D* GetThumbNailImage_Implementation() const { return nullptr; }
+
+	UFUNCTION(BlueprintNativeEvent)
+		FORCEINLINE FText GetGearName() const;
+	FORCEINLINE FText GetGearName_Implementation() const { return FText::FromString("Gear Name"); }
+
+	UFUNCTION(BlueprintNativeEvent)
+		FORCEINLINE FText GetGearDescription() const;
+	FORCEINLINE FText GetGearDescription_Implementation() const { return FText::FromString("Gear Description"); }
+
+	UFUNCTION(BlueprintNativeEvent)
+		/** Return the resource cost to craft this weapon*/
+		 TArray<int> GetCost() const;
+	TArray<int> GetCost_Implementation() const;
 
 	virtual void SetDamageIsEnabled(bool _val);
-
 
 	virtual void Equip(class USkeletalMeshComponent* const _skeletonMeshComponent);
 	virtual void Arm(class USkeletalMeshComponent* const _skeletonMeshComponent);
 	void ToggleVisibilty(bool _val);
-	void CombineDamage(const AGear* _other);
+	//void CombineDamage(const AGear* _other);
 
 };
 
