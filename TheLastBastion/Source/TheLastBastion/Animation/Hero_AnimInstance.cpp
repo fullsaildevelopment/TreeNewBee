@@ -906,6 +906,12 @@ void UHero_AnimInstance::OnSheathWeapon()
 	mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = false;
 	mCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 	FxOnEquip();
+
+	// if we have encharted weapon, end encharted
+	if (mCharacter->HasEnchartedWeapon())
+	{
+
+	}
 }
 
 /** Skip equipAnimation direction to equip mode, change the movement role to strafe*/

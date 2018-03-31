@@ -260,6 +260,13 @@ private:
 		class UHero_AnimInstance*  mAnimInstanceRef;
 
 	UPROPERTY()
+		//temp particle system component for weapon enchantment effect
+		class UParticleSystemComponent* WeaponEnchantment_PSC;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = vfx)
+		float ParticleEffectCylinderHeight;
+
+	UPROPERTY()
 		class UInGameHUD*          mInGameHUD;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = Castle)
@@ -278,8 +285,6 @@ private:
 		/** Divider for How many experience our hero need for level up */
 		float MaxExpDiv;
 
-
-
 	/** Timer to handle hp recover delay after being hit*/
 	FTimerHandle HpRecoverTimer;
 
@@ -287,7 +292,11 @@ private:
 		/** Is Hp recovering */
 		bool bHpRecovering;
 
-	bool bIsInCommandMode;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = CharacterStats)
+		bool bHasEnchartedWeapon;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = CharacterStats)
+		bool bIsInCommandMode;
 
 private:
 
@@ -343,6 +352,15 @@ public:
 
 	FORCEINLINE void SetCommandPresence(float _val) { CommanderPresence = _val; }
 	FORCEINLINE void OnCommandPresenceLevelUp() { CommanderPresence += CommandPresence_LevelUpDelta; }
+
+	// Encharting interface
+	FORCEINLINE bool HasEnchartedWeapon() const { return bHasEnchartedWeapon; }
+
+	void OnFireEnchartingStart(); 
+
+	void OnFireEnchartingStop();
+
+
 
 	
 	UFUNCTION(BlueprintPure)

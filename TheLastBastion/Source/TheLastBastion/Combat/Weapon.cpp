@@ -35,18 +35,14 @@ AWeapon::AWeapon()
 	ParticleSystemComp->RelativeLocation = FVector::ZeroVector;
 
 	//
-	bIsWeaponOnFire = false;
-	ParticleEffectCylinderHeight = 0.0f;
+	//bIsWeaponOnFire = false;
+	//ParticleEffectCylinderHeight = 0.0f;
 }
 
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Calculate Cylinder Height
-	FVector BladeBottomLocation = Mesh->GetSocketLocation(TEXT("TrailStart"));
-	FVector BladeTopLocation = Mesh->GetSocketLocation(TEXT("TrailEnd"));
-	ParticleEffectCylinderHeight = (BladeBottomLocation.X - BladeTopLocation.X) + (BladeBottomLocation.Y - BladeTopLocation.Y) + (BladeBottomLocation.Z - BladeTopLocation.Z);
 }
 
 void AWeapon::SetDamageIsEnabled(bool _val)
@@ -186,41 +182,46 @@ void AWeapon::GetRayCastPosition(FVector & _start, FVector & _end)
 
 }
 
-void AWeapon::StartWeaponFireEnchantment()
-{   
-	if (bIsWeaponOnFire == false)
-	{
-		UParticleSystem* FireEffect = UVfxManager::GetVfx(EVfxType::WeaponFireEnchantment);
-		if (FireEffect)
-		{   
-			FRotator relativeRotator = FRotator::ZeroRotator;
-			switch (GearType)
-			{
-
-			case EGearType::DoubleHandWeapon:
-				break;
-			case EGearType::GreatSword:
-			case EGearType::BattleAxe:
-			case EGearType::Hammer:
-				relativeRotator = FRotator(0, 0, -90);
-				break;
-			default:
-				break;
-			}
-			WeaponEnchantment_PSC = UGameplayStatics::SpawnEmitterAttached(FireEffect, Mesh, TEXT("EffectCenter"), FVector::ZeroVector, relativeRotator);
-			WeaponEnchantment_PSC->SetFloatParameter(TEXT("CylinderHeight"), ParticleEffectCylinderHeight);
-		}
-	}
-}
-
-void AWeapon::EndWeaponFireEnchantment()
-{
-	if (WeaponEnchantment_PSC)
-	{   
-		WeaponEnchantment_PSC->DestroyComponent();
-		bIsWeaponOnFire = false;
-	}
-}
+//void AWeapon::StartWeaponFireEnchantment()
+//{   
+//
+//	// Calculate Cylinder Height
+//	FVector BladeBottomLocation = Mesh->GetSocketLocation(TEXT("TrailStart"));
+//	FVector BladeTopLocation = Mesh->GetSocketLocation(TEXT("TrailEnd"));
+//	float ParticleEffectCylinderHeight = (BladeBottomLocation.X - BladeTopLocation.X) + 
+//		(BladeBottomLocation.Y - BladeTopLocation.Y) + (BladeBottomLocation.Z - BladeTopLocation.Z);
+//
+//
+//	UParticleSystem* FireEffect = UVfxManager::GetVfx(EVfxType::WeaponFireEnchantment);
+//	if (FireEffect)
+//	{
+//		FRotator relativeRotator = FRotator::ZeroRotator;
+//		switch (GearType)
+//		{
+//
+//		case EGearType::DoubleHandWeapon:
+//			relativeRotator = FRotator(0, 0, 90);
+//			break;
+//		case EGearType::GreatSword:
+//		case EGearType::BattleAxe:
+//		case EGearType::Hammer:
+//			relativeRotator = FRotator(0, 0, -90);
+//			break;
+//		default:
+//			break;
+//		}
+//		//WeaponEnchantment_PSC = UGameplayStatics::SpawnEmitterAttached(FireEffect, Mesh, TEXT("EffectCenter"), FVector::ZeroVector, relativeRotator);
+//		//WeaponEnchantment_PSC->SetFloatParameter(TEXT("CylinderHeight"), ParticleEffectCylinderHeight);
+//	}
+//}
+//
+//void AWeapon::EndWeaponFireEnchantment()
+//{
+//	if (WeaponEnchantment_PSC)
+//	{   
+//		WeaponEnchantment_PSC->DestroyComponent();
+//	}
+//}
 
 
 

@@ -87,6 +87,7 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 	CurrentExp = 0.0f;
 	MaxExp = 100.0f;
 	MaxExpDiv = 1.0f / MaxExp;
+	bHasEnchartedWeapon = false;
 
 	HeroStats = CreateDefaultSubobject<UHeroStatsComponent>(TEXT("Stats"));
 	PawnStats = HeroStats;	
@@ -669,15 +670,29 @@ void ATheLastBastionHeroCharacter::OnSkillPressed_3()
 }
 
 void ATheLastBastionHeroCharacter::OnSkillPressed_4()
-{
+{	
 	TryToUseSkill = Skill__WeaponCastingFire;
-	AWeapon* weapon = Cast<AWeapon>(GetCurrentWeapon());
-	if (weapon)
+
+	if (bHasEnchartedWeapon == false)
 	{
-		weapon->StartWeaponFireEnchantment();
+		AGear* weapon = GetCurrentWeapon();
+		if (weapon)
+		{
+			weapon->StartWeaponFireEnchantment();
+		}
+		mAnimInstanceRef->OnSkill(TryToUseSkill);
+		bHasEnchartedWeapon = true;
+	}
+	else
+	{
+
+		AGear* weapon = GetCurrentWeapon();
+		if (weapon)
+			weapon->EndWeaponFireEnchantment();
+
+		bHasEnchartedWeapon = false;
 	}
 
-	mAnimInstanceRef->OnSkill(TryToUseSkill);
 }
 
 void ATheLastBastionHeroCharacter::OnSkillPressed_5()
@@ -853,6 +868,14 @@ bool ATheLastBastionHeroCharacter::IsSkillCooled(int _index) const
 bool ATheLastBastionHeroCharacter::IsIntentedSkillCooled() const
 {
 	return 	mInGameHUD->IsSkilledCooledDown(TryToUseSkill);
+}
+
+void ATheLastBastionHeroCharacter::OnFireEnchartingStart()
+{
+}
+
+void ATheLastBastionHeroCharacter::OnFireEnchartingStop()
+{
 }
 
 void ATheLastBastionHeroCharacter::AddExp(float _val)
