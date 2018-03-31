@@ -5,6 +5,7 @@
 #include "UI/Gameplay/InventoryUI.h"
 #include "UI/ItemDrag.h"
 #include "UI/Gameplay/DraggedItem.h"
+#include "Combat/Gear.h"
 
 bool UTradeMenuSlot::Initialize()
 {
@@ -28,6 +29,12 @@ void UTradeMenuSlot::NativeOnDragDetected(const FGeometry & InGeometry, const FP
 
 	if (GearUI.Gear_Bp && GearUI.Gear_Image)
 	{
+		
+		AGear* defaults = GearUI.Gear_Bp.GetDefaultObject(); 
+		if (defaults)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%f, physical damage"), defaults->GetPhysicalDamage());
+		}
 
 		UDraggedItem* dragVisual = CreateWidget<UDraggedItem>(GetOwningPlayer(), WBP_DraggedItem);
 		if (dragVisual)

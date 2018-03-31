@@ -63,7 +63,9 @@ void AGear::Equip(class USkeletalMeshComponent* const _skeletonMeshComponent)
 	
 
 	this->AttachToComponent(_skeletonMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, SlotName);
+	
 
+	
 }
 
 void AGear::Arm(USkeletalMeshComponent * const _skeletonMeshComponent)

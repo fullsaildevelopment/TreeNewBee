@@ -48,8 +48,6 @@ void UWeaponSlotsUI::OnInitStats(const UHeroStatsComponent * _heroStats)
 	gear = _heroStats->GetCurrentRightHandWeapon();
 	if (gear)
 		CurrentWeapon = gear->GetThumbNailImage();
-
-
 }
 
 void UWeaponSlotsUI::SetCurrentWeaponImage(const AGear * _gear)
