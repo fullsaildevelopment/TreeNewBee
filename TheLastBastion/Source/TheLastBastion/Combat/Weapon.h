@@ -33,6 +33,13 @@ private:
 		UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 		class UParticleSystemComponent* ParticleSystemComp;
 
+		//temp particle system component for weapon enchantment effect
+		UParticleSystemComponent* WeaponEnchantment_PSC;
+
+		bool bIsWeaponOnFire;
+
+		float ParticleEffectCylinderHeight;
+
 protected:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = DamageCollision)
@@ -68,4 +75,10 @@ public:
 
 	void GetRayCastPosition(FVector& _start, FVector& _end);
 
+	//
+	UFUNCTION(BlueprintCallable)
+	void StartWeaponFireEnchantment();
+
+	UFUNCTION(BlueprintCallable)
+	void EndWeaponFireEnchantment();
 };

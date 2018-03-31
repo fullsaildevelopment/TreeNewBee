@@ -671,6 +671,12 @@ void ATheLastBastionHeroCharacter::OnSkillPressed_3()
 void ATheLastBastionHeroCharacter::OnSkillPressed_4()
 {
 	TryToUseSkill = Skill__WeaponCastingFire;
+	AWeapon* weapon = Cast<AWeapon>(GetCurrentWeapon());
+	if (weapon)
+	{
+		weapon->StartWeaponFireEnchantment();
+	}
+
 	mAnimInstanceRef->OnSkill(TryToUseSkill);
 }
 
