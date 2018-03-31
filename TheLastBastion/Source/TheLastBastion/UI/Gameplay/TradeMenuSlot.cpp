@@ -8,6 +8,8 @@
 #include "Combat/Gear.h"
 #include "CustomType.h"
 
+#include "SlateBlueprintLibrary.h"
+
 #include <Runtime/Engine/Classes/Engine/Engine.h>
 
 
@@ -148,18 +150,20 @@ bool UTradeMenuSlot::NativeOnDrop(const FGeometry & InGeometry, const FDragDropE
 void UTradeMenuSlot::NativeOnMouseEnter(const FGeometry & InGeometry, const FPointerEvent & InMouseEvent)
 {
 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
-	//UE_LOG(LogTemp, Warning, TEXT("%s, UTradeMenuSlot::NativeOnMouseEnter"), *this->GetName());
-
-	//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, TEXT("This is an on screen message!"));
 
 	if (WBP_PopUpWidget && GearUI.Gear_Bp != nullptr)
 	{
 		PopUpWidget = CreateWidget<UUserWidget>(GetOwningPlayer(), WBP_PopUpWidget);
-		PopUpWidget->AddToViewport();
+		PopUpWidget->AddToViewport();	
 
-		PopUpWidget->SetRenderTranslation(InGeometry.GetAbsolutePosition());
-		//UE_LOG(LogTemp, Warning, TEXT("%f, %f UTradeMenuSlot::NativeOnMouseEnter"), InGeometry.Get);
+		FVector2D MouseLocation = InMouseEvent.GetScreenSpacePosition();
+		
 
+		FVector2D pixelPosition, viewPortPosition;		
+		USlateBlueprintLibrary::AbsoluteToViewport(GetWorld(), MouseLocation, pixelPosition, viewPortPosition);		
+		PopUpWidget->SetRenderTranslation(viewPortPosition);
+
+		//UE_LOG(LogTemp, Warning, TEXT("%f, %f UTradeMenuSlot::NativeOnMouseEnter"), renderPosition.X, renderPosition.Y);
 		//PopUpWidget->SetRenderTranslation(InMouseEvent.GetScreenSpacePosition());
 	}
 
