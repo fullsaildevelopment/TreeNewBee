@@ -9,6 +9,7 @@
 #include "UI/Gameplay/DraggedItem.h"
 #include "CustomType.h"
 
+#include <Runtime/Engine/Classes/Engine/Engine.h>
 
 
 TSubclassOf<UUserWidget> UActionSlot::WBP_DraggedItem = nullptr;
@@ -59,8 +60,9 @@ FReply UActionSlot::NativeOnMouseButtonDown(const FGeometry & InGeometry, const 
 
 void UActionSlot::NativeOnMouseLeave(const FPointerEvent & InMouseEvent)
 {
-
-	UE_LOG(LogTemp, Warning, TEXT("UActionSlot::NativeOnMouseLeave"));
+	Super::NativeOnMouseLeave(InMouseEvent);
+	//UE_LOG(LogTemp, Warning, TEXT("UActionSlot::NativeOnMouseLeave"));
+	//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, TEXT("UActionSlot::NativeOnMouseLeave"));
 
 	if (PopUpWidget)
 	{

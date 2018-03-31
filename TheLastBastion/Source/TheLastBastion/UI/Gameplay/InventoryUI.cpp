@@ -43,7 +43,10 @@ void UInventoryUI::OnOpenTradeMenu(UHeroStatsComponent * _heroStats)
 	// Check Armor
 	AGear* currentArmor = _heroStats->GetCurrentArmor();
 	if (currentArmor)
+	{
 		Armor->SetImage(currentArmor->GetThumbNailImage());
+		Armor->SetGearBp(currentArmor->GetClass());
+	}
 
 	// Check WeaponSlot
 	AGear* weapon = nullptr;
