@@ -58,20 +58,26 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UShopRow* NordicRow;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Upgrades")
+		TArray<struct FGearUI> NordicRow_GearUI;
+
 	UPROPERTY(meta = (BindWidget))
 		class UShopRow* DwarvenRow;
 
-	UPROPERTY(meta = (BindWidget))
-		class UShopRow* GlassRow;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Upgrades")
+		TArray<struct FGearUI> DwarvenRow_GearUI;
 
 	UPROPERTY(meta = (BindWidget))
 		class UShopRow* EbonyRow;
 
-	UPROPERTY(meta = (BindWidget))
-		class UShopRow* DragonRow;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Upgrades")
+		TArray<struct FGearUI> EbonyRow_GearUI;
 
 	UPROPERTY(meta = (BindWidget))
 		class UShopRow* DaedricRow;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Upgrades")
+		TArray<struct FGearUI> DaedricRow_GearUI;
 
 	UPROPERTY(meta = (BindWidget))
 		class UInventoryUI* InventoryUI;

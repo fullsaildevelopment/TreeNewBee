@@ -28,6 +28,7 @@ AOutpost::AOutpost()
 	OccupyVolumn->SetMobility(EComponentMobility::Static);
 
 	UpdateFreq = 1.0f;
+	bDisabled = false;
 }
 
 // Called when the game starts or when spawned
@@ -58,6 +59,9 @@ void AOutpost::Tick(float DeltaTime)
 
 void AOutpost::UpdateByTimer()
 {
+
+	if (bDisabled)
+		return;
 
 	for (int iGroup = 0; iGroup < EnemiesGroup.Num(); iGroup++)
 	{

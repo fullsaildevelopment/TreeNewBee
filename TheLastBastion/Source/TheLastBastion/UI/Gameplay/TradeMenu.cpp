@@ -27,7 +27,7 @@ bool UTradeMenu::Initialize()
 
 	// Bind Delegetes to Widget components
 	bool bAllWidgetAreGood = UpgradeList && InventoryUI &&
-		WolfRow && DwarvenRow && NordicRow && GlassRow && EbonyRow && DragonRow && DaedricRow
+		WolfRow && DwarvenRow && NordicRow && EbonyRow && DaedricRow
 		&& Cancel && Accept;
 
 	if (bAllWidgetAreGood)
@@ -51,9 +51,10 @@ bool UTradeMenu::Initialize()
 
 
 	if (WolfRow_GearUI.Num() == ShopRowSize)
-	{
 		WolfRow->SetEachSlotAction(WolfRow_GearUI);
-	}
+
+	if (NordicRow_GearUI.Num() == ShopRowSize)
+		NordicRow->SetEachSlotAction(NordicRow_GearUI);
 
 	bCanEverTick = false;
 

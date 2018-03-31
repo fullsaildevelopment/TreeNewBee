@@ -9,6 +9,7 @@
 #define South_TrooperRoute_0 0
 #define South_TrooperRoute_1 1
 #define South_ShooterRoute_0 2
+#define North_WoodOutputTakingRoute 3
 
 USTRUCT(BlueprintType)
 struct FMarchPath
@@ -65,11 +66,6 @@ protected:
 		/** All Availble Path*/
 		TArray<FMarchPath> Paths;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (MakeEditWidget), Category = Behavior)
-		/** Range unit hold position*/
-		TArray<FVector> ShootingPoints;
-
-
 	FTimerHandle SpawnTimer;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
@@ -102,6 +98,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
 		/** How many wave units we are going to spawn in current wave*/
 		int MaxWaveUnitAmount;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
+		/** How many wave units we are going to spawn in current wave*/
+		int TestingRoute;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
