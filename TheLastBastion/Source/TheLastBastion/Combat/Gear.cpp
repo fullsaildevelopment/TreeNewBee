@@ -60,12 +60,8 @@ void AGear::Equip(class USkeletalMeshComponent* const _skeletonMeshComponent)
 		SlotName = TEXT("Root");
 		break;
 	}
-	
 
-	this->AttachToComponent(_skeletonMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, SlotName);
-	
-
-	
+	this->AttachToComponent(_skeletonMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, SlotName);		
 }
 
 void AGear::Arm(USkeletalMeshComponent * const _skeletonMeshComponent)

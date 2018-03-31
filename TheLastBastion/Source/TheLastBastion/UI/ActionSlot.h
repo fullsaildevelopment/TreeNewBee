@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+//#include "Components/Button.h"
 #include "Blueprint/UserWidget.h"
 #include "ActionSlot.generated.h"
 
@@ -39,24 +40,33 @@ protected:
 	FReply NativeOnMouseButtonDown
 	(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 
+	//void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+
+
+	/** Remove the pop up widget from viewport*/
+	void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
 
 protected:
 
 	static TSubclassOf<class UUserWidget> WBP_DraggedItem;
 
-	UPROPERTY(meta = (BindWidget))
-		class USizeBox* SlotSize;
+	/** Widget class to pop up and show information*/
+	static TSubclassOf<class UUserWidget> WBP_PopUpWidget;
+
+	UPROPERTY()
+		/** The pop up widget to show information*/
+		class UUserWidget* PopUpWidget;
 
 	UPROPERTY(meta = (BindWidget))
-		class UButton* ActionButton;
+		class USizeBox* SlotSize;
 
 	EDragDropMode DragDropMode;
 
 public:
 
-	/** if true, will enable the button click, and set drag drop operation to disable
-		if false, will only disable the button click*/
-	void SetIsButton(bool _val);
+	///** if true, will enable the button click, and set drag drop operation to disable
+	//	if false, will only disable the button click*/
+	//void SetIsButton(bool _val);
 
 	void SetDragDropMode(EDragDropMode _mode);
 

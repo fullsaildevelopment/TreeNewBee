@@ -52,6 +52,11 @@ class THELASTBASTION_API UTradeMenuSlot : public UActionSlot
 {
 	GENERATED_BODY()
 	
+
+public:
+
+	UTradeMenuSlot(const FObjectInitializer& _objInit);
+
 protected:
 
 	bool Initialize() override;
@@ -59,6 +64,9 @@ protected:
 	void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
 
 	bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+
+	void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+
 
 protected:
 

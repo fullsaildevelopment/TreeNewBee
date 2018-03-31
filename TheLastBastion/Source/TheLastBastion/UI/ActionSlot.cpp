@@ -13,6 +13,9 @@
 
 TSubclassOf<UUserWidget> UActionSlot::WBP_DraggedItem = nullptr;
 
+TSubclassOf<UUserWidget> UActionSlot::WBP_PopUpWidget = nullptr;
+
+
 UActionSlot::UActionSlot(const FObjectInitializer& _objInit) :Super(_objInit)
 {
 	if (WBP_DraggedItem == nullptr)
@@ -29,7 +32,7 @@ bool UActionSlot::Initialize()
 
 	// Bind Delegetes to Widget components
 	bool bAllWidgetAreGood =
-		SlotSize && ActionButton;
+		SlotSize != nullptr;// && ActionButton;
 
 	if (bAllWidgetAreGood)
 	{
@@ -38,9 +41,9 @@ bool UActionSlot::Initialize()
 	else
 		return false;
 
-	ActionButton->IsFocusable = false;
-	ActionButton->SetClickMethod(EButtonClickMethod::PreciseClick);
-	ActionButton->SetTouchMethod(EButtonTouchMethod::PreciseTap);
+	//ActionButton->IsFocusable = false;
+	//ActionButton->SetClickMethod(EButtonClickMethod::PreciseClick);
+	//ActionButton->SetTouchMethod(EButtonTouchMethod::PreciseTap);
 
 	DragDropMode = EDragDropMode::EDragAndDrop;
 	SetSize(DefaultActionSlot_Width, DefaultActionSlot_Height);
@@ -54,32 +57,43 @@ FReply UActionSlot::NativeOnMouseButtonDown(const FGeometry & InGeometry, const 
 	return UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, FKey(TEXT("LeftMouseButton"))).NativeReply;
 }
 
-void UActionSlot::SetIsButton(bool _val)
+void UActionSlot::NativeOnMouseLeave(const FPointerEvent & InMouseEvent)
 {
-	if (_val)
+
+	UE_LOG(LogTemp, Warning, TEXT("UActionSlot::NativeOnMouseLeave"));
+
+	if (PopUpWidget)
 	{
-		ActionButton->SetVisibility(ESlateVisibility::Visible);
-		DragDropMode = EDragDropMode::EDisable;
-	}
-	else
-	{
-		ActionButton->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+		PopUpWidget->RemoveFromParent();
 	}
 }
 
+//void UActionSlot::SetIsButton(bool _val)
+//{
+//	if (_val)
+//	{
+//		//ActionButton->SetVisibility(ESlateVisibility::Visible);
+//		DragDropMode = EDragDropMode::EDisable;
+//	}
+//	//else
+//	//{
+//	//	ActionButton->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+//	//}
+//}
+
 void UActionSlot::SetDragDropMode(EDragDropMode _mode)
 {
-	switch (_mode)
-	{
-	case EDragDropMode::EDragAndDrop:
-	case EDragDropMode::EDragOnly:
-		SetIsButton(false);
-		break;
-	case EDragDropMode::EDropOnly:
-	case EDragDropMode::EDisable:
-	default:
-		break;
-	}
+	//switch (_mode)
+	//{
+	//case EDragDropMode::EDragAndDrop:
+	//case EDragDropMode::EDragOnly:
+	//	SetIsButton(false);
+	//	break;
+	//case EDragDropMode::EDropOnly:
+	//case EDragDropMode::EDisable:
+	//default:
+	//	break;
+	//}
 	DragDropMode = _mode;
 }
 

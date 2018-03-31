@@ -6,6 +6,16 @@
 #include "UI/ItemDrag.h"
 #include "UI/Gameplay/DraggedItem.h"
 #include "Combat/Gear.h"
+#include "CustomType.h"
+
+
+UTradeMenuSlot::UTradeMenuSlot(const FObjectInitializer& _objInit) : Super(_objInit)
+{
+	if (WBP_PopUpWidget == nullptr)
+	{
+		UCustomType::FindClass<UUserWidget>(WBP_PopUpWidget, TEXT("/Game/UI/In-Game/TradeMenu/WBP_TradePopUp"));
+	}
+}
 
 bool UTradeMenuSlot::Initialize()
 {
@@ -30,12 +40,6 @@ void UTradeMenuSlot::NativeOnDragDetected(const FGeometry & InGeometry, const FP
 	if (GearUI.Gear_Bp && GearUI.Gear_Image)
 	{
 		
-		AGear* defaults = GearUI.Gear_Bp.GetDefaultObject(); 
-		if (defaults)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("%f, physical damage"), defaults->GetPhysicalDamage());
-		}
-
 		UDraggedItem* dragVisual = CreateWidget<UDraggedItem>(GetOwningPlayer(), WBP_DraggedItem);
 		if (dragVisual)
 		{
@@ -135,6 +139,22 @@ bool UTradeMenuSlot::NativeOnDrop(const FGeometry & InGeometry, const FDragDropE
 		return false;
 	}
 	return false;
+}
+
+void UTradeMenuSlot::NativeOnMouseEnter(const FGeometry & InGeometry, const FPointerEvent & InMouseEvent)
+{
+	UE_LOG(LogTemp, Warning, TEXT("UTradeMenuSlot::NativeOnMouseEnter"));
+	if (WBP_PopUpWidget)
+	{
+
+		if (GearUI.Gear_Bp)
+		{
+			PopUpWidget = CreateWidget<UUserWidget>(GetOwningPlayer(), WBP_PopUpWidget);
+			PopUpWidget->AddToViewport();
+			PopUpWidget->SetRenderTranslation(InMouseEvent.GetScreenSpacePosition());
+		}
+	}
+
 }
 
 void UTradeMenuSlot::SetImage(UTexture2D * _image)
