@@ -21,6 +21,7 @@ AEnemyGroupSpawner::AEnemyGroupSpawner()
 	TestGroupAmount = 1;
 	TestGroupSize = 2;
 	TestGroup = LanT0_CB;
+	TestingRoute = 0;
 
 }
 
@@ -163,7 +164,7 @@ void AEnemyGroupSpawner::Spawn()
 		if (bTestingMode)
 		{
 			classToSpawn = TestGroup;
-			pathIndex = 0;
+			pathIndex = TestingRoute;
 		}
 		else
 		{

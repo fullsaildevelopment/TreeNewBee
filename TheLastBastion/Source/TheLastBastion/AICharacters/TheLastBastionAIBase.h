@@ -86,7 +86,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 		/** The amount of exp that hero gain, when this character is defeated*/
 		float GetExperience() const;
-	float GetExperience_Implementation() const { return 120.0f; }
+	float GetExperience_Implementation() const { return 5.0f; }
 
 	UFUNCTION()
 		virtual void OnTargetDeathHandle();

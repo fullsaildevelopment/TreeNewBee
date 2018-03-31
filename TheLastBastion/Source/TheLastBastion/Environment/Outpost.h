@@ -69,6 +69,12 @@ protected:
 		bool bIsOccupied;
 
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Outpost)
+		/** if true, the outpost is occupied by enemies, and will not produce resource for hero*/
+		bool bDisabled;
+
+
+
 protected:
 
 	/** Called every UpdateFreq sec, and check whether the outpost should produce resource for hero*/

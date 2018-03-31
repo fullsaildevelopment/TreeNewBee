@@ -298,7 +298,7 @@ void ASinglePlayerGM::AddWood(int _val)
 
 void ASinglePlayerGM::AddStone(int _val)
 {
-	Stone = _val;
+	Stone += _val;
 	if (HeroPC)
 		HeroPC->GetInGameHUD()->SetStoneValue(Stone);
 }
