@@ -165,9 +165,9 @@ public:
 	FORCEINLINE FText GetGearDescription_Implementation() const { return FText::FromString("Gear Description"); }
 
 	UFUNCTION(BlueprintNativeEvent)
-		/** Return the resource cost to craft this weapon*/
-		 TArray<int> GetCost() const;
-	TArray<int> GetCost_Implementation() const;
+		/** Return the metal and wood cost to craft this weapon*/
+		 TArray<int> GetResourceCost() const;
+	TArray<int> GetResourceCost_Implementation() const;
 
 	virtual void SetDamageIsEnabled(bool _val);
 

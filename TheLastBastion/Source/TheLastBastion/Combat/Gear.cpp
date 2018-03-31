@@ -111,12 +111,12 @@ void AGear::Arm(USkeletalMeshComponent * const _skeletonMeshComponent)
 	this->AttachToComponent(_skeletonMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, SlotName);
 }
 
-TArray<int> AGear::GetCost_Implementation() const
+TArray<int> AGear::GetResourceCost_Implementation() const
 {
 
 	TArray<int> Cost;
-	Cost.SetNum(4);
-	for (int i = 0; i < 4; i++)
+	Cost.SetNum(2);
+	for (int i = 0; i < 2; i++)
 	{
 		Cost[i] = 100;
 	}

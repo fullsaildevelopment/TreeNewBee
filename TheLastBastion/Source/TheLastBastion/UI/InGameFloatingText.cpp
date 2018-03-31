@@ -3,9 +3,7 @@
 #include "InGameFloatingText.h"
 #include "Components/TextBlock.h"
 #include "Animation/WidgetAnimation.h"
-
-
-
+#include "CustomType.h"
 
 UInGameFloatingText::UInGameFloatingText(const FObjectInitializer & ObjectInit) : Super(ObjectInit)
 {
@@ -23,10 +21,8 @@ bool UInGameFloatingText::Initialize()
 		UE_LOG(LogTemp, Error, TEXT("InGameFT is NULL --  UInGameFloatingText::Initialize"));
 		return false;
 	}
-	
 
 	InGameFT->Font.Size = 20;
-
 	return true;
 
 }
@@ -47,19 +43,19 @@ void UInGameFloatingText::SetStyle(EFloatingTextStyle _val)
 	default:
 		break;
 	case EFloatingTextStyle::Enemy:
-		InGameFT->SetColorAndOpacity(Enemy);
+		InGameFT->SetColorAndOpacity(EnemyHit_FTColor);
 		break;
 	case EFloatingTextStyle::Fire:
-		InGameFT->SetColorAndOpacity(Fire);
+		InGameFT->SetColorAndOpacity(FireHit_FTColor);
 		break;
 	case EFloatingTextStyle::Ice:
-		InGameFT->SetColorAndOpacity(Ice);
+		InGameFT->SetColorAndOpacity(IceHit_FTColor);
 		break;
 	case EFloatingTextStyle::Critical:
-		InGameFT->SetColorAndOpacity(Critical);
+		InGameFT->SetColorAndOpacity(CriticalHit_FTColor);
 		break;
 	case EFloatingTextStyle::Stun:
-		InGameFT->SetColorAndOpacity(Stun);
+		InGameFT->SetColorAndOpacity(StunHit_FTColor);
 		break;
 	}
 }

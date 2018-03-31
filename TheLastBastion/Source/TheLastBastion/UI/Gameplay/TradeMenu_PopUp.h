@@ -51,4 +51,8 @@ private:
 	void PopUpStunWeapon(const class AGear* const _stunWeapon);
 
 	void PopUpCostWeapon(const class AGear* const _gear);
+
+	void AddPopUpEntry(FString _text, int _val);
+	void AddPopUpEntryWithColor(FLinearColor _color, FString _text, int _val);
+
 };

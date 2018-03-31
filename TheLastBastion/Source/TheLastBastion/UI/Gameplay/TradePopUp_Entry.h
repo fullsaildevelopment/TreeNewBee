@@ -9,6 +9,8 @@
 /**
  * 
  */
+
+
 UCLASS()
 class THELASTBASTION_API UTradePopUp_Entry : public UUserWidget
 {
@@ -28,5 +30,6 @@ protected:
 	bool Initialize() override;
 public:
 
-	void AddEntry(FText _ItemName, FText _ItemValue);
+	void EditEntry(FText _ItemName, FText _ItemValue);
+	void EditColor(FLinearColor _color);
 };
