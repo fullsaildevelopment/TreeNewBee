@@ -277,6 +277,37 @@ void UBase_AnimInstance::FxOnDraw()
 
 void UBase_AnimInstance::FxOnReload()
 {
+	if (mBaseCharacter)
+	{
+		AGear* CurrentWeapon = mBaseCharacter->GetCurrentWeapon();
+		if (CurrentWeapon)
+		{
+			UAudioComponent* AudioComp = mBaseCharacter->GetAudioComp();
+			USoundCue* sfx = UAudioManager::GetSFX(ESoundEffectType::ECrossbowReload);
+			AudioComp->SetSound(sfx);
+			AudioComp->Play();
+		}
+	}
+}
+
+void UBase_AnimInstance::FxOnJump()
+{
+	if (mBaseCharacter)
+	{
+		USoundCue* sfx = UAudioManager::GetSFX(ESoundEffectType::EJump);
+		if (sfx)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), sfx, mBaseCharacter->GetActorLocation());
+	}
+}
+
+void UBase_AnimInstance::FxOnRoll()
+{
+	if (mBaseCharacter)
+	{
+		USoundCue* sfx = UAudioManager::GetSFX(ESoundEffectType::ERoll);
+		if (sfx)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), sfx, mBaseCharacter->GetActorLocation());
+	}
 }
 
 void UBase_AnimInstance::StartMeleeWeaponTrail(bool _rightHand)
