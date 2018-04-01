@@ -126,6 +126,14 @@ public:
 
 	FORCEINLINE class AEnemyGroupSpawner* GetEnemyGroupSpawner() const { return EnemyGroupSpawner; }
 
+
+	// Resouce Interface
+
+	FORCEINLINE int GetFoodTotal() const { return Food; }
+	FORCEINLINE int GetMetalTotal() const { return Metal; }
+	FORCEINLINE int GetWoodTotal() const { return Wood; }
+	FORCEINLINE int GetStoneTotal() const { return Stone; }
+
 	void AddFood(int _val);
 	void AddMetal(int _val);
 	void AddWood(int _val);

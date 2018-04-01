@@ -16,10 +16,9 @@
 #define  Skill__Combo 0
 #define  Skill__PowerHit 1    
 #define  Skill__Taunt 2 
-#define  Skill__WeaponCastingIce 3
-#define  Skill__WeaponCastingFire 4   
-#define  Skill__Heal 5        
-#define  Skill__BattleCommand 6
+#define  Skill__WeaponCastingFire 3
+#define  Skill__Heal 4   
+#define  Skill__BattleCommand 5        
 
 #define CommandPresence_LevelUpDelta 0.05f
 
@@ -166,7 +165,6 @@ protected:
 	void OnSkillPressed_3();
 	void OnSkillPressed_4();
 	void OnSkillPressed_5();
-	void OnSkillPressed_6();
 
 #pragma endregion
 
@@ -301,6 +299,7 @@ private:
 private:
 
 	void UpdateHeroStats(float _deltaTime);
+	void OnWeaponEnchantStart();
 
 public:
 
@@ -356,13 +355,9 @@ public:
 	// Encharting interface
 	FORCEINLINE bool HasEnchartedWeapon() const { return bHasEnchartedWeapon; }
 
-	void OnFireEnchartingStart(); 
+	/** Called to stop weapon enchant*/
+	void OnWeaponEnchantStop();
 
-	void OnFireEnchartingStop();
-
-
-
-	
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE float GetMoveForwardAxis() const { return MoveForwardAxis; }
 	UFUNCTION(BlueprintPure)
@@ -373,4 +368,7 @@ public:
 		FORCEINLINE class AAllyGroup* GetCommandGroup() const { return CommandedGroup; }
 
 	void AddExp(float _val);
+
+	/** Play partical based on skill index, called after stanima check*/
+	void OnPlaySkillParticle(int _skillIndex);
 };

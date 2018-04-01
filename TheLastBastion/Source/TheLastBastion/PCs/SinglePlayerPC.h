@@ -82,6 +82,7 @@ public:
 public:
 
 	FORCEINLINE class UInGameHUD* GetInGameHUD() const { return mInGameHUD; }
+	FORCEINLINE class UTradeMenu* GetTradeMenu() const { return mTradeMenu; }
 
 private:
 

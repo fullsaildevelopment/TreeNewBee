@@ -910,7 +910,7 @@ void UHero_AnimInstance::OnSheathWeapon()
 	// if we have encharted weapon, end encharted
 	if (mCharacter->HasEnchartedWeapon())
 	{
-
+		mCharacter->OnWeaponEnchantStop();
 	}
 }
 
@@ -1276,6 +1276,9 @@ void UHero_AnimInstance::LaunchSkill(int _skillIndex)
 
 	FName sectionToPlay = mCharacter->GetSkillSectionNameAt(_skillIndex);
 
+	// Play partical on hero
+	mCharacter->OnPlaySkillParticle(_skillIndex);
+
 	float attackSpeed = (mCharacter->GetCurrentWeapon()->GetGearType() == EGearType::GreatSword) ? 1.1f : 1.0f;
 
 	if (sectionToPlay.Compare(Montage_SN_SkillPowerHit_Sns) == 0)
@@ -1290,7 +1293,6 @@ void UHero_AnimInstance::LaunchSkill(int _skillIndex)
 		mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = true;
 		mCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 	}
-
 
 	AttackState = EAttackState::PreWinding;
 	NextAction = EActionType::None;

@@ -57,13 +57,19 @@ bool UTradeMenu::Initialize()
 		NordicRow->SetEachSlotAction(NordicRow_GearUI);
 
 	bCanEverTick = false;
-
+	bIsOpened = false;
 	return true;
 }
 
 void UTradeMenu::OnOpenTradeMenu(UHeroStatsComponent * _heroStats)
 {
 	InventoryUI->OnOpenTradeMenu(_heroStats);
+	bIsOpened = true;
+}
+
+void UTradeMenu::LoadResourceFromGM()
+{
+	InventoryUI->LoadResource();
 }
 
 void UTradeMenu::OnAcceptClicked()
@@ -94,6 +100,7 @@ void UTradeMenu::OnCancelClicked()
 	pc->bShowMouseCursor = false;
 	FInputModeGameOnly InputMode;
 	pc -> SetInputMode(InputMode);
+	bIsOpened = false;
 }
 
 

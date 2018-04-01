@@ -33,12 +33,7 @@ private:
 		UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 		class UParticleSystemComponent* ParticleSystemComp;
 
-		//UPROPERTY()
-		//	//temp particle system component for weapon enchantment effect
-		//	class UParticleSystemComponent* WeaponEnchantment_PSC;
-
-
-		//float ParticleEffectCylinderHeight;
+		float ParticleEffectCylinderHeight;
 
 protected:
 
@@ -78,6 +73,8 @@ public:
 	////
 	//UFUNCTION(BlueprintCallable)
 	//void StartWeaponFireEnchantment() override;
+
+	class UParticleSystemComponent* OnWeaponEnchant() override;
 
 	//UFUNCTION(BlueprintCallable)
 	//void EndWeaponFireEnchantment() override;

@@ -88,10 +88,16 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UButton* Accept;
 
+	bool bIsOpened;
+
 
 public:
 
 	void OnOpenTradeMenu(class UHeroStatsComponent* _heroStats);
+	/**Load Resource from Game mode*/
+	void LoadResourceFromGM();
+
+	FORCEINLINE bool IsOpened() const { return bIsOpened; }
 
 private:
 
@@ -100,7 +106,5 @@ private:
 
 	UFUNCTION()
 		void OnCancelClicked();
-
-
 
 };

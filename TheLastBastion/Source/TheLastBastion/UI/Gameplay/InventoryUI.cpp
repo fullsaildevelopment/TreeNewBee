@@ -3,9 +3,13 @@
 #include "InventoryUI.h"
 #include "UI/Gameplay/TradeMenuSlot.h"
 #include "Components/HorizontalBox.h"
+#include "Components/TextBlock.h"
+
 #include "Combat/HeroStatsComponent.h"
 #include "Combat/Gear.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
+#include "GameMode/SinglePlayerGM.h"
+#include "Kismet/GameplayStatics.h"
 
 bool UInventoryUI::Initialize()
 {
@@ -13,9 +17,9 @@ bool UInventoryUI::Initialize()
 		return false;
 
 	// Bind Delegetes to Widget components
-	bool bAllWidgetAreGood = GearRow && AdditiveRow &&
+	bool bAllWidgetAreGood = GearRow &&
 		SHWeapon && RangeWeapon && Armor && THWeapon && HeavyWeapon &&
-		Additive_0 && Additive_1 && Additive_2 && Additive_3 && Additive_4 && Additive_5;
+		WoodValue && FoodValue && StoneValue && MetalValue;
 
 	if (bAllWidgetAreGood)
 	{
@@ -35,6 +39,7 @@ bool UInventoryUI::Initialize()
 		}
 	}
 
+	Wood = 0; Food = 0; Stone = 0; Metal = 0;
 	return true;
 }
 
@@ -83,6 +88,10 @@ void UInventoryUI::OnOpenTradeMenu(UHeroStatsComponent * _heroStats)
 		}
 	}
 
+	// Load Resource
+	
+	LoadResource();
+
 }
 
 TSubclassOf<class AGear> UInventoryUI::GetGearClassAt(int _index) const
@@ -116,4 +125,45 @@ TSubclassOf<class AGear> UInventoryUI::GetCurrentRangeWeapon() const
 TSubclassOf<class AGear> UInventoryUI::GetCurrentArmor() const
 {
 	return Armor->GetGearClass();
+}
+
+void UInventoryUI::LoadResource()
+{
+	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+
+	if (gm == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("gm == nullptr, UInventoryUI::LoadResource"));
+		return;
+	}
+
+	int WoodFromGM = gm->GetWoodTotal();
+	int FoodFromGM = gm->GetFoodTotal();
+	int StoneFromGM = gm->GetStoneTotal();
+	int MetalFromGM = gm->GetMetalTotal();
+
+	if (WoodFromGM != Wood)
+	{
+		Wood = WoodFromGM;
+		WoodValue->SetText(FText::AsNumber(Wood));
+	}
+
+	if (FoodFromGM != Food)
+	{
+		Food = FoodFromGM;
+		FoodValue->SetText(FText::AsNumber(Food));
+	}
+
+	if (StoneFromGM != Stone)
+	{
+		Stone = StoneFromGM;
+		StoneValue->SetText(FText::AsNumber(Stone));
+	}
+
+	if (MetalFromGM != Metal)
+	{
+		Metal = MetalFromGM;
+		MetalValue->SetText(FText::AsNumber(Metal));
+	}
+
 }

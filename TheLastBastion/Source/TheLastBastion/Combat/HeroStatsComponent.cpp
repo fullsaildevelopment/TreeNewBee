@@ -160,6 +160,10 @@ bool UHeroStatsComponent::OnSwitchWeapon(EEquipType _nextEquip)
 		}
 
 		rightWeapon->Equip(mCharacter->GetMesh());
+		// if the current weapon is enchanted, disable the enchantment
+		if (mHeroCharacter->HasEnchartedWeapon())
+			mHeroCharacter->OnWeaponEnchantStop();
+		// hide the weapon mesh based on visibility settings
 		if (WeaponSlots[CurrentWeapon_Index].bHideWhenEquip)
 			rightWeapon->ToggleVisibilty(false);
 

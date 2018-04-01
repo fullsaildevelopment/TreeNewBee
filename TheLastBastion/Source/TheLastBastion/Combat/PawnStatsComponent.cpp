@@ -239,8 +239,8 @@ void UPawnStatsComponent::GenerateMaxStats(bool _setCurrentToMax)
 	}
 
 
-	HpMax = factorHp * HpRaw + HpAdd;
-	StaminaMax = factorStamina * StaminaRaw + SpAdd;
+	HpMax = (1.0f + factorHp * 0.01f) * HpRaw + HpAdd;
+	StaminaMax = (1.0f + factorStamina * 0.01f) * StaminaRaw + SpAdd;
 	CriticalMax = CriticalRow + criticalAdd;
 	StunMax = StunRow + stunAdd;
 	//DpCurrent = 0;

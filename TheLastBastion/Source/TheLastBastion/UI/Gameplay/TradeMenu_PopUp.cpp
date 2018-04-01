@@ -72,6 +72,28 @@ void UTradeMenu_PopUp::OnPopUp(TSubclassOf<class AGear> _GearClass)
 
 void UTradeMenu_PopUp::PopUpArmor(const AGear*  const _Armor)
 {
+	float physicalDefence = _Armor->GetPhysicalDefence();
+	AddPopUpEntry(TEXT("Physical Defence: "), physicalDefence);
+
+	float hpBonus = _Armor->GetHpBonus();
+	if (hpBonus != 0)
+		AddPopUpEntryWithColor(FLinearColor::Green, TEXT("Hp Bonus(%): "), hpBonus);
+
+	float hpAdditive = _Armor->GetHpAdditive();
+	if (hpAdditive != 0)
+		AddPopUpEntryWithColor(FLinearColor::Green, TEXT("Hp Add: "), hpAdditive);
+
+	float spBonus = _Armor->GetStaminaBonus();
+	if (spBonus != 0)
+		AddPopUpEntryWithColor(FLinearColor::Green, TEXT("Sp Bonus(%): "), spBonus);
+
+	float spAdditive = _Armor->GetSpAdditive();
+	if (spAdditive != 0)
+		AddPopUpEntryWithColor(FLinearColor::Green, TEXT("Sp Add: "), spAdditive);
+
+	float IceDefence = _Armor->GetIceDefence();
+	if (IceDefence != 0)
+		AddPopUpEntryWithColor(IceHit_FTColor, TEXT("Ice Defence: "), IceDefence);
 
 }
 

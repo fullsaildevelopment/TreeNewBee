@@ -10,7 +10,9 @@
 #include "AI/AllyGroup.h"
 #include "AudioManager.h"
 #include "Environment/Barracks.h"
+
 #include "UI/InGameHUD.h"
+#include "UI/Gameplay/TradeMenu.h"
 
 
 ASinglePlayerGM::ASinglePlayerGM(const FObjectInitializer & _objectInitilizer) : Super(_objectInitilizer)
@@ -84,40 +86,6 @@ void ASinglePlayerGM::HandleSeamlessTravelPlayer(AController *& C)
 
 void ASinglePlayerGM::BeginPlay()
 {
-	//TArray<AActor*> AllSpawnLocations;
-	//ASpawnLocation* spawner = nullptr;
-	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpawnLocation::StaticClass(), AllSpawnLocations);
-	//for (size_t i = 0; i < AllSpawnLocations.Num(); i++)
-	//{
-	//	spawner = Cast<ASpawnLocation>(AllSpawnLocations[i]);
-	//	if (spawner)
-	//	{
-	//		switch (spawner->GetSpawnLocationType())
-	//		{
-	//		case ESpawnWorldLocation::Lannester_S1:
-	//		{   
-	//			LannesterSpawnLocations_One.Add(spawner);
-	//			break;
-	//		}
-	//		case ESpawnWorldLocation::Lannester_S2:
-	//		{
-	//			//LannesterSpawnLocations_One.Add(spawner);
-	//			break;
-	//		}
-	//		case ESpawnWorldLocation::Lannester_S3:
-	//		{
-	//			//LannesterSpawnLocations_One.Add(spawner);
-	//			break;
-	//		}
-	//		case ESpawnWorldLocation::WhiteWalker_S1:
-	//		{
-	//			//LannesterSpawnLocations_One.Add(spawner);
-	//			break;
-	//		}
-	//		}
-	//	}
-	//	UE_LOG(LogTemp, Log, TEXT("%s"), *spawner->GetName());
-	//}
 
 	Allies.SetNum(AllyGroupMaxAmount);
 
@@ -128,12 +96,6 @@ void ASinglePlayerGM::BeginPlay()
 
 void ASinglePlayerGM::GetAllSpawnClass()
 {
-
-	//if (LannesterTrooper_T0_BP == nullptr)
-	//	UCustomType::FindClass<ATheLastBastionCharacter>(LannesterTrooper_T0_BP, TEXT("/Game/Blueprints/AI/Lannester/Lan_Trooper_T0"));
-
-	//if (LannesterShooter_T0_BP == nullptr)
-	//	UCustomType::FindClass<ATheLastBastionCharacter>(LannesterShooter_T0_BP, TEXT("/Game/Blueprints/AI/Lannester/Lan_Crossbow_T0"));
 
 	if (AllyMeleeGroup_Bp == nullptr)
 		UCustomType::FindClass<AAllyGroup>(AllyMeleeGroup_Bp, TEXT("/Game/Blueprints/AI/GroupPreset/AllyMeleeGroup_Bp"));
@@ -279,28 +241,49 @@ void ASinglePlayerGM::AddFood(int _val)
 {
 	Food += _val;
 	if (HeroPC)
+	{
 		HeroPC->GetInGameHUD()->SetFoodValue(Food);
+		UTradeMenu* tradeMenu = HeroPC->GetTradeMenu();
+		if (tradeMenu && tradeMenu->IsOpened())
+			tradeMenu->LoadResourceFromGM();
+
+	}
 }
 
 void ASinglePlayerGM::AddMetal(int _val)
 {
 	Metal += _val;
 	if (HeroPC)
+	{
 		HeroPC->GetInGameHUD()->SetMetalValue(Metal);
+		UTradeMenu* tradeMenu = HeroPC->GetTradeMenu();
+		if (tradeMenu && tradeMenu->IsOpened())
+			tradeMenu->LoadResourceFromGM();
+	}
 }
 
 void ASinglePlayerGM::AddWood(int _val)
 {
 	Wood += _val;
 	if (HeroPC)
+	{
 		HeroPC->GetInGameHUD()->SetWoodValue(Wood);
+		UTradeMenu* tradeMenu = HeroPC->GetTradeMenu();
+		if (tradeMenu && tradeMenu->IsOpened())
+			tradeMenu->LoadResourceFromGM();
+	}
 }
 
 void ASinglePlayerGM::AddStone(int _val)
 {
 	Stone += _val;
 	if (HeroPC)
+	{
 		HeroPC->GetInGameHUD()->SetStoneValue(Stone);
+		UTradeMenu* tradeMenu = HeroPC->GetTradeMenu();
+		if (tradeMenu && tradeMenu->IsOpened())
+			tradeMenu->LoadResourceFromGM();
+	}
 }
 
 

@@ -34,6 +34,9 @@
 #include "Sound/SoundCue.h"
 #include "Components/AudioComponent.h"
 
+
+#include "Particles/ParticleSystemComponent.h"
+
 #include "DrawDebugHelpers.h"
 
 
@@ -191,7 +194,7 @@ void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputCompone
 	PlayerInputComponent->BindAction("Skill_3", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSkillPressed_3);
 	PlayerInputComponent->BindAction("Skill_4", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSkillPressed_4);
 	PlayerInputComponent->BindAction("Skill_5", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSkillPressed_5);
-	PlayerInputComponent->BindAction("Skill_6", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSkillPressed_6);
+	//PlayerInputComponent->BindAction("Skill_6", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSkillPressed_6);
 
 }
 
@@ -665,47 +668,33 @@ void ATheLastBastionHeroCharacter::OnSkillPressed_2()
 
 void ATheLastBastionHeroCharacter::OnSkillPressed_3()
 {
-	TryToUseSkill = Skill__WeaponCastingIce;
-	mAnimInstanceRef->OnSkill(TryToUseSkill);
-}
-
-void ATheLastBastionHeroCharacter::OnSkillPressed_4()
-{	
 	TryToUseSkill = Skill__WeaponCastingFire;
 
 	if (bHasEnchartedWeapon == false)
 	{
-		AGear* weapon = GetCurrentWeapon();
-		if (weapon)
-		{
-			weapon->StartWeaponFireEnchantment();
-		}
-		mAnimInstanceRef->OnSkill(TryToUseSkill);
-		bHasEnchartedWeapon = true;
+		OnWeaponEnchantStart();
 	}
 	else
 	{
-
-		AGear* weapon = GetCurrentWeapon();
-		if (weapon)
-			weapon->EndWeaponFireEnchantment();
-
-		bHasEnchartedWeapon = false;
+		OnWeaponEnchantStop();
 	}
-
 }
 
-void ATheLastBastionHeroCharacter::OnSkillPressed_5()
-{
+void ATheLastBastionHeroCharacter::OnSkillPressed_4()
+{	
 	TryToUseSkill = Skill__Heal;
 	mAnimInstanceRef->OnSkill(TryToUseSkill);
-}
 
-void ATheLastBastionHeroCharacter::OnSkillPressed_6()
+}
+void ATheLastBastionHeroCharacter::OnSkillPressed_5()
 {
 	TryToUseSkill = Skill__BattleCommand;
 	mAnimInstanceRef->OnSkill(TryToUseSkill);
 }
+
+//void ATheLastBastionHeroCharacter::OnSkillPressed_6()
+//{
+//}
 
 
 
@@ -759,6 +748,39 @@ void ATheLastBastionHeroCharacter::UpdateHeroStats(float _deltaTime)
 		}
 	}
 }
+
+void ATheLastBastionHeroCharacter::OnWeaponEnchantStart()
+{
+	mAnimInstanceRef->OnSkill(TryToUseSkill);
+	bHasEnchartedWeapon = true;
+}
+
+void ATheLastBastionHeroCharacter::OnPlaySkillParticle(int _skillIndex)
+{
+	switch (_skillIndex)
+	{
+	case Skill__WeaponCastingFire:
+	{
+		AGear * currentWeapon = GetCurrentWeapon();
+		if (currentWeapon)
+			WeaponEnchantment_PSC = currentWeapon->OnWeaponEnchant();
+	}
+		break;
+	default:
+		break;
+	}
+}
+
+
+void ATheLastBastionHeroCharacter::OnWeaponEnchantStop()
+{
+
+	if (WeaponEnchantment_PSC)
+		WeaponEnchantment_PSC->DestroyComponent();
+
+	bHasEnchartedWeapon = false;
+}
+
 
 FVector ATheLastBastionHeroCharacter::GetPawnViewLocation() const
 {
@@ -870,13 +892,6 @@ bool ATheLastBastionHeroCharacter::IsIntentedSkillCooled() const
 	return 	mInGameHUD->IsSkilledCooledDown(TryToUseSkill);
 }
 
-void ATheLastBastionHeroCharacter::OnFireEnchartingStart()
-{
-}
-
-void ATheLastBastionHeroCharacter::OnFireEnchartingStop()
-{
-}
 
 void ATheLastBastionHeroCharacter::AddExp(float _val)
 {
@@ -890,6 +905,7 @@ void ATheLastBastionHeroCharacter::AddExp(float _val)
 
 	mInGameHUD->SetExpBarValue(CurrentExp * MaxExpDiv);
 }
+
 
 void ATheLastBastionHeroCharacter::OnTakeAnyDamageHandle(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
 {

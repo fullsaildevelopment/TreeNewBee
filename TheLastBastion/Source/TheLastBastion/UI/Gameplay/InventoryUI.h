@@ -36,35 +36,25 @@ protected:
 		class UTradeMenuSlot* HeavyWeapon;
 
 	UPROPERTY(meta = (BindWidget))
-		class UTradeMenuSlot* Additive_0;
+		class UTextBlock* WoodValue;
 
 	UPROPERTY(meta = (BindWidget))
-		class UTradeMenuSlot* Additive_1;
+		class UTextBlock* FoodValue;
 
 	UPROPERTY(meta = (BindWidget))
-		class UTradeMenuSlot* Additive_2;
+		class UTextBlock* StoneValue;
 
 	UPROPERTY(meta = (BindWidget))
-		class UTradeMenuSlot* Additive_3;
-
-	UPROPERTY(meta = (BindWidget))
-		class UTradeMenuSlot* Additive_4;
-
-	UPROPERTY(meta = (BindWidget))
-		class UTradeMenuSlot* Additive_5;
+		class UTextBlock* MetalValue;
 
 	UPROPERTY(meta = (BindWidget))
 		class UHorizontalBox* GearRow;
 
-	UPROPERTY(meta = (BindWidget))
-		class UHorizontalBox* AdditiveRow;
-
+	int Wood, Food, Stone, Metal;
 
 public:
 
 	void OnOpenTradeMenu(class UHeroStatsComponent * _heroStats);
-
-
 
 	TSubclassOf<class AGear> GetGearClassAt(int _index) const;
 	TSubclassOf<class AGear> GetCurrentSHWeapon() const; 
@@ -72,5 +62,7 @@ public:
 	TSubclassOf<class AGear> GetCurrentHeavyWeapon() const;
 	TSubclassOf<class AGear> GetCurrentRangeWeapon() const; 
 	TSubclassOf<class AGear> GetCurrentArmor() const;    
-	
+
+	/** Load the resource from Game Mode*/
+	void LoadResource();
 };
