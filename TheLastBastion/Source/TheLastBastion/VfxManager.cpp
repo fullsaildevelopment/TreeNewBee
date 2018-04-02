@@ -9,6 +9,8 @@ UParticleSystem* UVfxManager::bloodImpact_sputtering_PS = nullptr;
 UParticleSystem* UVfxManager::metalImpact_sputtering_PS = nullptr;
 UParticleSystem* UVfxManager::WeaponNormalTrail = nullptr;
 UParticleSystem* UVfxManager::WeaponFireEnchantment = nullptr;
+UParticleSystem* UVfxManager::PlayerLevelUp = nullptr;
+UParticleSystem* UVfxManager::FootSteps = nullptr;
 
 UVfxManager::UVfxManager()
 {
@@ -16,6 +18,8 @@ UVfxManager::UVfxManager()
 	metalImpact_sputtering_PS = FindParticalSystem(TEXT("/Game/Assets/Partical/P_metalImpact_sputtering"));
 	WeaponNormalTrail = FindParticalSystem(TEXT("/Game/Assets/Partical/WeaponEffects/MeleeWeaponTrail/P_NormalTrail"));
 	WeaponFireEnchantment = FindParticalSystem(TEXT("/Game/Assets/Partical/WeaponEffects/FireEnchantment/WeaponFireEnchantment"));
+	PlayerLevelUp = FindParticalSystem(TEXT("/Game/Assets/Partical/Player/Player_LevelUp_02"));
+	FootSteps = FindParticalSystem(TEXT("/Game/Assets/Partical/FootSteps"));
 }
 
 UParticleSystem * UVfxManager::FindParticalSystem(const TCHAR * _path)
@@ -43,6 +47,12 @@ UParticleSystem * UVfxManager::GetVfx(EVfxType _vfxType)
 
 	case EVfxType::WeaponFireEnchantment:
 		return WeaponFireEnchantment;
+
+	case EVfxType::PlayerLevelUp:
+		return PlayerLevelUp;
+
+	case EVfxType::FootSteps:
+		return FootSteps;
 
 	default:
 		return nullptr;
