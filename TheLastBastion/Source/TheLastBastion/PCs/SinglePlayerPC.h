@@ -72,6 +72,9 @@ public:
 	UFUNCTION(Exec)
 		void ShowColumnAt(int _index);
 
+	UFUNCTION(Exec)
+		void ForTheNightIsDarkAndFullOfTerrors(int _val);
+
 	void OnSelectedCrewAt(int _index);
 
 
@@ -83,6 +86,8 @@ public:
 
 	FORCEINLINE class UInGameHUD* GetInGameHUD() const { return mInGameHUD; }
 	FORCEINLINE class UTradeMenu* GetTradeMenu() const { return mTradeMenu; }
+	class UInventoryUI* GetInventoryUI() const;
+
 
 private:
 

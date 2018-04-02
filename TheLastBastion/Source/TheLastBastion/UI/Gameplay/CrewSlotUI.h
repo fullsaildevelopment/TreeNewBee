@@ -21,12 +21,11 @@ struct FUnitData
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 		UTexture2D* Unit_Image = nullptr;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-		int Price = 0;
+	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	//	int Price = 0;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 		bool IsMelee;
-
 };
 
 
@@ -35,6 +34,9 @@ class THELASTBASTION_API UCrewSlotUI : public UActionSlot
 {
 	GENERATED_BODY()
 
+
+public:
+	UCrewSlotUI(const FObjectInitializer& _objInit);
 protected:
 
 	bool Initialize() override;
@@ -42,6 +44,9 @@ protected:
 	void NativeOnDragDetected(const FGeometry& InGeometry,
 		const FPointerEvent& InMouseEvent,
 		UDragDropOperation*& OutOperation) override;
+
+	void NativeOnMouseEnter(const FGeometry& InGeometry, 
+		const FPointerEvent& InMouseEvent) override;
 
 protected:
 
@@ -67,10 +72,11 @@ public:
 	FORCEINLINE void SetAllyIndex(float _index) { AllyIndex = _index; }
 
 	void ClearNumericValue();
-	/** set the player cost by this unit*/
-	void SetPrice(int _price);
 
-	void SetUnitData(const FUnitData& _data, bool _bShowPrice = false);
+	///** set the player cost by this unit*/
+	//void SetPrice(int _price);
+
+	void SetUnitData(const FUnitData& _data);//, bool _bShowPrice = false);
 
 	/** set the amount of this unit player currently have*/
 	void SetUnitNumber(int _number);

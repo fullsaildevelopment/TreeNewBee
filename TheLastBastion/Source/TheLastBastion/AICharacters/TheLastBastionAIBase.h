@@ -88,6 +88,12 @@ public:
 		FORCEINLINE float GetExperience() const;
 		FORCEINLINE float GetExperience_Implementation() const { return 5.0f; }
 
+
+	UFUNCTION(BlueprintNativeEvent)
+		/** The amount of resouce that cost hero to hire this character*/
+		FORCEINLINE TArray<int> GetResourceCost() const;
+	FORCEINLINE TArray<int> GetResourceCost_Implementation() const;
+
 	UFUNCTION()
 		virtual void OnTargetDeathHandle();
 

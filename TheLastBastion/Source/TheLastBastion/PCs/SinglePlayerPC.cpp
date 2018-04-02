@@ -239,6 +239,18 @@ void ASinglePlayerPC::ShowColumnAt(int _index)
 
 }
 
+void ASinglePlayerPC::ForTheNightIsDarkAndFullOfTerrors(int _val)
+{
+	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (gm)
+	{
+		gm->AddFood(_val);
+		gm->AddMetal(_val);
+		gm->AddStone(_val);
+		gm->AddWood(_val);
+	}
+}
+
 void ASinglePlayerPC::OnSelectedCrewAt(int _index)
 {
 	mInGameHUD->OnSelectedCrewAt(_index);
@@ -247,6 +259,11 @@ void ASinglePlayerPC::OnSelectedCrewAt(int _index)
 void ASinglePlayerPC::OnTradeMenuAccept(UHeroStatsComponent * _heroStats)
 {
 	mInGameHUD->ResetStats(_heroStats);
+}
+
+UInventoryUI * ASinglePlayerPC::GetInventoryUI() const
+{
+	return mTradeMenu->GetInventoryUI();
 }
 
 void ASinglePlayerPC::SaveGameCheck()

@@ -140,17 +140,21 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		float DivByStaminaMax;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		float CriticalRow;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		float StunRow;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		float CriticalMax;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		float StunMax;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+		/** character base damage that is improved by level*/
+		float BaseDamage;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		int Level;

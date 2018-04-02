@@ -237,6 +237,22 @@ void ASinglePlayerGM::UnRegisterEnemyGroupAt(int _index)
 
 }
 
+void ASinglePlayerGM::OnTradeMenuAccept(int _metal, int _wood)
+{
+	Metal = _metal;
+	Wood = _wood;
+	if (HeroPC)
+	{
+		HeroPC->GetInGameHUD()->SetMetalValue(Metal);
+		HeroPC->GetInGameHUD()->SetWoodValue(Wood);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("HeroPC == nullptr, ASinglePlayerGM::OnTradeMenuSuccess"));
+	}
+
+}
+
 void ASinglePlayerGM::AddFood(int _val)
 {
 	Food += _val;
@@ -245,7 +261,7 @@ void ASinglePlayerGM::AddFood(int _val)
 		HeroPC->GetInGameHUD()->SetFoodValue(Food);
 		UTradeMenu* tradeMenu = HeroPC->GetTradeMenu();
 		if (tradeMenu && tradeMenu->IsOpened())
-			tradeMenu->LoadResourceFromGM();
+			tradeMenu->AddFood(_val);
 
 	}
 }
@@ -258,7 +274,8 @@ void ASinglePlayerGM::AddMetal(int _val)
 		HeroPC->GetInGameHUD()->SetMetalValue(Metal);
 		UTradeMenu* tradeMenu = HeroPC->GetTradeMenu();
 		if (tradeMenu && tradeMenu->IsOpened())
-			tradeMenu->LoadResourceFromGM();
+			tradeMenu->AddMetal(_val);
+
 	}
 }
 
@@ -270,7 +287,7 @@ void ASinglePlayerGM::AddWood(int _val)
 		HeroPC->GetInGameHUD()->SetWoodValue(Wood);
 		UTradeMenu* tradeMenu = HeroPC->GetTradeMenu();
 		if (tradeMenu && tradeMenu->IsOpened())
-			tradeMenu->LoadResourceFromGM();
+			tradeMenu->AddWood(_val);
 	}
 }
 
@@ -282,7 +299,7 @@ void ASinglePlayerGM::AddStone(int _val)
 		HeroPC->GetInGameHUD()->SetStoneValue(Stone);
 		UTradeMenu* tradeMenu = HeroPC->GetTradeMenu();
 		if (tradeMenu && tradeMenu->IsOpened())
-			tradeMenu->LoadResourceFromGM();
+			tradeMenu->AddStone(_val);
 	}
 }
 

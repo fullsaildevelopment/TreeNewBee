@@ -55,6 +55,7 @@ protected:
 public:
 
 	void OnOpenTradeMenu(class UHeroStatsComponent * _heroStats);
+	void OnTradeMenuAccept() const;
 
 	TSubclassOf<class AGear> GetGearClassAt(int _index) const;
 	TSubclassOf<class AGear> GetCurrentSHWeapon() const; 
@@ -65,4 +66,14 @@ public:
 
 	/** Load the resource from Game Mode*/
 	void LoadResource();
+	void AddWoodValue(int _val);
+	void AddFoodValue(int _val);
+	void AddMetalValue(int _val);
+	void AddStoneValue(int _val);
+
+	FORCEINLINE int GetWood_int()const { return Wood; }
+	FORCEINLINE int GetFood_int()const { return Food; }
+	FORCEINLINE int GetStone_int()const { return Stone; }
+	FORCEINLINE int GetMetal_int()const { return Metal; }
+
 };
