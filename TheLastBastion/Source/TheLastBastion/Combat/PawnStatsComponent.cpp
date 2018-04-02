@@ -168,30 +168,23 @@ void UPawnStatsComponent::GenerateRawStatsByLevel(int _level)
 	{
 		switch (mCharacter->GetCharacterType())
 		{
-		case ECharacterType::None:
 		default:
 		{
-			HpRaw = 500.0f + _level * 15;
+			HpRaw = 500.0f + _level * 30.0f;
+			BaseDamage = 25.0f * _level;
 		}
 		break;
 		case ECharacterType::Ranger:
 		{
 			HpRaw = RangerInitHp + _level * 15;
 			StaminaRaw = 120.0f;
-			break;
-		}
-		case ECharacterType::Builder:
-		{
-			HpRaw = BuilderInitHp + _level * 11.5f;
-			StaminaRaw = 100.0f;
+			BaseDamage = 15.0f * _level;
 			break;
 		}
 		}
 	}
 	else
 		UE_LOG(LogTemp, Error, TEXT("mCharacter is Null - UPawnStatsComponent::GenerateRawStatsByLevel"));
-
-
 }
 
 /** Generater Max stats after the gear is loaded, set current to max*/

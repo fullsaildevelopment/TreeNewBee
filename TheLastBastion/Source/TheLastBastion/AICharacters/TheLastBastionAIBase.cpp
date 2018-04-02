@@ -102,6 +102,17 @@ bool ATheLastBastionAIBase::HasFullHealth() const
 //	PawnStats->SetC(_level);
 //}
 
+TArray<int> ATheLastBastionAIBase::GetResourceCost_Implementation() const
+{
+	TArray<int> cost;
+	cost.SetNum(3);
+	
+	for (int i = 0; i < 3; i++)
+		cost[i] = 100;
+
+	return cost;
+}
+
 void ATheLastBastionAIBase::OnTargetDeathHandle()
 {
 	if (bIsDead == false)

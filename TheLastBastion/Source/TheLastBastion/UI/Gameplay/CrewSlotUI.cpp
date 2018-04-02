@@ -6,10 +6,25 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameMode/SinglePlayerGM.h"
 #include "AI/AllyGroup.h"
+
 #include "UI/UnitDrag.h"
 #include "UI/Gameplay/DraggedItem.h"
+#include "UI/Gameplay/RecruitMenu_PopUp.h"
+
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
+#include "AICharacters/TheLastBastionAIBase.h"
+#include "CustomType.h"
+#include "SlateBlueprintLibrary.h"
+
+
+UCrewSlotUI::UCrewSlotUI(const FObjectInitializer& _objInit) : Super(_objInit)
+{
+	if (WBP_PopUpWidget == nullptr)
+	{
+		UCustomType::FindClass<UUserWidget>(WBP_PopUpWidget, TEXT("/Game/UI/In-Game/Recruit/WBP_CrewSlotPopUp"));
+	}
+}
 
 
 bool UCrewSlotUI::Initialize()
@@ -72,13 +87,43 @@ void UCrewSlotUI::NativeOnDragDetected(const FGeometry & InGeometry,
 
 }
 
+void UCrewSlotUI::NativeOnMouseEnter(const FGeometry & InGeometry, const FPointerEvent & InMouseEvent)
+{
+	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
 
-void UCrewSlotUI::SetUnitData(const FUnitData & _data, bool _bShowPrice)
+	if (WBP_PopUpWidget && Unit_Data.Unit_Bp != nullptr)
+	{
+		PopUpWidget = CreateWidget<UUserWidget>(GetOwningPlayer(), WBP_PopUpWidget);
+
+		FVector2D WidgetLocation = InGeometry.GetAbsolutePosition();
+		FVector2D MouseLocation = InMouseEvent.GetScreenSpacePosition();
+
+		FVector2D pixelPosition, viewPortPosition;
+
+		USlateBlueprintLibrary::AbsoluteToViewport(GetWorld(),
+			MouseLocation, pixelPosition, viewPortPosition);
+
+		PopUpWidget->SetAlignmentInViewport(FVector2D(1.0f, 0.0));
+		PopUpWidget->SetPositionInViewport(viewPortPosition);
+
+		URecruitMenu_PopUp* PopUp = Cast<URecruitMenu_PopUp>(PopUpWidget);
+		if (PopUp)
+		{
+			PopUp->OnPopUp(Unit_Data.Unit_Bp);
+			PopUp->AddToViewport();
+		}
+
+	}
+
+}
+
+
+void UCrewSlotUI::SetUnitData(const FUnitData & _data)//, bool _bShowPrice)
 {
 	Unit_Data = _data;
 
-	if (_bShowPrice)
-		SetPrice(Unit_Data.Price);
+	//if (_bShowPrice)
+	//	SetPrice(Unit_Data.Price);
 }
 
 void UCrewSlotUI::ClearNumericValue()
@@ -86,11 +131,11 @@ void UCrewSlotUI::ClearNumericValue()
 	NumericValue->SetText(FText::GetEmpty());
 }
 
-void UCrewSlotUI::SetPrice(int _price)
-{
-	NumericValue->SetText(FText::AsNumber(_price));	
-	NumericValue->SetColorAndOpacity(FLinearColor::Yellow);
-}
+//void UCrewSlotUI::SetPrice(int _price)
+//{
+//	NumericValue->SetText(FText::AsNumber(_price));	
+//	NumericValue->SetColorAndOpacity(FLinearColor::Yellow);
+//}
 
 void UCrewSlotUI::SetUnitNumber(int _number)
 {

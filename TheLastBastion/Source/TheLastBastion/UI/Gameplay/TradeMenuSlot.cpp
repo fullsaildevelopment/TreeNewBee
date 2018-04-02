@@ -2,13 +2,18 @@
 
 #include "TradeMenuSlot.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
+
 #include "UI/Gameplay/InventoryUI.h"
 #include "UI/ItemDrag.h"
 #include "UI/Gameplay/DraggedItem.h"
+#include "UI/Gameplay/TradeMenu_PopUp.h"
+
+#include "PCs/SinglePlayerPC.h"
+
 #include "Combat/Gear.h"
 #include "CustomType.h"
-#include "UI/Gameplay/TradeMenu_PopUp.h"
 #include "SlateBlueprintLibrary.h"
+
 
 //#include <Runtime/Engine/Classes/Engine/Engine.h>
 
@@ -25,7 +30,6 @@ UTradeMenuSlot::UTradeMenuSlot(const FObjectInitializer& _objInit) : Super(_objI
 
 bool UTradeMenuSlot::Initialize()
 {
-
 	if (Super::Initialize() == false)
 		return false;
 
@@ -79,7 +83,7 @@ bool UTradeMenuSlot::NativeOnDrop(const FGeometry & InGeometry, const FDragDropE
 {
 	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
 
-	// if drop on shop row
+	// if drop on something dont accept drop operation
 	if (IsDropEnabled() == false)
 	{
 		UE_LOG(LogTemp, Warning,
@@ -90,6 +94,9 @@ bool UTradeMenuSlot::NativeOnDrop(const FGeometry & InGeometry, const FDragDropE
 	UItemDrag* itemDragOp = Cast<UItemDrag>(InOperation);
 	if (itemDragOp)
 	{
+		bool success = false;
+
+		// if drop on the correct gear type, the drop will success
 		switch (itemDragOp->UpgradeGearType)
 		{
 		case EUpgradeGearType::Armor:
@@ -97,7 +104,7 @@ bool UTradeMenuSlot::NativeOnDrop(const FGeometry & InGeometry, const FDragDropE
 			if (InventoryGearType == EInventoryGearType::Armor)
 			{
 				GearUI = itemDragOp->GearUI;
-				return true;
+				success = true;
 			}
 			break;
 		}
@@ -108,7 +115,7 @@ bool UTradeMenuSlot::NativeOnDrop(const FGeometry & InGeometry, const FDragDropE
 			if (InventoryGearType == EInventoryGearType::SHWeapon)
 			{
 				GearUI = itemDragOp->GearUI;
-				return true;
+				success = true;
 			}
 			break;
 		}
@@ -117,7 +124,7 @@ bool UTradeMenuSlot::NativeOnDrop(const FGeometry & InGeometry, const FDragDropE
 			if (InventoryGearType == EInventoryGearType::THWeapon)
 			{
 				GearUI = itemDragOp->GearUI;
-				return true;
+				success = true;
 			}
 			break;
 		}
@@ -126,7 +133,7 @@ bool UTradeMenuSlot::NativeOnDrop(const FGeometry & InGeometry, const FDragDropE
 			if (InventoryGearType == EInventoryGearType::RangeWeapon)
 			{
 				GearUI = itemDragOp->GearUI;
-				return true;
+				success = true;
 			}
 			break;
 		}
@@ -137,14 +144,29 @@ bool UTradeMenuSlot::NativeOnDrop(const FGeometry & InGeometry, const FDragDropE
 			if (InventoryGearType == EInventoryGearType::HeavyWeapon)
 			{
 				GearUI = itemDragOp->GearUI;
-				return true;
+				success = true;
 			}
 			break;
 		}
+		default:
+			break;
 		}
+
+		// if drop on the wrong gear type, the drop operation will return fail
+
+		if (success == false)
+			return false;
+		else
+		{
+			// if we have enough resouce to buy
+			success = CostCheck(itemDragOp->GearUI.Gear_Bp);
+			return success;
+		}
+	}
+	else
+	{
 		return false;
 	}
-	return false;
 }
 
 void UTradeMenuSlot::NativeOnMouseEnter(const FGeometry & InGeometry, const FPointerEvent & InMouseEvent)
@@ -194,6 +216,49 @@ void UTradeMenuSlot::OnShopRowInit(int _index)
 {
 	UpgradeGearType = (EUpgradeGearType)(_index);
 	SetDragDropMode(EDragDropMode::EDragOnly);
+}
+
+bool UTradeMenuSlot::CostCheck(TSubclassOf<class AGear> _gear) const
+{
+	bool bAccept = true;
+
+	ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(GetOwningPlayer());
+	if (pc == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("pc == nullptr,  UTradeMenuSlot::CostCheck"));
+		bAccept = false;
+	}
+
+	UInventoryUI* inventoryUI = pc->GetInventoryUI();
+	if (inventoryUI == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("inventoryUI == nullptr,  UTradeMenuSlot::CostCheck"));
+		bAccept = false;
+	}
+
+	// check if player has the resource for the cost
+	AGear* dragGear = _gear.GetDefaultObject();
+	TArray<int> costs = dragGear->GetResourceCost();
+
+	int requiredMetal = costs[0];
+	if (requiredMetal != 0)
+	{
+		if (requiredMetal > inventoryUI->GetMetal_int())
+			bAccept = false;
+		else
+			inventoryUI->AddMetalValue(-requiredMetal);
+	}
+
+	int requiredWood = costs[1];
+	if (requiredWood != 0)
+	{
+		if (requiredWood > inventoryUI->GetWood_int())
+			bAccept = false;
+		else
+			inventoryUI->AddMetalValue(-requiredWood);
+	}
+
+	return bAccept;
 }
 
 

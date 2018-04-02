@@ -133,6 +133,8 @@ public:
 	FORCEINLINE int GetMetalTotal() const { return Metal; }
 	FORCEINLINE int GetWoodTotal() const { return Wood; }
 	FORCEINLINE int GetStoneTotal() const { return Stone; }
+	
+	void OnTradeMenuAccept(int _metal, int _wood);
 
 	void AddFood(int _val);
 	void AddMetal(int _val);

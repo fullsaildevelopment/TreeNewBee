@@ -99,4 +99,8 @@ public:
 
 	FORCEINLINE TSubclassOf<class AGear> GetGearClass() const { return GearUI.Gear_Bp; }
 
+private:
+
+	bool CostCheck(TSubclassOf<class AGear> _gear) const;
+
 };

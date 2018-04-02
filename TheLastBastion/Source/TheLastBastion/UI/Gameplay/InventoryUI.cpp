@@ -94,6 +94,19 @@ void UInventoryUI::OnOpenTradeMenu(UHeroStatsComponent * _heroStats)
 
 }
 
+void UInventoryUI::OnTradeMenuAccept() const
+{
+	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (gm == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("gm == nullptr,  UInventoryUI::OnTradeMenuAccept"));
+		return;
+	}
+
+	gm->OnTradeMenuAccept(Metal, Wood);
+
+}
+
 TSubclassOf<class AGear> UInventoryUI::GetGearClassAt(int _index) const
 {
 	UTradeMenuSlot* slot  = Cast<UTradeMenuSlot>(GearRow->GetChildAt(_index));
@@ -137,33 +150,36 @@ void UInventoryUI::LoadResource()
 		return;
 	}
 
-	int WoodFromGM = gm->GetWoodTotal();
-	int FoodFromGM = gm->GetFoodTotal();
-	int StoneFromGM = gm->GetStoneTotal();
-	int MetalFromGM = gm->GetMetalTotal();
+	Wood = gm->GetWoodTotal();
+	WoodValue->SetText(FText::AsNumber(Wood));
+	Food = gm->GetFoodTotal();
+	FoodValue->SetText(FText::AsNumber(Food));
+	Stone = gm->GetStoneTotal();
+	StoneValue->SetText(FText::AsNumber(Stone));
+	Metal = gm->GetMetalTotal();
+	MetalValue->SetText(FText::AsNumber(Metal));
+}
 
-	if (WoodFromGM != Wood)
-	{
-		Wood = WoodFromGM;
-		WoodValue->SetText(FText::AsNumber(Wood));
-	}
+void UInventoryUI::AddWoodValue(int _val)
+{
+	Wood += _val;
+	WoodValue->SetText(FText::AsNumber(Wood));
+}
 
-	if (FoodFromGM != Food)
-	{
-		Food = FoodFromGM;
-		FoodValue->SetText(FText::AsNumber(Food));
-	}
+void UInventoryUI::AddFoodValue(int _val)
+{
+	Food += _val;
+	FoodValue->SetText(FText::AsNumber(Food));
+}
 
-	if (StoneFromGM != Stone)
-	{
-		Stone = StoneFromGM;
-		StoneValue->SetText(FText::AsNumber(Stone));
-	}
+void UInventoryUI::AddMetalValue(int _val)
+{
+	Metal += _val;
+	MetalValue->SetText(FText::AsNumber(Metal));
+}
 
-	if (MetalFromGM != Metal)
-	{
-		Metal = MetalFromGM;
-		MetalValue->SetText(FText::AsNumber(Metal));
-	}
-
+void UInventoryUI::AddStoneValue(int _val)
+{
+	Stone += _val;
+	StoneValue->SetText(FText::AsNumber(Stone));
 }

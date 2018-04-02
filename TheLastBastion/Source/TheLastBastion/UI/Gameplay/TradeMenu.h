@@ -8,27 +8,6 @@
 #include "TradeMenu.generated.h"
 
 
-/**
- * 
- */
-
-
-
-//UENUM()
-//enum class EType : uint8
-//{
-//	LongSword = 0,
-//	WarAxe,
-//	Mace,
-//	CrossBow,
-//	Armor ,
-//	THWeawpon,
-//	BattleAxe,
-//	Hammer,
-//	GreatSword
-//};
-
-
 
 UCLASS()
 class THELASTBASTION_API UTradeMenu : public UUserWidget
@@ -94,10 +73,23 @@ protected:
 public:
 
 	void OnOpenTradeMenu(class UHeroStatsComponent* _heroStats);
-	/**Load Resource from Game mode*/
-	void LoadResourceFromGM();
+
+
+	/** Update the resource data in inventory menu while trade menu is opened*/
+	void AddWood(int _val);
+
+	/** Update the resource data in inventory menu while trade menu is opened*/
+	void AddFood(int _val);
+
+	/** Update the resource data in inventory menu while trade menu is opened*/
+	void AddMetal(int _val);
+
+	/** Update the resource data in inventory menu while trade menu is opened*/
+	void AddStone(int _val);
+
 
 	FORCEINLINE bool IsOpened() const { return bIsOpened; }
+	FORCEINLINE class UInventoryUI* GetInventoryUI() const { return InventoryUI; }
 
 private:
 

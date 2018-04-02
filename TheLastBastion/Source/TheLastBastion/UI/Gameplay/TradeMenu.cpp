@@ -67,10 +67,31 @@ void UTradeMenu::OnOpenTradeMenu(UHeroStatsComponent * _heroStats)
 	bIsOpened = true;
 }
 
-void UTradeMenu::LoadResourceFromGM()
+void UTradeMenu::AddWood(int _val)
 {
-	InventoryUI->LoadResource();
+	InventoryUI->AddWoodValue(_val);
 }
+
+void UTradeMenu::AddFood(int _val)
+{
+	InventoryUI->AddFoodValue(_val);
+}
+
+void UTradeMenu::AddMetal(int _val)
+{
+	InventoryUI->AddMetalValue(_val);
+}
+
+void UTradeMenu::AddStone(int _val)
+{
+	InventoryUI->AddStoneValue(_val);
+
+}
+
+//void UTradeMenu::LoadResourceFromGM()
+//{
+//	InventoryUI->LoadResource();
+//}
 
 void UTradeMenu::OnAcceptClicked()
 {
@@ -86,6 +107,8 @@ void UTradeMenu::OnAcceptClicked()
 				heroStats->OnTradeMenuAccept(InventoryUI);
 				// pc update HUD
 				pc->OnTradeMenuAccept(heroStats);
+				// Take resource from player after accept
+				InventoryUI->OnTradeMenuAccept();
 			}
 		}
 	}
