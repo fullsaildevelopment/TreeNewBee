@@ -25,7 +25,7 @@ ATheLastBastionAllyCharacter::ATheLastBastionAllyCharacter()
 	// Set size for collision capsule
 	GetCapsuleComponent()->SetCollisionProfileName("Ally");
 	GetMesh()->SetCollisionProfileName("HeroBody");
-	AiName = FText::FromString(TEXT("Base Ally"));
+	//AiName = FText::FromString(TEXT("Base Ally"));
 	//AILevel = 1;
 
 	bIsEnemy = false;
@@ -36,7 +36,7 @@ void ATheLastBastionAllyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	FAIHUDInitializer initializer;
-	initializer.AIName = AiName;
+	initializer.AIName = GetAIName();
 	//initializer.AILevel = AILevel;
 	initializer.AILevel = PawnStats->GetCharacterLevel();
 	initializer.bIsEnemy = bIsEnemy;

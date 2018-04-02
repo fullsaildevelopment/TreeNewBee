@@ -5,7 +5,7 @@
 #include "Combat/Gear.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
-#include "UI/Gameplay/TradePopUp_Entry.h"
+//#include "UI/Gameplay/TradePopUp_Entry.h"
 
 
 //TSubclassOf<UUserWidget> UTradeMenu_PopUp::WBP_TradePopUpEntry = nullptr;

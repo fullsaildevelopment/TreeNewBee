@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "UI/Gameplay/PopUpBase.h"
 #include "RecruitMenu_PopUp.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class THELASTBASTION_API URecruitMenu_PopUp : public UUserWidget
+class THELASTBASTION_API URecruitMenu_PopUp : public UPopUpBase
 {
 	GENERATED_BODY()
 	

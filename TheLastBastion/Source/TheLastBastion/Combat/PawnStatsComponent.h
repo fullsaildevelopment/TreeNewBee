@@ -8,8 +8,11 @@
 
 
 #define DpPhysicalDamageReduction 0.5f
+#define RangerInitHp 230.0f
+
 
 enum class EGearType : uint8;
+enum class ECharacterType :uint8;
 
 UENUM(BlueprintType)
 enum class EApplyDamageType : uint8
@@ -172,6 +175,9 @@ private:
 
 	void GenerateStatsAtBeginPlay();
 
+	// Calculate and output the raw stats according to its level
+	void GenerateRawStatsByLevel(int Level, float& _baseDamage, float& _hpRaw);
+
 
 public:	
 
@@ -192,8 +198,8 @@ public:
 
 	virtual bool OnSwapBetweenMeleeAndRange();
 
-	// Called after a character is spawned, generate the raw stats according to its level
-	void GenerateRawStatsByLevel(int Level);
+
+	void CalculateRawStatsByType(int _level, ECharacterType _type, float& damage, float& _hp);
 
 	// Called after equip and unequip 
 	void GenerateMaxStats(bool _setCurrentToMax = true);

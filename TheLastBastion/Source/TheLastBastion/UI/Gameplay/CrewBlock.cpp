@@ -169,6 +169,12 @@ void UCrewBlock::OnAddingNewUnit(const UUnitDrag * unitDragOp)
 		Minus->SetIsEnabled(false);
 }
 
+void UCrewBlock::SetAllyIndex(int _index)
+{
+	AllyIndex = _index;
+	AllyIndex_Text->SetText(FText::AsNumber(_index));
+}
+
 TSubclassOf<class ATheLastBastionAIBase> UCrewBlock::GetUnitClass() const
 {
 	return CrewSlot->GetUnitClass();

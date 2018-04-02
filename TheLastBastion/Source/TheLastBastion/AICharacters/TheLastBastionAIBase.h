@@ -23,8 +23,8 @@ public:
 
 protected:
 
-	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
-		FText AiName;
+	//UPROPERTY(EditDefaultsOnly, Category = AiProperty)
+	//	FText AiName;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
 		class UPawnStatsComponent* AIStats;
@@ -49,9 +49,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GroupBehavior)
 		int mGroupIndex;
-
-	//UPROPERTY(EditDefaultsOnly, Category = AiProperty)
-	//	int AILevel;
 
 	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
 		int AITier;
@@ -93,6 +90,14 @@ public:
 		/** The amount of resouce that cost hero to hire this character*/
 		FORCEINLINE TArray<int> GetResourceCost() const;
 	FORCEINLINE TArray<int> GetResourceCost_Implementation() const;
+
+	UFUNCTION(BlueprintNativeEvent)
+		FORCEINLINE FText GetAIName() const;
+	FORCEINLINE FText GetAIName_Implementation() const { return FText::FromString("AI Name"); }
+
+	UFUNCTION(BlueprintNativeEvent)
+		FORCEINLINE FText GetAIDescription() const;
+	FORCEINLINE FText GetAIDescription_Implementation() const { return FText::FromString("AI Description"); }
 
 	UFUNCTION()
 		virtual void OnTargetDeathHandle();

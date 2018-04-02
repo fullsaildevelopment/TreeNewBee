@@ -25,8 +25,6 @@
 
 
 
-const float RangerInitHp = 230.0f;
-const float BuilderInitHp = 180.0f;
 
 static TSubclassOf<class UUserWidget> FloatingText_WBP;
 
@@ -39,6 +37,7 @@ UPawnStatsComponent::UPawnStatsComponent()
 	CurrentWeapon_Index = 0;
 	Level = 1;
 
+	StaminaRaw = 120.0f;
 	DpCurrent = 0;
 
 	if (!FloatingText_WBP)
@@ -156,36 +155,38 @@ bool UPawnStatsComponent::OnSwapBetweenMeleeAndRange()
 }
 
 #pragma region Stats Generatrion
-void UPawnStatsComponent::GenerateRawStatsByLevel(int _level)
+
+void UPawnStatsComponent::GenerateRawStatsByLevel(int _level, float& _baseDamage, float& _hpRaw) 
 {
 	Level = _level;
-	_level--;
-	// Just Avoid negative
-	if (_level <= 0) _level = 0;
 
-	StaminaRaw = -1;
 	if (mCharacter)
 	{
-		switch (mCharacter->GetCharacterType())
-		{
-		default:
-		{
-			HpRaw = 500.0f + _level * 30.0f;
-			BaseDamage = 25.0f * _level;
-		}
-		break;
-		case ECharacterType::Ranger:
-		{
-			HpRaw = RangerInitHp + _level * 15;
-			StaminaRaw = 120.0f;
-			BaseDamage = 15.0f * _level;
-			break;
-		}
-		}
+		CalculateRawStatsByType(Level, mCharacter->GetCharacterType(),_baseDamage, _hpRaw);
 	}
 	else
 		UE_LOG(LogTemp, Error, TEXT("mCharacter is Null - UPawnStatsComponent::GenerateRawStatsByLevel"));
 }
+
+void UPawnStatsComponent::CalculateRawStatsByType(int _level, ECharacterType _type, float & _damage, float & _hp)
+{
+	switch (_type)
+	{
+	default:
+	{
+		_hp = 500.0f + _level * 30.0f;
+		_damage = 25.0f * _level;
+	}
+	break;
+	case ECharacterType::Ranger:
+	{
+		_hp = RangerInitHp + _level * 15;
+		_damage = 15.0f * _level;
+	}
+	break;
+	}
+}
+
 
 /** Generater Max stats after the gear is loaded, set current to max*/
 void UPawnStatsComponent::GenerateMaxStats(bool _setCurrentToMax)
@@ -255,7 +256,7 @@ void UPawnStatsComponent::LevelUp()
 {
 	Level++;
 	// Update the row value, so the gear merits can add on
-	GenerateRawStatsByLevel(Level);
+	GenerateRawStatsByLevel(Level, BaseDamage, HpRaw);
 	// apply the gear merits
 	GenerateMaxStats(true);
 }
@@ -263,7 +264,7 @@ void UPawnStatsComponent::LevelUp()
 void UPawnStatsComponent::Born()
 {
 	Level = 1;
-	GenerateRawStatsByLevel(Level);
+	GenerateRawStatsByLevel(Level, BaseDamage, HpRaw);
 	HpCurrent = HpMax;
 	StaminaCurrent = StaminaMax;
 }
@@ -272,7 +273,7 @@ void UPawnStatsComponent::GenerateStatsAtBeginPlay()
 {
 	if (bGenerateRawStatsAtBeginPlay)
 	{
-		GenerateRawStatsByLevel(Level);
+		GenerateRawStatsByLevel(Level, BaseDamage, HpRaw);
 	}
 
 	UWorld* world = GetWorld();
@@ -331,6 +332,7 @@ void UPawnStatsComponent::GenerateStatsAtBeginPlay()
 
 	}
 }
+
 
 #pragma endregion
 

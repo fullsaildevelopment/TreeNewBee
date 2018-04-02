@@ -26,7 +26,7 @@ ATheLastBastionEnemyCharacter::ATheLastBastionEnemyCharacter()
 	GetCapsuleComponent()->SetCollisionProfileName("Enemy");
 	GetMesh()->SetCollisionProfileName("EnemyBody");
 
-	AiName = FText::FromString(TEXT("Base Enemy AI"));
+	//AiName = FText::FromString(TEXT("Base Enemy AI"));
 	//AILevel = 1;
 	bIsEnemy = true;
 
@@ -41,7 +41,7 @@ void ATheLastBastionEnemyCharacter::BeginPlay()
 	bIsEnemy = true;
 
 	FAIHUDInitializer initializer;
-	initializer.AIName = AiName;
+	initializer.AIName = GetAIName();
 	//initializer.AILevel = AILevel;
 	initializer.AILevel = PawnStats->GetCharacterLevel();
 	initializer.bIsEnemy = bIsEnemy;

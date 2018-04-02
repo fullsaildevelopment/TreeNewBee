@@ -73,7 +73,9 @@ private:
 
 public:
 
-	FORCEINLINE void SetAllyIndex(int _index) { AllyIndex = _index; }
+	/** The ally block number and ally index to match the data in gamemode*/
+	void SetAllyIndex(int _index); 
+
 	FORCEINLINE void SetParent(class UCrewBar_RecruitMenu* _parent) { mCrewBar = _parent; }	
 	FORCEINLINE class UCrewSlotUI* GetCrewSlot() const { return CrewSlot; }
 	FORCEINLINE int GetCrewNum() const { return CrewNum; }

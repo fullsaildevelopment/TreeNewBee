@@ -20,8 +20,8 @@
 
 #define MetalUI_Color FLinearColor(0.448561f,0.306668f,0.494792f)
 #define WoodUI_Color  FLinearColor(1.000000f,0.542730f,0.235314f)
-#define StoneUI_Color FLinearColor(0.213542f,0.213542f,0.213542f);
-#define FoodUI_Color  FLinearColor(1.0f,0.518488f,0.488628f);
+#define StoneUI_Color FLinearColor(0.213542f,0.213542f,0.213542f)
+#define FoodUI_Color  FLinearColor(1.0f,0.518488f,0.488628f)
 
 // Floating text color
 #define EnemyHit_FTColor       FLinearColor(0.604167f,0.027984f,0.0f)
