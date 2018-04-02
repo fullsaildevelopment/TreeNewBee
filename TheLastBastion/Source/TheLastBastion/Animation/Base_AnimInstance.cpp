@@ -123,6 +123,8 @@ void UBase_AnimInstance::FxFootStep()
 	{
 		USoundCue* sfx = nullptr;
 		AArmor* armor = mBaseCharacter->GetCurrentArmor();
+		UParticleSystem* vfx = UVfxManager::GetVfx(EVfxType::FootSteps);
+		FVector FootLocation = mBaseCharacter->GetMesh()->GetBoneLocation(TEXT("ik_foot_root"), EBoneSpaces::WorldSpace);
 		if (armor && armor->IsHeavyArmor())
 		{
 
@@ -132,8 +134,11 @@ void UBase_AnimInstance::FxFootStep()
 			sfx = UAudioManager::GetSFX(ESoundEffectType::ELightArmorFootStepOnDirt);
 		}
 
-		if (sfx)
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), sfx, mBaseCharacter->GetActorLocation());
+		if (sfx && vfx)
+		{
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), sfx, FootLocation);
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), vfx, FootLocation);
+		}
 	}
 }
 
