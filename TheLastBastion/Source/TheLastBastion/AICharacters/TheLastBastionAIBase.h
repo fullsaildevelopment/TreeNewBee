@@ -73,31 +73,31 @@ protected:
 public:
 
 	UFUNCTION(BlueprintNativeEvent)
-		FORCEINLINE UTexture2D* GetThumbNailImage() const;
-		FORCEINLINE UTexture2D* GetThumbNailImage_Implementation() const { return nullptr; }
+		UTexture2D* GetThumbNailImage() const;
+	UTexture2D* GetThumbNailImage_Implementation() const { return nullptr; }
 
 	UFUNCTION(BlueprintNativeEvent)
-		FORCEINLINE float GetSiegePoint() const;
-		FORCEINLINE float GetSiegePoint_Implementation() const { return 1.0f; }
+		float GetSiegePoint() const;
+	float GetSiegePoint_Implementation() const { return 1.0f; }
 
 	UFUNCTION(BlueprintNativeEvent)
 		/** The amount of exp that hero gain, when this character is defeated*/
-		FORCEINLINE float GetExperience() const;
-		FORCEINLINE float GetExperience_Implementation() const { return 5.0f; }
+		float GetExperience() const;
+	float GetExperience_Implementation() const { return 5.0f; }
 
 
 	UFUNCTION(BlueprintNativeEvent)
 		/** The amount of resouce that cost hero to hire this character*/
-		FORCEINLINE TArray<int> GetResourceCost() const;
-	FORCEINLINE TArray<int> GetResourceCost_Implementation() const;
+		TArray<int> GetResourceCost() const;
+	TArray<int> GetResourceCost_Implementation() const;
 
 	UFUNCTION(BlueprintNativeEvent)
-		FORCEINLINE FText GetAIName() const;
-	FORCEINLINE FText GetAIName_Implementation() const { return FText::FromString("AI Name"); }
+		FText GetAIName() const;
+	FText GetAIName_Implementation() const { return FText::FromString("AI Name"); }
 
 	UFUNCTION(BlueprintNativeEvent)
-		FORCEINLINE FText GetAIDescription() const;
-	FORCEINLINE FText GetAIDescription_Implementation() const { return FText::FromString("AI Description"); }
+		FText GetAIDescription() const;
+	FText GetAIDescription_Implementation() const { return FText::FromString("AI Description"); }
 
 	UFUNCTION()
 		virtual void OnTargetDeathHandle();

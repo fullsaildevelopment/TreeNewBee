@@ -153,16 +153,16 @@ public:
 	//	FORCEINLINE UTexture2D* GetThumbNailImage() const { return ThumbNail; }
 
 	UFUNCTION(BlueprintNativeEvent)
-		FORCEINLINE UTexture2D* GetThumbNailImage() const;
-	FORCEINLINE UTexture2D* GetThumbNailImage_Implementation() const { return nullptr; }
+		 UTexture2D* GetThumbNailImage() const;
+	UTexture2D* GetThumbNailImage_Implementation() const { return nullptr; }
 
 	UFUNCTION(BlueprintNativeEvent)
-		FORCEINLINE FText GetGearName() const;
-	FORCEINLINE FText GetGearName_Implementation() const { return FText::FromString("Gear Name"); }
+		 FText GetGearName() const;
+	FText GetGearName_Implementation() const { return FText::FromString("Gear Name"); }
 
 	UFUNCTION(BlueprintNativeEvent)
-		FORCEINLINE FText GetGearDescription() const;
-	FORCEINLINE FText GetGearDescription_Implementation() const { return FText::FromString("Gear Description"); }
+		 FText GetGearDescription() const;
+	FText GetGearDescription_Implementation() const { return FText::FromString("Gear Description"); }
 
 	UFUNCTION(BlueprintNativeEvent)
 		/** Return the metal and wood cost to craft this weapon*/

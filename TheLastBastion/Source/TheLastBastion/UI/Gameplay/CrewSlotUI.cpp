@@ -20,9 +20,9 @@
 
 UCrewSlotUI::UCrewSlotUI(const FObjectInitializer& _objInit) : Super(_objInit)
 {
-	if (WBP_PopUpWidget == nullptr)
+	if (WBP_RecruitPopUpWidget == nullptr)
 	{
-		UCustomType::FindClass<UUserWidget>(WBP_PopUpWidget, TEXT("/Game/UI/In-Game/Recruit/WBP_CrewSlotPopUp"));
+		UCustomType::FindClass<UUserWidget>(WBP_RecruitPopUpWidget, TEXT("/Game/UI/In-Game/Recruit/WBP_CrewSlotPopUp"));
 	}
 }
 
@@ -91,9 +91,9 @@ void UCrewSlotUI::NativeOnMouseEnter(const FGeometry & InGeometry, const FPointe
 {
 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
 
-	if (WBP_PopUpWidget && Unit_Data.Unit_Bp != nullptr)
+	if (WBP_RecruitPopUpWidget && Unit_Data.Unit_Bp != nullptr)
 	{
-		PopUpWidget = CreateWidget<UUserWidget>(GetOwningPlayer(), WBP_PopUpWidget);
+		PopUpWidget = CreateWidget<UUserWidget>(GetOwningPlayer(), WBP_RecruitPopUpWidget);
 
 		FVector2D WidgetLocation = InGeometry.GetAbsolutePosition();
 		FVector2D MouseLocation = InMouseEvent.GetScreenSpacePosition();

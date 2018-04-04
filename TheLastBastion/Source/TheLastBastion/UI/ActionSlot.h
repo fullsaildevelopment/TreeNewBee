@@ -51,7 +51,10 @@ protected:
 	static TSubclassOf<class UUserWidget> WBP_DraggedItem;
 
 	/** Widget class to pop up and show information*/
-	static TSubclassOf<class UUserWidget> WBP_PopUpWidget;
+	static TSubclassOf<class UUserWidget> WBP_TradePopUpWidget;
+	/** Widget class to pop up and show information*/
+	static TSubclassOf<class UUserWidget> WBP_RecruitPopUpWidget;
+
 
 	UPROPERTY()
 		/** The pop up widget to show information*/
