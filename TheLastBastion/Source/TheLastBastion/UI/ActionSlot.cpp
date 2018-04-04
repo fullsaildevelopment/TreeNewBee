@@ -13,8 +13,8 @@
 
 
 TSubclassOf<UUserWidget> UActionSlot::WBP_DraggedItem = nullptr;
-
-TSubclassOf<UUserWidget> UActionSlot::WBP_PopUpWidget = nullptr;
+TSubclassOf<UUserWidget> UActionSlot::WBP_RecruitPopUpWidget = nullptr;
+TSubclassOf<UUserWidget> UActionSlot::WBP_TradePopUpWidget = nullptr;
 
 
 UActionSlot::UActionSlot(const FObjectInitializer& _objInit) :Super(_objInit)

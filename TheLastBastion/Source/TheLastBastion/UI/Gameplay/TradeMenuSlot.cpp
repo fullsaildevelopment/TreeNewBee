@@ -22,9 +22,9 @@
 
 UTradeMenuSlot::UTradeMenuSlot(const FObjectInitializer& _objInit) : Super(_objInit)
 {
-	if (WBP_PopUpWidget == nullptr)
+	if (WBP_TradePopUpWidget == nullptr)
 	{
-		UCustomType::FindClass<UUserWidget>(WBP_PopUpWidget, TEXT("/Game/UI/In-Game/TradeMenu/WBP_TradePopUp"));
+		UCustomType::FindClass<UUserWidget>(WBP_TradePopUpWidget, TEXT("/Game/UI/In-Game/TradeMenu/WBP_TradePopUp"));
 	}
 }
 
@@ -102,10 +102,7 @@ bool UTradeMenuSlot::NativeOnDrop(const FGeometry & InGeometry, const FDragDropE
 		case EUpgradeGearType::Armor:
 		{
 			if (InventoryGearType == EInventoryGearType::Armor)
-			{
-				GearUI = itemDragOp->GearUI;
 				success = true;
-			}
 			break;
 		}
 		case EUpgradeGearType::LongSword:
@@ -113,28 +110,19 @@ bool UTradeMenuSlot::NativeOnDrop(const FGeometry & InGeometry, const FDragDropE
 		case EUpgradeGearType::Mace:
 		{
 			if (InventoryGearType == EInventoryGearType::SHWeapon)
-			{
-				GearUI = itemDragOp->GearUI;
 				success = true;
-			}
 			break;
 		}
 		case EUpgradeGearType::Katana:
 		{
 			if (InventoryGearType == EInventoryGearType::THWeapon)
-			{
-				GearUI = itemDragOp->GearUI;
 				success = true;
-			}
 			break;
 		}
 		case EUpgradeGearType::CrossBow:
 		{
 			if (InventoryGearType == EInventoryGearType::RangeWeapon)
-			{
-				GearUI = itemDragOp->GearUI;
 				success = true;
-			}
 			break;
 		}
 		case EUpgradeGearType::BattleAxe:
@@ -142,10 +130,7 @@ bool UTradeMenuSlot::NativeOnDrop(const FGeometry & InGeometry, const FDragDropE
 		case EUpgradeGearType::GreatSword:
 		{
 			if (InventoryGearType == EInventoryGearType::HeavyWeapon)
-			{
-				GearUI = itemDragOp->GearUI;
 				success = true;
-			}
 			break;
 		}
 		default:
@@ -153,13 +138,14 @@ bool UTradeMenuSlot::NativeOnDrop(const FGeometry & InGeometry, const FDragDropE
 		}
 
 		// if drop on the wrong gear type, the drop operation will return fail
-
 		if (success == false)
 			return false;
 		else
 		{
 			// if we have enough resouce to buy
 			success = CostCheck(itemDragOp->GearUI.Gear_Bp);
+			if (success)
+				GearUI = itemDragOp->GearUI;
 			return success;
 		}
 	}
@@ -173,9 +159,9 @@ void UTradeMenuSlot::NativeOnMouseEnter(const FGeometry & InGeometry, const FPoi
 {
 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
 
-	if (WBP_PopUpWidget && GearUI.Gear_Bp != nullptr)
+	if (WBP_TradePopUpWidget && GearUI.Gear_Bp != nullptr)
 	{
-		PopUpWidget = CreateWidget<UUserWidget>(GetOwningPlayer(), WBP_PopUpWidget);
+		PopUpWidget = CreateWidget<UUserWidget>(GetOwningPlayer(), WBP_TradePopUpWidget);
 
 		FVector2D WidgetLocation = InGeometry.GetAbsolutePosition();
 		FVector2D MouseLocation = InMouseEvent.GetScreenSpacePosition();
@@ -194,8 +180,12 @@ void UTradeMenuSlot::NativeOnMouseEnter(const FGeometry & InGeometry, const FPoi
 			PopUp->OnPopUp(GearUI.Gear_Bp);
 			PopUp->AddToViewport();
 		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("PopUp == nullptr, UTradeMenuSlot::NativeOnMouseEnter"));
 
-		//UE_LOG(LogTemp, Warning, TEXT("%f, %f UTradeMenuSlot::NativeOnMouseEnter"), renderPosition.X, renderPosition.Y);
+		}
+
 		//PopUpWidget->SetRenderTranslation(InMouseEvent.GetScreenSpacePosition());
 	}
 
