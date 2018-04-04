@@ -13,6 +13,7 @@
 
 #include "UI/InGameHUD.h"
 #include "UI/Gameplay/TradeMenu.h"
+#include "UI/Gameplay/RecruitMenu.h"
 
 
 ASinglePlayerGM::ASinglePlayerGM(const FObjectInitializer & _objectInitilizer) : Super(_objectInitilizer)
@@ -260,8 +261,15 @@ void ASinglePlayerGM::AddFood(int _val)
 	{
 		HeroPC->GetInGameHUD()->SetFoodValue(Food);
 		UTradeMenu* tradeMenu = HeroPC->GetTradeMenu();
+
 		if (tradeMenu && tradeMenu->IsOpened())
 			tradeMenu->AddFood(_val);
+		else
+		{
+			URecruitMenu* recruitMenu = HeroPC->GetRecruitMenu();
+			if (recruitMenu && recruitMenu->IsOpened())
+				recruitMenu->AddFood(_val);
+		}
 
 	}
 }
@@ -275,6 +283,12 @@ void ASinglePlayerGM::AddMetal(int _val)
 		UTradeMenu* tradeMenu = HeroPC->GetTradeMenu();
 		if (tradeMenu && tradeMenu->IsOpened())
 			tradeMenu->AddMetal(_val);
+		else
+		{
+			URecruitMenu* recruitMenu = HeroPC->GetRecruitMenu();
+			if (recruitMenu && recruitMenu->IsOpened())
+				recruitMenu->AddMetal(_val);
+		}
 
 	}
 }
@@ -288,6 +302,14 @@ void ASinglePlayerGM::AddWood(int _val)
 		UTradeMenu* tradeMenu = HeroPC->GetTradeMenu();
 		if (tradeMenu && tradeMenu->IsOpened())
 			tradeMenu->AddWood(_val);
+		else
+		{
+			URecruitMenu* recruitMenu = HeroPC->GetRecruitMenu();
+			if (recruitMenu && recruitMenu->IsOpened())
+				recruitMenu->AddWood(_val);
+		}
+
+
 	}
 }
 
@@ -300,6 +322,13 @@ void ASinglePlayerGM::AddStone(int _val)
 		UTradeMenu* tradeMenu = HeroPC->GetTradeMenu();
 		if (tradeMenu && tradeMenu->IsOpened())
 			tradeMenu->AddStone(_val);
+		else
+		{
+			URecruitMenu* recruitMenu = HeroPC->GetRecruitMenu();
+			if (recruitMenu && recruitMenu->IsOpened())
+				recruitMenu->AddStone(_val);
+		}
+
 	}
 }
 

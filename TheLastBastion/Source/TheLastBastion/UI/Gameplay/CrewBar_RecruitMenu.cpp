@@ -18,7 +18,8 @@ bool UCrewBar_RecruitMenu::Initialize()
 		return false;
 
 	// Bind Delegetes to Widget components
-	bool bAllWidgetAreGood = AllAllyGroups && TotalNum;
+	bool bAllWidgetAreGood = AllAllyGroups && TotalNum && 
+		WoodValue && FoodValue && MetalValue && StoneValue;
 
 	if (bAllWidgetAreGood)
 	{
@@ -42,6 +43,8 @@ bool UCrewBar_RecruitMenu::Initialize()
 	}
 
 	totalAmount = 0;
+	Wood = 0; Food = 0; Stone = 0, Metal = 0;
+
 	return true;
 }
 
@@ -85,6 +88,8 @@ void UCrewBar_RecruitMenu::OnOpenRecruitMenu()
 	}
 
 	TotalNum->SetText(FText::AsNumber(totalAmount));
+	/** Load the resource that player currently have*/
+	LoadResource();
 }
 
 void UCrewBar_RecruitMenu::OnAccept()
@@ -138,4 +143,48 @@ void UCrewBar_RecruitMenu::SetTotalAmount(int _val)
 {
 	totalAmount = _val;
 	TotalNum->SetText(FText::AsNumber(totalAmount));
+}
+
+void UCrewBar_RecruitMenu::LoadResource()
+{
+	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+
+	if (gm == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("gm == nullptr, UInventoryUI::LoadResource"));
+		return;
+	}
+
+	Wood = gm->GetWoodTotal();
+	WoodValue->SetText(FText::AsNumber(Wood));
+	Food = gm->GetFoodTotal();
+	FoodValue->SetText(FText::AsNumber(Food));
+	Stone = gm->GetStoneTotal();
+	StoneValue->SetText(FText::AsNumber(Stone));
+	Metal = gm->GetMetalTotal();
+	MetalValue->SetText(FText::AsNumber(Metal));
+}
+
+void UCrewBar_RecruitMenu::AddWoodValue(int _val)
+{
+	Wood += _val;
+	WoodValue->SetText(FText::AsNumber(Wood));
+}
+
+void UCrewBar_RecruitMenu::AddFoodValue(int _val)
+{
+	Food += _val;
+	FoodValue->SetText(FText::AsNumber(Food));
+}
+
+void UCrewBar_RecruitMenu::AddMetalValue(int _val)
+{
+	Metal += _val;
+	MetalValue->SetText(FText::AsNumber(Metal));
+}
+
+void UCrewBar_RecruitMenu::AddStoneValue(int _val)
+{
+	Stone += _val;
+	StoneValue->SetText(FText::AsNumber(Stone));
 }

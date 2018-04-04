@@ -39,6 +39,7 @@ bool URecruitMenu::Initialize()
 	HillTribe->SetHeadingText(FText::FromString(TEXT("Hill Tribe: ")));
 	HillTribe->SetEachSlotAction(HillTribe_Data);
 
+	bIsOpened = false;
 	return true;
 
 }
@@ -46,6 +47,8 @@ bool URecruitMenu::Initialize()
 void URecruitMenu::OnOpenRecruitMenu()
 {
 	AllMyCrew->OnOpenRecruitMenu();
+	bIsOpened = true;
+	
 }
 
 void URecruitMenu::OnAcceptClicked()
@@ -53,12 +56,7 @@ void URecruitMenu::OnAcceptClicked()
 
 	AllMyCrew->OnAccept();
 
-	this->RemoveFromParent();
-	APlayerController* pc = GetOwningPlayer();
-	pc->bShowMouseCursor = false;
-	FInputModeGameOnly InputMode;
-	pc->SetInputMode(InputMode);
-
+	OnCancelClicked();
 }
 
 void URecruitMenu::OnCancelClicked()
@@ -68,4 +66,27 @@ void URecruitMenu::OnCancelClicked()
 	pc->bShowMouseCursor = false;
 	FInputModeGameOnly InputMode;
 	pc->SetInputMode(InputMode);
+
+	bIsOpened = false;
+}
+
+void URecruitMenu::AddWood(int _val)
+{
+	AllMyCrew->AddWoodValue(_val);
+}
+
+void URecruitMenu::AddFood(int _val)
+{
+	AllMyCrew->AddFoodValue(_val);
+}
+
+void URecruitMenu::AddMetal(int _val)
+{
+	AllMyCrew->AddMetalValue(_val);
+}
+
+void URecruitMenu::AddStone(int _val)
+{
+	AllMyCrew->AddStoneValue(_val);
+
 }

@@ -28,6 +28,20 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* TotalNum;
 
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* WoodValue;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* FoodValue;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* StoneValue;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* MetalValue;
+
+	int Wood, Food, Stone, Metal;
+
 private:
 
 	UPROPERTY()
@@ -45,8 +59,16 @@ public:
 
 	void SetTotalAmount(int _val);
 
-
-
 	FORCEINLINE int GetTotalAmount() const { return totalAmount; }
 	
+	/** Load the resource from Game Mode*/
+	void LoadResource();
+	void AddWoodValue(int _val);
+	void AddFoodValue(int _val);
+	void AddMetalValue(int _val);
+	void AddStoneValue(int _val);
+
+
+
+
 };

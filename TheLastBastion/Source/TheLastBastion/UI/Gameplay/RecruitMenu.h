@@ -44,11 +44,26 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UButton* Accept;
 
+	bool bIsOpened;
+
 
 
 public:
 
 	void OnOpenRecruitMenu();
+
+	FORCEINLINE bool IsOpened() const { return bIsOpened; }
+
+
+	void AddWood(int _val);
+
+	void AddFood(int _val);
+
+	void AddMetal(int _val);
+
+	void AddStone(int _val);
+
+
 
 private:
 

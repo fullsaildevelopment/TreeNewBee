@@ -86,6 +86,8 @@ public:
 
 	FORCEINLINE class UInGameHUD* GetInGameHUD() const { return mInGameHUD; }
 	FORCEINLINE class UTradeMenu* GetTradeMenu() const { return mTradeMenu; }
+	FORCEINLINE class URecruitMenu* GetRecruitMenu() const { return mRecruitMenu; }
+
 	class UInventoryUI* GetInventoryUI() const;
 
 
