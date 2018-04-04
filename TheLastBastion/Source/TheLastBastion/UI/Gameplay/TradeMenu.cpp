@@ -56,6 +56,16 @@ bool UTradeMenu::Initialize()
 	if (NordicRow_GearUI.Num() == ShopRowSize)
 		NordicRow->SetEachSlotAction(NordicRow_GearUI);
 
+	if (DwarvenRow_GearUI.Num() == ShopRowSize)
+		DwarvenRow->SetEachSlotAction(DwarvenRow_GearUI);
+
+	if (EbonyRow_GearUI.Num() == ShopRowSize)
+		EbonyRow->SetEachSlotAction(EbonyRow_GearUI);
+
+	if (DaedricRow_GearUI.Num() == ShopRowSize)
+		DaedricRow->SetEachSlotAction(DaedricRow_GearUI);
+
+
 	bCanEverTick = false;
 	bIsOpened = false;
 	return true;
