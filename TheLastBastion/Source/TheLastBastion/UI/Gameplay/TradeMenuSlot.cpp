@@ -94,6 +94,10 @@ bool UTradeMenuSlot::NativeOnDrop(const FGeometry & InGeometry, const FDragDropE
 	UItemDrag* itemDragOp = Cast<UItemDrag>(InOperation);
 	if (itemDragOp)
 	{
+		// if this is the same gear class, we will skip 
+		if (itemDragOp->GearUI.Gear_Bp == GearUI.Gear_Bp)
+			return false;
+
 		bool success = false;
 
 		// if drop on the correct gear type, the drop will success
@@ -245,7 +249,7 @@ bool UTradeMenuSlot::CostCheck(TSubclassOf<class AGear> _gear) const
 		if (requiredWood > inventoryUI->GetWood_int())
 			bAccept = false;
 		else
-			inventoryUI->AddMetalValue(-requiredWood);
+			inventoryUI->AddWoodValue(-requiredWood);
 	}
 
 	return bAccept;

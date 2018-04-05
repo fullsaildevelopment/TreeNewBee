@@ -68,7 +68,9 @@ public:
 	void AddMetalValue(int _val);
 	void AddStoneValue(int _val);
 
-
-
+	FORCEINLINE int GetWood_int()const { return Wood; }
+	FORCEINLINE int GetFood_int()const { return Food; }
+	FORCEINLINE int GetStone_int()const { return Stone; }
+	FORCEINLINE int GetMetal_int()const { return Metal; }
 
 };

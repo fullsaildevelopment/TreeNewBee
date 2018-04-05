@@ -5,9 +5,13 @@
 #include "Components/TextBlock.h"
 #include "Components/Button.h"
 #include "UI/Gameplay/CrewBar_RecruitMenu.h"
+#include "UI/Gameplay/RecruitMenu.h"
 #include "UI/UnitDrag.h"
 #include "GameMode/SinglePlayerGM.h" 
 #include "Kismet/GameplayStatics.h"
+
+#include "AICharacters/TheLastBastionAIBase.h"
+#include "PCs/SinglePlayerPC.h"
 
 bool UCrewBlock::Initialize()
 {
@@ -59,6 +63,7 @@ bool UCrewBlock::NativeOnDrop(const FGeometry & InGeometry, const FDragDropEvent
 void UCrewBlock::OnPlusClick()
 {
 	int crewNumTemp = CrewNum;
+	UpdateResourcePreview(1);
 	CrewNum++;
 	if (CrewNum > 3)
 		Minus->SetIsEnabled(true);
@@ -76,6 +81,8 @@ void UCrewBlock::OnPlusClick()
 	TotalAmount++;
 	mCrewBar->SetTotalAmount(TotalAmount);
 	CrewNum_Text->SetText(FText::AsNumber(CrewNum));
+
+	UpdateResourcePreview(1);
 }
 
 void UCrewBlock::OnMinusClick()
@@ -84,6 +91,7 @@ void UCrewBlock::OnMinusClick()
 
 	int TotalAmount = mCrewBar->GetTotalAmount();
 	TotalAmount -= CrewNum;
+	UpdateResourcePreview(-1);
 
 	CrewNum--;
 	if (CrewNum <= 3)
@@ -108,6 +116,10 @@ void UCrewBlock::OnFastRecruitClick()
 	int maxCrewNum = MaxAlliesNum - TotalRemain;
 	maxCrewNum = (maxCrewNum >= 20) ? 20 : maxCrewNum;
 
+	// pay
+	UpdateResourcePreview(maxCrewNum - crewNumTemp);
+
+
 	CrewNum = maxCrewNum;
 	TotalAmount = TotalRemain + maxCrewNum;
 
@@ -127,11 +139,15 @@ void UCrewBlock::OnDismissClick()
 	TotalAmount -= CrewNum;
 	mCrewBar->SetTotalAmount(TotalAmount);
 
+	// Refund 
+	UpdateResourcePreview(-CrewNum);
+
 	// Clear crew slot
 	CrewNum = 0;
 	CrewSlot->SetImage(nullptr);
 	CrewSlot->SetUnitClass(nullptr);
 	CrewNum_Text->SetText(FText::AsNumber(CrewNum));
+
 
 	// Kill the group
 	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
@@ -155,8 +171,11 @@ void UCrewBlock::OnAddingNewUnit(const UUnitDrag * unitDragOp)
 	}
 
 	int remainRoom = MaxAlliesNum - TotalAmount;
-	SetCrewNum((remainRoom < StartingNum_EachCrew)
-		? remainRoom : StartingNum_EachCrew);
+
+	int numCanJoin = (remainRoom < StartingNum_EachCrew)
+		? remainRoom : StartingNum_EachCrew;
+
+	SetCrewNum(numCanJoin);
 
 	TotalAmount += CrewNum;
 
@@ -167,6 +186,9 @@ void UCrewBlock::OnAddingNewUnit(const UUnitDrag * unitDragOp)
 
 	if (CrewNum <= MinUnitsNum_EachCrew)
 		Minus->SetIsEnabled(false);
+
+
+	UpdateResourcePreview(numCanJoin);
 }
 
 void UCrewBlock::SetAllyIndex(int _index)
@@ -192,4 +214,49 @@ void UCrewBlock::SetOperationEnabled(int _enabled)
 	Minus->SetIsEnabled(_enabled);
 	Dismiss->SetIsEnabled(_enabled);
 	FastRecruit->SetIsEnabled(_enabled);
+}
+
+void UCrewBlock::UpdateResourcePreview(int _num)//, TSubclassOf<ATheLastBastionAIBase> _unitClass)
+{
+	
+	ATheLastBastionAIBase* defaultAI = GetUnitClass().GetDefaultObject();
+	if (defaultAI)
+	{
+		TArray<int> cost = defaultAI->GetResourceCost();
+		// check food
+		int requiredFood = cost[0] * _num;
+		int requiredMetal = cost[1] * _num;
+		int requiredWood = cost[2] * _num;
+
+		mCrewBar->AddFoodValue(-requiredFood);
+		mCrewBar->AddMetalValue(-requiredMetal);
+		mCrewBar->AddWoodValue(-requiredWood);
+
+		// Check apply button availity
+		ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(GetOwningPlayer());
+		if (pc == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("pc == nullptr, UCrewBlock::UpdateResourcePreview"));
+			return;
+		}
+		else
+		{
+			URecruitMenu* recruitMenu = pc->GetRecruitMenu();
+			if (recruitMenu == nullptr)
+			{
+				UE_LOG(LogTemp, Error, TEXT("recruitMenu == nullptr, UCrewBlock::UpdateResourcePreview"));
+				return;
+			}
+			else
+			{
+				recruitMenu->CheckAcceptButtonShouldEnabled();
+			}
+		}
+	
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("defaultAI == nullptr, UCrewBlock::HasEnoughResource"));
+	}
+
 }

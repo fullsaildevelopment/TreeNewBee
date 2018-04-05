@@ -116,7 +116,7 @@ void ACastle::UpdateByTimer()
 		// Game Over
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("%f Current Hp"), CurrentHp);
+	//UE_LOG(LogTemp, Log, TEXT("%f Current Hp"), CurrentHp);
 
 }
 
