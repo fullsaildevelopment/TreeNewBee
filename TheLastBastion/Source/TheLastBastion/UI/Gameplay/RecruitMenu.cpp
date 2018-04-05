@@ -53,8 +53,8 @@ void URecruitMenu::OnOpenRecruitMenu()
 
 void URecruitMenu::OnAcceptClicked()
 {
-
 	AllMyCrew->OnAccept();
+
 
 	OnCancelClicked();
 }
@@ -73,20 +73,31 @@ void URecruitMenu::OnCancelClicked()
 void URecruitMenu::AddWood(int _val)
 {
 	AllMyCrew->AddWoodValue(_val);
+	CheckAcceptButtonShouldEnabled();
 }
 
 void URecruitMenu::AddFood(int _val)
 {
 	AllMyCrew->AddFoodValue(_val);
+	CheckAcceptButtonShouldEnabled();
 }
 
 void URecruitMenu::AddMetal(int _val)
 {
 	AllMyCrew->AddMetalValue(_val);
+	CheckAcceptButtonShouldEnabled();
 }
 
 void URecruitMenu::AddStone(int _val)
 {
 	AllMyCrew->AddStoneValue(_val);
+	CheckAcceptButtonShouldEnabled();
+}
 
+void URecruitMenu::CheckAcceptButtonShouldEnabled()
+{
+	bool bIsEnabled = true;
+
+	bIsEnabled = AllMyCrew->GetMetal_int() >= 0 && AllMyCrew->GetFood_int() >= 0 && AllMyCrew->GetWood_int() >= 0;
+	Accept->SetIsEnabled(bIsEnabled);
 }

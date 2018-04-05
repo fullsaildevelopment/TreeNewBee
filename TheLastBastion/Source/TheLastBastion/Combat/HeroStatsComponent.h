@@ -20,8 +20,8 @@ enum class EEquipType : uint8;
 #define HeroMeleeAttackSpCost_Init_Hammer_BattleAxe -30.0f;
 #define HeroMeleeAttackSpCost_Init_GreatSword -25.0f;
 #define HeroMeleeAttackSpCost_Init_Katana -10.0f;
-#define HeroMeleeAttackSpCost_Init_SnAxeMace -20.0f;
-#define HeroMeleeAttackSpCost_Init_SnSword -15.0f;
+#define HeroMeleeAttackSpCost_Init_SnAxeMace -15.0f;
+#define HeroMeleeAttackSpCost_Init_SnSword -13.0f;
 
 #define HeroCounterAttackSpCost_Init_Hammer -90.0f;
 #define HeroCounterAttackSpCost_Init_BattleAxe_GreatSword  -55.0f;

@@ -254,6 +254,25 @@ void ASinglePlayerGM::OnTradeMenuAccept(int _metal, int _wood)
 
 }
 
+void ASinglePlayerGM::OnRecruitMenuAccept(int _food, int _metal, int _wood)
+{
+	Food = _food;
+	Metal = _metal;
+	Wood = _wood;
+	if (HeroPC)
+	{
+		HeroPC->GetInGameHUD()->SetMetalValue(Metal);
+		HeroPC->GetInGameHUD()->SetWoodValue(Wood);
+		HeroPC->GetInGameHUD()->SetFoodValue(Food);
+
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("HeroPC == nullptr, ASinglePlayerGM::OnRecruitMenuAccept"));
+	}
+
+}
+
 void ASinglePlayerGM::AddFood(int _val)
 {
 	Food += _val;

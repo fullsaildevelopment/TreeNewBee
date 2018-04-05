@@ -87,7 +87,8 @@ public:
 
 
 	UFUNCTION(BlueprintNativeEvent)
-		/** The amount of resouce that cost hero to hire this character*/
+		/** The amount of resouce that cost hero to hire this character
+		0 = food, 1 = metal, 2 = wood */
 		TArray<int> GetResourceCost() const;
 	TArray<int> GetResourceCost_Implementation() const;
 

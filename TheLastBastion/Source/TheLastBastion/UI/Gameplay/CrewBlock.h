@@ -69,6 +69,8 @@ private:
 	UFUNCTION()
 		void OnDismissClick();
 
+
+	/** Called when during drop on event, add 5 new unit as default to the this crew block*/
 	void OnAddingNewUnit(const class UUnitDrag* unitDragOp);
 
 public:
@@ -84,6 +86,12 @@ public:
 
 	void SetCrewNum(int _groupSize);
 	void SetOperationEnabled(int _enabled);
+
+
+private:
+
+	/** Update resource after purchase preview */
+	void UpdateResourcePreview(int _num);//, TSubclassOf<ATheLastBastionAIBase> _unitClass);
 
 
 

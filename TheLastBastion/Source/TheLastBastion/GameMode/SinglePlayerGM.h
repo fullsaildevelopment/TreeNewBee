@@ -126,7 +126,6 @@ public:
 
 	FORCEINLINE class AEnemyGroupSpawner* GetEnemyGroupSpawner() const { return EnemyGroupSpawner; }
 
-
 	// Resouce Interface
 
 	FORCEINLINE int GetFoodTotal() const { return Food; }
@@ -135,6 +134,7 @@ public:
 	FORCEINLINE int GetStoneTotal() const { return Stone; }
 	
 	void OnTradeMenuAccept(int _metal, int _wood);
+	void OnRecruitMenuAccept(int _food, int _metal,int _wood);
 
 	void AddFood(int _val);
 	void AddMetal(int _val);

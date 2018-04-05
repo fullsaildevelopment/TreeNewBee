@@ -10,8 +10,6 @@
 #include "Components/TextBlock.h"
 
 
-
-
 bool UCrewBar_RecruitMenu::Initialize()
 {
 	if (Super::Initialize() == false)
@@ -137,6 +135,9 @@ void UCrewBar_RecruitMenu::OnAccept()
 			currGroup->OnGroupSizeChangeByNum(deltaAmount);
 		}
 	}
+
+	// pay actually resource
+	gm->OnRecruitMenuAccept(Food, Metal, Wood);
 }
 
 void UCrewBar_RecruitMenu::SetTotalAmount(int _val)

@@ -63,7 +63,8 @@ public:
 
 	void AddStone(int _val);
 
-
+	/** check to see if resource is negative, if it is , disable the apply button */
+	void CheckAcceptButtonShouldEnabled();
 
 private:
 
