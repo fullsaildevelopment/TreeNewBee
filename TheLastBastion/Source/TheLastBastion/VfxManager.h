@@ -19,6 +19,7 @@ enum class EVfxType : uint8
 	bloodImpact_sputtering = 0,
 	metalImpact_sputtering,
 	WeaponNormalTrail,
+	WeaponFireTrail,
 	WeaponFireEnchantment,
 	PlayerLevelUp,
 	FootSteps
@@ -40,6 +41,7 @@ private:
 	static class UParticleSystem* metalImpact_sputtering_PS;
 
 	static class UParticleSystem* WeaponNormalTrail;
+	static class UParticleSystem* WeaponFireTrail;
 
 	static class UParticleSystem* WeaponFireEnchantment;
 

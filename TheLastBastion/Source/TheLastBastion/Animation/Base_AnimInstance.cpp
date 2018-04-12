@@ -2,6 +2,7 @@
 
 #include "Base_AnimInstance.h"
 #include "TheLastBastionCharacter.h"
+#include "TheLastBastionHeroCharacter.h"
 #include "AudioManager.h"
 #include "Components/AudioComponent.h"
 #include "Combat/Armor.h"
@@ -319,13 +320,21 @@ void UBase_AnimInstance::StartMeleeWeaponTrail(bool _rightHand)
 {
 	
 	AGear* CurrentWeapon = _rightHand ? mBaseCharacter->GetCurrentWeapon() : mBaseCharacter->GetCurrentSecondaryWeapon();
-	if (CurrentWeapon)
+	ATheLastBastionHeroCharacter* HeroCharacter = Cast<ATheLastBastionHeroCharacter>(mBaseCharacter);
+	if (CurrentWeapon&&HeroCharacter)
 	{
 		UParticleSystemComponent* ParticleSystemComp = CurrentWeapon->GetParticleSystemComp();
 		if (ParticleSystemComp)
-		{
-			UParticleSystem* WeaponNormalTrail = UVfxManager::GetVfx(EVfxType::WeaponNormalTrail);
-			ParticleSystemComp->Template = WeaponNormalTrail;
+		{   
+			UParticleSystem* WeaponTrail = nullptr;
+			// replace particle template if player has encharted weapon
+			if (HeroCharacter->HasEnchartedWeapon() == true && _rightHand == true)
+				WeaponTrail = UVfxManager::GetVfx(EVfxType::WeaponFireTrail);
+
+			else
+				WeaponTrail = UVfxManager::GetVfx(EVfxType::WeaponNormalTrail);
+
+			ParticleSystemComp->Template = WeaponTrail;
 			ParticleSystemComp->BeginTrails(TEXT("TrailStart"), TEXT("TrailEnd"), ETrailWidthMode::ETrailWidthMode_FromCentre, 1.0f);
 		}
 	}
