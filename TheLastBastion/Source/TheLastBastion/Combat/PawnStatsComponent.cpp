@@ -11,6 +11,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
+#include "Animation/Base_AnimInstance.h"
+
 #include "Combat/Weapon.h"
 #include "Combat/Armor.h"
 #include "CustomType.h"
@@ -24,7 +26,9 @@
 #include "Components/AudioComponent.h"
 
 
-
+#define QueenGuard_BaseHp 2000
+#define QueenGuard_HpOnLevelUp 250
+#define QueenGuard_DamageOnLevelUp 100
 
 static TSubclassOf<class UUserWidget> FloatingText_WBP;
 
@@ -64,6 +68,22 @@ void UPawnStatsComponent::BeginPlay()
 	//mCharacter->OnTakePointDamage.AddDynamic(this, &UPawnStatsComponent::OnTakePointDamageHandle);
 
 	GenerateStatsAtBeginPlay();
+
+	USkeletalMeshComponent* mesh = mCharacter->GetMesh();
+	if (mCharacter && mesh)
+	{
+		UBase_AnimInstance* animRef = Cast<UBase_AnimInstance>(mesh->GetAnimInstance());
+		if (animRef == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("animRef == nullptr - UPawnStatsComponent::BeginPlay"));
+		}
+		else
+		{
+			if (GetCurrentRightHandWeapon())
+				animRef->UpdateAnimationSetOnWeaponChange(GetCurrentRightHandWeapon()->GetGearType());
+		}
+	}
+
 }
 
 // Called every frame
@@ -176,6 +196,13 @@ void UPawnStatsComponent::CalculateRawStatsByType(int _level, ECharacterType _ty
 	{
 		_hp = 500.0f + _level * 30.0f;
 		_damage = 25.0f * _level;
+	}
+	break;
+	case ECharacterType::Lan_QueenGuard:
+	{
+		_hp = QueenGuard_BaseHp + _level * QueenGuard_HpOnLevelUp;
+		_damage = QueenGuard_DamageOnLevelUp * _level;
+		DpCurrent = _hp;
 	}
 	break;
 	case ECharacterType::Ranger:
@@ -441,7 +468,6 @@ void UPawnStatsComponent::PlaySFXForImpact(USoundCue* _sfx, int _surfaceType, AT
 	}
 }
 
-
 bool UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 {
 	// calculate the damage based on Gears
@@ -456,11 +482,16 @@ bool UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 	ATheLastBastionCharacter* damageActor = Cast<ATheLastBastionCharacter>(_damageInfo.hitResult.GetActor());
 	EPhysicalSurface surfaceType = UPhysicalMaterial::DetermineSurfaceType(_damageInfo.hitResult.PhysMaterial.Get());
 
+	if (damageActor == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("damageActor == nullptr, UPawnStatsComponent::ApplyDamage"));
+		return false;;
+	}
 	// Check if this damage is caused by melee and been countered
 	if (_damageInfo.bIsProjectile == false)
 	{
 		// if this is not projectile, then it maybe countered
-		if (damageActor && damageActor->OnCounterAttack(_damageInfo.hitDirection))
+		if (damageActor->OnCounterAttack(_damageInfo.hitDirection))
 		{
 			// counter attack
 			vfxSelected = UVfxManager::GetVfx(EVfxType::metalImpact_sputtering);
@@ -472,6 +503,10 @@ bool UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), vfxSelected, _damageInfo.hitResult.Location);
 				UGameplayStatics::PlaySoundAtLocation(GetWorld(), sfxSelected, _damageInfo.hitResult.Location);
 			}
+			return false;
+		}
+		else if (damageActor->OnParry(&_damageInfo, this))
+		{
 			return false;
 		}
 		else

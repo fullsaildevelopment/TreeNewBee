@@ -25,7 +25,8 @@ enum class ECharacterType : uint8
 	Lan_Heavy             UMETA(DisplayName = "Lannester Heavy"),
 	Lan_Legion            UMETA(DisplayName = "Lannester Legion"),
 	Lan_SharpShooter      UMETA(DisplayName = "Lannester SharpShooter"),
-	Lan_Elite             UMETA(DisplayName = "Lannester Elite")           
+	Lan_Elite             UMETA(DisplayName = "Lannester Elite"),
+	Lan_QueenGuard        UMETA(DisplayName = "Queen Guard"),
 };
 
 UENUM(BlueprintType)
@@ -174,6 +175,14 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 		ECharacterVoiceType GetCharacterVoiceType() const;
 	ECharacterVoiceType GetCharacterVoiceType_Implementation() const { return ECharacterVoiceType::Hero; }
+	
+	/** Check if this character is able to Parry this melee attack*/
+	virtual bool OnParry(const struct FDamageInfo* const _damageInfo, const class UPawnStatsComponent* const _damageCauserPawnStats) { return false; }
+
+	/** Check if this character is able to counter attack this attack*/
+	bool OnCounterAttack(const FVector& _damageCauserRelative);
+	// Called on actor destroyed
+	virtual void Kill();
 
 
 public:
@@ -198,6 +207,8 @@ public:
 	FORCEINLINE bool IsRagDoll() const { return bIsRagDoll; }
 	FORCEINLINE bool IsRagDollRecovereing() const { return bIsRecoveringFromRagDoll; }
 	FORCEINLINE class UAudioComponent* GetAudioComp() const { return AudioComp; }
+
+	virtual bool ShouldPlayHitAnimation() const { return true; }
 	
 
 	// Called during Spawn, setup the ai level, so the its raw stats can use
@@ -207,10 +218,6 @@ public:
 
 
 	bool IsOnDefend() const;
-	/** Check if this character is able to counter attack this attack*/
-	bool OnCounterAttack(const FVector& _damageCauserRelative);
-	// Called on actor destroyed
-	virtual void Kill();
 
 	float GetCurrentMaxSpeed() const;
 	class AArmor* GetCurrentArmor() const;

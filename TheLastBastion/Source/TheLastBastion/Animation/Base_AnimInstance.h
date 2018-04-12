@@ -18,11 +18,16 @@
 namespace 
 {
 	UAnimMontage* AM_SingleHandWeapon_HitReaction = nullptr;
+	UAnimMontage* AM_CB_HitReaction = nullptr;
+	UAnimMontage* AM_HV_HitReaction = nullptr;
+	UAnimMontage* AM_TH_HitReaction = nullptr;
+	UAnimMontage* AM_Sns_HitReaction = nullptr;
 	UAnimMontage* AM_CrossBow = nullptr;
 	UAnimMontage* AM_Skill = nullptr;
-
+	UAnimMontage* AM_HV_ParryDodge = nullptr;
 }
 
+enum class EGearType : uint8;
 
 UCLASS()
 class THELASTBASTION_API UBase_AnimInstance : public UAnimInstance
@@ -60,7 +65,7 @@ public:
 
 protected:
 
-	float PlayMontage(class UAnimMontage* _animMontage, float _rate, FName _startSectionName = NAME_None);
+	float PlayMontage(class UAnimMontage* _animMontage, float _rate = 1.0f, FName _startSectionName = NAME_None);
 
 	UFUNCTION()
 		virtual void OnMontageStartHandle(class UAnimMontage* _animMontage);
@@ -156,6 +161,10 @@ protected:
 public:
 
 	FORCEINLINE bool IsOnDefend() const { return bOnDefend; }
+	FORCEINLINE void SetHitMontage(class UAnimMontage* _hitMontage) { Hit_Montage = _hitMontage; }
+
+	virtual void UpdateAnimationSetOnWeaponChange(EGearType _gearType) {}
+
 
 private:
 

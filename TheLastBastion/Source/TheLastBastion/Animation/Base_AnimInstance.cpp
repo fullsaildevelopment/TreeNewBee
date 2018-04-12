@@ -22,12 +22,21 @@ UBase_AnimInstance::UBase_AnimInstance(const FObjectInitializer& _objectInitaliz
 {
 	FindMontage(AM_SingleHandWeapon_HitReaction, 
 		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_SSword_HitReaction"));
+	FindMontage(AM_CB_HitReaction,
+		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_CB_HitReaction"));
+	FindMontage(AM_HV_HitReaction,
+		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_HV_HitReaction"));
+	FindMontage(AM_Sns_HitReaction,
+		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_SwordShieldHitReaction"));
+	FindMontage(AM_TH_HitReaction,
+		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_TH_HitReaction"));
+
 	FindMontage(AM_CrossBow, 
 		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_CBFIre"));
 	FindMontage(AM_Skill,
 		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_HeroSkills"));
-
-
+	FindMontage(AM_HV_ParryDodge,
+		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_HV_Parry"));
 }
 
 void UBase_AnimInstance::OnBeginPlay()
@@ -350,6 +359,8 @@ void UBase_AnimInstance::EndMeleeWeaponTrail(bool _rightHand)
 			ParticleSystemComp->EndTrails();
 	}
 }
+
+
 
 bool UBase_AnimInstance::FindMontage(class UAnimMontage*& _animMontage, const TCHAR * _path)
 {

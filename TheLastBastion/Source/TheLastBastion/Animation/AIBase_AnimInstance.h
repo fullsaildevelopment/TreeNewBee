@@ -11,12 +11,14 @@
 UENUM(BlueprintType)
 enum class EAIActionState : uint8
 {
-	None = 0 UMETA(DisplayName = "None"),
-	MeleeAttack = 1 UMETA(DisplayName = "Melee Attack"),
-	Fire = 2 UMETA(DisplayName = "Fire"),
-	Dodge = 3 UMETA(DisplayName = "Dodge"),
-	Defend = 4 UMETA(DisplayName = "Defend"),
-	GettingHurt = 5 UMETA(DisplayName = "GettingHurt")
+	None = 0       UMETA(DisplayName = "None"),
+	MeleePreAttack UMETA(DisplayName = "Melee PreAttack"), 
+	MeleeAttack    UMETA(DisplayName = "Melee Attack"),
+	MeleePostAttack UMETA(DisplayName = "Melee PostAttack"),
+	Fire           UMETA(DisplayName = "Fire"),
+	Dodge          UMETA(DisplayName = "Dodge"),
+	Defend         UMETA(DisplayName = "Defend"),
+	GettingHurt    UMETA(DisplayName = "GettingHurt")
 };
 
 UENUM(BlueprintType)
@@ -32,6 +34,7 @@ enum class EAIMeleeAttackType : uint8
 #define HEADBONE TEXT("neck_01")
 #define RIGHTLEGBONE TEXT("calf_r")
 #define LEFTLEGBONE TEXT("calf_l")
+
 #define SH_HitReaction_HEAD_RIGHT      TEXT("Head_R")
 #define SH_HitReaction_HEAD_LEFT       TEXT("Head_L")
 #define SH_HitReaction_HEAD_FRONT      TEXT("Head_F")
@@ -41,8 +44,30 @@ enum class EAIMeleeAttackType : uint8
 #define SH_HitReaction_LEG_RIGHT       TEXT("Leg_R")
 #define SH_HitReaction_LEG_LEFT        TEXT("Leg_L")
 
+#define HV_HitReact_Back_0         TEXT("HitBack_0")
+#define HV_HitReact_Back_1         TEXT("HitBack_1")
+#define HV_HitReact_Right_0        TEXT("HitRight_0")
+#define HV_HitReact_Right_1        TEXT("HitRight_1")
+#define HV_HitReact_Left_0         TEXT("HitLeft_0")
+#define HV_HitReact_Left_1         TEXT("HitLeft_1")
+#define HV_HitReact_Front_0        TEXT("HitFront_0")
+#define HV_HitReact_Front_1        TEXT("HitFront_1")
+#define HV_HitReact_BackTurn_Right TEXT("HitBack_TurnRight")
+#define HV_HitReact_BackTurn_Left  TEXT("HitBack_TurnLeft")
 
+#define TH_HitReact_Back     TEXT("HitBack")
+#define TH_HitReact_LeftTop  TEXT("HitLeft_Head")
+#define TH_HitReact_RightTop TEXT("HitRight_Head")
+#define TH_HitReact_FrontTop TEXT("HitFront_Head")
+#define TH_HitReact_Left     TEXT("HitLeft")
+#define TH_HitReact_Right    TEXT("HitRight")
+#define TH_HitReact_Front    TEXT("HitFront_Hip")
 
+#define SnsCB_HitReact_Front     TEXT("HitFront")
+#define SnsCB_HitReact_FrontTop  TEXT("HitHead")
+#define SnsCB_HitReact_Left      TEXT("HitLeft")
+#define SnsCB_HitReact_Right     TEXT("HitRight")
+#define SnsCB_HitReact_Back      TEXT("HitBack")
 
 DECLARE_DELEGATE_OneParam(FOnFinishAttackSignature, class UBehaviorTreeComponent*);
 DECLARE_DELEGATE_OneParam(FOnRecoverFromHitSignature, class UBehaviorTreeComponent*);
@@ -113,12 +138,17 @@ public:
 	// Called When Attack Sequence is done by the end of animation sequence
 	virtual void FinishAttack();
 
+	// Called when ai being hit
 	void ResetOnBeingHit() override;
 
 	void OnBeingHit(FName boneName, const FVector& _damageCauseRelative,
 		const FVector& _hitLocation) override;
 
 	bool OnCounterAttack(const FVector & _damageCauserRelative) override;
+
+	void OnParry(FName sectionName, UAnimMontage* const _parryMontage);
+
+	void UpdateAnimationSetOnWeaponChange(EGearType _gearType) override;
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE EAIActionState GetCurrentActionState() const {return CurrentActionState;}
@@ -127,20 +157,23 @@ public:
 		/** Check if animation ready to perform next fire */
 		FORCEINLINE bool CanFire() const { return !Montage_IsPlaying(Fire_Montage) && CurrentActionState == EAIActionState::None;}
 
-
 protected:
 
 	void SyncMotionForMeleeAttack();
 
 	void SyncMotionForGettingHurt();
 
+	void SyncMotionForDefend();
+
 	void SyncMotionForNone();
 
 	FName HitReaction_SHSword(FName boneName, const FVector& _shotFromDirection, const FVector& _hitLocation);
+	FName HitReaction_Katana(FName boneName, const FVector& _shotFromDirection, const FVector& _hitLocation);
+	FName HitReaction_HV(FName boneName, const FVector& _shotFromDirection, const FVector& _hitLocation);
+	FName HitReaction_Sns_CB(FName boneName, const FVector& _shotFromDirection, const FVector& _hitLocation);
 
 	// Called on HitMontage end uninterruptted
 	void OnHitMontageEnd();
-
 
 	// Called on recoverred from ragdoll
 	void OnGetupMontageEnd();

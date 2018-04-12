@@ -33,6 +33,9 @@
 #define CollisionObjectType_Hero ECollisionChannel::ECC_GameTraceChannel8
 
 
+
+
+
 USTRUCT(Blueprintable)
 struct FPlayerProfile
 {
@@ -56,6 +59,8 @@ struct FPlayerProfile
 	UPROPERTY()
 		bool bIsRangerClass = true;
 };
+
+
 /**
  * 
  */

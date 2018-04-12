@@ -17,6 +17,14 @@ class THELASTBASTION_API UAIMelee_AnimInstance : public UAIBase_AnimInstance
 
 protected:
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combo)
+		int ComboSetSelect;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combo)
+		int ComboDir;
+
+
+protected:
+
 	UFUNCTION(BlueprintCallable)
 		 void OnBeginPlay() override;
 
@@ -29,10 +37,6 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		 void OnPostEvaluate() override;
 
-
-
-
-
 #pragma region Anim Notification
 
 	UFUNCTION(BlueprintCallable)
@@ -43,15 +47,22 @@ protected:
 		void OnDisableWeapon(bool bIsright = true, bool bIsAll = false);
 	
 	UFUNCTION(BlueprintCallable)
-		/** Called at the end of attack frame, and let BT know attack is finished*/
+		/** Called at the end of attack recover, and let BT know attack is finished*/
 		void FinishAttack() override;
 
 	UFUNCTION(BlueprintCallable)
 		/** Called at the end of attack frame, and let BT know attack is finished*/
 		void InitAttack();
 
+	UFUNCTION(BlueprintCallable)
+		/** Called at the end of attack frame, and so the character can parry the attack*/
+		void AttackRecover();
+
 
 #pragma endregion
+
+
+
 
 public:
 

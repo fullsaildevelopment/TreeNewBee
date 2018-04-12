@@ -312,7 +312,7 @@ void UHeroStatsComponent::OnTradeMenuAccept(UInventoryUI * _inventoryMenu)
 	EGearType currentGearType = GetCurrentRightHandWeapon()->GetGearType();
 
 	UpdateOnWeaponChange(currentGearType);
-	animRef->UpdateComboList(currentGearType);
+	animRef->UpdateAnimationSetOnWeaponChange(currentGearType);
 	GenerateMaxStats();
 }
 

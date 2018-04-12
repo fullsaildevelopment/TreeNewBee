@@ -53,6 +53,14 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = DamageCollision)
 		FVector DamageVolumnExtend;
 
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = DamageCollision)
+		FVector DamageEdgeOffset_start_Current;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = DamageCollision)
+		FVector DamageEdgeOffset_end_Current;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = DamageCollision)
+		FVector DamageVolumnExtend_Current;
+
 	UPROPERTY(BlueprintReadOnly, Category = DamageCollision)
 		/** The actor to ignore in one slash*/
 		TArray<AActor*> IgnoredActors;
@@ -76,6 +84,8 @@ public:
 
 	class UParticleSystemComponent* OnWeaponEnchant() override;
 
+private:
+	void MaintainScale() override;
 	//UFUNCTION(BlueprintCallable)
 	//void EndWeaponFireEnchantment() override;
 };

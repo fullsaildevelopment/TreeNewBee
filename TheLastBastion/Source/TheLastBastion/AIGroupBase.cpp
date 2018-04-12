@@ -139,8 +139,8 @@ void AAIGroupBase::UpdateGroupLocation()
 
 	SetActorLocation(groupCenter);
 
-	DrawDebugSphere(GetWorld(), GetFirstRowLocation(), 50, 6, FColor::Magenta, false, 3);
-	DrawDebugSphere(GetWorld(), GroupTargetLocation, 50, 6, FColor::Blue, false, 3);
+	//DrawDebugSphere(GetWorld(), GetFirstRowLocation(), 50, 6, FColor::Magenta, false, 3);
+	//DrawDebugSphere(GetWorld(), GroupTargetLocation, 50, 6, FColor::Blue, false, 3);
 
 }
 
