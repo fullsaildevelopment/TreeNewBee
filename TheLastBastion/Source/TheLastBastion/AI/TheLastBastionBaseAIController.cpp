@@ -66,7 +66,7 @@ void ATheLastBastionBaseAIController::Possess(APawn* _possPawn)
 	CurrentActionState_KeyID = mBBComp->GetKeyID("CurrentActionState");
 	NewCommandIndex_KeyID = mBBComp->GetKeyID("NewCommandIndex");
 	OldCommandIndex_KeyID = mBBComp->GetKeyID("OldCommandIndex");
-	bRelocate_KeyID = mBBComp->GetKeyID("bRelocate");
+	bIsPaused_KeyID = mBBComp->GetKeyID("bIsPaused");
 
 	mBBComp->SetValue<UBlackboardKeyType_Float>(ToTargetActorDistanceSqr_KeyId, MAX_FLT);
 	mBBComp->SetValue<UBlackboardKeyType_Vector>(targetLocation_KeyID, _possPawn->GetActorLocation());
@@ -74,7 +74,7 @@ void ATheLastBastionBaseAIController::Possess(APawn* _possPawn)
 	mBBComp->SetValue<UBlackboardKeyType_Int>(OldCommandIndex_KeyID, 0);
 	mBBComp->SetValue<UBlackboardKeyType_Enum>(CurrentActionState_KeyID, static_cast<UBlackboardKeyType_Enum::FDataType>(EAIActionState::None));
 
-	SetIsRelocate(false);
+	SetIsPaused_BBC(false);
 	
 	// Launch behavior Tree
 	mBTComp->StartTree(*bt);
@@ -95,7 +95,8 @@ void ATheLastBastionBaseAIController::OnBeingHit(ECharacterType _characterType)
 	case ECharacterType::LanTrooper_T0:
 	case ECharacterType::LanCB_T0:
 	default:
-		SetAICurrentActionState_BBC(EAIActionState::GettingHurt);
+		//SetAICurrentActionState_BBC(EAIActionState::GettingHurt);
+		SetIsPaused_BBC(true);
 		break;
 	}
 }
@@ -136,9 +137,9 @@ void ATheLastBastionBaseAIController::SetToTargetActorDistanceSqr(float _disTanc
 	Blackboard->SetValue<UBlackboardKeyType_Float>(ToTargetActorDistanceSqr_KeyId, _disTanceSqr);
 }
 
-void ATheLastBastionBaseAIController::SetIsRelocate(bool _val)
+void ATheLastBastionBaseAIController::SetIsPaused_BBC(bool _val)
 {
-	Blackboard->SetValue<UBlackboardKeyType_Bool>(bRelocate_KeyID, _val);
+	Blackboard->SetValue<UBlackboardKeyType_Bool>(bIsPaused_KeyID, _val);
 }
 
 AActor * ATheLastBastionBaseAIController::GetTargetActor_BBC() const
@@ -179,7 +180,7 @@ float ATheLastBastionBaseAIController::GetToTargetActorDistanceSqr() const
 
 }
 
-bool ATheLastBastionBaseAIController::GetIsRelocate() const
+bool ATheLastBastionBaseAIController::GetIsPaused_BBC() const
 {
-	return Blackboard->GetValue < UBlackboardKeyType_Bool >(bRelocate_KeyID);
+	return Blackboard->GetValue < UBlackboardKeyType_Bool >(bIsPaused_KeyID);
 }

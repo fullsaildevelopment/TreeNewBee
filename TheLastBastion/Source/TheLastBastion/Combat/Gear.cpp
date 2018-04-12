@@ -109,6 +109,7 @@ void AGear::Arm(USkeletalMeshComponent * const _skeletonMeshComponent)
 	}
 	ToggleVisibilty(true);
 	this->AttachToComponent(_skeletonMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, SlotName);
+	MaintainScale();
 }
 
 TArray<int> AGear::GetResourceCost_Implementation() const

@@ -175,8 +175,15 @@ public:
 	virtual void Arm(class USkeletalMeshComponent* const _skeletonMeshComponent);
 	void ToggleVisibilty(bool _val);
 
+
 	virtual class UParticleSystemComponent* OnWeaponEnchant() { return nullptr; }
 	//void CombineDamage(const AGear* _other);
+
+private:
+
+	/** Scale other parametar that is not covered by engine*/
+	virtual void MaintainScale() {};
+
 
 };
 

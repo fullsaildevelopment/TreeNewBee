@@ -6,7 +6,8 @@
 
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
-
+#include "Combat/PawnStatsComponent.h"
+#include "Combat/Gear.h"
 #include "Kismet/KismetMathLibrary.h"
 
 
@@ -55,6 +56,7 @@ void UAIBase_AnimInstance::OnUpdate(float _deltaTime)
 	FVector velocityLocalDir = UKismetMathLibrary::InverseTransformDirection(mCharacter->GetTransform(), velocity);
 	velocityLocalDir = FVector(velocityLocalDir.X, velocityLocalDir.Y, 0).GetSafeNormal();
 
+
 	if (mCharacter->IsWalking())
 	{
 		MoveForwardAxis = velocityLocalDir.X;
@@ -69,13 +71,17 @@ void UAIBase_AnimInstance::OnUpdate(float _deltaTime)
 	switch (CurrentActionState)
 	{
 	case EAIActionState::MeleeAttack:
+	case EAIActionState::MeleePreAttack:
 		SyncMotionForMeleeAttack();
 		break;
 	case EAIActionState::GettingHurt:
 		SyncMotionForGettingHurt();
 		break;
-	case EAIActionState::None:
 
+	case EAIActionState::Defend:
+		SyncMotionForDefend();
+		break;
+	case EAIActionState::None:
 		break;
 	default:
 		break;
@@ -100,27 +106,54 @@ void UAIBase_AnimInstance::ResetOnBeingHit()
 		return;
 	}
 
-	baseAICtrl->OnBeingHit(mCharacter->GetCharacterType());
+	baseAICtrl->SetIsPaused_BBC(true);
+	//baseAICtrl->OnBeingHit(mCharacter->GetCharacterType());
 }
 
 void UAIBase_AnimInstance::OnBeingHit(FName boneName, const FVector & _damageCauseRelative, const FVector & _hitLocation)
 {
-	Hit_Montage = AM_SingleHandWeapon_HitReaction;
+	//Hit_Montage = AM_SingleHandWeapon_HitReaction;
+
 	if (Hit_Montage == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Hit Montage is nullptr"));
 		return;
 	}
 
-	ECharacterType Type = mCharacter->GetCharacterType();
-	FName sectionToPlay;
-
-
-	switch (Type)
+	AGear* rightHandWeapon = mCharacter->GetCurrentWeapon();
+	if (rightHandWeapon == nullptr)
 	{
-	case ECharacterType::LanTrooper_T0:
-	case ECharacterType::LanCB_T0:
-		sectionToPlay = HitReaction_SHSword(boneName, _damageCauseRelative, _hitLocation);
+		UE_LOG(LogTemp, Error, TEXT("rightHandWeapon == nullptr ,  UAIBase_AnimInstance::OnBeingHit"));
+		return;
+	}
+
+
+	FName sectionToPlay;
+	switch (rightHandWeapon->GetGearType())
+	{
+
+	case EGearType::LongSword:
+	case EGearType::WarAxe:
+	case EGearType::Mace:
+	{
+		bool isSH = mCharacter->GetCurrentSecondaryWeapon() == nullptr;
+		
+		sectionToPlay = isSH ? HitReaction_SHSword(boneName, _damageCauseRelative, _hitLocation) : 
+			HitReaction_Sns_CB(boneName, _damageCauseRelative, _hitLocation);
+		break;
+	}
+	case EGearType::DoubleHandWeapon:
+		sectionToPlay = HitReaction_Katana(boneName, _damageCauseRelative, _hitLocation);
+		break;
+
+	case EGearType::CrossBow:
+		sectionToPlay = HitReaction_Sns_CB(boneName, _damageCauseRelative, _hitLocation);
+		break;
+
+	case EGearType::BattleAxe:
+	case EGearType::GreatSword:
+	case EGearType::Hammer:
+		sectionToPlay = HitReaction_HV(boneName, _damageCauseRelative, _hitLocation);
 		break;
 	default:
 		break;
@@ -134,6 +167,40 @@ bool UAIBase_AnimInstance::OnCounterAttack(const FVector & _damageCauserRelative
 	return false;
 }
 
+void UAIBase_AnimInstance::OnParry(FName sectionName, UAnimMontage * const _parryMontage)
+{
+	CurrentActionState = EAIActionState::Defend;
+	PlayMontage(_parryMontage, 1.0f, sectionName);
+}
+
+void UAIBase_AnimInstance::UpdateAnimationSetOnWeaponChange(EGearType _gearType)
+{
+	switch (_gearType)
+	{
+	case EGearType::LongSword:
+	case EGearType::WarAxe:
+	case EGearType::Mace:
+	{
+		bool bSH = mCharacter->GetCurrentSecondaryWeapon() == nullptr;
+		Hit_Montage = bSH ? AM_SingleHandWeapon_HitReaction : AM_Sns_HitReaction;
+		break;
+	}
+	case EGearType::DoubleHandWeapon:
+		Hit_Montage = AM_TH_HitReaction;
+		break;
+	case EGearType::BattleAxe:
+	case EGearType::GreatSword:
+	case EGearType::Hammer:
+		Hit_Montage = AM_HV_HitReaction;
+		break;
+	case EGearType::CrossBow:
+		Hit_Montage = AM_CB_HitReaction;
+		break;
+	default:
+		break;
+	}
+}
+
 void UAIBase_AnimInstance::OnMontageStartHandle(UAnimMontage * _animMontage) {}
 
 void UAIBase_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontage, bool _bInterruptted)
@@ -142,7 +209,7 @@ void UAIBase_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMont
 
 	if (!_bInterruptted)
 	{
-		if (_animMontage == Hit_Montage)
+		if (_animMontage == Hit_Montage || _animMontage == AM_HV_ParryDodge)
 		{
 			OnHitMontageEnd();
 		}
@@ -190,7 +257,6 @@ void UAIBase_AnimInstance::SyncMotionForMeleeAttack()
 	UCharacterMovementComponent* movementComp = mCharacter->GetCharacterMovement();
 	// Sync Velocity
 	float speed = GetCurveValue("Speed");
-
 	FVector Velocity = movementComp->Velocity;
 	movementComp->Velocity = mCharacter->GetActorForwardVector() * speed;
 	movementComp->Velocity.Z = Velocity.Z;
@@ -214,6 +280,19 @@ void UAIBase_AnimInstance::SyncMotionForGettingHurt()
 
 }
 
+void UAIBase_AnimInstance::SyncMotionForDefend()
+{
+	UCharacterMovementComponent* movementComp = mCharacter->GetCharacterMovement();
+
+	// Sync Velocity
+	float speed = GetCurveValue("Speed");
+
+	FVector Velocity = movementComp->Velocity;
+	movementComp->Velocity = -mCharacter->GetActorForwardVector() * speed;
+	movementComp->Velocity.Z = Velocity.Z;
+
+}
+
 void UAIBase_AnimInstance::SyncMotionForNone()
 {
 
@@ -224,12 +303,6 @@ FName UAIBase_AnimInstance::HitReaction_SHSword(FName boneName, const FVector& _
 	// assume always face to attacker
 	FName sectionName;
 
-	// relative position of damage causer
-	//FVector damageCauserRelative = _shotFromDirection;
-	//damageCauserRelative.Z = 0.0f;
-	//damageCauserRelative = damageCauserRelative.GetUnsafeNormal();
-
-
 	FVector hitRelative = _hitLocation - GetSkelMeshComponent()->GetSocketLocation(boneName);
 	float hitZOffset = hitRelative.Z;
 	hitRelative.Z = 0;
@@ -237,9 +310,11 @@ FName UAIBase_AnimInstance::HitReaction_SHSword(FName boneName, const FVector& _
 
 	float vert = FVector::DotProduct(mCharacter->GetActorForwardVector(), hitRelative);
 
-	if (boneName.Compare(HEADBONE) == 0)
+	FVector chestLocation = GetSkelMeshComponent()->GetSocketLocation("spine_03");
+
+	bool bHeadHit = _hitLocation.Z > chestLocation.Z;
+	if (bHeadHit)
 	{
-		/// *** Head Hit
 		if (vert > 0.7f)
 			sectionName = SH_HitReaction_HEAD_FRONT;
 		else
@@ -253,8 +328,8 @@ FName UAIBase_AnimInstance::HitReaction_SHSword(FName boneName, const FVector& _
 	}
 	else
 	{
-
-		if (boneName.Compare(RIGHTLEGBONE) == 0 || boneName.Compare(LEFTLEGBONE) == 0)
+		bool bBottomHit = GetSkelMeshComponent()->GetSocketLocation("pelvis").Z > _hitLocation.Z;
+		if (bBottomHit)
 		{
 			float hor = FVector::DotProduct(mCharacter->GetActorRightVector(), hitRelative);
 			if (hor > 0)
@@ -278,9 +353,148 @@ FName UAIBase_AnimInstance::HitReaction_SHSword(FName boneName, const FVector& _
 		}
 	}
 
+	damageMomentum = -mCharacter->GetActorForwardVector();
 
-	damageMomentum = -MomentumRatioByActor * _damageCauseRelative - (1 - MomentumRatioByActor) * hitRelative;
-	damageMomentum = damageMomentum.GetUnsafeNormal();
+	return sectionName;
+}
+
+FName UAIBase_AnimInstance::HitReaction_Katana(FName boneName, const FVector & _shotFromDirection, const FVector & _hitLocation)
+{
+	// assume always face to attacker
+	FName sectionName;
+
+	
+	FVector hitRelative = _hitLocation - GetSkelMeshComponent()->GetSocketLocation(boneName);
+	float hitZOffset = hitRelative.Z;
+	hitRelative.Z = 0;
+	hitRelative = hitRelative.GetSafeNormal();
+
+	FVector chestLocation = GetSkelMeshComponent()->GetSocketLocation(TEXT("spine_03"));
+	bool bHeadHit = chestLocation.Z < _hitLocation.Z;
+
+
+	float vert = FVector::DotProduct(mCharacter->GetActorForwardVector(), hitRelative);
+
+
+	if (vert > 0.7f)
+		sectionName = bHeadHit ? TH_HitReact_FrontTop : TH_HitReact_Front;
+	else
+	{
+		ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
+		if (baseAICtrl == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr, UAIBase_AnimInstance::HitReaction_HV"));
+			return FName();
+		}
+
+		// if this ai is not targetting anyone, and it get damage from its back
+		if (vert < -0.5f && baseAICtrl->GetTargetActor_BBC() == nullptr)
+		{
+			sectionName = TH_HitReact_Back;
+		}
+		else
+		{
+			float hor = FVector::DotProduct(mCharacter->GetActorRightVector(), hitRelative);
+			if (hor > 0)
+				sectionName = bHeadHit ? TH_HitReact_RightTop : TH_HitReact_Right;
+			else
+				sectionName = bHeadHit ? TH_HitReact_LeftTop : TH_HitReact_Left;
+		}
+	}
+
+	damageMomentum = -mCharacter->GetActorForwardVector();
+
+	return sectionName;
+}
+
+FName UAIBase_AnimInstance::HitReaction_HV(FName boneName, const FVector & _shotFromDirection, const FVector & _hitLocation)
+{
+	// assume always face to attacker
+	FName sectionName;
+
+	FVector hitRelative = _hitLocation - GetSkelMeshComponent()->GetSocketLocation(boneName);
+	float hitZOffset = hitRelative.Z;
+	hitRelative.Z = 0;
+	hitRelative = hitRelative.GetSafeNormal();
+
+	float vert = FVector::DotProduct(mCharacter->GetActorForwardVector(), hitRelative);
+
+	bool bSEL = FMath::RandRange(-5, 5) > 0;
+
+	if (vert > 0.7f)
+		sectionName = bSEL ? HV_HitReact_Front_0 : HV_HitReact_Front_1;
+	else
+	{
+		ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
+		if (baseAICtrl == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr, UAIBase_AnimInstance::HitReaction_HV"));
+			return FName();
+		}
+
+		// if this ai is not targetting anyone, and it get damage from its back
+		if (vert < -0.5f && baseAICtrl ->GetTargetActor_BBC() == nullptr)
+		{
+			sectionName = bSEL ? HV_HitReact_Back_0 : HV_HitReact_Back_1;
+		}
+		else
+		{
+			float hor = FVector::DotProduct(mCharacter->GetActorRightVector(), hitRelative);
+			if (hor > 0)
+				sectionName = bSEL ? HV_HitReact_Right_0 : HV_HitReact_Right_1;
+			else
+				sectionName = bSEL ? HV_HitReact_Left_0 : HV_HitReact_Left_1;
+		}
+	}
+
+	damageMomentum = -mCharacter->GetActorForwardVector();
+
+	return sectionName;
+}
+
+FName UAIBase_AnimInstance::HitReaction_Sns_CB(FName boneName, const FVector & _shotFromDirection, const FVector & _hitLocation)
+{
+	// assume always face to attacker
+	FName sectionName;
+
+	FVector hitRelative = _hitLocation - GetSkelMeshComponent()->GetSocketLocation(boneName);
+	float hitZOffset = hitRelative.Z;
+	hitRelative.Z = 0;
+	hitRelative = hitRelative.GetSafeNormal();
+
+	float vert = FVector::DotProduct(mCharacter->GetActorForwardVector(), hitRelative);
+	if (vert > 0.7f)
+	{
+		FVector chestLocation = GetSkelMeshComponent()->GetSocketLocation(TEXT("spine_03"));
+		bool bHeadHit = chestLocation.Z < _hitLocation.Z;
+
+		sectionName = bHeadHit ? SnsCB_HitReact_FrontTop : SnsCB_HitReact_Front;
+	}
+	else
+	{
+		ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
+		if (baseAICtrl == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr, UAIBase_AnimInstance::HitReaction_HV"));
+			return FName();
+		}
+
+		// if this ai is not targetting anyone, and it get damage from its back
+		if (vert < -0.5f && baseAICtrl->GetTargetActor_BBC() == nullptr)
+		{
+			sectionName = SnsCB_HitReact_Back;
+		}
+		else
+		{
+			float hor = FVector::DotProduct(mCharacter->GetActorRightVector(), hitRelative);
+			if (hor > 0)
+				sectionName = SnsCB_HitReact_Right;
+			else
+				sectionName = SnsCB_HitReact_Left;
+		}
+	}
+
+	damageMomentum = -mCharacter->GetActorForwardVector();
 
 	return sectionName;
 }
@@ -297,7 +511,8 @@ void UAIBase_AnimInstance::OnHitMontageEnd()
 		mCharacter->GetCharacterMovement()->RotationRate.Yaw = 540.0f;
 		if (baseAICtrl)
 		{
-			baseAICtrl->SetAICurrentActionState_BBC(CurrentActionState);
+			//baseAICtrl->SetAICurrentActionState_BBC(CurrentActionState);
+			baseAICtrl->SetIsPaused_BBC(false);
 			UBehaviorTreeComponent* btc = baseAICtrl->GetBTComp();
 			if (btc)
 			{
@@ -320,7 +535,9 @@ void UAIBase_AnimInstance::OnGetupMontageEnd()
 		mCharacter->GetCharacterMovement()->RotationRate.Yaw = 540.0f;
 		if (baseAICtrl)
 		{
-			baseAICtrl->SetAICurrentActionState_BBC(CurrentActionState);
+			//baseAICtrl->SetAICurrentActionState_BBC(CurrentActionState);
+			baseAICtrl->SetIsPaused_BBC(false);
+
 			UBehaviorTreeComponent* btc = baseAICtrl->GetBTComp();
 			if (btc)
 			{

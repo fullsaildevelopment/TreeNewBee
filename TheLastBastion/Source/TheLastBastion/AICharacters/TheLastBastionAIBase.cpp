@@ -355,14 +355,15 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 		return;
 	}
 
-	
 
-	/// Check if we want to simulate physics or play animation
-	mAnimInstanceRef->ResetOnBeingHit();
 
+	// play animation
 	////////////////////////////////////////////// innocent line ////////////////////////////
 	if (isStun)
 	{
+
+		mAnimInstanceRef->ResetOnBeingHit();
+
 		//// if this ai is not get simulate ragdoll physics, play hit animation
 		//KnockOut(RagDollImpulse, DamageCauser,BoneName);
 
@@ -374,9 +375,15 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 	}
 	else
 	{
-		//if this ai is not get stunned, play hit animation
-		mAnimInstanceRef->OnBeingHit(BoneName, damageCauserRelative, HitLocation);
+
+		if (ShouldPlayHitAnimation())
+		{
+			mAnimInstanceRef->ResetOnBeingHit();
+			//if this ai is not get stunned, play hit animation
+			mAnimInstanceRef->OnBeingHit(BoneName, damageCauserRelative, HitLocation);
+		}
 	}
+
 }
 
 void ATheLastBastionAIBase::EvaluateAttackerThreat(AActor * DamageCauser, float hp) {}
@@ -422,6 +429,13 @@ void ATheLastBastionAIBase::AddExp(ATheLastBastionHeroCharacter * _heroAttacker)
 		}
 	}
 }
+
+//bool ATheLastBastionAIBase::MountainOnDodgeParry(FName _boneName, const FVector & _damageCauserRelative, const UPawnStatsComponent * const _damageCauserPawnStats)
+//{
+//	if (mAnimInstanceRef)
+//		return 	mAnimInstanceRef->OnDodgeParray_Mountain(_boneName, _damageCauserRelative, _damageCauserPawnStats);
+//	return false;
+//}
 
 void ATheLastBastionAIBase::Kill()
 {

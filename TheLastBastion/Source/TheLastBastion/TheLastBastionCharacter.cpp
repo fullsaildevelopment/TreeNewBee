@@ -107,13 +107,18 @@ void ATheLastBastionCharacter::CharacterCustomInit()
 
 	switch (CharacterType)
 	{
+
+	case ECharacterType::Ranger:
+		break;
+
 	case ECharacterType::LanTrooper_T0:
 	case ECharacterType::LanCB_T0:
+	default:
+	{
 		GetCharacterMovement()->bUseControllerDesiredRotation = true;
 		GetCharacterMovement()->bOrientRotationToMovement = false;
 		break;
-	default:
-		break;
+	}
 	}
 }
 

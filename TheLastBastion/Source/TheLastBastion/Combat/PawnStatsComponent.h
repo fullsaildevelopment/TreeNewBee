@@ -17,14 +17,14 @@ enum class ECharacterType :uint8;
 UENUM(BlueprintType)
 enum class EApplyDamageType : uint8
 {
-	None         = 0 UMETA(DisplayName = "None"),
-	Common       = 1 UMETA(DisplayName = "Common"),
-	Point        = 2 UMETA(DisplayName = "Point"),
-	Radius       = 3 UMETA(DisplayName = "Radius"),
+	None = 0 UMETA(DisplayName = "None"),
+	Common = 1 UMETA(DisplayName = "Common"),
+	Point = 2 UMETA(DisplayName = "Point"),
+	Radius = 3 UMETA(DisplayName = "Radius"),
 	RadiusFallOf = 4 UMETA(DisplayName = "RadiusFallOf")
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FDamageInfo
 {
 	GENERATED_BODY()
@@ -33,7 +33,7 @@ struct FDamageInfo
 		FHitResult hitResult;
 
 	UPROPERTY()
-		/** For shooting mechanim, unNormalized */
+		/** Normalized damageCauserRelative*/
 		FVector hitDirection;
 
 	UPROPERTY()
@@ -47,7 +47,6 @@ struct FDamageInfo
 	UPROPERTY()
 		bool bIsProjectile;
 };
-
 
 USTRUCT(BlueprintType)
 struct FWeaponSlot

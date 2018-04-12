@@ -42,6 +42,7 @@ void UAIMelee_AnimInstance::OnEnableWeapon(bool bIsright, bool bIsAll)
 		//UE_LOG(LogTemp, Log, TEXT("enable weapon"));
 		if (CurrentActionState != EAIActionState::GettingHurt && !mCharacter->GetIsDead())
 		{
+			CurrentActionState = EAIActionState::MeleeAttack;
 			mCharacter->GetEnemyStatsComponent()->SetEnableWeapon(true, bIsright, bIsAll);
 
 		}
@@ -59,7 +60,8 @@ void UAIMelee_AnimInstance::OnDisableWeapon(bool bIsright, bool bIsAll)
 
 void UAIMelee_AnimInstance::Attack(EAIMeleeAttackType _attackType)
 {
-	NextAction = EAIActionState::MeleeAttack;
+	//NextAction = EAIActionState::MeleeAttack;
+	NextAction = EAIActionState::MeleePreAttack;
 	CurrentActionState = NextAction;
 	attackChoice = _attackType;
 }
@@ -71,8 +73,6 @@ void UAIMelee_AnimInstance::FinishAttack()
 	if (mCharacter)
 	{
 		ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
-		// recover the rotation rate from melee attack motion sync
-		mCharacter->GetCharacterMovement()->RotationRate.Yaw = 540.0f;
 		if (baseAICtrl)
 		{
 			UBehaviorTreeComponent* btc = baseAICtrl->GetBTComp();
@@ -83,11 +83,52 @@ void UAIMelee_AnimInstance::FinishAttack()
 			}
 		}
 	}
+
+
 }
 
 void UAIMelee_AnimInstance::InitAttack()
 {
 	NextAction = EAIActionState::None;
+}
+
+void UAIMelee_AnimInstance::AttackRecover()
+{
+	CurrentActionState = EAIActionState::MeleePostAttack;
+
+
+	// recover the rotation rate from melee attack motion sync
+	mCharacter->GetCharacterMovement()->RotationRate.Yaw = 540.0f;
+
+	// rotate to target direction
+	ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
+	if (baseAICtrl)
+	{
+		AActor* targetActor = baseAICtrl->GetTargetActor_BBC();
+		if (targetActor)
+		{
+			FVector tarDir = (targetActor->GetActorLocation() - mCharacter->GetActorLocation()).GetUnsafeNormal();
+			FVector forward = mCharacter->GetActorForwardVector();
+			FVector right = mCharacter->GetActorRightVector();
+			turn = 1.0f - FVector::DotProduct(forward, tarDir);
+			if (turn <= 0.07f)
+			{
+				turn = 0;
+			}
+			else
+			{
+				float dotRight = FVector::DotProduct(right, tarDir);
+				UE_LOG(LogTemp, Log, TEXT("dotRight: %f - FinishAttack"), dotRight);
+
+				bool isRight = dotRight > 0.0f;
+				if (isRight)
+					turn = 1;
+				else
+					turn = -1;
+			}
+		}
+
+	}
 }
 
 //void UAIMelee_AnimInstance::OnMontageStartHandle(UAnimMontage * _animMontage)
@@ -125,9 +166,16 @@ void UAIMelee_AnimInstance::InitAttack()
 //
 //}
 
+
+
 void UAIMelee_AnimInstance::ResetOnBeingHit()
 {
 	FinishAttack();
+	OnDisableWeapon(true, true);
+
+	// recover the rotation rate from melee attack motion sync
+	mCharacter->GetCharacterMovement()->RotationRate.Yaw = 540.0f;
+
 	Super::ResetOnBeingHit();
 }
 

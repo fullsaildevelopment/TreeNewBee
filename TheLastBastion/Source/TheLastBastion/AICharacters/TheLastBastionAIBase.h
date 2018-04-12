@@ -175,7 +175,11 @@ protected:
 	// Called on Hp = 0;
 	void OnDead(const FVector& dir, const AActor* _damageCauser, FName _boneName) override;
 
-
 	void AddExp(class ATheLastBastionHeroCharacter* _heroAttacker);
+
+
+	///** AI shared behavior*/
+	//UFUNCTION(BlueprintCallable)
+	//	bool MountainOnDodgeParry(FName _boneName, const FVector& _damageCauserRelative, const class UPawnStatsComponent* const _damageCauserPawnStats);
 
 };

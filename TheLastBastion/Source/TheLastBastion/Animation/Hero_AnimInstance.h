@@ -373,7 +373,7 @@ public:
 
 
 	/** Called When switch melee weapon and equip*/
-	void UpdateComboList(EGearType _gearType);
+	void UpdateAnimationSetOnWeaponChange(EGearType _gearType) override;
 
 	void AnimInstanceResetOnRagDoll() override;
 

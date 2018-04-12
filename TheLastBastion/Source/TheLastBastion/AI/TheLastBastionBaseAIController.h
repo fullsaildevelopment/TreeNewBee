@@ -39,7 +39,7 @@ private:
 		class UBlackboardComponent* mBBComp;
 
 	uint8
-		bRelocate_KeyID,
+		bIsPaused_KeyID,
 		targetActor_KeyID,
 		targetLocation_KeyID,
 		CurrentActionState_KeyID,
@@ -81,7 +81,7 @@ public:
 		FORCEINLINE uint8 GetKeyID_CurrentActionState() const { return CurrentActionState_KeyID; }
 
 	UFUNCTION(BlueprintPure)
-		FORCEINLINE uint8 GetKeyID_bRelocate() const { return bRelocate_KeyID; }
+		FORCEINLINE uint8 GetKeyID_IsPaused() const { return bIsPaused_KeyID; }
 
 
 	void OnBeingHit(ECharacterType _characterType);
@@ -100,7 +100,8 @@ public:
 
 	void SetToTargetActorDistanceSqr(float _disTanceSqr);
 
-	void SetIsRelocate(bool _val);
+	/** Set BT to wait and stay in wait progress, unless the bIsPaused is unset*/
+	void SetIsPaused_BBC(bool _val);
 
 
 
@@ -118,5 +119,5 @@ public:
 
 	float GetToTargetActorDistanceSqr()const;
 
-	bool GetIsRelocate() const;
+	bool GetIsPaused_BBC() const;
 };

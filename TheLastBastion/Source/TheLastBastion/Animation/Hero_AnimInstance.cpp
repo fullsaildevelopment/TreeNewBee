@@ -119,7 +119,7 @@ void UHero_AnimInstance::OnBeginPlay()
 	}
 	mBaseCharacter = mCharacter;
 
-	UpdateComboList(EGearType::LongSword);
+	//UpdateAnimationSetOnWeaponChange(EGearType::LongSword);
 
 	Super::OnBeginPlay();
 }
@@ -866,18 +866,15 @@ void UHero_AnimInstance::OnChangeWeaponFinsh()
 	{
 		CurrentEquipment = EEquipType::CrossBow;
 		if (bIsFocused)
-		{
 			OnFocus();
-		}
 		sectionToPlay = MONTAGE_SN_HERO_CBEquip;
-		this->PlayMontage(Equip_Montage, 1.0f, MONTAGE_SN_HERO_CBEquip);
 		break;
 	}
 	}
-	UpdateComboList(mainWeapon->GetGearType());
+	UpdateAnimationSetOnWeaponChange(mainWeapon->GetGearType());
+
 	// play EquipAnimation?
 	this->PlayMontage(Equip_Montage, 1.0f, sectionToPlay);
-
 }
 
 // Draw weapon
@@ -1871,31 +1868,51 @@ void UHero_AnimInstance::RecoverFromBeingHit(bool _bInterrupted)
 }
 
 /** Called When switch melee weapon and equip*/
-void UHero_AnimInstance::UpdateComboList(EGearType _gearType)
+void UHero_AnimInstance::UpdateAnimationSetOnWeaponChange(EGearType _gearType)
 {
+
 	switch (_gearType)
 	{
 	case EGearType::LongSword:
+		CurrentEquipment = EEquipType::ShieldSword;
 		Current_AttackSectionName = &LongSwordAttack_Montage_SN;
 		Attack_Montage = LongSword_Montage;
+		Hit_Montage = AM_Sns_HitReaction;
+		
 		break;
 	case EGearType::WarAxe:
 	case EGearType::Mace:
+		CurrentEquipment = EEquipType::ShieldSword;
 		Current_AttackSectionName = &AxeMaceAttack_Montage_SN;
 		Attack_Montage = AxeMace_Montage;
+		Hit_Montage = AM_Sns_HitReaction;
+
 		break;
 	case EGearType::DoubleHandWeapon:
+		CurrentEquipment = EEquipType::TwoHandSword;
 		Current_AttackSectionName = &KatanaAttack_Montage_SN;
 		Attack_Montage = Katana_Montage;
+		Hit_Montage = AM_TH_HitReaction;
+
 		break;
 	case EGearType::BattleAxe:
+		CurrentEquipment = EEquipType::HeavyWeapon;
 		Current_AttackSectionName = &BattleAxeAttack_Montage_SN;
 		Attack_Montage = BattleAxe_Montage;
+		Hit_Montage = AM_HV_HitReaction;
 		break;
+
 	case EGearType::GreatSword:
 	case EGearType::Hammer:
+		CurrentEquipment = EEquipType::HeavyWeapon;
 		Current_AttackSectionName = &GSHammerAttack_Montage_SN;
 		Attack_Montage = GreatSwordHammer_Montage;
+		Hit_Montage = AM_HV_HitReaction;
+		break;
+ 
+	case EGearType::CrossBow:
+		CurrentEquipment = EEquipType::CrossBow;
+		Hit_Montage = AM_CB_HitReaction;
 		break;
 	}
 	CurrentComboIndex = 0;
@@ -1914,8 +1931,6 @@ void UHero_AnimInstance::AnimInstanceResetOnRagDoll()
 	currentSpeed = 0.0f;
 	turn = 0.0f;
 	
-
-
 }
 
 void UHero_AnimInstance::OnZeroSp()

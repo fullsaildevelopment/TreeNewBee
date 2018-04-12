@@ -90,21 +90,7 @@ EBTNodeResult::Type UBTTast_StrafeAttack::ExecuteTask(UBehaviorTreeComponent & O
 				me->GetActorLocation(), targetActor->GetActorLocation(), objectColType, queryParams);
 			if (bHit)
 			{
-				UE_LOG(LogTemp, Log, TEXT("Friendly Ahead - UBTTast_StrafeAttack::ExecuteTask"));
-
-				//FRotator targetRotation = me->GetActorRotation();
-				//targetRotation.Pitch = 0;
-				//targetRotation.Roll = 0;
-
-				//float sign = FMath::RandBool() ? 1 : -1;
-				//targetRotation.Yaw = targetRotation.Yaw + sign * FMath::RandRange(60, 90);
-				//FVector relocation = targetActor->GetActorLocation() + 250.0f * targetRotation.Vector();
-
-				//UE_LOG(LogTemp, Log, TEXT("%f, %f, %f"), relocation.X, relocation.Y, relocation.Z);
-				//DrawDebugSphere(GetWorld(), relocation, 5.0f, 8, FColor::Purple, false, 5);
-				//baseAICtrl->SetTargetLocation_BBC(relocation);
-				//baseAICtrl->SetIsRelocate(true);
-
+				//UE_LOG(LogTemp, Log, TEXT("Friendly Ahead - UBTTast_StrafeAttack::ExecuteTask"));
 				return EBTNodeResult::Succeeded;
 			}
 
