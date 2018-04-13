@@ -3,11 +3,11 @@
 #include "InGameHUD.h"
 
 #include "CustomType.h"
-#include "PCs/GamePC.h"
+//#include "PCs/GamePC.h"
 #include "TheLastBastionHeroCharacter.h"
 #include "Combat/HeroStatsComponent.h"
 #include "UI/InGamePlayerRow.h"
-#include "UI/InGameTeamRow.h"
+//#include "UI/InGameTeamRow.h"
 #include "UI/Gameplay/WeaponSlotsUI.h"
 #include "UI/Gameplay/CrewBarUI.h"
 #include "UI/Gameplay/SkillBarUI.h"
@@ -19,14 +19,14 @@
 #include "Components/WidgetSwitcher.h"
 
 
-static TSubclassOf<UUserWidget> InGameTeamRow_WBPClass;
+//static TSubclassOf<UUserWidget> InGameTeamRow_WBPClass;
 
 UInGameHUD::UInGameHUD(const FObjectInitializer& objInit) : Super(objInit)
 {
-	if (!InGameTeamRow_WBPClass)
-	{
-		UCustomType::FindClass<UUserWidget>(InGameTeamRow_WBPClass, TEXT("/Game/UI/In-Game/WBP_InGameTeamRow"));
-	}
+	//if (!InGameTeamRow_WBPClass)
+	//{
+	//	UCustomType::FindClass<UUserWidget>(InGameTeamRow_WBPClass, TEXT("/Game/UI/In-Game/WBP_InGameTeamRow"));
+	//}
 }
 
 bool UInGameHUD::Initialize()
@@ -57,20 +57,20 @@ bool UInGameHUD::Initialize()
 	return true;
 }
 
-void UInGameHUD::AddTeamMember(const FMatchPlayer& _newTeamMember)
-{
-	if (!InGameTeamRow_WBPClass)
-	{
-		UE_LOG(LogTemp, Error, TEXT("InGameTeamRow_WBPClass is NULL -  UInGameHUD::AddTeamMember"));
-		return;
-	}
-	UInGameTeamRow* newTeamRow = Cast<UInGameTeamRow>(CreateWidget<UUserWidget>(GetOwningPlayer(), InGameTeamRow_WBPClass));	
-	if (newTeamRow)
-	{
-		newTeamRow->InitHeader(_newTeamMember);
-		TeamWindow->AddChild(newTeamRow);
-	}
-}
+//void UInGameHUD::AddTeamMember(const FMatchPlayer& _newTeamMember)
+//{
+//	if (!InGameTeamRow_WBPClass)
+//	{
+//		UE_LOG(LogTemp, Error, TEXT("InGameTeamRow_WBPClass is NULL -  UInGameHUD::AddTeamMember"));
+//		return;
+//	}
+//	UInGameTeamRow* newTeamRow = Cast<UInGameTeamRow>(CreateWidget<UUserWidget>(GetOwningPlayer(), InGameTeamRow_WBPClass));	
+//	if (newTeamRow)
+//	{
+//		newTeamRow->InitHeader(_newTeamMember);
+//		TeamWindow->AddChild(newTeamRow);
+//	}
+//}
 
 void UInGameHUD::LoadPlayerProfile(const FPlayerProfile & _profile)
 {

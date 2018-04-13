@@ -251,6 +251,10 @@ void UAIBase_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMont
 
 void UAIBase_AnimInstance::FxMeleeSwing(bool _rightHand)
 {
+	if (CurrentActionState == EAIActionState::MeleeAttack)
+	{
+		Super::FxMeleeSwing(_rightHand);
+	}
 }
 
 void UAIBase_AnimInstance::Fire(const AActor * _target)

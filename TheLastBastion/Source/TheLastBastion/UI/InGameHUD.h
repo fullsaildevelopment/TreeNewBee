@@ -65,7 +65,7 @@ protected:
 
 public:
 
-	void AddTeamMember(const struct FMatchPlayer& _newTeamMember);
+	//void AddTeamMember(const struct FMatchPlayer& _newTeamMember);
 
 	/** Initialize the HUD during creation by player profile*/
 	void LoadPlayerProfile(const struct FPlayerProfile& _profile);

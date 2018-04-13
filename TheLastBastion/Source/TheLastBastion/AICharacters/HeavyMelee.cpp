@@ -85,7 +85,6 @@ bool AHeavyMelee::OnParry(const struct FDamageInfo* const _damageInfo, const cla
 
 int AHeavyMelee::GetMeleeComboSel(bool _bIsMoving) const
 {
-
 	if (_bIsMoving)
 		return IsElite() ? FMath::RandRange(HV_ComboSel_Move_Sr_Min, HV_ComboSel_Move_Sr_Max) : FMath::RandRange(HV_ComboSel_Move_Jr_Min, HV_ComboSel_Move_Jr_Max);
 	else
