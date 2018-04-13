@@ -55,7 +55,7 @@ void UGI_TheLastBastion::LocateAllWidgetClass()
 	// Find Class for Game Map
 	UCustomType::FindClass<UUserWidget>(InGameHUD_Class, TEXT("/Game/UI/In-Game/WBP_InGameHUD"));
 	UCustomType::FindClass<UUserWidget>(InGamePlayerRow_Class, TEXT("/Game/UI/In-Game/WBP_InGamePlayerRow"));
-	UCustomType::FindClass<UUserWidget>(InGameTeamRow_Class, TEXT("/Game/UI/In-Game/WBP_InGameTeamRow"));
+	//UCustomType::FindClass<UUserWidget>(InGameTeamRow_Class, TEXT("/Game/UI/In-Game/WBP_InGameTeamRow"));
 
 }
 

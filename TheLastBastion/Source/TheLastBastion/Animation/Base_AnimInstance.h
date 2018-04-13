@@ -83,7 +83,6 @@ protected:
 		/** Play sfx and vfx for one foot step*/
 		virtual void FxFootStep();
 
-	//UFUNCTION(BlueprintCallable, Category = Effects)
 		virtual void FxMeleeSwing(bool _rightHand = true);
 
 	UFUNCTION(BlueprintCallable, Category = Effects)

@@ -41,6 +41,9 @@ ATheLastBastionAIBase::ATheLastBastionAIBase()
 	AIStats = CreateDefaultSubobject<UPawnStatsComponent>(TEXT("Stats"));
 	AIControllerClass = ATheLastBastionBaseAIController::StaticClass();
 	PawnStats = AIStats;
+
+	MinimumMoveAttackDistSq = 40000.0f;
+	MeleeAttackDistSq = 70000.0f;
 }
 
 void ATheLastBastionAIBase::BeginPlay()

@@ -12,11 +12,10 @@
 void UAIMelee_AnimInstance::OnBeginPlay()
 {
 	Super::OnBeginPlay();
-	attackChoice = EAIMeleeAttackType::None;
-	//UE_LOG(LogTemp, Log, TEXT("UAIMelee_AnimInstance::OnBeginPlay is Called"));
+	//attackChoice = EAIMeleeAttackType::None;
+	attackChoice = 0;
 
-	//OnMontageStarted.AddDynamic(this, &UAIMelee_AnimInstance::OnMontageStartHandle);
-	//OnMontageBlendingOut.AddDynamic(this, &UAIMelee_AnimInstance::OnMontageBlendOutStartHandle);
+	//UE_LOG(LogTemp, Log, TEXT("UAIMelee_AnimInstance::OnBeginPlay is Called"));
 }
 
 void UAIMelee_AnimInstance::OnInit()
@@ -58,13 +57,35 @@ void UAIMelee_AnimInstance::OnDisableWeapon(bool bIsright, bool bIsAll)
 
 }
 
-void UAIMelee_AnimInstance::Attack(EAIMeleeAttackType _attackType)
+void UAIMelee_AnimInstance::Attack(int _attackType, int _maxCounter)
 {
 	//NextAction = EAIActionState::MeleeAttack;
 	NextAction = EAIActionState::MeleePreAttack;
 	CurrentActionState = NextAction;
 	attackChoice = _attackType;
+
+	MaxComboCounter = _maxCounter;
+	CurrentComboCounter = 1;
+	bComboOddIndex = true;
 }
+
+void UAIMelee_AnimInstance::OnNextCombo()
+{
+	bComboOddIndex = !bComboOddIndex;
+	CurrentComboCounter++;
+
+	ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
+	if (baseAICtrl)
+		attackChoice = mCharacter->GetMeleeComboSel(baseAICtrl->GetToTargetActorDistanceSqr() >= mCharacter->GetMinimumMoveAttackDist_Sq());
+	else
+	{
+		attackChoice = 1;
+		UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr, CurrentComboCounter - UAIMelee_AnimInstance::OnNextCombo"));
+
+	}
+	UE_LOG(LogTemp, Warning, TEXT("%d: AttackChoice - UAIMelee_AnimInstance::OnNextCombo"), attackChoice);
+}
+
 
 void UAIMelee_AnimInstance::FinishAttack()
 {
@@ -165,6 +186,7 @@ void UAIMelee_AnimInstance::AttackRecover()
 //
 //
 //}
+
 
 
 

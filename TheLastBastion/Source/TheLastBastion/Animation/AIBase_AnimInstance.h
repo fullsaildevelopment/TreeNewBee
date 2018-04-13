@@ -12,9 +12,9 @@ UENUM(BlueprintType)
 enum class EAIActionState : uint8
 {
 	None = 0       UMETA(DisplayName = "None"),
-	MeleePreAttack UMETA(DisplayName = "Melee PreAttack"), 
-	MeleeAttack    UMETA(DisplayName = "Melee Attack"),
-	MeleePostAttack UMETA(DisplayName = "Melee PostAttack"),
+	MeleePreAttack UMETA(DisplayName = "Melee PreAttack"),   // Winding up weapon
+	MeleeAttack    UMETA(DisplayName = "Melee Attack"),      // During attack
+	MeleePostAttack UMETA(DisplayName = "Melee PostAttack"), // Recover from attack
 	Fire           UMETA(DisplayName = "Fire"),
 	Dodge          UMETA(DisplayName = "Dodge"),
 	Defend         UMETA(DisplayName = "Defend"),
@@ -98,6 +98,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 		EAIActionState NextAction;
 
+	UPROPERTY(BlueprintReadOnly, Category = Combat)
+		bool bInMeleeRange;
 
 public:
 
@@ -125,10 +127,15 @@ protected:
 		void OnMontageBlendOutStartHandle(class UAnimMontage* _animMontage, bool _bInterruptted) override;
 
 
+	// FX
+	UFUNCTION(BlueprintCallable)
+		void FxMeleeSwing(bool _rightHand = true) override;
+
+
 public:
 
 	// Called when an enemy BT decide to attack in Melee
-	virtual void Attack(EAIMeleeAttackType _attackType);
+	virtual void Attack(int _attackType, int _maxCounter) {}
 
 	// Called when an enemy BT decide to shot from far range
 	virtual void Fire(const AActor* _target);
