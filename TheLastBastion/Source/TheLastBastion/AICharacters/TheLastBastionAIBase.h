@@ -12,6 +12,23 @@
 
 #define RangeUnitMinimumFirePlayBackTime 3.0f
 
+#define HV_ComboSel_InPlace_Jr_Min 0
+#define HV_ComboSel_InPlace_Jr_Max 2
+
+#define HV_ComboSel_Move_Jr_Min 5
+#define HV_ComboSel_Move_Jr_Max 6
+
+#define HV_ComboSel_InPlace_Sr_Min 0
+#define HV_ComboSel_InPlace_Sr_Max 4
+
+#define HV_ComboSel_Move_Sr_Min 5
+#define HV_ComboSel_Move_Sr_Max 10
+
+#define HV_Combo_Counter_Jr 1
+#define HV_Combo_Counter_Sr_Min 1
+#define HV_Combo_Counter_Sr_Max 3
+
+
 UCLASS()
 class THELASTBASTION_API ATheLastBastionAIBase : public ATheLastBastionCharacter
 {
@@ -54,8 +71,18 @@ protected:
 		int AITier;
 
 	UPROPERTY(EditAnywhere, Category = AiProperty)
+		float MeleeAttackDistSq;
+
+	UPROPERTY(EditAnywhere, Category = AiProperty)
+		float MinimumMoveAttackDistSq;
+
+	UPROPERTY(EditAnywhere, Category = AiProperty)
 		/** The waiting time between each attack */
 		float AttackWait;
+
+	UPROPERTY(EditAnywhere, Category = AiProperty)
+		/** Check if this is special elite unit */
+		bool bIsEliteInstance;
 
 	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
 		bool bIsRangeUnit;
@@ -71,6 +98,8 @@ protected:
 	void BeginPlay() override;
 
 public:
+
+
 
 	UFUNCTION(BlueprintNativeEvent)
 		UTexture2D* GetThumbNailImage() const;
@@ -103,8 +132,19 @@ public:
 	UFUNCTION()
 		virtual void OnTargetDeathHandle();
 
+	FORCEINLINE float GetMinimumMoveAttackDist_Sq() const { return MinimumMoveAttackDistSq; }
+	FORCEINLINE float GetMeleeAttackDist_Sq() const { return MeleeAttackDistSq; }
+	FORCEINLINE int GetMeleeSel(float _distSq) const { return (_distSq > MinimumMoveAttackDistSq) ? GetMeleeComboSel(true) : GetMeleeComboSel(false); }
+	FORCEINLINE virtual int GetComboCounter() const { return 1; }
+	
+	virtual int GetMeleeComboSel(bool _IsMoving) const { return 0; }
+
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE bool IsRangeUnit() const { return bIsRangeUnit; }
+
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE bool IsElite() const { return bIsEliteInstance; }
+
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE bool IsNearTargetLocation(float _distSq) const { return FVector::DistSquared2D(GetActorLocation(), ChildtargetLocation) < _distSq; }
@@ -126,7 +166,6 @@ public:
 	FORCEINLINE float GetAttackWait() const { return (bIsRangeUnit)? AttackWait : (AttackWait + RangeUnitMinimumFirePlayBackTime); }
 	/** Check if this ai is walking or jogging*/
 	FORCEINLINE bool IsWalking() const { return bIsWalkingUnit; }
-
 
 	FORCEINLINE void SetGroupIndex(int _groupIndex) { mGroupIndex = _groupIndex; }
 

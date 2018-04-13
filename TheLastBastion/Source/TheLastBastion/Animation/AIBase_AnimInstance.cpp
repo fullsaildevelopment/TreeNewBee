@@ -68,6 +68,19 @@ void UAIBase_AnimInstance::OnUpdate(float _deltaTime)
 		MoveRightAxis = 2 * velocityLocalDir.Y;
 	}
 
+
+	// Get whether the target is closed enough from BT
+	ATheLastBastionBaseAIController* baseAICtrl
+		= Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
+	if (baseAICtrl == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("baseAICtrl is nullptr -  UAIBase_AnimInstance::SyncMotionForMeleeAttack"));
+		return;
+	}
+
+	bInMeleeRange = baseAICtrl->GetToTargetActorDistanceSqr() <= mCharacter->GetMeleeAttackDist_Sq();
+
+
 	switch (CurrentActionState)
 	{
 	case EAIActionState::MeleeAttack:
@@ -102,7 +115,7 @@ void UAIBase_AnimInstance::ResetOnBeingHit()
 		= Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
 	if (baseAICtrl == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("enemyC is nullptr - UAIRange_AnimInstance"));
+		UE_LOG(LogTemp, Error, TEXT("baseAICtrl is nullptr - UAIBase_AnimInstance::ResetOnBeingHit"));
 		return;
 	}
 
@@ -236,7 +249,7 @@ void UAIBase_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMont
 
 }
 
-void UAIBase_AnimInstance::Attack(EAIMeleeAttackType _attackType)
+void UAIBase_AnimInstance::FxMeleeSwing(bool _rightHand)
 {
 }
 
@@ -265,6 +278,8 @@ void UAIBase_AnimInstance::SyncMotionForMeleeAttack()
 	// float rotateRate = UKismetMathLibrary::MapRangeClamped(speed, 200.0f, 600.0f,360.0f, 90.0f);
 
 	movementComp->RotationRate.Yaw = GetCurveValue("RotationRate");
+
+
 }
 
 void UAIBase_AnimInstance::SyncMotionForGettingHurt()

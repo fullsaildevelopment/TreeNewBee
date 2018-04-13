@@ -14,7 +14,7 @@ bool AHeavyMelee::OnParry(const struct FDamageInfo* const _damageInfo, const cla
 {
 
 	bool accept = false;
-	if (IsQueensGuard() == false)
+	if (IsElite() == false)
 	{
 		return false;
 		// 1. weapon check, queens guard can block attack from any melee weapon
@@ -81,6 +81,15 @@ bool AHeavyMelee::OnParry(const struct FDamageInfo* const _damageInfo, const cla
 
 
 	return false;
+}
+
+int AHeavyMelee::GetMeleeComboSel(bool _bIsMoving) const
+{
+
+	if (_bIsMoving)
+		return IsElite() ? FMath::RandRange(HV_ComboSel_Move_Sr_Min, HV_ComboSel_Move_Sr_Max) : FMath::RandRange(HV_ComboSel_Move_Jr_Min, HV_ComboSel_Move_Jr_Max);
+	else
+		return IsElite() ? FMath::RandRange(HV_ComboSel_InPlace_Sr_Min, HV_ComboSel_InPlace_Sr_Max) : FMath::RandRange(HV_ComboSel_InPlace_Jr_Min, HV_ComboSel_InPlace_Jr_Max);
 }
 
 FName AHeavyMelee::GetParrySectionName(const struct FDamageInfo* const _damageInfo) const
@@ -156,7 +165,7 @@ FName AHeavyMelee::GetParrySectionName(const struct FDamageInfo* const _damageIn
 bool AHeavyMelee::ShouldPlayHitAnimation() const
 {
 
-	if (IsQueensGuard())
+	if (IsElite())
 		return mAnimInstanceRef->GetCurrentActionState() != EAIActionState::GettingHurt;
 	else
 		return true;

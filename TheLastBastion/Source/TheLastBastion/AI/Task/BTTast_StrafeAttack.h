@@ -35,9 +35,6 @@ protected:
 		/** minimum sqr distance to start a dashed attack*/
 		float dashedAttackDistanceSqr;
 
-
-
-
 protected:
 
 	/** aborts this task, should return Aborted or InProgress

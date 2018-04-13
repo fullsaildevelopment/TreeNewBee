@@ -9,20 +9,13 @@
 /**
  * 
  */
+
+
 UCLASS()
 class THELASTBASTION_API UAIMelee_AnimInstance : public UAIBase_AnimInstance
 {
 	GENERATED_BODY()
 	
-
-protected:
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combo)
-		int ComboSetSelect;
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Combo)
-		int ComboDir;
-
-
 protected:
 
 	UFUNCTION(BlueprintCallable)
@@ -67,8 +60,10 @@ protected:
 public:
 
 	UFUNCTION(BlueprintCallable)
-		void Attack(EAIMeleeAttackType _attackType) override;
+		void Attack(int _attackType, int _maxCounter) override;
 
+	UFUNCTION(BlueprintCallable)
+		void OnNextCombo();
 
 	void ResetOnBeingHit() override;
 
@@ -76,8 +71,19 @@ public:
 protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = MeleeAttackChoice)
-		EAIMeleeAttackType attackChoice;
+		float attackChoice;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = MeleeAttackChoice)
+		/** How many times we launch combos before interrupt*/
+		int MaxComboCounter;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = MeleeAttackChoice)
+		/** How many times we already have launched combos */
+		int CurrentComboCounter;
 
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = MeleeAttackChoice)
+		/** is the combo has odd index*/
+		bool bComboOddIndex;
 
 };

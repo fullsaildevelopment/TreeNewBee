@@ -18,11 +18,11 @@ public:
 
 	bool OnParry(const struct FDamageInfo* const _damageInfo, const class UPawnStatsComponent* const _damageCauserPawnStats) override;
 
-protected:
+	int GetMeleeComboSel(bool _bIsMoving) const override;
 
-	UFUNCTION(BlueprintNativeEvent)
-		bool IsQueensGuard() const;
-	bool IsQueensGuard_Implementation() const { return false; }
+	FORCEINLINE int GetComboCounter() const override { return IsElite() ? FMath::RandRange(HV_Combo_Counter_Sr_Min, HV_Combo_Counter_Sr_Max): HV_Combo_Counter_Jr; }
+
+protected:
 
 	FName GetParrySectionName(const struct FDamageInfo* const _damageInfo) const;
 

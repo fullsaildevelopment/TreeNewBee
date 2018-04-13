@@ -73,6 +73,10 @@ bool UTradeMenu::Initialize()
 
 void UTradeMenu::OnOpenTradeMenu(UHeroStatsComponent * _heroStats)
 {
+	
+
+
+
 	InventoryUI->OnOpenTradeMenu(_heroStats);
 	bIsOpened = true;
 }

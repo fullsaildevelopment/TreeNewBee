@@ -67,7 +67,7 @@ EBTNodeResult::Type UBTTast_StrafeAttack::ExecuteTask(UBehaviorTreeComponent & O
 		float distanceSqr = (me->GetActorLocation() - targetActor->GetActorLocation()).SizeSquared();
 		bbc->SetValue<UBlackboardKeyType_Float>(baseAICtrl->GetKeyID_ToTargetActorDistanceSqr(), distanceSqr);
 
-		if (distanceSqr > meleeComboAttackDistanceSqr)
+		if (distanceSqr > me->GetMeleeAttackDist_Sq())
 		{
 			//UE_LOG(LogTemp, Log, TEXT("Is too far too attack, failed this task, and move to next task"));
 			//baseAICtrl->SetIsRelocate(false);
@@ -86,6 +86,7 @@ EBTNodeResult::Type UBTTast_StrafeAttack::ExecuteTask(UBehaviorTreeComponent & O
 			FCollisionQueryParams queryParams;
 			queryParams.AddIgnoredActor(me);
 
+			// skip attack if there is friend unit in front of us 
 			const bool bHit = GetWorld()->LineTraceSingleByObjectType(hitResult,
 				me->GetActorLocation(), targetActor->GetActorLocation(), objectColType, queryParams);
 			if (bHit)
@@ -98,13 +99,15 @@ EBTNodeResult::Type UBTTast_StrafeAttack::ExecuteTask(UBehaviorTreeComponent & O
 			NodeResult = EBTNodeResult::InProgress;
 			animRef->OnFinishAttackDelegate.BindUObject(this, &UBTTast_StrafeAttack::OnFinishAttackHandle);
 
-			EAIMeleeAttackType attackType = EAIMeleeAttackType::None;
-			if (distanceSqr < dashedAttackDistanceSqr)
-				attackType = EAIMeleeAttackType::InPlace;
-			else
-				attackType = (FMath::RandBool()) ? EAIMeleeAttackType::Move : (EAIMeleeAttackType::Move_InPlace);
 
-			animRef->Attack(attackType);
+
+			//EAIMeleeAttackType attackType = EAIMeleeAttackType::None;
+			//if (distanceSqr < me->GetMinimumMoveAttackDist_Sq())
+			//	attackType = EAIMeleeAttackType::InPlace;
+			//else
+			//	attackType = (FMath::RandBool()) ? EAIMeleeAttackType::Move : (EAIMeleeAttackType::Move_InPlace);
+
+			animRef->Attack(me->GetMeleeSel(distanceSqr), me->GetComboCounter());
 			//baseAICtrl->SetIsRelocate(false);
 			return NodeResult;
 		}
