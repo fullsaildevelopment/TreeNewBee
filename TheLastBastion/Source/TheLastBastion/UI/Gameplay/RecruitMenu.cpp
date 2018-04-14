@@ -5,6 +5,8 @@
 #include "Components/ScrollBox.h"
 #include "UI/Gameplay/UnitRow.h"
 #include "UI/Gameplay/CrewBar_RecruitMenu.h"
+#include "TheLastBastionHeroCharacter.h"
+#include "Combat/HeroStatsComponent.h"
 
 
 
@@ -45,7 +47,32 @@ bool URecruitMenu::Initialize()
 }
 
 void URecruitMenu::OnOpenRecruitMenu()
-{
+{   
+	//// Display available ally types to player based on Player's level
+	//ATheLastBastionHeroCharacter* Player = Cast<ATheLastBastionHeroCharacter>(GetOwningPlayerPawn());
+	//if (Player)
+	//{
+	//	UHeroStatsComponent* PlayerStats = Player->GetHeroStatsComp();
+	//	if (PlayerStats)
+	//	{
+	//		int CurrentPlayerLevel = PlayerStats->GetCharacterLevel();
+	//		if (CurrentPlayerLevel >= 15)
+	//		{
+	//			NordicRow->SetIsEnabled(true);
+	//			if (CurrentPlayerLevel >= 25)
+	//			{
+	//				DwarvenRow->SetIsEnabled(true);
+	//				if (CurrentPlayerLevel >= 35)
+	//				{
+	//					EbonyRow->SetIsEnabled(true);
+	//					if (CurrentPlayerLevel >= 45)
+	//						DaedricRow->SetIsEnabled(true);
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
+
 	AllMyCrew->OnOpenRecruitMenu();
 	bIsOpened = true;
 	

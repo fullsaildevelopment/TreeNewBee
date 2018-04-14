@@ -72,11 +72,37 @@ bool UTradeMenu::Initialize()
 }
 
 void UTradeMenu::OnOpenTradeMenu(UHeroStatsComponent * _heroStats)
-{
-	
+{   
+	// Disable advanced gear rows at first
+	NordicRow->SetIsEnabled(false);
+	DwarvenRow->SetIsEnabled(false);
+	EbonyRow->SetIsEnabled(false);
+	DaedricRow->SetIsEnabled(false);
 
-
-
+	// Display available gears to player based on Player's level
+	ATheLastBastionHeroCharacter* Player = Cast<ATheLastBastionHeroCharacter>(GetOwningPlayerPawn());
+	if (Player)
+	{
+		UHeroStatsComponent* PlayerStats = Player->GetHeroStatsComp();
+		if (PlayerStats)
+		{
+			int CurrentPlayerLevel = PlayerStats->GetCharacterLevel();
+			if (CurrentPlayerLevel >= 15)
+			{
+				NordicRow->SetIsEnabled(true);
+				if (CurrentPlayerLevel >= 25)
+				{
+					DwarvenRow->SetIsEnabled(true);
+					if (CurrentPlayerLevel >= 35)
+					{
+						EbonyRow->SetIsEnabled(true);
+						if (CurrentPlayerLevel >= 45)
+							DaedricRow->SetIsEnabled(true);
+					}
+				}
+			}
+		}
+	}
 	InventoryUI->OnOpenTradeMenu(_heroStats);
 	bIsOpened = true;
 }
