@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "HeavyMelee.h"
+#include "SingleSwordMan_Enemy.h"
 #include "Animation/AIMelee_AnimInstance.h"
 #include "Combat/PawnStatsComponent.h"
 #include "AI/TheLastBastionBaseAIController.h"
@@ -10,11 +10,13 @@
 #include "Sound/SoundCue.h"
 
 
-bool AHeavyMelee::OnParry(const struct FDamageInfo* const _damageInfo, const class UPawnStatsComponent* const _damageCauserPawnStats)
+bool ASingleSwordMan_Enemy::OnParry(const struct FDamageInfo* const _damageInfo, 
+	const class UPawnStatsComponent* const _damageCauserPawnStats)
 {
+	return false;
 
 	bool accept = false;
-	if (IsElite() == false)
+	if (CharacterType != ECharacterType::Lan_QueenGuard)
 	{
 		return false;
 		// 1. weapon check, queens guard can block attack from any melee weapon
@@ -53,7 +55,7 @@ bool AHeavyMelee::OnParry(const struct FDamageInfo* const _damageInfo, const cla
 				UE_LOG(LogTemp, Error, TEXT("baseAICtrl is nullptr - AHeavyMelee::OnParry"));
 				return false;
 			}
-			baseAICtrl->SetIsPaused_BBC(true);			
+			baseAICtrl->SetIsPaused_BBC(true);
 			accept = true;
 			//
 			animRef->OnParry(GetParrySectionName(_damageInfo), AM_HV_ParryDodge);
@@ -71,7 +73,7 @@ bool AHeavyMelee::OnParry(const struct FDamageInfo* const _damageInfo, const cla
 				UGameplayStatics::PlaySoundAtLocation(world, sparkSFX, _damageInfo->hitResult.ImpactPoint);
 			}
 
-			return accept;			
+			return accept;
 		}
 	}
 	else
@@ -79,19 +81,30 @@ bool AHeavyMelee::OnParry(const struct FDamageInfo* const _damageInfo, const cla
 		return accept;
 	}
 
-
 	return false;
 }
 
-int AHeavyMelee::GetMeleeComboSel(bool _bIsMoving) const
+int ASingleSwordMan_Enemy::GetMeleeComboSel(bool _bIsMoving) const
 {
-	if (_bIsMoving)
-		return IsElite() ? FMath::RandRange(HV_ComboSel_Move_Sr_Min, HV_ComboSel_Move_Sr_Max) : FMath::RandRange(HV_ComboSel_Move_Jr_Min, HV_ComboSel_Move_Jr_Max);
-	else
-		return IsElite() ? FMath::RandRange(HV_ComboSel_InPlace_Sr_Min, HV_ComboSel_InPlace_Sr_Max) : FMath::RandRange(HV_ComboSel_InPlace_Jr_Min, HV_ComboSel_InPlace_Jr_Max);
+
+	switch (CharacterType)
+	{
+	case ECharacterType::LanTrooper_Rookie:
+		return GetMeleeComboSel_Rookie(_bIsMoving);
+	case ECharacterType::LanTrooper_Fast:
+		return GetMeleeComboSel_Fast(_bIsMoving);
+	case ECharacterType::LanTrooper_Power:
+		return GetMeleeComboSel_Power(_bIsMoving);
+	case ECharacterType::LanTrooper_Shield:
+		return GetMeleeComboSel_Shield(_bIsMoving);
+	case ECharacterType::LanTrooper_HeavyShield:
+		return GetMeleeComboSel_HeavyShield(_bIsMoving);
+	default:
+		return Super::GetMeleeComboSel(_bIsMoving);
+	}
 }
 
-FName AHeavyMelee::GetParrySectionName(const struct FDamageInfo* const _damageInfo) const
+FName ASingleSwordMan_Enemy::GetParrySectionName(const struct FDamageInfo* const _damageInfo) const
 {
 
 	// figure out the anim section to play
@@ -161,12 +174,36 @@ FName AHeavyMelee::GetParrySectionName(const struct FDamageInfo* const _damageIn
 	return animSection;
 }
 
-bool AHeavyMelee::ShouldPlayHitAnimation() const
+int ASingleSwordMan_Enemy::GetMeleeComboSel_Rookie(bool _bIsMoving) const
 {
-
-	if (IsElite())
-		return mAnimInstanceRef->GetCurrentActionState() != EAIActionState::GettingHurt;
+	if (_bIsMoving)
+		return bAttackFromRight ? FMath::RandRange(SH_Roo_Move_Right_Min, SH_Roo_Move_Right_Max) :
+		FMath::RandRange(SH_Roo_Move_Left_Min, SH_Roo_Move_Left_Max);
 	else
-		return true;
-
+		return bAttackFromRight ? FMath::RandRange(SH_Roo_InPlace_Right_Min, SH_Roo_InPlace_Right_Max) :
+		FMath::RandRange(SH_Roo_InPlace_Left_Min, SH_Roo_InPlace_Left_Max);
 }
+
+int ASingleSwordMan_Enemy::GetMeleeComboSel_Fast(bool _bIsMoving) const
+{
+	return 0;
+}
+
+int ASingleSwordMan_Enemy::GetMeleeComboSel_Power(bool _bIsMoving) const
+{
+	return 0;
+}
+
+int ASingleSwordMan_Enemy::GetMeleeComboSel_Shield(bool _bIsMoving) const
+{
+	return 0;
+}
+
+int ASingleSwordMan_Enemy::GetMeleeComboSel_HeavyShield(bool _bIsMoving) const
+{
+	return 0;
+}
+
+
+
+

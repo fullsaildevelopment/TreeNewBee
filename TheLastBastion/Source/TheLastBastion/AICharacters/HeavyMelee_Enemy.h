@@ -4,13 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "AICharacters/TheLastBastionEnemyCharacter.h"
-#include "HeavyMelee.generated.h"
+#include "HeavyMelee_Enemy.generated.h"
 
 /**
  * 
  */
+
+
+
 UCLASS()
-class THELASTBASTION_API AHeavyMelee : public ATheLastBastionEnemyCharacter
+class THELASTBASTION_API AHeavyMelee_Enemy : public ATheLastBastionEnemyCharacter
 {
 	GENERATED_BODY()
 	
@@ -20,7 +23,7 @@ public:
 
 	int GetMeleeComboSel(bool _bIsMoving) const override;
 
-	FORCEINLINE int GetComboCounter() const override { return IsElite() ? FMath::RandRange(HV_Combo_Counter_Sr_Min, HV_Combo_Counter_Sr_Max): HV_Combo_Counter_Jr; }
+	FORCEINLINE int GetComboCounter() const override { return CharacterType == ECharacterType::Lan_QueenGuard ? FMath::RandRange(HV_Combo_Counter_Sr_Min, HV_Combo_Counter_Sr_Max) : HV_Combo_Counter_Jr;}
 
 protected:
 
