@@ -176,6 +176,9 @@ FName ASingleSwordMan_Enemy::GetParrySectionName(const struct FDamageInfo* const
 
 int ASingleSwordMan_Enemy::GetMeleeComboSel_Rookie(bool _bIsMoving) const
 {
+	//return bAttackFromRight ? FMath::RandRange(SH_Roo_InPlace_Right_Min, SH_Roo_InPlace_Right_Max) :
+	//	FMath::RandRange(SH_Roo_InPlace_Left_Min, SH_Roo_InPlace_Left_Max);
+
 	if (_bIsMoving)
 		return bAttackFromRight ? FMath::RandRange(SH_Roo_Move_Right_Min, SH_Roo_Move_Right_Max) :
 		FMath::RandRange(SH_Roo_Move_Left_Min, SH_Roo_Move_Left_Max);
