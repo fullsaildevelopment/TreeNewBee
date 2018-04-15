@@ -527,7 +527,7 @@ void UAIBase_AnimInstance::OnHitMontageEnd()
 	{
 		ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
 		// recover the rotation rate from melee attack motion sync
-		mCharacter->GetCharacterMovement()->RotationRate.Yaw = 540.0f;
+		mCharacter->GetCharacterMovement()->RotationRate.Yaw = AICharacter_RotatingRate;
 		if (baseAICtrl)
 		{
 			//baseAICtrl->SetAICurrentActionState_BBC(CurrentActionState);
@@ -551,7 +551,7 @@ void UAIBase_AnimInstance::OnGetupMontageEnd()
 	{
 		ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
 		// recover the rotation rate from melee attack motion sync
-		mCharacter->GetCharacterMovement()->RotationRate.Yaw = 540.0f;
+		mCharacter->GetCharacterMovement()->RotationRate.Yaw = AICharacter_RotatingRate;
 		if (baseAICtrl)
 		{
 			//baseAICtrl->SetAICurrentActionState_BBC(CurrentActionState);

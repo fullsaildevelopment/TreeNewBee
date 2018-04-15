@@ -11,6 +11,7 @@
  */
 
 #define RangeUnitMinimumFirePlayBackTime 3.0f
+#define AICharacter_RotatingRate 360.0f
 
 #define HV_ComboSel_InPlace_Jr_Min 0
 #define HV_ComboSel_InPlace_Jr_Max 2
@@ -27,6 +28,42 @@
 #define HV_Combo_Counter_Jr 1
 #define HV_Combo_Counter_Sr_Min 1
 #define HV_Combo_Counter_Sr_Max 3
+
+
+#define SH_Roo_InPlace_Left_Min 0
+#define SH_Roo_InPlace_Left_Max 1
+#define SH_Roo_InPlace_Right_Min 2
+#define SH_Roo_InPlace_Right_Max 4
+#define SH_Roo_Move_Left_Min 5
+#define SH_Roo_Move_Left_Max 6
+#define SH_Roo_Move_Right_Min 7
+#define SH_Roo_Move_Right_Max 9
+
+#define SH_Fast_InPlace_Left_Min 0
+#define SH_Fast_InPlace_Left_Max 2
+#define SH_Fast_InPlace_Right_Min 3
+#define SH_Fast_InPlace_Right_Max 6
+#define SH_Fast_Move_Min 7
+#define SH_Fast_Move_Max 11
+
+#define SH_Pow_InPlace_Left_Min 4
+#define SH_Pow_InPlace_Left_Max 6
+#define SH_Pow_InPlace_Right_Min 0
+#define SH_Pow_InPlace_Right_Max 3
+#define SH_Pow_Move_Left_Min 7
+#define SH_Pow_Move_Left_Max 9
+#define SH_Pow_Move_Right_Min 10
+#define SH_Pow_Move_Right_Max 12
+
+#define SH_Roo_Combo_Counter_Min 1
+#define SH_Roo_Combo_Counter_Max 2
+
+#define SH_PowFast_Combo_Counter_Min 3
+#define SH_PowFast_Combo_Counter_Max 6
+
+
+
+
 
 
 UCLASS()
@@ -80,9 +117,9 @@ protected:
 		/** The waiting time between each attack */
 		float AttackWait;
 
-	UPROPERTY(EditAnywhere, Category = AiProperty)
-		/** Check if this is special elite unit */
-		bool bIsEliteInstance;
+	UPROPERTY(VisibleAnywhere, Category = Behavior)
+		/** Should we attack from right ? A toggled variable to control ai to attack from different direction */
+		bool bAttackFromRight;
 
 	UPROPERTY(EditDefaultsOnly, Category = AiProperty)
 		bool bIsRangeUnit;
@@ -132,18 +169,22 @@ public:
 	UFUNCTION()
 		virtual void OnTargetDeathHandle();
 
+
+
+	/// Melee Combo Interface
 	FORCEINLINE float GetMinimumMoveAttackDist_Sq() const { return MinimumMoveAttackDistSq; }
 	FORCEINLINE float GetMeleeAttackDist_Sq() const { return MeleeAttackDistSq; }
-	FORCEINLINE int GetMeleeSel(float _distSq) const { return (_distSq > MinimumMoveAttackDistSq) ? GetMeleeComboSel(true) : GetMeleeComboSel(false); }
+
+	/** Get Melee Attack selection by distance, toggle bAttackFromRight */
+	int MeleeComboSelection(float _distSq); 
+	/** Get How many combos the ai character will do in a row*/
 	FORCEINLINE virtual int GetComboCounter() const { return 1; }
-	
-	virtual int GetMeleeComboSel(bool _IsMoving) const { return 0; }
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE bool IsRangeUnit() const { return bIsRangeUnit; }
 
-	UFUNCTION(BlueprintPure)
-		FORCEINLINE bool IsElite() const { return bIsEliteInstance; }
+	//UFUNCTION(BlueprintPure)
+	//	FORCEINLINE bool IsElite() const { return bIsEliteInstance; }
 
 
 	UFUNCTION(BlueprintPure)
@@ -216,9 +257,12 @@ protected:
 
 	void AddExp(class ATheLastBastionHeroCharacter* _heroAttacker);
 
+	/** Get Melee Attack selection by distance, called during GetMeleeSel*/
+	virtual int GetMeleeComboSel(bool _IsMoving) const { return 0; }
 
 	///** AI shared behavior*/
 	//UFUNCTION(BlueprintCallable)
 	//	bool MountainOnDodgeParry(FName _boneName, const FVector& _damageCauserRelative, const class UPawnStatsComponent* const _damageCauserPawnStats);
 
+	
 };

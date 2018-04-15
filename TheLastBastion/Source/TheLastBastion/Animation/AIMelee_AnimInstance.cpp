@@ -76,12 +76,11 @@ void UAIMelee_AnimInstance::OnNextCombo()
 
 	ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
 	if (baseAICtrl)
-		attackChoice = mCharacter->GetMeleeComboSel(baseAICtrl->GetToTargetActorDistanceSqr() >= mCharacter->GetMinimumMoveAttackDist_Sq());
+		attackChoice = mCharacter->MeleeComboSelection(baseAICtrl->GetToTargetActorDistanceSqr());
 	else
 	{
 		attackChoice = 1;
 		UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr, CurrentComboCounter - UAIMelee_AnimInstance::OnNextCombo"));
-
 	}
 	UE_LOG(LogTemp, Warning, TEXT("%d: AttackChoice - UAIMelee_AnimInstance::OnNextCombo"), attackChoice);
 }
@@ -136,10 +135,21 @@ void UAIMelee_AnimInstance::AttackRecover()
 			{
 				turn = 0;
 			}
+			else if (turn > -0.5f)
+			{
+				float dotRight = FVector::DotProduct(right, tarDir);
+				//UE_LOG(LogTemp, Log, TEXT("dotRight: %f - FinishAttack"), dotRight);
+
+				bool isRight = dotRight > 0.0f;
+				if (isRight)
+					turn = 0.5f;
+				else
+					turn = -0.5f;
+			}
 			else
 			{
 				float dotRight = FVector::DotProduct(right, tarDir);
-				UE_LOG(LogTemp, Log, TEXT("dotRight: %f - FinishAttack"), dotRight);
+				//UE_LOG(LogTemp, Log, TEXT("dotRight: %f - FinishAttack"), dotRight);
 
 				bool isRight = dotRight > 0.0f;
 				if (isRight)
@@ -196,7 +206,7 @@ void UAIMelee_AnimInstance::ResetOnBeingHit()
 	OnDisableWeapon(true, true);
 
 	// recover the rotation rate from melee attack motion sync
-	mCharacter->GetCharacterMovement()->RotationRate.Yaw = 540.0f;
+	mCharacter->GetCharacterMovement()->RotationRate.Yaw = AICharacter_RotatingRate;
 
 	Super::ResetOnBeingHit();
 }

@@ -92,8 +92,8 @@ void ATheLastBastionBaseAIController::OnBeingHit(ECharacterType _characterType)
 
 	switch (_characterType)
 	{
-	case ECharacterType::LanTrooper_T0:
-	case ECharacterType::LanCB_T0:
+	case ECharacterType::LanTrooper_Rookie:
+	case ECharacterType::Lan_Shooter:
 	default:
 		//SetAICurrentActionState_BBC(EAIActionState::GettingHurt);
 		SetIsPaused_BBC(true);

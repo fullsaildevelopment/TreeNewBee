@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "HeavyMelee.h"
+#include "HeavyMelee_Enemy.h"
 #include "Animation/AIMelee_AnimInstance.h"
 #include "Combat/PawnStatsComponent.h"
 #include "AI/TheLastBastionBaseAIController.h"
@@ -10,11 +10,11 @@
 #include "Sound/SoundCue.h"
 
 
-bool AHeavyMelee::OnParry(const struct FDamageInfo* const _damageInfo, const class UPawnStatsComponent* const _damageCauserPawnStats)
+bool AHeavyMelee_Enemy::OnParry(const struct FDamageInfo* const _damageInfo, const class UPawnStatsComponent* const _damageCauserPawnStats)
 {
 
 	bool accept = false;
-	if (IsElite() == false)
+	if (CharacterType != ECharacterType::Lan_QueenGuard)
 	{
 		return false;
 		// 1. weapon check, queens guard can block attack from any melee weapon
@@ -83,15 +83,17 @@ bool AHeavyMelee::OnParry(const struct FDamageInfo* const _damageInfo, const cla
 	return false;
 }
 
-int AHeavyMelee::GetMeleeComboSel(bool _bIsMoving) const
+int AHeavyMelee_Enemy::GetMeleeComboSel(bool _bIsMoving) const
 {
+	return 0;
+	bool IsQueensGuard = CharacterType == ECharacterType::Lan_QueenGuard;
 	if (_bIsMoving)
-		return IsElite() ? FMath::RandRange(HV_ComboSel_Move_Sr_Min, HV_ComboSel_Move_Sr_Max) : FMath::RandRange(HV_ComboSel_Move_Jr_Min, HV_ComboSel_Move_Jr_Max);
+		return IsQueensGuard ? FMath::RandRange(HV_ComboSel_Move_Sr_Min, HV_ComboSel_Move_Sr_Max) : FMath::RandRange(HV_ComboSel_Move_Jr_Min, HV_ComboSel_Move_Jr_Max);
 	else
-		return IsElite() ? FMath::RandRange(HV_ComboSel_InPlace_Sr_Min, HV_ComboSel_InPlace_Sr_Max) : FMath::RandRange(HV_ComboSel_InPlace_Jr_Min, HV_ComboSel_InPlace_Jr_Max);
+		return IsQueensGuard ? FMath::RandRange(HV_ComboSel_InPlace_Sr_Min, HV_ComboSel_InPlace_Sr_Max) : FMath::RandRange(HV_ComboSel_InPlace_Jr_Min, HV_ComboSel_InPlace_Jr_Max);
 }
 
-FName AHeavyMelee::GetParrySectionName(const struct FDamageInfo* const _damageInfo) const
+FName AHeavyMelee_Enemy::GetParrySectionName(const struct FDamageInfo* const _damageInfo) const
 {
 
 	// figure out the anim section to play
@@ -161,10 +163,10 @@ FName AHeavyMelee::GetParrySectionName(const struct FDamageInfo* const _damageIn
 	return animSection;
 }
 
-bool AHeavyMelee::ShouldPlayHitAnimation() const
+bool AHeavyMelee_Enemy::ShouldPlayHitAnimation() const
 {
 
-	if (IsElite())
+	if (CharacterType == ECharacterType::Lan_QueenGuard)
 		return mAnimInstanceRef->GetCurrentActionState() != EAIActionState::GettingHurt;
 	else
 		return true;

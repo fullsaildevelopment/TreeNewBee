@@ -107,7 +107,7 @@ EBTNodeResult::Type UBTTast_StrafeAttack::ExecuteTask(UBehaviorTreeComponent & O
 			//else
 			//	attackType = (FMath::RandBool()) ? EAIMeleeAttackType::Move : (EAIMeleeAttackType::Move_InPlace);
 
-			animRef->Attack(me->GetMeleeSel(distanceSqr), me->GetComboCounter());
+			animRef->Attack(me->MeleeComboSelection(distanceSqr), me->GetComboCounter());
 			//baseAICtrl->SetIsRelocate(false);
 			return NodeResult;
 		}

@@ -17,16 +17,18 @@ DECLARE_MULTICAST_DELEGATE(FOnBecomeUnavailbleTargetEvent);
 UENUM(BlueprintType)
 enum class ECharacterType : uint8
 {
-	None = 0              UMETA(DisplayName = "None"),
-	Ranger = 1            UMETA(DisplayName = "Ranger"),
-	Builder = 2           UMETA(DisplayName = "Builder"),
-	LanTrooper_T0 = 3 	  UMETA(DisplayName = "Lannester Trooper New Recruit"),
-	LanCB_T0 = 4          UMETA(DisplayName = "Lannester Shooter New Recruit"),
-	Lan_Heavy             UMETA(DisplayName = "Lannester Heavy"),
-	Lan_Legion            UMETA(DisplayName = "Lannester Legion"),
-	Lan_SharpShooter      UMETA(DisplayName = "Lannester SharpShooter"),
-	Lan_Elite             UMETA(DisplayName = "Lannester Elite"),
-	Lan_QueenGuard        UMETA(DisplayName = "Queen Guard"),
+	None 				     UMETA(DisplayName = "None"),
+	Ranger 				     UMETA(DisplayName = "Ranger"),
+	Builder 			     UMETA(DisplayName = "Builder"),
+	LanTrooper_Rookie  	     UMETA(DisplayName = "Lannester Trooper"),
+	LanTrooper_Fast          UMETA(DisplayName = "Lannester Legion"),
+	LanTrooper_Power         UMETA(DisplayName = "Lannester Elite"),
+	LanTrooper_Shield        UMETA(DisplayName = "Lannester Guardian"),
+	LanTrooper_HeavyShield   UMETA(DisplayName = "Lannester UtliGuardian"),
+	Lan_Heavy                UMETA(DisplayName = "Lannester Heavy"),
+	Lan_QueenGuard           UMETA(DisplayName = "Lannester Queen Guard"),
+	Lan_Shooter              UMETA(DisplayName = "Lannester Shooter"),
+	Lan_SharpShooter         UMETA(DisplayName = "Lannester SharpShooter"),
 };
 
 UENUM(BlueprintType)

@@ -125,6 +125,13 @@ void ATheLastBastionAIBase::OnTargetDeathHandle()
 	}
 }
 
+int ATheLastBastionAIBase::MeleeComboSelection(float _distSq)
+{
+	// Toggle Attack direction every time we pick melee attack
+	bAttackFromRight = !bAttackFromRight;
+	return (_distSq > MinimumMoveAttackDistSq) ? GetMeleeComboSel(true) : GetMeleeComboSel(false);
+}
+
 void ATheLastBastionAIBase::SetParent(AAIGroupBase * _Group, int _groupIndex)
 {
 	mGroup = _Group;
