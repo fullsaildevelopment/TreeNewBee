@@ -47,7 +47,7 @@ void UAIBase_AnimInstance::OnUpdate(float _deltaTime)
 	if (mCharacter == nullptr)
 		return;
 
-	if (mCharacter->IsRagDoll())
+	if (mCharacter->GetIsDead())
 		return;
 
 	UCharacterMovementComponent* movementComp = mCharacter->GetCharacterMovement();
@@ -251,7 +251,7 @@ void UAIBase_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMont
 
 void UAIBase_AnimInstance::FxMeleeSwing(bool _rightHand)
 {
-	if (CurrentActionState == EAIActionState::MeleeAttack)
+	if (CurrentActionState == EAIActionState::MeleeAttack && !mCharacter->GetIsDead())
 	{
 		Super::FxMeleeSwing(_rightHand);
 	}

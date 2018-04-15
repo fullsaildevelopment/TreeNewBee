@@ -176,8 +176,6 @@ FName ASingleSwordMan_Enemy::GetParrySectionName(const struct FDamageInfo* const
 
 int ASingleSwordMan_Enemy::GetMeleeComboSel_Rookie(bool _bIsMoving) const
 {
-	//return bAttackFromRight ? FMath::RandRange(SH_Roo_InPlace_Right_Min, SH_Roo_InPlace_Right_Max) :
-	//	FMath::RandRange(SH_Roo_InPlace_Left_Min, SH_Roo_InPlace_Left_Max);
 
 	if (_bIsMoving)
 		return bAttackFromRight ? FMath::RandRange(SH_Roo_Move_Right_Min, SH_Roo_Move_Right_Max) :
@@ -189,12 +187,21 @@ int ASingleSwordMan_Enemy::GetMeleeComboSel_Rookie(bool _bIsMoving) const
 
 int ASingleSwordMan_Enemy::GetMeleeComboSel_Fast(bool _bIsMoving) const
 {
-	return 0;
+	if (_bIsMoving)
+		return FMath::RandRange(SH_Fast_Move_Min, SH_Fast_Move_Max);
+	else
+		return bAttackFromRight ? FMath::RandRange(SH_Fast_InPlace_Right_Min, SH_Fast_InPlace_Right_Max) :
+		FMath::RandRange(SH_Fast_InPlace_Left_Min, SH_Fast_InPlace_Left_Max);
 }
 
 int ASingleSwordMan_Enemy::GetMeleeComboSel_Power(bool _bIsMoving) const
 {
-	return 0;
+	if (_bIsMoving)
+		return bAttackFromRight ? FMath::RandRange(SH_Pow_Move_Right_Min, SH_Pow_Move_Right_Max) :
+		FMath::RandRange(SH_Pow_Move_Left_Min, SH_Pow_Move_Left_Max);
+	else
+		return bAttackFromRight ? FMath::RandRange(SH_Pow_InPlace_Right_Min, SH_Pow_InPlace_Right_Max) :
+		FMath::RandRange(SH_Pow_InPlace_Left_Min, SH_Pow_InPlace_Left_Max);
 }
 
 int ASingleSwordMan_Enemy::GetMeleeComboSel_Shield(bool _bIsMoving) const

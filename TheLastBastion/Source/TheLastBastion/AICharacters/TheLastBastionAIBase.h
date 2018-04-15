@@ -58,8 +58,8 @@
 #define SH_Roo_Combo_Counter_Min 1
 #define SH_Roo_Combo_Counter_Max 2
 
-#define SH_PowFast_Combo_Counter_Min 3
-#define SH_PowFast_Combo_Counter_Max 6
+#define SH_PowFast_Combo_Counter_Min 5
+#define SH_PowFast_Combo_Counter_Max 8
 
 
 

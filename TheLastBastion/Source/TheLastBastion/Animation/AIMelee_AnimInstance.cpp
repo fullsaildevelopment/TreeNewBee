@@ -82,7 +82,7 @@ void UAIMelee_AnimInstance::OnNextCombo()
 		attackChoice = 1;
 		UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr, CurrentComboCounter - UAIMelee_AnimInstance::OnNextCombo"));
 	}
-	UE_LOG(LogTemp, Warning, TEXT("%d: AttackChoice - UAIMelee_AnimInstance::OnNextCombo"), attackChoice);
+	UE_LOG(LogTemp, Warning, TEXT("%f: AttackChoice - UAIMelee_AnimInstance::OnNextCombo"), attackChoice);
 }
 
 
