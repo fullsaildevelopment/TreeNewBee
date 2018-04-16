@@ -37,6 +37,9 @@ UBase_AnimInstance::UBase_AnimInstance(const FObjectInitializer& _objectInitaliz
 		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_HeroSkills"));
 	FindMontage(AM_HV_ParryDodge,
 		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_HV_Parry"));
+	FindMontage(AM_SH_Parry,
+		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_SH_Parry"));
+
 }
 
 void UBase_AnimInstance::OnBeginPlay()

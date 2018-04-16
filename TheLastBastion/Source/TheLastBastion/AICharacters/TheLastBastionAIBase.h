@@ -60,8 +60,8 @@
 
 #define SH_PowFast_Combo_Counter_Min 5
 #define SH_PowFast_Combo_Counter_Max 8
-
-
+#define SH_Pow_Parry_End_Min 3
+#define SH_Pow_Parry_End_Max 5
 
 
 
@@ -113,9 +113,15 @@ protected:
 	UPROPERTY(EditAnywhere, Category = AiProperty)
 		float MinimumMoveAttackDistSq;
 
-	UPROPERTY(EditAnywhere, Category = AiProperty)
+	UPROPERTY(EditAnywhere, Category = Behavior)
 		/** The waiting time between each attack */
 		float AttackWait;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
+		/** if less than equal to zero, this ai will automatically 
+		find a way to escape the next melee attack*/
+		int Endurance;
+
 
 	UPROPERTY(VisibleAnywhere, Category = Behavior)
 		/** Should we attack from right ? A toggled variable to control ai to attack from different direction */
@@ -179,12 +185,13 @@ public:
 	int MeleeComboSelection(float _distSq); 
 	/** Get How many combos the ai character will do in a row*/
 	FORCEINLINE virtual int GetComboCounter() const { return 1; }
+	/** Get how many hit can this AI endurance before it has to parry this attack*/
+	FORCEINLINE virtual int GetParryEndurance() const { return 1; }
+	/** Get how many hit can this AI endurance before it has to dodge this attack*/
+	FORCEINLINE virtual int GetAutoDodgeEndurance() const { return 1; }
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE bool IsRangeUnit() const { return bIsRangeUnit; }
-
-	//UFUNCTION(BlueprintPure)
-	//	FORCEINLINE bool IsElite() const { return bIsEliteInstance; }
 
 
 	UFUNCTION(BlueprintPure)

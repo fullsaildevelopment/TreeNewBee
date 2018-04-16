@@ -25,6 +25,8 @@ namespace
 	UAnimMontage* AM_CrossBow = nullptr;
 	UAnimMontage* AM_Skill = nullptr;
 	UAnimMontage* AM_HV_ParryDodge = nullptr;
+	UAnimMontage* AM_SH_Parry = nullptr;
+	UAnimMontage* AM_SH_Dodge = nullptr;
 }
 
 enum class EGearType : uint8;

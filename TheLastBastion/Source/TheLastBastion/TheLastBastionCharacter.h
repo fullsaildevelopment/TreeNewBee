@@ -179,7 +179,12 @@ public:
 	ECharacterVoiceType GetCharacterVoiceType_Implementation() const { return ECharacterVoiceType::Hero; }
 	
 	/** Check if this character is able to Parry this melee attack*/
-	virtual bool OnParry(const struct FDamageInfo* const _damageInfo, const class UPawnStatsComponent* const _damageCauserPawnStats) { return false; }
+	virtual bool OnParry(const struct FDamageInfo* const _damageInfo, 
+		const class UPawnStatsComponent* const _damageCauserPawnStats) { return false; }
+
+	/** Check if this character is able to automatically dodge this melee attack*/
+	virtual bool OnAutoDodge(const struct FDamageInfo* const _damageInfo,
+		const class UPawnStatsComponent* const _damageCauserPawnStats) { return false;}
 
 	/** Check if this character is able to counter attack this attack*/
 	bool OnCounterAttack(const FVector& _damageCauserRelative);

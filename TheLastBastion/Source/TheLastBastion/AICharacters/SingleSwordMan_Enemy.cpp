@@ -3,6 +3,7 @@
 #include "SingleSwordMan_Enemy.h"
 #include "Animation/AIMelee_AnimInstance.h"
 #include "Combat/PawnStatsComponent.h"
+#include "Combat/Gear.h"
 #include "AI/TheLastBastionBaseAIController.h"
 #include "AudioManager.h"
 #include "VfxManager.h"
@@ -13,27 +14,43 @@
 bool ASingleSwordMan_Enemy::OnParry(const struct FDamageInfo* const _damageInfo, 
 	const class UPawnStatsComponent* const _damageCauserPawnStats)
 {
-	return false;
+	//return false;
 
-	bool accept = false;
-	if (CharacterType != ECharacterType::Lan_QueenGuard)
-	{
+	//1. Check correct character type and endurance
+	bool accept =
+		CharacterType == ECharacterType::LanTrooper_Power &&
+		Endurance <= 0;
+	
+	if (!accept)
 		return false;
-		// 1. weapon check, queens guard can block attack from any melee weapon
 
-		// 2. endurance check 
+	//2. Check correct weapon type
+	AGear* damageCauserGear = _damageCauserPawnStats->GetCurrentRightHandWeapon();
+	EGearType gearType;
+
+	if (damageCauserGear)
+		gearType = damageCauserGear->GetGearType();
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("damageCauserGear == nullptr,ASingleSwordMan_Enemy::OnParry "));
+		return false;
 	}
+
+	bool weaponTypeThatAbleToParry = gearType == EGearType::LongSword || gearType == EGearType::DoubleHandWeapon;
+
+	if (weaponTypeThatAbleToParry == false)
+		return false;
+
 
 	// 3. Action check, is this ai 's current action is fit for parrying ?
 	UAIMelee_AnimInstance* animRef = Cast<UAIMelee_AnimInstance>(GetAnimInstanceRef());
 	if (animRef == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("animRef == nullptr, AHeavyMelee::OnParry"));
-		return accept;
+		return false;
 	}
 
 	EAIActionState currentState = animRef->GetCurrentActionState();
-	//UE_LOG(LogTemp, Warning, TEXT("currentState: %d - AHeavyMelee::OnParry"), (int)currentState);
 	bool isRightState = currentState == EAIActionState::None ||
 		currentState == EAIActionState::Defend ||
 		currentState == EAIActionState::MeleePreAttack ||
@@ -52,15 +69,13 @@ bool ASingleSwordMan_Enemy::OnParry(const struct FDamageInfo* const _damageInfo,
 				= Cast<ATheLastBastionBaseAIController>(GetController());
 			if (baseAICtrl == nullptr)
 			{
-				UE_LOG(LogTemp, Error, TEXT("baseAICtrl is nullptr - AHeavyMelee::OnParry"));
+				UE_LOG(LogTemp, Error, TEXT("baseAICtrl is nullptr - ASingleSwordMan_Enemy::OnParry"));
 				return false;
 			}
 			baseAICtrl->SetIsPaused_BBC(true);
 			accept = true;
-			//
-			animRef->OnParry(GetParrySectionName(_damageInfo), AM_HV_ParryDodge);
-			//UE_LOG(LogTemp, Warning, TEXT("Parrying - AHeavyMelee::OnParry"));
 
+			animRef->OnParry(GetParrySectionName(_damageInfo), AM_SH_Parry);
 			// fx
 
 			UParticleSystem * sparkVFX = UVfxManager::GetVfx(EVfxType::metalImpact_sputtering);
@@ -73,7 +88,10 @@ bool ASingleSwordMan_Enemy::OnParry(const struct FDamageInfo* const _damageInfo,
 				UGameplayStatics::PlaySoundAtLocation(world, sparkSFX, _damageInfo->hitResult.ImpactPoint);
 			}
 
-			return accept;
+			// reset the endurance for next parry
+			Endurance = GetParryEndurance();
+
+			return true;
 		}
 	}
 	else
