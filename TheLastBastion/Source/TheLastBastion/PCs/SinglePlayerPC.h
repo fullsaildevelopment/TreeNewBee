@@ -62,6 +62,8 @@ public:
 	UFUNCTION(Exec)
 		void OpenRecruitMenu();
 
+	UFUNCTION(Exec)
+		void LevelUp(int _deltaLevel);
 
 	UFUNCTION(Exec)
 		void CloseTradeMenu();

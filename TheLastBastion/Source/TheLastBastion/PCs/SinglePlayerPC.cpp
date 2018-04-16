@@ -12,6 +12,7 @@
 
 
 #include "TheLastBastionHeroCharacter.h"
+#include "Combat/HeroStatsComponent.h"
 
 #include "CustomType.h"
 
@@ -197,6 +198,24 @@ void ASinglePlayerPC::OpenRecruitMenu()
 	{
 		SetInputModeForOpenMenu(mRecruitMenu);
 		mRecruitMenu->OnOpenRecruitMenu();
+	}
+
+}
+
+void ASinglePlayerPC::LevelUp(int _deltaLevel)
+{
+	ATheLastBastionHeroCharacter* heroCharacter = Cast<ATheLastBastionHeroCharacter>(GetCharacter());
+	if (heroCharacter)
+	{
+		UHeroStatsComponent* HeroStats = heroCharacter->GetHeroStatsComp();
+		
+		if (HeroStats)
+		{
+			for (int i = 0; i < _deltaLevel; i++)
+				HeroStats->LevelUp();
+
+			mInGameHUD->SetPlayerRowOnLevelUp(HeroStats);
+		}
 	}
 
 }
