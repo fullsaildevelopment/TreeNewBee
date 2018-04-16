@@ -67,6 +67,7 @@ void AEnemyGroupSpawner::EditWaves()
 	AllWaves[0].WaveUnits[7].SetWaveUnit(LanT0, South_TrooperRoute_1);
 	AllWaves[0].WaveUnits[8].SetWaveUnit(LanT0_CB, South_ShooterRoute_0);
 	AllWaves[0].WaveUnits[9].SetWaveUnit(LanT0, South_TrooperRoute_1);
+
 }
 
 // Called every frame

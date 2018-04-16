@@ -10,6 +10,7 @@ UParticleSystem* UVfxManager::metalImpact_sputtering_PS = nullptr;
 UParticleSystem* UVfxManager::WeaponNormalTrail = nullptr;
 UParticleSystem* UVfxManager::WeaponFireTrail = nullptr;
 UParticleSystem* UVfxManager::WeaponFireEnchantment = nullptr;
+UParticleSystem* UVfxManager::PlayerHealing = nullptr;
 UParticleSystem* UVfxManager::PlayerLevelUp = nullptr;
 UParticleSystem* UVfxManager::FootSteps = nullptr;
 
@@ -20,6 +21,7 @@ UVfxManager::UVfxManager()
 	WeaponNormalTrail = FindParticalSystem(TEXT("/Game/Assets/Partical/WeaponEffects/MeleeWeaponTrail/P_NormalTrail"));
 	WeaponFireTrail = FindParticalSystem(TEXT("/Game/Assets/Partical/WeaponEffects/MeleeWeaponTrail/P_FireTrail"));
 	WeaponFireEnchantment = FindParticalSystem(TEXT("/Game/Assets/Partical/WeaponEffects/FireEnchantment/WeaponFireEnchantment"));
+	PlayerHealing = FindParticalSystem(TEXT("/Game/Assets/Partical/Player/Player_LevelUp_01"));
 	PlayerLevelUp = FindParticalSystem(TEXT("/Game/Assets/Partical/Player/Player_LevelUp_02"));
 	FootSteps = FindParticalSystem(TEXT("/Game/Assets/Partical/FootSteps"));
 }
@@ -52,6 +54,9 @@ UParticleSystem * UVfxManager::GetVfx(EVfxType _vfxType)
 
 	case EVfxType::WeaponFireEnchantment:
 		return WeaponFireEnchantment;
+
+	case EVfxType::PlayerHealing:
+		return PlayerHealing;
 
 	case EVfxType::PlayerLevelUp:
 		return PlayerLevelUp;
