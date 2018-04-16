@@ -21,6 +21,7 @@ enum class EVfxType : uint8
 	WeaponNormalTrail,
 	WeaponFireTrail,
 	WeaponFireEnchantment,
+	PlayerHealing,
 	PlayerLevelUp,
 	FootSteps
 };
@@ -45,6 +46,7 @@ private:
 
 	static class UParticleSystem* WeaponFireEnchantment;
 
+	static class UParticleSystem* PlayerHealing;
 	static class UParticleSystem* PlayerLevelUp;
 
 	static class UParticleSystem* FootSteps;

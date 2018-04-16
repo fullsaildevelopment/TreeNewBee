@@ -286,6 +286,13 @@ void UPawnStatsComponent::LevelUp()
 	GenerateRawStatsByLevel(Level, BaseDamage, HpRaw);
 	// apply the gear merits
 	GenerateMaxStats(true);
+
+	// Play Effects once level up
+	USkeletalMeshComponent* PlayerMesh = mCharacter->GetMesh();
+	UParticleSystem* LevelUpParticle = UVfxManager::GetVfx(EVfxType::PlayerLevelUp);
+	UGameplayStatics::SpawnEmitterAttached(LevelUpParticle, PlayerMesh);
+
+
 }
 
 void UPawnStatsComponent::Born()
