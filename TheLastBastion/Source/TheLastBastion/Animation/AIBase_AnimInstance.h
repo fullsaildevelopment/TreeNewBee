@@ -126,6 +126,9 @@ protected:
 	UFUNCTION()
 		void OnMontageBlendOutStartHandle(class UAnimMontage* _animMontage, bool _bInterruptted) override;
 
+	virtual void OnEnableWeapon(bool bIsright = true, bool bIsAll = false) {}
+	virtual void OnDisableWeapon(bool bIsright = true, bool bIsAll = false) {}
+
 
 	// FX
 	UFUNCTION(BlueprintCallable)
@@ -154,6 +157,8 @@ public:
 	bool OnCounterAttack(const FVector & _damageCauserRelative) override;
 
 	void OnParry(FName sectionName);
+
+	void OnDodge(FName sectionName);
 
 	void UpdateAnimationSetOnWeaponChange(EGearType _gearType) override;
 

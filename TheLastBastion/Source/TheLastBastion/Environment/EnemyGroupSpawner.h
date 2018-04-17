@@ -30,7 +30,6 @@ enum class EPath : uint8
 	East_Stone = 12            UMETA(DisplayName = "East to Stone")
 };
 
-
 USTRUCT(BlueprintType)
 struct FMarchPath
 {
@@ -59,6 +58,11 @@ struct FWaveUnit
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		class USoundCue* WarningSound;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
+		int SpawnTotalNumber = 3;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
+		int SpawnMaxColumn = 3;
 
 	//FORCEINLINE void SetWaveUnit(TSubclassOf<class AEnemyGroup> _class, int _path) { GroupClass_Bp = _class; Path = _path; }
 };
@@ -142,15 +146,6 @@ protected:
 
 
 private:
-
-	/// Enemy Group Preset
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = SpawnPreset, meta = (AllowPrivateAccess = "true"))
-		TSubclassOf<class AEnemyGroup> LanT0;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = SpawnPreset, meta = (AllowPrivateAccess = "true"))
-		TSubclassOf<class AEnemyGroup> LanT0_CB;
-
-
 
 	UPROPERTY()
 	/** Single Player Character ref*/

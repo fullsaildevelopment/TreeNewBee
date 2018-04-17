@@ -94,6 +94,9 @@ void UAIBase_AnimInstance::OnUpdate(float _deltaTime)
 	case EAIActionState::Defend:
 		SyncMotionForDefend();
 		break;
+	case EAIActionState::Dodge:
+		SyncMotionForDodge();
+		break;
 	case EAIActionState::None:
 		break;
 	default:
@@ -190,8 +193,21 @@ void UAIBase_AnimInstance::OnParry(FName sectionName)
 		UE_LOG(LogTemp, Error, TEXT("Parry_Montage == nullptr ,UAIBase_AnimInstance::OnParry "));
 		return;
 	}
-
+	OnDisableWeapon(true, true);
 	PlayMontage(Parry_Montage, 1.0f, sectionName);
+}
+
+void UAIBase_AnimInstance::OnDodge(FName sectionName)
+{
+	CurrentActionState = EAIActionState::Dodge;
+	if (Dodge_Montage == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Dodge_Montage == nullptr ,UAIBase_AnimInstance::OnDodge "));
+		return;
+	}
+	OnDisableWeapon(true, true);
+	PlayMontage(Dodge_Montage, 1.0f, sectionName);
+
 }
 
 void UAIBase_AnimInstance::UpdateAnimationSetOnWeaponChange(EGearType _gearType)
@@ -205,6 +221,7 @@ void UAIBase_AnimInstance::UpdateAnimationSetOnWeaponChange(EGearType _gearType)
 		bool bSH = mCharacter->GetCurrentSecondaryWeapon() == nullptr;
 		Hit_Montage = bSH ? AM_SingleHandWeapon_HitReaction : AM_Sns_HitReaction;
 		Parry_Montage = AM_SH_Parry;
+		Dodge_Montage = AM_SH_Dodge;
 		break;
 	}
 	case EGearType::DoubleHandWeapon:
@@ -232,7 +249,7 @@ void UAIBase_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMont
 
 	if (!_bInterruptted)
 	{
-		if (_animMontage == Hit_Montage || _animMontage == Parry_Montage)
+		if (_animMontage == Hit_Montage || _animMontage == Parry_Montage || _animMontage == Dodge_Montage)
 		{
 			OnHitMontageEnd();
 		}

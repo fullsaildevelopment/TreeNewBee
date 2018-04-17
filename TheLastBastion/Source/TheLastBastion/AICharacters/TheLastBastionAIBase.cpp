@@ -44,6 +44,7 @@ ATheLastBastionAIBase::ATheLastBastionAIBase()
 
 	MinimumMoveAttackDistSq = 40000.0f;
 	MeleeAttackDistSq = 70000.0f;
+
 }
 
 void ATheLastBastionAIBase::BeginPlay()
@@ -89,6 +90,10 @@ void ATheLastBastionAIBase::BeginPlay()
 		GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
 	else
 		GetCharacterMovement()->MaxWalkSpeed = JogSpeed;
+
+	ParryEndurance = GetParryEndurance();
+	DodgeEndurance = GetAutoDodgeEndurance();
+
 }
 
 void ATheLastBastionAIBase::ToggleAIHUD(bool _val)
@@ -365,8 +370,11 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 		return;
 	}
 
-
-
+	// endurance reduction, and when it less than zero, 
+	// ai will do something else based on the class
+	ParryEndurance--;
+	DodgeEndurance--;
+	
 	// play animation
 	////////////////////////////////////////////// innocent line ////////////////////////////
 	if (isStun)

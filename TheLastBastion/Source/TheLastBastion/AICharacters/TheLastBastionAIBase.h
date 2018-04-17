@@ -61,7 +61,9 @@
 #define SH_PowFast_Combo_Counter_Min 5
 #define SH_PowFast_Combo_Counter_Max 8
 #define SH_Pow_Parry_End_Min 3
-#define SH_Pow_Parry_End_Max 5
+#define SH_Pow_Parry_End_Max 4
+#define SH_Fast_Dodge_End_Min 2
+#define SH_Fast_Dodge_End_Max 4
 
 
 
@@ -119,9 +121,13 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
 		/** if less than equal to zero, this ai will automatically 
-		find a way to escape the next melee attack*/
-		int Endurance;
+		find a way to Parry the next melee attack*/
+		int ParryEndurance;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
+		/** if less than equal to zero, this ai will automatically
+		find a way to dodge the next melee attack*/
+		int DodgeEndurance;
 
 	UPROPERTY(VisibleAnywhere, Category = Behavior)
 		/** Should we attack from right ? A toggled variable to control ai to attack from different direction */

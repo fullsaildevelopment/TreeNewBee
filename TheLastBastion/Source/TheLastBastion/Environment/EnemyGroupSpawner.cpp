@@ -15,12 +15,11 @@ AEnemyGroupSpawner::AEnemyGroupSpawner()
 	PrimaryActorTick.bCanEverTick = false;
 
 
-	FindAllEnemyGroupPreset();
+	//FindAllEnemyGroupPreset();
 
 	SpawnDelay = 5.0f;
 	TestGroupAmount = 1;
 	TestGroupSize = 2;
-	TestGroup = LanT0_CB;
 	TestingRoute = EPath::South_TrooperRoute_0;
 
 }
@@ -30,8 +29,7 @@ void AEnemyGroupSpawner::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	EditWaves();
-	InitWaveSpawner();
+	//EditWaves();
 
 	Hero = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 
@@ -40,6 +38,7 @@ void AEnemyGroupSpawner::BeginPlay()
 
 	if (AllWaves.IsValidIndex(0) && AllWaves[0].WaveUnits.IsValidIndex(0))
 	{
+		InitWaveSpawner();
 		SpawnDelay = AllWaves[0].WaveUnits[0].SpawnDelay;
 		GetWorldTimerManager().SetTimer(SpawnTimer, this,
 			&AEnemyGroupSpawner::Spawn, 0.1f, false, SpawnDelay);
@@ -118,7 +117,7 @@ void AEnemyGroupSpawner::OnSpawnFinished()
 	// play warning sound if we have
 	USoundCue* warningSound = AllWaves[CurrentWaveIndex].WaveUnits[CurrentWaveUnitIndex].WarningSound;
 	if (warningSound)
-		UGameplayStatics::SpawnSoundAttached(warningSound, UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->GetMesh());
+		UGameplayStatics::SpawnSoundAttached(warningSound, Hero->GetMesh());
 
 
 	CurrentWaveUnitIndex++;
@@ -141,12 +140,11 @@ void AEnemyGroupSpawner::OnSpawnFinished()
 
 void AEnemyGroupSpawner::FindAllEnemyGroupPreset()
 {
-	UCustomType::FindClass<AEnemyGroup>(LanT0,
-		TEXT("/Game/Blueprints/AI/GroupPreset/EnemyGroupPreset/LanT0_Bp"));
+	//UCustomType::FindClass<AEnemyGroup>(LanT0,
+	//	TEXT("/Game/Blueprints/AI/GroupPreset/EnemyGroupPreset/LanT0_Bp"));
 
-	UCustomType::FindClass<AEnemyGroup>(LanT0_CB,
-		TEXT("/Game/Blueprints/AI/GroupPreset/EnemyGroupPreset/LanT0_CB_Bp"));
-
+	//UCustomType::FindClass<AEnemyGroup>(LanT0_CB,
+	//	TEXT("/Game/Blueprints/AI/GroupPreset/EnemyGroupPreset/LanT0_CB_Bp"));
 
 }
 
@@ -176,6 +174,7 @@ void AEnemyGroupSpawner::Spawn()
 		/** Get What to spawn, and path */		
 
 		TSubclassOf<AEnemyGroup> classToSpawn; 
+		int totalNumber, maxColumn;
 		EPath pathIndex;
 
 
@@ -183,12 +182,16 @@ void AEnemyGroupSpawner::Spawn()
 		{
 			classToSpawn = TestGroup;
 			pathIndex = TestingRoute;
+			totalNumber = TestGroupSize;
+			maxColumn = TestGroupSize;
 		}
 		else
 		{
-			classToSpawn = AllWaves[CurrentWaveIndex].WaveUnits[CurrentWaveUnitIndex].GroupClass_Bp;
-			pathIndex = AllWaves[CurrentWaveIndex].WaveUnits[CurrentWaveUnitIndex].Path;
-
+			FWaveUnit waveUnit = AllWaves[CurrentWaveIndex].WaveUnits[CurrentWaveUnitIndex];
+			classToSpawn = waveUnit.GroupClass_Bp;
+			pathIndex = waveUnit.Path;
+			totalNumber = waveUnit.SpawnTotalNumber;;
+			maxColumn = waveUnit.SpawnMaxColumn;;
 		}
 
 
@@ -210,18 +213,10 @@ void AEnemyGroupSpawner::Spawn()
 		if (newEnemyGroup)
 		{
 			FAISpawnInfo spawnInfo;
-			if (bTestingMode)
-			{
-				newEnemyGroup->SetSpawnInfoAtSection_TotalNum(TestGroupSize, 0);
-				newEnemyGroup->SetSpawnInfoAtSection_MaxCol(TestGroupSize, 0);
-				newEnemyGroup->SetPath((int)pathIndex);
-			}
-			else
-			{
-				newEnemyGroup->SetSpawnInfoAtSection_TotalNum(FMath::RandRange(8, 12), 0);
-				newEnemyGroup->SetSpawnInfoAtSection_MaxCol(FMath::RandRange(4, 6), 0);
-				newEnemyGroup->SetPath((int)pathIndex);
-			}
+
+			newEnemyGroup->SetSpawnInfoAtSection_TotalNum(totalNumber, 0);
+			newEnemyGroup->SetSpawnInfoAtSection_MaxCol(maxColumn, 0);
+			newEnemyGroup->SetPath((int)pathIndex);
 
 			UGameplayStatics::FinishSpawningActor(newEnemyGroup, spawnTransform);
 			newEnemyGroup->SpawnDefaultController();

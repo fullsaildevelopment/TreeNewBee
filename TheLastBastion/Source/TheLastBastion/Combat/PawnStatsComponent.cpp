@@ -513,9 +513,9 @@ bool UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 			return false;
 		}
 		else if (damageActor->OnParry(&_damageInfo, this))
-		{
 			return false;
-		}
+		else if (damageActor->OnAutoDodge(&_damageInfo, this))
+			return false;
 		else
 		{
 			// counter attack fail, melee damage

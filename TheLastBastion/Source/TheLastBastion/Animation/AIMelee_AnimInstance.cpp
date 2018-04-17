@@ -71,8 +71,12 @@ void UAIMelee_AnimInstance::Attack(int _attackType, int _maxCounter)
 
 void UAIMelee_AnimInstance::OnNextCombo()
 {
+	bool ShouldSkip =
+		CurrentActionState == EAIActionState::GettingHurt ||
+		CurrentActionState == EAIActionState::Dodge ||
+		CurrentActionState == EAIActionState::Defend;
 
-	if (CurrentActionState == EAIActionState::GettingHurt)
+	if (ShouldSkip)
 		return;
 
 	bComboOddIndex = !bComboOddIndex;

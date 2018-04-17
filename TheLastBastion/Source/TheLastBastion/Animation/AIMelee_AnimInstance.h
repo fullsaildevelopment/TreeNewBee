@@ -34,10 +34,10 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 		/** Enable Damage Collision for melee weapon*/
-		void OnEnableWeapon(bool bIsright = true, bool bIsAll = false);
+		void OnEnableWeapon(bool bIsright = true, bool bIsAll = false) override;
 	UFUNCTION(BlueprintCallable)
 		/** Disable Damage Collision for melee weapon*/
-		void OnDisableWeapon(bool bIsright = true, bool bIsAll = false);
+		void OnDisableWeapon(bool bIsright = true, bool bIsAll = false) override;
 	
 	UFUNCTION(BlueprintCallable)
 		/** Called at the end of attack recover, and let BT know attack is finished*/
