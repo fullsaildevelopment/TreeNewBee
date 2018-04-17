@@ -5,6 +5,8 @@
 #include "AI/EnemyGroup.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameMode/SinglePlayerGM.h"
+#include "Sound/SoundCue.h"
+#include "TheLastBastionCharacter.h"
 
 // Sets default values
 AEnemyGroupSpawner::AEnemyGroupSpawner()
@@ -15,13 +17,11 @@ AEnemyGroupSpawner::AEnemyGroupSpawner()
 
 	FindAllEnemyGroupPreset();
 
-
-	SpawnFrequency = 10.0f;
-	FirstSpawnDelay = 5.0f;
+	SpawnDelay = 5.0f;
 	TestGroupAmount = 1;
 	TestGroupSize = 2;
 	TestGroup = LanT0_CB;
-	TestingRoute = 0;
+	TestingRoute = EPath::South_TrooperRoute_0;
 
 }
 
@@ -35,8 +35,15 @@ void AEnemyGroupSpawner::BeginPlay()
 
 	Hero = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 
-	GetWorldTimerManager().SetTimer(SpawnTimer, this, 
-		&AEnemyGroupSpawner::Spawn, SpawnFrequency, true, FirstSpawnDelay);
+	//GetWorldTimerManager().SetTimer(SpawnTimer, this, 
+	//	&AEnemyGroupSpawner::Spawn, SpawnFrequency, true, FirstSpawnDelay);
+
+	if (AllWaves.IsValidIndex(0) && AllWaves[0].WaveUnits.IsValidIndex(0))
+	{
+		SpawnDelay = AllWaves[0].WaveUnits[0].SpawnDelay;
+		GetWorldTimerManager().SetTimer(SpawnTimer, this,
+			&AEnemyGroupSpawner::Spawn, 0.1f, false, SpawnDelay);
+	}
 
 	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (gm == nullptr)
@@ -47,26 +54,23 @@ void AEnemyGroupSpawner::BeginPlay()
 
 	gm->RegisterEnemySpawner(this);
 
-
-
-
 }
 
 void AEnemyGroupSpawner::EditWaves()
 {
-	AllWaves.SetNum(1);
-	// # Wave 1:
-	AllWaves[0].WaveUnits.SetNum(10);
-	AllWaves[0].WaveUnits[0].SetWaveUnit(LanT0, South_TrooperRoute_0);
-	AllWaves[0].WaveUnits[1].SetWaveUnit(LanT0, South_TrooperRoute_1);
-	AllWaves[0].WaveUnits[2].SetWaveUnit(LanT0_CB, South_ShooterRoute_0);
-	AllWaves[0].WaveUnits[3].SetWaveUnit(LanT0, South_TrooperRoute_0);
-	AllWaves[0].WaveUnits[4].SetWaveUnit(LanT0, South_TrooperRoute_1);
-	AllWaves[0].WaveUnits[5].SetWaveUnit(LanT0_CB, South_ShooterRoute_0);
-	AllWaves[0].WaveUnits[6].SetWaveUnit(LanT0, South_TrooperRoute_0);
-	AllWaves[0].WaveUnits[7].SetWaveUnit(LanT0, South_TrooperRoute_1);
-	AllWaves[0].WaveUnits[8].SetWaveUnit(LanT0_CB, South_ShooterRoute_0);
-	AllWaves[0].WaveUnits[9].SetWaveUnit(LanT0, South_TrooperRoute_1);
+	//AllWaves.SetNum(1);
+	//// # Wave 1:
+	//AllWaves[0].WaveUnits.SetNum(10);
+	//AllWaves[0].WaveUnits[0].SetWaveUnit(LanT0, South_TrooperRoute_0);
+	//AllWaves[0].WaveUnits[1].SetWaveUnit(LanT0, South_TrooperRoute_1);
+	//AllWaves[0].WaveUnits[2].SetWaveUnit(LanT0_CB, South_ShooterRoute_0);
+	//AllWaves[0].WaveUnits[3].SetWaveUnit(LanT0, South_TrooperRoute_0);
+	//AllWaves[0].WaveUnits[4].SetWaveUnit(LanT0, South_TrooperRoute_1);
+	//AllWaves[0].WaveUnits[5].SetWaveUnit(LanT0_CB, South_ShooterRoute_0);
+	//AllWaves[0].WaveUnits[6].SetWaveUnit(LanT0, South_TrooperRoute_0);
+	//AllWaves[0].WaveUnits[7].SetWaveUnit(LanT0, South_TrooperRoute_1);
+	//AllWaves[0].WaveUnits[8].SetWaveUnit(LanT0_CB, South_ShooterRoute_0);
+	//AllWaves[0].WaveUnits[9].SetWaveUnit(LanT0, South_TrooperRoute_1);
 
 }
 
@@ -111,6 +115,12 @@ void AEnemyGroupSpawner::InitCurrentWave()
 
 void AEnemyGroupSpawner::OnSpawnFinished()
 {
+	// play warning sound if we have
+	USoundCue* warningSound = AllWaves[CurrentWaveIndex].WaveUnits[CurrentWaveUnitIndex].WarningSound;
+	if (warningSound)
+		UGameplayStatics::SpawnSoundAttached(warningSound, UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->GetMesh());
+
+
 	CurrentWaveUnitIndex++;
 
 	// if the current wave is finished spawning
@@ -120,6 +130,12 @@ void AEnemyGroupSpawner::OnSpawnFinished()
 		// spawn next wave
 		InitCurrentWave();
 	}
+
+	// update the spawn delay, setup the timer for next spawn
+	SpawnDelay = AllWaves[CurrentWaveIndex].WaveUnits[CurrentWaveUnitIndex].SpawnDelay;
+	GetWorldTimerManager().ClearTimer(SpawnTimer);
+	GetWorldTimerManager().SetTimer(SpawnTimer, this,
+		&AEnemyGroupSpawner::Spawn, 0.1f, false, SpawnDelay);
 
 }
 
@@ -160,7 +176,8 @@ void AEnemyGroupSpawner::Spawn()
 		/** Get What to spawn, and path */		
 
 		TSubclassOf<AEnemyGroup> classToSpawn; 
-		int pathIndex;
+		EPath pathIndex;
+
 
 		if (bTestingMode)
 		{
@@ -178,7 +195,7 @@ void AEnemyGroupSpawner::Spawn()
 		/** Spawn Group*/
 		FQuat spawnRotation;
 		FVector spawnLocation;
-		GetSpawnTransform(spawnLocation, spawnRotation, pathIndex);
+		GetSpawnTransform(spawnLocation, spawnRotation, (int)pathIndex);
 
 		FTransform spawnTransform;
 		spawnTransform.SetLocation(spawnLocation);
@@ -197,13 +214,13 @@ void AEnemyGroupSpawner::Spawn()
 			{
 				newEnemyGroup->SetSpawnInfoAtSection_TotalNum(TestGroupSize, 0);
 				newEnemyGroup->SetSpawnInfoAtSection_MaxCol(TestGroupSize, 0);
-				newEnemyGroup->SetPath(pathIndex);
+				newEnemyGroup->SetPath((int)pathIndex);
 			}
 			else
 			{
 				newEnemyGroup->SetSpawnInfoAtSection_TotalNum(FMath::RandRange(8, 12), 0);
 				newEnemyGroup->SetSpawnInfoAtSection_MaxCol(FMath::RandRange(4, 6), 0);
-				newEnemyGroup->SetPath(pathIndex);
+				newEnemyGroup->SetPath((int)pathIndex);
 			}
 
 			UGameplayStatics::FinishSpawningActor(newEnemyGroup, spawnTransform);

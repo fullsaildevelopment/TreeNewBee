@@ -120,6 +120,8 @@ void UAIBase_AnimInstance::ResetOnBeingHit()
 	}
 
 	baseAICtrl->SetIsPaused_BBC(true);
+
+
 	//baseAICtrl->OnBeingHit(mCharacter->GetCharacterType());
 }
 
@@ -180,10 +182,16 @@ bool UAIBase_AnimInstance::OnCounterAttack(const FVector & _damageCauserRelative
 	return false;
 }
 
-void UAIBase_AnimInstance::OnParry(FName sectionName, UAnimMontage * const _parryMontage)
+void UAIBase_AnimInstance::OnParry(FName sectionName)
 {
 	CurrentActionState = EAIActionState::Defend;
-	PlayMontage(_parryMontage, 1.0f, sectionName);
+	if (Parry_Montage == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Parry_Montage == nullptr ,UAIBase_AnimInstance::OnParry "));
+		return;
+	}
+
+	PlayMontage(Parry_Montage, 1.0f, sectionName);
 }
 
 void UAIBase_AnimInstance::UpdateAnimationSetOnWeaponChange(EGearType _gearType)
@@ -196,6 +204,7 @@ void UAIBase_AnimInstance::UpdateAnimationSetOnWeaponChange(EGearType _gearType)
 	{
 		bool bSH = mCharacter->GetCurrentSecondaryWeapon() == nullptr;
 		Hit_Montage = bSH ? AM_SingleHandWeapon_HitReaction : AM_Sns_HitReaction;
+		Parry_Montage = AM_SH_Parry;
 		break;
 	}
 	case EGearType::DoubleHandWeapon:
@@ -205,6 +214,7 @@ void UAIBase_AnimInstance::UpdateAnimationSetOnWeaponChange(EGearType _gearType)
 	case EGearType::GreatSword:
 	case EGearType::Hammer:
 		Hit_Montage = AM_HV_HitReaction;
+		Parry_Montage = AM_HV_ParryDodge;
 		break;
 	case EGearType::CrossBow:
 		Hit_Montage = AM_CB_HitReaction;
@@ -222,7 +232,7 @@ void UAIBase_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMont
 
 	if (!_bInterruptted)
 	{
-		if (_animMontage == Hit_Montage || _animMontage == AM_HV_ParryDodge)
+		if (_animMontage == Hit_Montage || _animMontage == Parry_Montage)
 		{
 			OnHitMontageEnd();
 		}
@@ -294,12 +304,25 @@ void UAIBase_AnimInstance::SyncMotionForGettingHurt()
 	float speed = GetCurveValue("Speed");
 
 	FVector Velocity = movementComp->Velocity;
-	movementComp->Velocity = damageMomentum * speed;
+	movementComp->Velocity = -mCharacter->GetActorForwardVector() * speed;
 	movementComp->Velocity.Z = Velocity.Z;
 
 }
 
 void UAIBase_AnimInstance::SyncMotionForDefend()
+{
+	UCharacterMovementComponent* movementComp = mCharacter->GetCharacterMovement();
+
+	// Sync Velocity
+	float speed = GetCurveValue("Speed");
+
+	FVector Velocity = movementComp->Velocity;
+	movementComp->Velocity = -mCharacter->GetActorForwardVector() * speed;
+	movementComp->Velocity.Z = Velocity.Z;
+
+}
+
+void UAIBase_AnimInstance::SyncMotionForDodge()
 {
 	UCharacterMovementComponent* movementComp = mCharacter->GetCharacterMovement();
 
@@ -372,7 +395,7 @@ FName UAIBase_AnimInstance::HitReaction_SHSword(FName boneName, const FVector& _
 		}
 	}
 
-	damageMomentum = -mCharacter->GetActorForwardVector();
+	damageMomentum = -_damageCauseRelative;
 
 	return sectionName;
 }

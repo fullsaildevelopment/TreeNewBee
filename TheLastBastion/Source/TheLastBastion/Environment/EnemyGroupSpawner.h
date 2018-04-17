@@ -6,10 +6,30 @@
 #include "GameFramework/Actor.h"
 #include "EnemyGroupSpawner.generated.h"
 
-#define South_TrooperRoute_0 0
-#define South_TrooperRoute_1 1
-#define South_ShooterRoute_0 2
-#define North_WoodOutputTakingRoute 3
+//#define South_TrooperRoute_0 0
+//#define South_TrooperRoute_1 1
+//#define South_ShooterRoute_0 2
+//#define North_WoodOutputTakingRoute 3
+
+
+UENUM(BlueprintType)
+enum class EPath : uint8 
+{
+	South_TrooperRoute_0 = 0   UMETA(DisplayName = "South to Castle - Trooper_0"), 
+	South_TrooperRoute_1 = 1   UMETA(DisplayName = "South to Castle - Trooper_1"),
+	South_ShooterRoute_0 = 2   UMETA(DisplayName = "South to Castle - Shooter"),
+	East_TrooperRoute  = 3     UMETA(DisplayName = "East  to Castle - Trooper"),
+	East_SouthMine  = 4        UMETA(DisplayName = "East to South Mine"),
+	East_NorthMine  = 5        UMETA(DisplayName = "East to North Mine"),
+	North_NorthMine = 6        UMETA(DisplayName = "North to North Mine"),
+	North_TrooperRoute = 7     UMETA(DisplayName = "North to Castle - Trooper"),
+	North_Wood = 8             UMETA(DisplayName = "North to Wood"),
+	North_Food = 9             UMETA(DisplayName = "North to Food"),
+	East_Shooter = 10          UMETA(DisplayName = "South to Castle - Shooter "),
+	North_Shooter = 11         UMETA(DisplayName = "North to Castle - Shooter"),
+	East_Stone = 12            UMETA(DisplayName = "East to Stone")
+};
+
 
 USTRUCT(BlueprintType)
 struct FMarchPath
@@ -22,7 +42,6 @@ struct FMarchPath
 
 };
 
-
 USTRUCT(BlueprintType)
 struct FWaveUnit
 {
@@ -32,9 +51,16 @@ struct FWaveUnit
 		TSubclassOf<class AEnemyGroup> GroupClass_Bp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
-		int Path;
+		EPath Path;
 
-	FORCEINLINE void SetWaveUnit(TSubclassOf<class AEnemyGroup> _class, int _path) { GroupClass_Bp = _class; Path = _path; }
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
+		float SpawnDelay = 5.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
+		class USoundCue* WarningSound;
+
+
+	//FORCEINLINE void SetWaveUnit(TSubclassOf<class AEnemyGroup> _class, int _path) { GroupClass_Bp = _class; Path = _path; }
 };
 
 USTRUCT(BlueprintType)
@@ -46,6 +72,8 @@ struct FWave
 		TArray<FWaveUnit> WaveUnits;
 
 };
+
+
 
 
 UCLASS()
@@ -68,7 +96,7 @@ protected:
 
 	FTimerHandle SpawnTimer;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		TArray<FWave> AllWaves;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpawnPreset, meta = (AllowPrivateAccess = "true"))
@@ -80,12 +108,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpawnPreset, meta = (AllowPrivateAccess = "true"))
 		int TestGroupSize;
 
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
-		float SpawnFrequency;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
-		float FirstSpawnDelay;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
+		float SpawnDelay;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
 		/** which surviving wave we are currently fight against*/
@@ -101,7 +125,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		/** How many wave units we are going to spawn in current wave*/
-		int TestingRoute;
+		EPath TestingRoute;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)

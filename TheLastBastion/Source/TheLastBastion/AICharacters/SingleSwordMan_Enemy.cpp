@@ -17,29 +17,29 @@ bool ASingleSwordMan_Enemy::OnParry(const struct FDamageInfo* const _damageInfo,
 	//return false;
 
 	//1. Check correct character type and endurance
-	bool accept =
-		CharacterType == ECharacterType::LanTrooper_Power &&
-		Endurance <= 0;
-	
-	if (!accept)
-		return false;
+	//bool accept =
+	//	CharacterType == ECharacterType::LanTrooper_Power &&
+	//	Endurance <= 0;
+	//
+	//if (!accept)
+	//	return false;
 
-	//2. Check correct weapon type
-	AGear* damageCauserGear = _damageCauserPawnStats->GetCurrentRightHandWeapon();
-	EGearType gearType;
+	////2. Check correct weapon type
+	//AGear* damageCauserGear = _damageCauserPawnStats->GetCurrentRightHandWeapon();
+	//EGearType gearType;
 
-	if (damageCauserGear)
-		gearType = damageCauserGear->GetGearType();
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("damageCauserGear == nullptr,ASingleSwordMan_Enemy::OnParry "));
-		return false;
-	}
+	//if (damageCauserGear)
+	//	gearType = damageCauserGear->GetGearType();
+	//else
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("damageCauserGear == nullptr,ASingleSwordMan_Enemy::OnParry "));
+	//	return false;
+	//}
 
-	bool weaponTypeThatAbleToParry = gearType == EGearType::LongSword || gearType == EGearType::DoubleHandWeapon;
+	//bool weaponTypeThatAbleToParry = gearType == EGearType::LongSword || gearType == EGearType::DoubleHandWeapon;
 
-	if (weaponTypeThatAbleToParry == false)
-		return false;
+	//if (weaponTypeThatAbleToParry == false)
+	//	return false;
 
 
 	// 3. Action check, is this ai 's current action is fit for parrying ?
@@ -54,14 +54,12 @@ bool ASingleSwordMan_Enemy::OnParry(const struct FDamageInfo* const _damageInfo,
 	bool isRightState = currentState == EAIActionState::None ||
 		currentState == EAIActionState::Defend ||
 		currentState == EAIActionState::MeleePreAttack ||
-		currentState == EAIActionState::MeleePostAttack;
+		currentState == EAIActionState::MeleePostAttack|| currentState == EAIActionState::GettingHurt;
 
 	if (isRightState)
 	{
 		// 4. direction check, less than 45 from forward vector
 		float forwardDot = FVector::DotProduct(GetActorForwardVector(), _damageInfo->hitDirection);
-
-		//UE_LOG(LogTemp, Warning, TEXT("forwardDot: %f - AHeavyMelee::OnParry"), forwardDot);
 
 		if (forwardDot >= 0.707f)
 		{
@@ -73,9 +71,8 @@ bool ASingleSwordMan_Enemy::OnParry(const struct FDamageInfo* const _damageInfo,
 				return false;
 			}
 			baseAICtrl->SetIsPaused_BBC(true);
-			accept = true;
 
-			animRef->OnParry(GetParrySectionName(_damageInfo), AM_SH_Parry);
+			animRef->OnParry(GetParrySectionName(_damageInfo));// , AM_SH_Parry);
 			// fx
 
 			UParticleSystem * sparkVFX = UVfxManager::GetVfx(EVfxType::metalImpact_sputtering);
@@ -93,18 +90,16 @@ bool ASingleSwordMan_Enemy::OnParry(const struct FDamageInfo* const _damageInfo,
 
 			return true;
 		}
+		else
+			return false;
 	}
 	else
-	{
-		return accept;
-	}
+		return false;
 
-	return false;
 }
 
 int ASingleSwordMan_Enemy::GetMeleeComboSel(bool _bIsMoving) const
 {
-
 	switch (CharacterType)
 	{
 	case ECharacterType::LanTrooper_Rookie:
@@ -135,7 +130,6 @@ FName ASingleSwordMan_Enemy::GetParrySectionName(const struct FDamageInfo* const
 	hitDir = hitDir.GetUnsafeNormal();
 
 	FVector pelvisLocation = GetMesh()->GetBoneLocation(TEXT("pelvis"));
-	float dirDotFor = FVector::DotProduct(hitDir, GetActorForwardVector());
 
 	if (impactPoint.Z >= pelvisLocation.Z)
 	{
@@ -144,6 +138,8 @@ FName ASingleSwordMan_Enemy::GetParrySectionName(const struct FDamageInfo* const
 		if (impactPoint.Z > chestLocation.Z)
 		{
 			// top hit
+			float dirDotFor = FVector::DotProduct(hitDir, GetActorForwardVector());
+
 			if (dirDotFor >= 0.86f)
 				animSection = TEXT("Parry_Top_Mid");
 			else
@@ -152,13 +148,15 @@ FName ASingleSwordMan_Enemy::GetParrySectionName(const struct FDamageInfo* const
 				if (dirDotRight > 0)
 					animSection = TEXT("Parry_Top_Right");
 				else
-					animSection = TEXT("Parry_Top_Left");
+					animSection = TEXT("Parry_Upper_Left");
 			}
 
 		}
 		else
 		{
 			// Upper body hit
+			float dirDotFor = FVector::DotProduct(hitDir, GetActorForwardVector());
+
 			if (dirDotFor >= 0.86f)
 				animSection = TEXT("Parry_Upper_Mid");
 			else
@@ -174,17 +172,11 @@ FName ASingleSwordMan_Enemy::GetParrySectionName(const struct FDamageInfo* const
 	}
 	else
 	{
-		// hit on lower body
-		if (dirDotFor >= 0.86f)
-			animSection = TEXT("Parry_Down_Mid");
+		float dirDotRight = FVector::DotProduct(hitDir, GetActorRightVector());
+		if (dirDotRight > 0)
+			animSection = TEXT("Parry_Down_Right");
 		else
-		{
-			float dirDotRight = FVector::DotProduct(hitDir, GetActorRightVector());
-			if (dirDotRight > 0)
-				animSection = TEXT("Parry_Down_Right");
-			else
-				animSection = TEXT("Parry_Down_Left");
-		}
+			animSection = TEXT("Parry_Down_Left");
 	}
 
 

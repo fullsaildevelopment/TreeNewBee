@@ -118,6 +118,11 @@ protected:
 		class UAnimMontage* Hit_Montage;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
+		/** current Animation Montage to play when this character need to parry*/
+		class UAnimMontage* Parry_Montage;
+
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
 		class UAnimMontage* Equip_Montage;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)

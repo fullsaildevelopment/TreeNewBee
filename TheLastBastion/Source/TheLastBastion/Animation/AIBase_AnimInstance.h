@@ -153,7 +153,7 @@ public:
 
 	bool OnCounterAttack(const FVector & _damageCauserRelative) override;
 
-	void OnParry(FName sectionName, UAnimMontage* const _parryMontage);
+	void OnParry(FName sectionName);
 
 	void UpdateAnimationSetOnWeaponChange(EGearType _gearType) override;
 
@@ -171,6 +171,8 @@ protected:
 	void SyncMotionForGettingHurt();
 
 	void SyncMotionForDefend();
+
+	void SyncMotionForDodge();
 
 	void SyncMotionForNone();
 

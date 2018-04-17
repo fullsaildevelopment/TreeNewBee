@@ -39,7 +39,7 @@ void UAIMelee_AnimInstance::OnEnableWeapon(bool bIsright, bool bIsAll)
 	if (mCharacter)
 	{
 		//UE_LOG(LogTemp, Log, TEXT("enable weapon"));
-		if (CurrentActionState != EAIActionState::GettingHurt && !mCharacter->GetIsDead())
+		if (CurrentActionState == EAIActionState::MeleePreAttack && !mCharacter->GetIsDead())
 		{
 			CurrentActionState = EAIActionState::MeleeAttack;
 			mCharacter->GetEnemyStatsComponent()->SetEnableWeapon(true, bIsright, bIsAll);
@@ -71,8 +71,13 @@ void UAIMelee_AnimInstance::Attack(int _attackType, int _maxCounter)
 
 void UAIMelee_AnimInstance::OnNextCombo()
 {
+
+	if (CurrentActionState == EAIActionState::GettingHurt)
+		return;
+
 	bComboOddIndex = !bComboOddIndex;
 	CurrentComboCounter++;
+	CurrentActionState = EAIActionState::MeleePreAttack;
 
 	ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
 	if (baseAICtrl)
@@ -84,7 +89,6 @@ void UAIMelee_AnimInstance::OnNextCombo()
 	}
 	UE_LOG(LogTemp, Warning, TEXT("%f: AttackChoice - UAIMelee_AnimInstance::OnNextCombo"), attackChoice);
 }
-
 
 void UAIMelee_AnimInstance::FinishAttack()
 {
@@ -202,13 +206,16 @@ void UAIMelee_AnimInstance::AttackRecover()
 
 void UAIMelee_AnimInstance::ResetOnBeingHit()
 {
+
 	FinishAttack();
 	OnDisableWeapon(true, true);
 
 	// recover the rotation rate from melee attack motion sync
 	mCharacter->GetCharacterMovement()->RotationRate.Yaw = AICharacter_RotatingRate;
-
 	Super::ResetOnBeingHit();
+
+	UE_LOG(LogTemp, Warning, TEXT("UAIBase_AnimInstance::ResetOnBeingHit"));
+
 }
 
 

@@ -56,7 +56,7 @@ bool AHeavyMelee_Enemy::OnParry(const struct FDamageInfo* const _damageInfo, con
 			baseAICtrl->SetIsPaused_BBC(true);			
 			accept = true;
 			//
-			animRef->OnParry(GetParrySectionName(_damageInfo), AM_HV_ParryDodge);
+			animRef->OnParry(GetParrySectionName(_damageInfo));// , AM_HV_ParryDodge);
 			//UE_LOG(LogTemp, Warning, TEXT("Parrying - AHeavyMelee::OnParry"));
 
 			// fx
