@@ -47,6 +47,7 @@ void AWeapon::BeginPlay()
 	FVector BladeTopLocation = Mesh->GetSocketLocation(TEXT("TrailEnd"));
 	ParticleEffectCylinderHeight = (BladeBottomLocation.X - BladeTopLocation.X) +
 		(BladeBottomLocation.Y - BladeTopLocation.Y) + (BladeBottomLocation.Z - BladeTopLocation.Z);
+
 }
 
 void AWeapon::SetDamageIsEnabled(bool _val)
@@ -66,13 +67,22 @@ void AWeapon::Tick(float _deltaTime)
 
 	if (bShowBounding)
 	{
-		FVector startPosition, endPosition;
+		FVector startPosition, endPosition, volumnExtend;
+		if (bShowActualSize)
+		{
+			GetRayCastPosition(startPosition, endPosition);
+			volumnExtend = DamageVolumnExtend_Current;
+		}
+		else
+		{
+			GetRayCastPosition_Debug(startPosition, endPosition);
+			volumnExtend = DamageVolumnExtend;
+		}
 
- 		GetRayCastPosition(startPosition, endPosition);
 
 		FHitResult _hit;
 		const TArray<AActor* > ignoreActors;
-		UKismetSystemLibrary::BoxTraceSingle(GetWorld(), startPosition, endPosition, DamageVolumnExtend_Current, GetActorRotation(),
+		UKismetSystemLibrary::BoxTraceSingle(GetWorld(), startPosition, endPosition, volumnExtend, GetActorRotation(),
 			ETraceTypeQuery::TraceTypeQuery1, false, ignoreActors, EDrawDebugTrace::ForOneFrame, _hit, true);
 	}
 
@@ -181,6 +191,60 @@ void AWeapon::GetRayCastPosition(FVector & _start, FVector & _end)
 	{
 		_start = GetActorLocation() + DamageEdgeOffset_start_Current;
 		_end = GetActorLocation()   + DamageEdgeOffset_end_Current;
+		break;
+	}
+	default:
+		break;
+	}
+
+}
+
+void AWeapon::GetRayCastPosition_Debug(FVector & _start, FVector & _end)
+{
+	switch (GearType)
+	{
+	case EGearType::LongSword:
+	case EGearType::WarAxe:
+	case EGearType::Mace:
+	{
+		_start = GetActorLocation() + GetActorUpVector() * DamageEdgeOffset_start.Z;
+		_end = GetActorLocation() + GetActorUpVector() * DamageEdgeOffset_end.Z;
+		//_rotator = this->GetActorRotation();
+		break;
+	}
+	case EGearType::DoubleHandWeapon:
+	{
+		_start = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_start.Y + 
+			GetActorUpVector() * DamageEdgeOffset_start.Z;;
+		_end = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_end.Y;
+		//_rotator = this->GetActorRotation();
+		break;
+	}
+	case EGearType::GreatSword:
+	case EGearType::BattleAxe:
+	case EGearType::Hammer:
+	{
+
+		//_start = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_start.Y + GetActorUpVector() * DamageEdgeOffset_start.Z;;
+		//_end = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_end.Y;
+		////_rotator = this->GetActorRotation();
+
+		_start = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_start.Y
+			+ GetActorForwardVector() * DamageEdgeOffset_start.X;
+		_end = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_end.Y
+			+ GetActorForwardVector() * DamageEdgeOffset_end.X;
+		//_rotator = FRotator(this->GetActorRotation().Pitch, -this->GetActorRotation().Yaw, this->GetActorRotation().Roll);
+		break;
+	}
+	case EGearType::TwinBlade:
+	{
+		_start = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_start;
+		_end = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_end;
+	}
+	case EGearType::Shield:
+	{
+		_start = GetActorLocation() + DamageEdgeOffset_start;
+		_end = GetActorLocation() + DamageEdgeOffset_end;
 		break;
 	}
 	default:

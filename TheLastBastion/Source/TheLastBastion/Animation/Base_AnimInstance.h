@@ -22,11 +22,13 @@ namespace
 	UAnimMontage* AM_HV_HitReaction = nullptr;
 	UAnimMontage* AM_TH_HitReaction = nullptr;
 	UAnimMontage* AM_Sns_HitReaction = nullptr;
+
 	UAnimMontage* AM_CrossBow = nullptr;
 	UAnimMontage* AM_Skill = nullptr;
 	UAnimMontage* AM_HV_ParryDodge = nullptr;
 	UAnimMontage* AM_SH_Parry = nullptr;
 	UAnimMontage* AM_SH_Dodge = nullptr;
+	UAnimMontage* AM_Sns_Parry = nullptr;
 }
 
 enum class EGearType : uint8;

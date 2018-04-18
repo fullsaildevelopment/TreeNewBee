@@ -43,6 +43,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = DamageCollision)
 		bool bShowBounding;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = DamageCollision)
+		bool bShowActualSize;
+
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DamageCollision)
 		bool bDamageIsEnable;
 
@@ -77,6 +81,7 @@ public:
 	FORCEINLINE class UParticleSystemComponent* GetParticleSystemComp() const override { return ParticleSystemComp; }
 
 	void GetRayCastPosition(FVector& _start, FVector& _end);
+	void GetRayCastPosition_Debug(FVector& _start, FVector& _end);
 
 	////
 	//UFUNCTION(BlueprintCallable)
