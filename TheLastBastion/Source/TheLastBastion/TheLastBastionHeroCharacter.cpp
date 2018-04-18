@@ -373,6 +373,7 @@ void ATheLastBastionHeroCharacter::OpenTradeMenu()
 		if (PlayerController)
 		{
 			PlayerController->OpenTradeMenu();
+			PlayerController->GetInGameHUD()->SetPopUpNotificationVisibility(false);
 		}
 	}
 }
@@ -385,6 +386,7 @@ void ATheLastBastionHeroCharacter::OpenRecruitMenu()
 		if (PlayerController)
 		{
 			PlayerController->OpenRecruitMenu();
+			PlayerController->GetInGameHUD()->SetPopUpNotificationVisibility(false);
 		}
 	}
 }

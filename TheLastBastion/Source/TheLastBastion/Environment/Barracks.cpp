@@ -54,6 +54,9 @@ void ABarracks::OnInteractBoxOverlapBegin(UPrimitiveComponent * OverlappedCompon
 	if (Player)
 	{
 		Player->SetRecruitMenuState(true);
+		ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+		if (pc)
+			pc->GetInGameHUD()->SetPopUpNotificationVisibility(true);
 	}
 }
 
@@ -63,6 +66,9 @@ void ABarracks::OnInteractBoxOverlapEnd(UPrimitiveComponent* OverlappedComponent
 	if (Player)
 	{
 		Player->SetRecruitMenuState(false);
+		ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+		if (pc)
+			pc->GetInGameHUD()->SetPopUpNotificationVisibility(false);
 	}
 }
 

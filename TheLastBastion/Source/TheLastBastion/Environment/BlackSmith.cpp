@@ -4,6 +4,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "TheLastBastionHeroCharacter.h"
+#include "PCs/SinglePlayerPC.h"
 
 // Sets default values
 ABlackSmith::ABlackSmith()
@@ -41,6 +42,9 @@ void ABlackSmith::OnInteractBoxOverlapBegin(UPrimitiveComponent * OverlappedComp
 	if (Player)
 	{
 		Player->SetTradeMenuState(true);
+		ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+		if (pc)
+			pc->GetInGameHUD()->SetPopUpNotificationVisibility(true);
 	}
 }
 
@@ -50,6 +54,9 @@ void ABlackSmith::OnInteractBoxOverlapEnd(UPrimitiveComponent* OverlappedCompone
 	if (Player)
 	{
 		Player->SetTradeMenuState(false);
+		ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+		if (pc)
+			pc->GetInGameHUD()->SetPopUpNotificationVisibility(false);
 	}
 }
 

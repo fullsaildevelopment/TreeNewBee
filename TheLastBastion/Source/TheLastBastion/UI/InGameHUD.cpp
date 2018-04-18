@@ -42,7 +42,7 @@ bool UInGameHUD::Initialize()
 	// Bind Delegetes to Widget components
 	bool bAllWidgetAreGood =
 		PlayerRow != nullptr && TeamWindow != nullptr
-		&& FoodValue != nullptr && WoodValue != nullptr && MetalValue != nullptr && StoneValue != nullptr && CrossHair != nullptr
+		&& FoodValue != nullptr && WoodValue != nullptr && MetalValue != nullptr && StoneValue != nullptr && PopUpNotification != nullptr && CrossHair != nullptr
 		&& CrossHair && WeaponSlots && GroupCommandList && CrewBar && RadarHUD;
 
 	if (!bAllWidgetAreGood)
@@ -50,10 +50,8 @@ bool UInGameHUD::Initialize()
 		UE_LOG(LogTemp, Error, TEXT("bAllWidgetAreGood is not true -- UInGameHUD::Initialize"));
 		return false;
 	}
-	else
-		return false;
-
 	GroupCommandList->SetVisibility(ESlateVisibility::Hidden);
+	PopUpNotification->SetVisibility(ESlateVisibility::Hidden);
 	return true;
 }
 
@@ -251,6 +249,14 @@ void UInGameHUD::SetMetalValue(int _val)
 void UInGameHUD::SetFoodValue(int _val)
 {
 	FoodValue->SetText(FText::AsNumber(_val));
+}
+
+void UInGameHUD::SetPopUpNotificationVisibility(bool visiblity)
+{
+	if (visiblity == true)
+		PopUpNotification->SetVisibility(ESlateVisibility::Visible);
+	else
+		PopUpNotification->SetVisibility(ESlateVisibility::Hidden);
 }
 
 
