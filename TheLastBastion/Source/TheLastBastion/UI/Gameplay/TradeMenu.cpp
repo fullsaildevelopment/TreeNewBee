@@ -137,7 +137,7 @@ void UTradeMenu::OnAcceptClicked()
 {
 	ASinglePlayerPC* pc =Cast<ASinglePlayerPC>(GetOwningPlayer());
 	if (pc)
-	{
+	{   
 		ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(pc->GetCharacter());
 		if (hero)
 		{
@@ -159,10 +159,15 @@ void UTradeMenu::OnAcceptClicked()
 void UTradeMenu::OnCancelClicked()
 {
 	this->RemoveFromParent();
-	APlayerController* pc = GetOwningPlayer();
-	pc->bShowMouseCursor = false;
-	FInputModeGameOnly InputMode;
-	pc -> SetInputMode(InputMode);
+	//APlayerController* pc = GetOwningPlayer();
+	ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(GetOwningPlayer());
+	if (pc)
+	{
+		pc->GetInGameHUD()->SetPopUpNotificationVisibility(true);
+		pc->bShowMouseCursor = false;
+		FInputModeGameOnly InputMode;
+		pc->SetInputMode(InputMode);
+	}
 	bIsOpened = false;
 }
 

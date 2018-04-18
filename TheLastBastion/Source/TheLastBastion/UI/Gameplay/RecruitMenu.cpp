@@ -7,6 +7,7 @@
 #include "UI/Gameplay/CrewBar_RecruitMenu.h"
 #include "TheLastBastionHeroCharacter.h"
 #include "Combat/HeroStatsComponent.h"
+#include "PCs/SinglePlayerPC.h"
 
 
 
@@ -87,13 +88,17 @@ void URecruitMenu::OnAcceptClicked()
 }
 
 void URecruitMenu::OnCancelClicked()
-{
+{   
 	this->RemoveFromParent();
-	APlayerController* pc = GetOwningPlayer();
-	pc->bShowMouseCursor = false;
-	FInputModeGameOnly InputMode;
-	pc->SetInputMode(InputMode);
-
+	//APlayerController* pc = GetOwningPlayer();
+	ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(GetOwningPlayer());
+	if (pc)
+	{
+		pc->GetInGameHUD()->SetPopUpNotificationVisibility(true);
+		pc->bShowMouseCursor = false;
+		FInputModeGameOnly InputMode;
+		pc->SetInputMode(InputMode);
+	}
 	bIsOpened = false;
 }
 

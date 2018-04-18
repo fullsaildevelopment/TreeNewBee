@@ -140,6 +140,12 @@ protected:
 	/** Called When player pressed ESC, toggle the In game menu*/
 	void OnPause();
 
+	/** Player can open trade menu when close to Black Smith */
+	void OpenTradeMenu();
+
+	/** Player can open recruit menu when close to Barracks */
+	void OpenRecruitMenu();
+
 	void OnCommandMarch();
 	void OnCommandHold();
 	// Set group to be scatter or compact
@@ -296,6 +302,13 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = CharacterStats)
 		bool bIsInCommandMode;
 
+	// Can Player Open Recruit Menu or Trade Menu
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = CharacterStats)
+		bool bCanOpenTradeMenu;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = CharacterStats)
+		bool bCanOpenRecruitMenu;
+
 private:
 
 	void UpdateHeroStats(float _deltaTime);
@@ -354,6 +367,10 @@ public:
 
 	// Encharting interface
 	FORCEINLINE bool HasEnchartedWeapon() const { return bHasEnchartedWeapon; }
+
+	// Turn on/off player's ablity to Open Menu
+	FORCEINLINE void SetTradeMenuState(bool _val) { bCanOpenTradeMenu = _val; }
+	FORCEINLINE void SetRecruitMenuState(bool _val) { bCanOpenRecruitMenu = _val; }
 
 	/** Called to stop weapon enchant*/
 	void OnWeaponEnchantStop();

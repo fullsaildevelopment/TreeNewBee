@@ -3,8 +3,10 @@
 #include "Barracks.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameMode/SinglePlayerGM.h"
+#include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "CustomType.h"
+#include "TheLastBastionHeroCharacter.h"
 
 // Sets default values
 ABarracks::ABarracks()
@@ -18,6 +20,8 @@ ABarracks::ABarracks()
 	InteractBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Interact_Box"));
 	InteractBox->SetupAttachment(Mesh);
 	InteractBox->SetCollisionProfileName("InteractBox");
+	InteractBox->bGenerateOverlapEvents = true;
+	InteractBox->SetCanEverAffectNavigation(false);
 	InteractBox->InitBoxExtent(FVector(500, 2000, 200));
 }
 
@@ -36,12 +40,36 @@ void ABarracks::BeginPlay()
 
 	gm->RegisterBarracks(this);
 	
+	// Register overlap event
+	if (InteractBox)
+	{
+		InteractBox->OnComponentBeginOverlap.AddDynamic(this, &ABarracks::OnInteractBoxOverlapBegin);
+		InteractBox->OnComponentEndOverlap.AddDynamic(this, &ABarracks::OnInteractBoxOverlapEnd);
+	}
 }
 
-// Called every frame
-void ABarracks::Tick(float DeltaTime)
+void ABarracks::OnInteractBoxOverlapBegin(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
-	Super::Tick(DeltaTime);
-
+	ATheLastBastionHeroCharacter* Player = Cast<ATheLastBastionHeroCharacter>(OtherActor);
+	if (Player)
+	{
+		Player->SetRecruitMenuState(true);
+		ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+		if (pc)
+			pc->GetInGameHUD()->SetPopUpNotificationVisibility(true);
+	}
 }
+
+void ABarracks::OnInteractBoxOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	ATheLastBastionHeroCharacter* Player = Cast<ATheLastBastionHeroCharacter>(OtherActor);
+	if (Player)
+	{
+		Player->SetRecruitMenuState(false);
+		ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+		if (pc)
+			pc->GetInGameHUD()->SetPopUpNotificationVisibility(false);
+	}
+}
+
 

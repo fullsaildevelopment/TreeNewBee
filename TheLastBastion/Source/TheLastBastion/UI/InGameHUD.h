@@ -42,6 +42,9 @@ protected:
 		class UTextBlock* StoneValue;
 
 	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* PopUpNotification;
+
+	UPROPERTY(meta = (BindWidget))
 		class UWidget* CrossHair;
 
 	UPROPERTY(meta = (BindWidget))
@@ -114,6 +117,7 @@ public:
 	void SetMetalValue(int _val);
 	void SetFoodValue(int _val);
 
-	
+	// In Game Text Pop Up Notification
+	void SetPopUpNotificationVisibility(bool visiblity);
 
 };
