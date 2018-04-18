@@ -17,6 +17,7 @@ USoundCue* UAudioManager::BoltsHitImpactOnHeavyShield = nullptr;
 USoundCue* UAudioManager::BoltsHitImpactOnTerrain = nullptr;
 USoundCue* UAudioManager::LightWeaponImpact = nullptr;
 USoundCue* UAudioManager::HeavyWeaponImpact = nullptr;
+USoundCue* UAudioManager::ShieldBashImpact = nullptr;
 USoundCue* UAudioManager::MeleeCounterAttackImpact = nullptr;
 USoundCue* UAudioManager::MeleeWeaponSwing = nullptr;
 USoundCue* UAudioManager::WeaponEquip = nullptr;
@@ -45,6 +46,7 @@ UAudioManager::UAudioManager()
 	// Melee Weapon Impact
 	LightWeaponImpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/MeleeWeaponHitImpact/LightWeaponImpact"));
 	HeavyWeaponImpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/MeleeWeaponHitImpact/HeavyWeaponImpact"));
+	ShieldBashImpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/MeleeWeaponHitImpact/ShieldBashImpact"));
 	MeleeCounterAttackImpact = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/MeleeWeaponHitImpact/MeleeCounterAttackImpact"));
 
 	// Melee Weapon Swing
@@ -109,6 +111,9 @@ USoundCue * UAudioManager::GetSFX(ESoundEffectType _sfxType)
 
 	case ESoundEffectType::EHeavyWeaponImpact:
 		return HeavyWeaponImpact;
+
+	case ESoundEffectType::EShieldBashImpact:
+		return ShieldBashImpact;
 
 	case ESoundEffectType::EMeleeCounterAttackImpact:
 		return MeleeCounterAttackImpact;
@@ -184,7 +189,7 @@ USoundCue* UAudioManager::GetMeleeWeaponImpactSFXByGearType(EGearType _gearType)
 		return nullptr;
 
 	case EGearType::Shield:
-		return nullptr;
+		return ShieldBashImpact;
 
 	case EGearType::LongSword:
 		return LightWeaponImpact;
