@@ -87,6 +87,9 @@ protected:
 
 	bool bGenerateRawStatsAtBeginPlay;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Combat)
+		bool bUsingLeftHandWeapon;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
 	    bool bArmedFromBeginPlay;
 
@@ -231,8 +234,11 @@ public:
 	FORCEINLINE bool IsFullHp() const { return HpCurrent == HpMax; }
 	FORCEINLINE bool IsFullSp() const { return StaminaCurrent == StaminaMax; }
 
+	/** Check if the left hand weapon is current use to deal damage */
+	FORCEINLINE bool IsUsingLeftWeapon() const { return bUsingLeftHandWeapon; }
 	FORCEINLINE AGear* GetCurrentRightHandWeapon() const { return WeaponSlots[CurrentWeapon_Index].RightHand; }
 	FORCEINLINE AGear* GetCurrentLeftHandWeapon() const { return WeaponSlots[CurrentWeapon_Index].LeftHand; }
+	FORCEINLINE AGear* GetCurrentActivatedWeapon() const { return bUsingLeftHandWeapon? GetCurrentLeftHandWeapon() : GetCurrentRightHandWeapon(); }
 	FORCEINLINE int GetMaxNumOfWeaponSlot() const { return WeaponSlots.Num(); }
 	FORCEINLINE FWeaponSlot GetWeaponSlotAt(int _index) const { return WeaponSlots[_index]; }
 	static TSubclassOf<class UUserWidget> GetFloatingText_WBP();

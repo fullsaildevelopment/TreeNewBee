@@ -114,9 +114,10 @@ void UPawnStatsComponent::SetEnableWeapon(bool _bIsEnabled, bool _bIsRightHand, 
 		{
 			rightWeapon->SetDamageIsEnabled(_bIsEnabled);
 		}
-		else if (leftWeapon)
+		else if (!_bIsRightHand && leftWeapon)
 		{
 			leftWeapon->SetDamageIsEnabled(_bIsEnabled);
+			bUsingLeftHandWeapon = _bIsEnabled;
 		}
 	}
 }
@@ -520,7 +521,15 @@ bool UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 		{
 			// counter attack fail, melee damage
 			vfxSelected = UVfxManager::GetVfxBySurfaceType(surfaceType);
-			sfxSelected = UAudioManager::GetMeleeWeaponImpactSFXByGearType(GetCurrentRightHandWeapon()->GetGearType());
+
+
+			AGear* weapon = GetCurrentActivatedWeapon();
+			if (weapon)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("%s"), *weapon->GetName());
+				sfxSelected = UAudioManager::GetMeleeWeaponImpactSFXByGearType(weapon->GetGearType());
+			}
+
 		}
 	}
 	else
