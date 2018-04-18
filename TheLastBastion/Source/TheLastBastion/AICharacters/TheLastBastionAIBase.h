@@ -65,6 +65,29 @@
 #define SH_Fast_Dodge_End_Min 2
 #define SH_Fast_Dodge_End_Max 4
 
+#define Sns_Combo_Counter_Min 1
+#define Sns_Combo_Counter_Max 2
+#define Sns_Ulti_Combo_Counter_Min 2
+#define Sns_Ulti_Combo_Counter_Max 4
+
+#define Sns_Parry_End_Min 2
+#define Sns_Parry_End_Max 3
+
+#define Sns_Ulti_InPlace_Left_Min 0
+#define Sns_Ulti_InPlace_Left_Max 2
+#define Sns_Ulti_InPlace_Right_Min 3
+#define Sns_Ulti_InPlace_Right_Max 4
+#define Sns_Ulti_Move_Left_Min 5
+#define Sns_Ulti_Move_Left_Max 6
+#define Sns_Ulti_Move_Right_Min 7
+#define Sns_Ulti_Move_Right_Max 8
+#define Sns_Ulti_ShieldBash 9
+
+
+
+
+
+
 
 
 

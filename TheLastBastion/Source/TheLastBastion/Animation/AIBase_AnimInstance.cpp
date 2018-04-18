@@ -219,9 +219,18 @@ void UAIBase_AnimInstance::UpdateAnimationSetOnWeaponChange(EGearType _gearType)
 	case EGearType::Mace:
 	{
 		bool bSH = mCharacter->GetCurrentSecondaryWeapon() == nullptr;
-		Hit_Montage = bSH ? AM_SingleHandWeapon_HitReaction : AM_Sns_HitReaction;
-		Parry_Montage = AM_SH_Parry;
-		Dodge_Montage = AM_SH_Dodge;
+		if (bSH)
+		{
+			Hit_Montage = AM_SingleHandWeapon_HitReaction;
+			Parry_Montage = AM_SH_Parry;
+			Dodge_Montage = AM_SH_Dodge;
+		}
+		else
+		{
+			Hit_Montage = AM_Sns_HitReaction;
+			Parry_Montage = AM_Sns_Parry;
+			Dodge_Montage = nullptr;
+		}
 		break;
 	}
 	case EGearType::DoubleHandWeapon:

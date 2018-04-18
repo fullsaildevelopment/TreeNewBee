@@ -179,7 +179,7 @@ public:
 	virtual class UParticleSystemComponent* OnWeaponEnchant() { return nullptr; }
 	//void CombineDamage(const AGear* _other);
 
-private:
+protected:
 
 	/** Scale other parametar that is not covered by engine*/
 	virtual void MaintainScale() {};
