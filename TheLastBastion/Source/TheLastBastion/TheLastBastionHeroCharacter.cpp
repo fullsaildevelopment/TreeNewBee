@@ -82,6 +82,8 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 	bIsInCommandMode = false; 
 	bControlEnemyGroup = false;
 	bHpRecovering = false;
+	bCanOpenTradeMenu = false;
+	bCanOpenRecruitMenu = false;
 
 	Focus_CamRotationLagging = 15.0f;
 	Unfocus_CamRotationLagging = 30.0f;
@@ -196,6 +198,10 @@ void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputCompone
 	PlayerInputComponent->BindAction("Skill_5", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSkillPressed_5);
 	//PlayerInputComponent->BindAction("Skill_6", IE_Pressed, this, &ATheLastBastionHeroCharacter::OnSkillPressed_6);
 
+
+	// Bind Open Menu input with functions
+	PlayerInputComponent->BindAction("OpenTradeMenu", IE_Pressed, this, &ATheLastBastionHeroCharacter::OpenTradeMenu);
+	PlayerInputComponent->BindAction("OpenRecruitMenu", IE_Pressed, this, &ATheLastBastionHeroCharacter::OpenRecruitMenu);
 }
 
 void ATheLastBastionHeroCharacter::Tick(float _deltaTime)
@@ -356,6 +362,30 @@ void ATheLastBastionHeroCharacter::OnPause()
 	if (pc)
 	{
 		pc->OnPauseButtonIsPressed();
+	}
+}
+
+void ATheLastBastionHeroCharacter::OpenTradeMenu()
+{
+	if (bCanOpenTradeMenu == true)
+	{
+		ASinglePlayerPC* PlayerController = Cast<ASinglePlayerPC>(GetController());
+		if (PlayerController)
+		{
+			PlayerController->OpenTradeMenu();
+		}
+	}
+}
+
+void ATheLastBastionHeroCharacter::OpenRecruitMenu()
+{
+	if (bCanOpenRecruitMenu == true)
+	{
+		ASinglePlayerPC* PlayerController = Cast<ASinglePlayerPC>(GetController());
+		if (PlayerController)
+		{
+			PlayerController->OpenRecruitMenu();
+		}
 	}
 }
 
