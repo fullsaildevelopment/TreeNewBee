@@ -174,8 +174,6 @@ int AHeavySheild_Enemy::GetMeleeComboSel_Guardian(bool _bIsMoving) const
 
 int AHeavySheild_Enemy::GetMeleeComboSel_UltiGuardian(bool _bIsMoving) const
 {
-	return Sns_Ulti_ShieldBash;
-
 	bool shouldDoShieldBash = FMath::RandRange(0, 10) < 3;
 
 	if (shouldDoShieldBash)
