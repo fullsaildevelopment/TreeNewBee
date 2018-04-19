@@ -38,7 +38,6 @@ struct FMarchPath
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (MakeEditWidget), Category = Path)
 		/** All Unit Spawn Position*/
 		TArray<FTransform> WayPoints;
-
 };
 
 USTRUCT(BlueprintType)
@@ -142,7 +141,9 @@ protected:
 		bool bEnableSpawning;
 
 
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
+		/** All Unit Spawn Position*/
+		bool bIsCurrentWaveFinished;
 
 
 private:
@@ -163,11 +164,14 @@ public:
 	FORCEINLINE bool HasNextWayPointOnPath
 	(int _pathIndex, int _wayPointIndex) const { return Paths[_pathIndex].WayPoints.IsValidIndex(_wayPointIndex); }
 
+	void EnableSpawning();
+
 private:
 
 	/** Setup indexes that manipulate the spawn process */
 	void InitWaveSpawner();
 
+	/** Reset CurrentWaveUnitIndex, If CurrentWaveIndex is out of scope, assigne the currentWaveIndex with max index*/
 	void InitCurrentWave();
 
 	///** Called on wave begin */

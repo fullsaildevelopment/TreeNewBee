@@ -22,6 +22,10 @@ AEnemyGroupSpawner::AEnemyGroupSpawner()
 	TestGroupSize = 2;
 	TestingRoute = EPath::South_TrooperRoute_0;
 
+	// initialize default spawning state
+	bEnableSpawning = false;
+	bIsCurrentWaveFinished = true;
+	CurrentWaveIndex = 0;
 }
 
 // Called when the game starts or when spawned
@@ -36,14 +40,6 @@ void AEnemyGroupSpawner::BeginPlay()
 	//GetWorldTimerManager().SetTimer(SpawnTimer, this, 
 	//	&AEnemyGroupSpawner::Spawn, SpawnFrequency, true, FirstSpawnDelay);
 
-	if (AllWaves.IsValidIndex(0) && AllWaves[0].WaveUnits.IsValidIndex(0))
-	{
-		InitWaveSpawner();
-		SpawnDelay = AllWaves[0].WaveUnits[0].SpawnDelay;
-		GetWorldTimerManager().SetTimer(SpawnTimer, this,
-			&AEnemyGroupSpawner::Spawn, 0.1f, false, SpawnDelay);
-	}
-
 	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (gm == nullptr)
 	{
@@ -51,6 +47,8 @@ void AEnemyGroupSpawner::BeginPlay()
 		return;
 	}
 
+
+	bIsCurrentWaveFinished = true;
 	gm->RegisterEnemySpawner(this);
 
 }
@@ -70,7 +68,6 @@ void AEnemyGroupSpawner::EditWaves()
 	//AllWaves[0].WaveUnits[7].SetWaveUnit(LanT0, South_TrooperRoute_1);
 	//AllWaves[0].WaveUnits[8].SetWaveUnit(LanT0_CB, South_ShooterRoute_0);
 	//AllWaves[0].WaveUnits[9].SetWaveUnit(LanT0, South_TrooperRoute_1);
-
 }
 
 // Called every frame
@@ -96,7 +93,7 @@ void AEnemyGroupSpawner::InitCurrentWave()
 {
 	// if we are given a unvalid wave index, just restart from first wave
 	if (AllWaves.IsValidIndex(CurrentWaveIndex) == false)
-		CurrentWaveIndex = 0;
+		CurrentWaveIndex = AllWaves.Num() - 1;
 
 	MaxWaveUnitAmount = AllWaves[CurrentWaveIndex].WaveUnits.Num();
 	CurrentWaveUnitIndex = 0;
@@ -125,9 +122,9 @@ void AEnemyGroupSpawner::OnSpawnFinished()
 	// if the current wave is finished spawning
 	if (CurrentWaveUnitIndex >= MaxWaveUnitAmount)
 	{
+		bIsCurrentWaveFinished = true;
 		CurrentWaveIndex++;
-		// spawn next wave
-		InitCurrentWave();
+		return;
 	}
 
 	// update the spawn delay, setup the timer for next spawn
@@ -135,6 +132,8 @@ void AEnemyGroupSpawner::OnSpawnFinished()
 	GetWorldTimerManager().ClearTimer(SpawnTimer);
 	GetWorldTimerManager().SetTimer(SpawnTimer, this,
 		&AEnemyGroupSpawner::Spawn, 0.1f, false, SpawnDelay);
+
+
 
 }
 
@@ -240,5 +239,25 @@ void AEnemyGroupSpawner::GetSpawnTransform(FVector& _location, FQuat& _rotation,
 	//FVector forward = Paths[spawnSelection].WayPoints[0].GetUnitAxis(EAxis::Type::X);
 	//UE_LOG(LogTemp, Log, TEXT("forward: %f, %f, %f -- AEnemyGroupSpawner::SelectedPath"), 
 	//	forward.X, forward.Y, forward.Z );
+}
+
+void AEnemyGroupSpawner::EnableSpawning()
+{
+	if (bIsCurrentWaveFinished == true)
+	{
+		bIsCurrentWaveFinished = false;
+
+		InitCurrentWave();
+
+		if (AllWaves.IsValidIndex(CurrentWaveIndex) && AllWaves[CurrentWaveIndex].WaveUnits.IsValidIndex(0))
+		{
+			SpawnDelay = AllWaves[CurrentWaveIndex].WaveUnits[CurrentWaveUnitIndex].SpawnDelay;
+			GetWorldTimerManager().ClearTimer(SpawnTimer);
+			GetWorldTimerManager().SetTimer(SpawnTimer, this,
+				&AEnemyGroupSpawner::Spawn, 0.1f, false, SpawnDelay);
+		}
+
+
+	}
 }
 

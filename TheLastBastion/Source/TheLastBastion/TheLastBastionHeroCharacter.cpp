@@ -202,6 +202,9 @@ void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputCompone
 	// Bind Open Menu input with functions
 	PlayerInputComponent->BindAction("OpenTradeMenu", IE_Pressed, this, &ATheLastBastionHeroCharacter::OpenTradeMenu);
 	PlayerInputComponent->BindAction("OpenRecruitMenu", IE_Pressed, this, &ATheLastBastionHeroCharacter::OpenRecruitMenu);
+
+	// player has the ability to control when each wave should start
+	PlayerInputComponent->BindAction("EnableEnemySpawner", IE_Pressed, this, &ATheLastBastionHeroCharacter::EnableEnemySpawner);
 }
 
 void ATheLastBastionHeroCharacter::Tick(float _deltaTime)
@@ -388,6 +391,15 @@ void ATheLastBastionHeroCharacter::OpenRecruitMenu()
 			PlayerController->OpenRecruitMenu();
 			PlayerController->GetInGameHUD()->SetPopUpNotificationVisibility(false);
 		}
+	}
+}
+
+void ATheLastBastionHeroCharacter::EnableEnemySpawner()
+{
+	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (gm)
+	{
+		gm->GetEnemyGroupSpawner()->EnableSpawning();
 	}
 }
 

@@ -146,6 +146,9 @@ protected:
 	/** Player can open recruit menu when close to Barracks */
 	void OpenRecruitMenu();
 
+	/** Player can manually control when the enemy start to spawn after each wave ended */
+	void EnableEnemySpawner();
+
 	void OnCommandMarch();
 	void OnCommandHold();
 	// Set group to be scatter or compact

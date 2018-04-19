@@ -230,6 +230,14 @@ void ASinglePlayerGM::UnRegisterEnemyGroupAt(int _index)
 	if (pc)
 		pc->GetInGameHUD()->RemoveEnemyGroupAt(_index);
 
+	// tell UI to show "press Enter to start next wave"
+	if (Enemies.Num() <= 0)
+	{
+		// TODO:  
+
+		return;
+	}
+
 	// re - index each enemy group
 	for (int iEnemyGroup = 0; iEnemyGroup < Enemies.Num(); iEnemyGroup++)
 	{
