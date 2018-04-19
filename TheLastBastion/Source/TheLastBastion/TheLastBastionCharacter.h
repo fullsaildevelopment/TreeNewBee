@@ -187,7 +187,9 @@ public:
 		const class UPawnStatsComponent* const _damageCauserPawnStats) { return false;}
 
 	/** Check if this character is able to counter attack this attack*/
-	bool OnCounterAttack(const FVector& _damageCauserRelative);
+	virtual bool OnCounterAttack(const struct FDamageInfo* const _damageInfo,
+		const class UPawnStatsComponent* const _damageCauserPawnStats) {return false;}
+
 	// Called on actor destroyed
 	virtual void Kill();
 

@@ -499,7 +499,7 @@ bool UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 	if (_damageInfo.bIsProjectile == false)
 	{
 		// if this is not projectile, then it maybe countered
-		if (damageActor->OnCounterAttack(_damageInfo.hitDirection))
+		if (damageActor->OnCounterAttack(&_damageInfo, this))
 		{
 			// counter attack
 			vfxSelected = UVfxManager::GetVfx(EVfxType::metalImpact_sputtering);
@@ -526,7 +526,7 @@ bool UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 			AGear* weapon = GetCurrentActivatedWeapon();
 			if (weapon)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("%s"), *weapon->GetName());
+				//UE_LOG(LogTemp, Warning, TEXT("%s"), *weapon->GetName());
 				sfxSelected = UAudioManager::GetMeleeWeaponImpactSFXByGearType(weapon->GetGearType());
 			}
 

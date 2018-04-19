@@ -333,6 +333,10 @@ public:
 	* if cool down time is passed*/
 	bool SkillCheck(int _skillIndex);
 
+	/** Check if this character is able to counter attack this attack*/
+	virtual bool OnCounterAttack(const struct FDamageInfo* const _damageInfo,
+		const class UPawnStatsComponent* const _damageCauserPawnStats);
+
 	bool IsDoingCounterAttack() const;
 
 	FORCEINLINE class USphereComponent* GetTargetDetector() const { return TargetDetector; }

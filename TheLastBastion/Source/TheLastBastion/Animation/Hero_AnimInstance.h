@@ -235,8 +235,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = MeleeCombo)
 		class UAnimMontage*  KatanaAirAttack_Montage;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = CounterAttack)
-		class UAnimMontage* CounterAttack_Montage;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = CounterAttack)
 		class UAnimMontage* Skill_Montage;
@@ -368,8 +366,8 @@ public:
 	void OnBeingHit
 	(FName boneName, const FVector& _damageCauseRelative, const FVector& _hitLocation) override;
 
-	UFUNCTION()
-		bool OnCounterAttack(const FVector& _damageCauserRelative) override;
+	
+	bool OnCounterAttack(const FVector& _damageCauserRelative);
 
 
 	/** Called When switch melee weapon and equip*/

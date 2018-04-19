@@ -218,7 +218,7 @@ void UAIMelee_AnimInstance::ResetOnBeingHit()
 	mCharacter->GetCharacterMovement()->RotationRate.Yaw = AICharacter_RotatingRate;
 	Super::ResetOnBeingHit();
 
-	UE_LOG(LogTemp, Warning, TEXT("UAIBase_AnimInstance::ResetOnBeingHit"));
+	//UE_LOG(LogTemp, Warning, TEXT("UAIBase_AnimInstance::ResetOnBeingHit"));
 
 }
 

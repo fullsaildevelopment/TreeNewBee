@@ -22,6 +22,7 @@ namespace
 	UAnimMontage* AM_HV_HitReaction = nullptr;
 	UAnimMontage* AM_TH_HitReaction = nullptr;
 	UAnimMontage* AM_Sns_HitReaction = nullptr;
+	UAnimMontage* AM_CounterAttack = nullptr;
 
 	UAnimMontage* AM_CrossBow = nullptr;
 	UAnimMontage* AM_Skill = nullptr;
@@ -58,8 +59,8 @@ public:
 	virtual void OnBeingHit
 	(FName boneName ,const FVector& _damageCauseRelative, const FVector& _hitLocation);
 
-	UFUNCTION()
-		virtual bool OnCounterAttack(const FVector& _damageCauserRelative) { return false; }
+	//UFUNCTION()
+	//	virtual bool OnCounterAttack(const FVector& _damageCauserRelative) { return false; }
 
 	UFUNCTION(BlueprintCallable)
 	virtual void AnimInstanceResetOnRagDoll();
@@ -123,7 +124,6 @@ protected:
 		/** current Animation Montage to play when this character need to parry*/
 		class UAnimMontage* Parry_Montage;
 
-
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = Combat)
 		class UAnimMontage* Equip_Montage;
 
@@ -138,6 +138,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat)
 		class UAnimMontage* GetUp_Montage;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = CounterAttack)
+		class UAnimMontage* CounterAttack_Montage;
+
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Movement)
 		FVector damageMomentum;

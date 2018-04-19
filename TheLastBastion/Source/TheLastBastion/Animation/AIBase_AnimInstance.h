@@ -154,7 +154,7 @@ public:
 	void OnBeingHit(FName boneName, const FVector& _damageCauseRelative,
 		const FVector& _hitLocation) override;
 
-	bool OnCounterAttack(const FVector & _damageCauserRelative) override;
+	void OnCounterAttack(FName sectionName);
 
 	void OnParry(FName sectionName);
 

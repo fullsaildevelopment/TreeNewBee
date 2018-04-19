@@ -315,14 +315,14 @@ bool ATheLastBastionCharacter::IsOnDefend() const
 	return false;
 }
 
-bool ATheLastBastionCharacter::OnCounterAttack(const FVector& _damageCauserRelative)
-{
-	if (mBaseAnimRef)
-	{
-		return mBaseAnimRef->OnCounterAttack(_damageCauserRelative);
-	}
-	return false;
-}
+//bool ATheLastBastionCharacter::OnCounterAttack(const FVector& _damageCauserRelative)
+//{
+//	if (mBaseAnimRef)
+//	{
+//		return mBaseAnimRef->OnCounterAttack(_damageCauserRelative);
+//	}
+//	return false;
+//}
 
 float ATheLastBastionCharacter::GetCurrentMaxSpeed() const
 {

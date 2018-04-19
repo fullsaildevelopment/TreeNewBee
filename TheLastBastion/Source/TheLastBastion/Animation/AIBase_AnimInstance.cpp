@@ -180,9 +180,18 @@ void UAIBase_AnimInstance::OnBeingHit(FName boneName, const FVector & _damageCau
 	PlayMontage(Hit_Montage, 1.0f, sectionToPlay);
 }
 
-bool UAIBase_AnimInstance::OnCounterAttack(const FVector & _damageCauserRelative)
+void UAIBase_AnimInstance::OnCounterAttack(FName sectionName)
 {
-	return false;
+	CurrentActionState = EAIActionState::MeleePreAttack;
+
+	if (CounterAttack_Montage == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Parry_Montage == nullptr ,UAIBase_AnimInstance::OnParry "));
+		return;
+	}
+
+	//OnDisableWeapon(true, true);
+	PlayMontage(CounterAttack_Montage, 1.0f, sectionName);
 }
 
 void UAIBase_AnimInstance::OnParry(FName sectionName)
@@ -224,11 +233,13 @@ void UAIBase_AnimInstance::UpdateAnimationSetOnWeaponChange(EGearType _gearType)
 			Hit_Montage = AM_SingleHandWeapon_HitReaction;
 			Parry_Montage = AM_SH_Parry;
 			Dodge_Montage = AM_SH_Dodge;
+			
 		}
 		else
 		{
 			Hit_Montage = AM_Sns_HitReaction;
 			Parry_Montage = AM_Sns_Parry;
+			CounterAttack_Montage = AM_CounterAttack;
 			Dodge_Montage = nullptr;
 		}
 		break;
@@ -258,7 +269,7 @@ void UAIBase_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMont
 
 	if (!_bInterruptted)
 	{
-		if (_animMontage == Hit_Montage || _animMontage == Parry_Montage || _animMontage == Dodge_Montage)
+		if (_animMontage == Hit_Montage || _animMontage == Parry_Montage || _animMontage == Dodge_Montage || _animMontage == CounterAttack_Montage)
 		{
 			OnHitMontageEnd();
 		}

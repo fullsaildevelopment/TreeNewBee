@@ -73,22 +73,14 @@
 #define Sns_Parry_End_Min 2
 #define Sns_Parry_End_Max 3
 
-#define Sns_Ulti_InPlace_Left_Min 0
-#define Sns_Ulti_InPlace_Left_Max 2
-#define Sns_Ulti_InPlace_Right_Min 3
-#define Sns_Ulti_InPlace_Right_Max 4
-#define Sns_Ulti_Move_Left_Min 5
-#define Sns_Ulti_Move_Left_Max 6
-#define Sns_Ulti_Move_Right_Min 7
-#define Sns_Ulti_Move_Right_Max 8
-#define Sns_Ulti_ShieldBash 9
+#define Sns_Ulti_InPlace_Left_Min 4
+#define Sns_Ulti_InPlace_Left_Max 6
+#define Sns_Ulti_InPlace_Right_Min 0
+#define Sns_Ulti_InPlace_Right_Max 3
+#define Sns_Ulti_Move_Min 7
+#define Sns_Ulti_Move_Max 9
 
-
-
-
-
-
-
+#define Sns_Ulti_ShieldBash 10
 
 
 UCLASS()
@@ -143,14 +135,16 @@ protected:
 		float AttackWait;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
-		/** if less than equal to zero, this ai will automatically 
-		find a way to Parry the next melee attack*/
+		/** updated value to judge when parry should happend or stop*/
 		int ParryEndurance;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
-		/** if less than equal to zero, this ai will automatically
-		find a way to dodge the next melee attack*/
+		/** updated value to judge when dodge should happend or stop*/
 		int DodgeEndurance;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Behavior)
+		/** updated value to judge when counter should happend or stop*/
+		int CounterEndurance;
 
 	UPROPERTY(VisibleAnywhere, Category = Behavior)
 		/** Should we attack from right ? A toggled variable to control ai to attack from different direction */

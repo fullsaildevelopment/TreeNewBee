@@ -1026,25 +1026,28 @@ void UHero_AnimInstance::OnMeleeAttack()
 
 bool UHero_AnimInstance::OnCounterAttack(const FVector & _damageCauserRelative)
 {
-	float dotFront = FVector::DotProduct(mCharacter->GetActorForwardVector(), _damageCauserRelative);
 
-	// Check if we are in defence mode
-	if (!bOnDefend)
-		return false;
-
-	// Check Stanima
-	if (mCharacter->CounterAttackSpCheck() == false)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No Enought Stamina - UHero_AnimInstance::LaunchCounterAttack"));
-		return false;
-	}
-
-	// Implement Counter Attack
 	if (CounterAttack_Montage == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("CounterAttack_Montage == nullptr - UHero_AnimInstance::OnCounterAttack"));
 		return false;
 	}
+
+
+	//// Check if we are in defence mode
+	//if (!bOnDefend)
+	//	return false;
+	//// Check Stanima
+	//if (mCharacter->CounterAttackSpCheck() == false)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("No Enought Stamina - UHero_AnimInstance::LaunchCounterAttack"));
+	//	return false;
+	//}
+
+	// Implement Counter Attack
+
+	float dotFront = FVector::DotProduct(mCharacter->GetActorForwardVector(), _damageCauserRelative);
+
 	// Check direction, Sns Has more counter attack chance 
 	FName sectionName;
 	switch (CurrentEquipment)

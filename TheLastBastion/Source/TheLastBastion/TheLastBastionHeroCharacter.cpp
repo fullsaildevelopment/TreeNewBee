@@ -909,6 +909,37 @@ bool ATheLastBastionHeroCharacter::SkillCheck(int _skillIndex)
 	return success;
 }
 
+bool ATheLastBastionHeroCharacter::OnCounterAttack(const FDamageInfo * const _damageInfo, const UPawnStatsComponent * const _damageCauserPawnStats)
+{
+
+	bool accept = IsOnDefend() && CounterAttackSpCheck();
+
+	if (!accept)
+		return false;
+
+	// wpn check 
+	EGearType heroGear = HeroStats->GetCurrentRightHandWeapon()->GetGearType();
+	EGearType damageCauserGear = _damageCauserPawnStats->GetCurrentRightHandWeapon()->GetGearType();
+
+	bool damageCauserHoldingHV = damageCauserGear == EGearType::GreatSword
+		|| damageCauserGear == EGearType::BattleAxe || damageCauserGear == EGearType::Hammer;
+
+	bool heroHoldingKatana = heroGear == EGearType::DoubleHandWeapon;
+	if (heroHoldingKatana && damageCauserHoldingHV)
+	{
+		UE_LOG(LogTemp, Warning, 
+			TEXT("Try to use katana to counter heavy weapon failed - ATheLastBastionHeroCharacter::OnCounterAttack"));
+		return false;
+	}
+
+	if (mAnimInstanceRef)
+	{
+		return mAnimInstanceRef->OnCounterAttack(_damageInfo->hitDirection);
+	}
+
+	return false;
+}
+
 bool ATheLastBastionHeroCharacter::IsDoingCounterAttack() const
 {
 	return mAnimInstanceRef->IsDoingGainDpAttack();

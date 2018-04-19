@@ -9,6 +9,19 @@
 /**
  * 
  */
+
+#define Parry_Up_Right 0 
+#define Parry_Up_Left 1 
+#define Parry_Top_Left 2 
+#define Block_Top_Down_Right 3 
+#define Block_Top_Up_Mid 4 
+#define Block_Down 5 
+
+const FName SnsParryAndBlockSectionName[6] = 
+{ FName("Parry_Up_Right"),FName("Parry_Up_Left"), FName("Parry_Top_Left"), 
+FName("Block_Top_Down_Right"),FName("Block_Top_Up_Mid") ,FName("Block_Down") };
+
+
 UCLASS()
 class THELASTBASTION_API AHeavySheild_Enemy : public ATheLastBastionEnemyCharacter
 {
@@ -17,8 +30,8 @@ class THELASTBASTION_API AHeavySheild_Enemy : public ATheLastBastionEnemyCharact
 	
 public:
 
-	//bool OnCounterAttack(const struct FDamageInfo* const _damageInfo,
-	//	const class UPawnStatsComponent* const _damageCauserPawnStats) override;
+	bool OnCounterAttack(const struct FDamageInfo* const _damageInfo,
+		const class UPawnStatsComponent* const _damageCauserPawnStats) override;
 
 	bool OnParry(const struct FDamageInfo* const _damageInfo,
 		const class UPawnStatsComponent* const _damageCauserPawnStats) override;
@@ -32,7 +45,9 @@ public:
 
 protected:
 
-	FName GetParrySectionName(const struct FDamageInfo* const _damageInfo) const;
+	int GetParrySectionNameIndex(const struct FDamageInfo* const _damageInfo) const;
+
+	FORCEINLINE FName GetParrySectionName(int _index) const { return SnsParryAndBlockSectionName[_index]; }
 
 	FName GetCounterAttackSectionName(const struct FDamageInfo* const _damageInfo) const;
 

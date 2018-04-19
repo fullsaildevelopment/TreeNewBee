@@ -44,6 +44,11 @@ UBase_AnimInstance::UBase_AnimInstance(const FObjectInitializer& _objectInitaliz
 	FindMontage(AM_Sns_Parry,
 		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_Sns_Parry"));
 
+	FindMontage(AM_CounterAttack,
+		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_CA"));
+
+	
+
 }
 
 void UBase_AnimInstance::OnBeginPlay()

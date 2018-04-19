@@ -12,6 +12,55 @@
 
 
 
+bool AHeavySheild_Enemy::OnCounterAttack(const struct FDamageInfo* const _damageInfo,
+	const class UPawnStatsComponent* const _damageCauserPawnStats)
+{
+
+	// 2. Action check, is this ai 's current action is fit for parrying ?
+	UAIMelee_AnimInstance* animRef = Cast<UAIMelee_AnimInstance>(GetAnimInstanceRef());
+	if (animRef == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("animRef == nullptr, AHeavyMelee::OnParry"));
+		return false;
+	}
+
+
+	// 4. direction check, less than 45 from forward vector
+	float forwardDot = FVector::DotProduct(GetActorForwardVector(), _damageInfo->hitDirection);
+
+	if (forwardDot >= 0.707f)
+	{
+		ATheLastBastionBaseAIController* baseAICtrl
+			= Cast<ATheLastBastionBaseAIController>(GetController());
+		if (baseAICtrl == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("baseAICtrl is nullptr - ASingleSwordMan_Enemy::OnParry"));
+			return false;
+		}
+		baseAICtrl->SetIsPaused_BBC(true);
+
+		animRef->OnCounterAttack(GetCounterAttackSectionName(_damageInfo));
+
+		UParticleSystem * sparkVFX = UVfxManager::GetVfx(EVfxType::metalImpact_sputtering);
+
+		USoundCue* sparkSFX = UAudioManager::GetSFX(ESoundEffectType::EMeleeCounterAttackImpact);
+
+		if (sparkSFX && sparkVFX)
+		{
+			UWorld* world = GetWorld();
+			UGameplayStatics::SpawnEmitterAtLocation(world, sparkVFX, _damageInfo->hitResult.ImpactPoint);
+			UGameplayStatics::PlaySoundAtLocation(world, sparkSFX, _damageInfo->hitResult.ImpactPoint);
+		}
+
+		return true;
+	}
+	else
+		return false;
+
+
+}
+
+
 bool AHeavySheild_Enemy::OnParry(const struct FDamageInfo* const _damageInfo,
 	const class UPawnStatsComponent* const _damageCauserPawnStats)
 {
@@ -35,8 +84,8 @@ bool AHeavySheild_Enemy::OnParry(const struct FDamageInfo* const _damageInfo,
 		currentState == EAIActionState::MeleePreAttack ||
 		currentState == EAIActionState::MeleePostAttack;
 
-	//if (!isRightState)
-	//	return false;
+	if (!isRightState)
+		return false;
 
 	// 4. direction check, less than 45 from forward vector
 	float forwardDot = FVector::DotProduct(GetActorForwardVector(), _damageInfo->hitDirection);
@@ -52,11 +101,15 @@ bool AHeavySheild_Enemy::OnParry(const struct FDamageInfo* const _damageInfo,
 		}
 		baseAICtrl->SetIsPaused_BBC(true);
 
-		animRef->OnParry(GetParrySectionName(_damageInfo));// , AM_SH_Parry);
-														   // fx
+
+		int parrySectionName = GetParrySectionNameIndex(_damageInfo);
+		
+		animRef->OnParry(GetParrySectionName(parrySectionName));
 
 		UParticleSystem * sparkVFX = UVfxManager::GetVfx(EVfxType::metalImpact_sputtering);
-		USoundCue* sparkSFX = UAudioManager::GetSFX(ESoundEffectType::EMeleeCounterAttackImpact);
+
+		USoundCue* sparkSFX = (parrySectionName >= Block_Top_Down_Right)? 
+			UAudioManager::GetSFX(ESoundEffectType::EShieldBashImpact) : UAudioManager::GetSFX(ESoundEffectType::EMeleeCounterAttackImpact);
 
 		if (sparkSFX && sparkVFX)
 		{
@@ -75,19 +128,17 @@ bool AHeavySheild_Enemy::OnParry(const struct FDamageInfo* const _damageInfo,
 
 }
 
-
 int AHeavySheild_Enemy::GetMeleeComboSel(bool _bIsMoving) const
 {
 	return (CharacterType == ECharacterType::LanTrooper_Shield)? 
 		GetMeleeComboSel_Guardian(_bIsMoving) : GetMeleeComboSel_UltiGuardian(_bIsMoving);
 }
 
-FName AHeavySheild_Enemy::GetParrySectionName(const FDamageInfo * const _damageInfo) const
+
+int AHeavySheild_Enemy::GetParrySectionNameIndex(const FDamageInfo * const _damageInfo) const
 {
 
 	// figure out the anim section to play
-	FName animSection;
-
 	FVector impactPoint = _damageInfo->hitResult.ImpactPoint;
 
 	FVector hitDir = (impactPoint - GetActorLocation());
@@ -106,14 +157,14 @@ FName AHeavySheild_Enemy::GetParrySectionName(const FDamageInfo * const _damageI
 			float dirDotFor = FVector::DotProduct(hitDir, GetActorForwardVector());
 
 			if (dirDotFor >= 0.86f)
-				animSection = TEXT("Block_Top_Up_Mid");
+				return Block_Top_Up_Mid;
 			else
 			{
 				float dirDotRight = FVector::DotProduct(hitDir, GetActorRightVector());
 				if (dirDotRight > 0)
-					animSection = TEXT("Block_Top_Down_Right");
+					return Block_Top_Down_Right;
 				else
-					animSection = TEXT("Parry_Top_Left");
+					return Parry_Top_Left;
 			}
 
 		}
@@ -123,14 +174,14 @@ FName AHeavySheild_Enemy::GetParrySectionName(const FDamageInfo * const _damageI
 			float dirDotFor = FVector::DotProduct(hitDir, GetActorForwardVector());
 
 			if (dirDotFor >= 0.86f)
-				animSection = TEXT("Block_Top_Up_Mid");
+				return Block_Top_Up_Mid;
 			else
 			{
 				float dirDotRight = FVector::DotProduct(hitDir, GetActorRightVector());
 				if (dirDotRight > 0)
-					animSection = TEXT("Parry_Up_Right");
+					return Parry_Up_Right;
 				else
-					animSection = TEXT("Parry_Up_Left");
+					return Parry_Up_Left;
 			}
 
 		}
@@ -140,25 +191,40 @@ FName AHeavySheild_Enemy::GetParrySectionName(const FDamageInfo * const _damageI
 		float dirDotFor = FVector::DotProduct(hitDir, GetActorForwardVector());
 
 		if (dirDotFor >= 0.86f)
-			animSection = TEXT("Block_Down");
+			return Block_Down;
 		else
 		{
 			float dirDotRight = FVector::DotProduct(hitDir, GetActorRightVector());
 			if (dirDotRight > 0)
-				animSection = (FMath::RandRange(-5, 5)> 0) ? TEXT("Block_Down"): TEXT("Block_Top_Down_Right");
+				return (FMath::RandRange(-5, 5) > 0) ? Block_Down : Block_Top_Down_Right;
 			else
-				animSection = TEXT("Block_Down");
+				return Block_Down;
 		}
 	}
-
-
-
-	return animSection;
 }
 
 FName AHeavySheild_Enemy::GetCounterAttackSectionName(const FDamageInfo * const _damageInfo) const
 {
-	return FName();
+	// figure out the anim section to play
+	FVector impactPoint = _damageInfo->hitResult.ImpactPoint;
+
+	FVector hitDir = (impactPoint - GetActorLocation());
+	hitDir.Z = 0.0f;
+	hitDir = hitDir.GetUnsafeNormal();
+
+	float dirDotFor = FVector::DotProduct(hitDir, GetActorForwardVector());
+	
+	if (dirDotFor >= 0.86f)
+		return TEXT("Sns_Front");
+	else
+	{
+		float dirDotRight = FVector::DotProduct(hitDir, GetActorRightVector());
+		if (dirDotRight > 0)
+			return TEXT("Sns_Right");
+		else
+			return TEXT("Sns_Left");
+	}
+
 }
 
 int AHeavySheild_Enemy::GetMeleeComboSel_Guardian(bool _bIsMoving) const
@@ -180,8 +246,7 @@ int AHeavySheild_Enemy::GetMeleeComboSel_UltiGuardian(bool _bIsMoving) const
 		return Sns_Ulti_ShieldBash;
 
 	if (_bIsMoving)
-		return bAttackFromRight ? FMath::RandRange(Sns_Ulti_Move_Right_Min, Sns_Ulti_Move_Right_Max) :
-		FMath::RandRange(Sns_Ulti_Move_Left_Min, Sns_Ulti_Move_Left_Max);
+		return FMath::RandRange(Sns_Ulti_Move_Min, Sns_Ulti_Move_Max);
 	else
 		return bAttackFromRight ? FMath::RandRange(Sns_Ulti_InPlace_Right_Min, Sns_Ulti_InPlace_Right_Max) :
 		FMath::RandRange(Sns_Ulti_InPlace_Left_Min, Sns_Ulti_InPlace_Left_Max);
