@@ -38,12 +38,10 @@ bool AHeavySheild_Enemy::OnCounterAttack(const struct FDamageInfo* const _damage
 		UE_LOG(LogTemp, Error, TEXT("damageCauserGear == nullptr,ASingleSwordMan_Enemy::OnParry "));
 		return false;
 	}
+	
+	bool  damageCauserHoldingHeavyWeapon = _damageCauserPawnStats->IsUsingHeavyWeapon();
 
-	bool weaponCanNotCounter = gearType == EGearType::GreatSword 
-		|| gearType == EGearType::Hammer 
-		|| gearType == EGearType::BattleAxe;
-
-	if (weaponCanNotCounter == false && CounterEndurance <= 0)
+	if (damageCauserHoldingHeavyWeapon == false && CounterEndurance <= 0)
 	{
 		// 3. direction check, less than 45 from forward vector
 		float forwardDot = FVector::DotProduct(GetActorForwardVector(), _damageInfo->hitDirection);
@@ -137,9 +135,7 @@ bool AHeavySheild_Enemy::OnParry(const struct FDamageInfo* const _damageInfo,
 			UGameplayStatics::PlaySoundAtLocation(world, sparkSFX, _damageInfo->hitResult.ImpactPoint);
 		}
 
-		// reset the endurance for next parry
-		ParryEndurance = GetParryEndurance();
-		CounterEndurance--;
+		OnParrySuccess(_damageCauserPawnStats);
 
 		return true;
 	}
@@ -156,7 +152,11 @@ int AHeavySheild_Enemy::GetMeleeComboSel(bool _bIsMoving) const
 
 void AHeavySheild_Enemy::ClearEndurance()
 {
-	CounterEndurance = GetCounterEndurance();
+
+	if (CharacterType == ECharacterType::LanTrooper_HeavyShield)
+		CounterEndurance = GetCounterEndurance();
+	else
+		ParryEndurance = GetParryEndurance();
 }
 
 int AHeavySheild_Enemy::GetParrySectionNameIndex(const FDamageInfo * const _damageInfo) const
@@ -253,15 +253,19 @@ FName AHeavySheild_Enemy::GetCounterAttackSectionName(const FDamageInfo * const 
 
 void AHeavySheild_Enemy::UpdateEnduranceOnBeingHit(const AActor* const _damageCauser)
 {
+
+	if (CharacterType == ECharacterType::LanTrooper_Shield)
+		return;
+
 	const ATheLastBastionCharacter* damageCauser = Cast<ATheLastBastionCharacter>(_damageCauser);
 	if (damageCauser)
 	{
-		EGearType damageCauserGear = damageCauser->GetPawnStatsComp_Const()->GetCurrentRightHandWeapon()->GetGearType();
+
+		bool damageCauserHoldingHeavyWeapon
+			= damageCauser->IsUsingHeavyWeapon();
 
 		// if hit by heavy weapon, endurance will not grow
-		if (damageCauserGear == EGearType::GreatSword 
-			|| damageCauserGear == EGearType::BattleAxe 
-			|| damageCauserGear == EGearType::Hammer)
+		if (damageCauserHoldingHeavyWeapon)
 			return;
 
 		ParryEndurance--;
@@ -295,10 +299,30 @@ int AHeavySheild_Enemy::GetMeleeComboSel_UltiGuardian(bool _bIsMoving) const
 		FMath::RandRange(Sns_Ulti_InPlace_Left_Min, Sns_Ulti_InPlace_Left_Max);
 }
 
+void AHeavySheild_Enemy::OnParrySuccess(const class UPawnStatsComponent* const _damageCauserPawnStats)
+{
+	if (CharacterType == ECharacterType::LanTrooper_HeavyShield)
+	{
+		// reset the endurance for next parry
+		ParryEndurance = GetParryEndurance();
+		CounterEndurance--;
+	}
+	else
+	{
+		EGearType damageCauserGear = _damageCauserPawnStats->GetCurrentRightHandWeapon()->GetGearType();
+		if (damageCauserGear == EGearType::LongSword || damageCauserGear == EGearType::DoubleHandWeapon)
+			ParryEndurance--;
+		else
+			ParryEndurance -= 2;
+
+	}
+
+}
+
 bool AHeavySheild_Enemy::IsParrySuccess(const class UPawnStatsComponent* const _damageCauserPawnStats, EAIActionState _currentActionState) const
 {
 	//3. Check correct weapon type
-	AGear* damageCauserGear = _damageCauserPawnStats->GetCurrentRightHandWeapon();
+	AGear* damageCauserGear = _damageCauserPawnStats->GetCurrentActivatedWeapon();
 	EGearType gearType;
 
 	if (damageCauserGear)
@@ -309,21 +333,28 @@ bool AHeavySheild_Enemy::IsParrySuccess(const class UPawnStatsComponent* const _
 		return false;
 	}
 
-	bool weaponTypeThatAbleToParry = gearType == EGearType::LongSword || gearType == EGearType::DoubleHandWeapon;
+	bool damageCauserHoldingHeavyWeapon
+		= _damageCauserPawnStats->IsUsingHeavyWeapon();
 
-	if (weaponTypeThatAbleToParry == false)
+	bool isRightState =
+		_currentActionState == EAIActionState::None ||
+		_currentActionState == EAIActionState::Defend ||
+		_currentActionState == EAIActionState::MeleePreAttack ||
+		_currentActionState == EAIActionState::MeleePostAttack ||
+		_currentActionState == EAIActionState::MeleeAttack;
+
+	if (!damageCauserHoldingHeavyWeapon && isRightState && ParryEndurance > 0)
+		return true;
+	else
 		return false;
-
-	return true;
 }
 
 bool AHeavySheild_Enemy::IsParrySuccess_Ulti(const class UPawnStatsComponent* const _damageCauserPawnStats, EAIActionState _currentActionState) const
 {
 	// parry happen whenever the right animatino state or parry endurance less equal to zero
 
-	EGearType gearType = _damageCauserPawnStats->GetCurrentRightHandWeapon()->GetGearType();
 	bool damageCauserHoldingHeavyWeapon
-		= gearType == EGearType::GreatSword || gearType == EGearType::Hammer || gearType == EGearType::BattleAxe;
+		= _damageCauserPawnStats->IsUsingHeavyWeapon();
 
 	// it can parry during attack if the attack did not damage him with heavy weapon
 	bool isRightState =

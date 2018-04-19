@@ -200,7 +200,6 @@ public:
 
 	virtual bool OnSwapBetweenMeleeAndRange();
 
-
 	void CalculateRawStatsByType(int _level, ECharacterType _type, float& damage, float& _hp);
 
 	// Called after equip and unequip 
@@ -213,6 +212,8 @@ public:
 	void Born();
 
 	virtual bool ApplyDamage(const FDamageInfo& _hit);
+
+	bool IsUsingHeavyWeapon() const;
 
 public:
 

@@ -315,6 +315,11 @@ bool ATheLastBastionCharacter::IsOnDefend() const
 	return false;
 }
 
+bool ATheLastBastionCharacter::IsUsingHeavyWeapon() const
+{
+	return GetPawnStatsComp()->IsUsingHeavyWeapon();
+}
+
 //bool ATheLastBastionCharacter::OnCounterAttack(const FVector& _damageCauserRelative)
 //{
 //	if (mBaseAnimRef)

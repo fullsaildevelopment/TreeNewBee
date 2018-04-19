@@ -579,6 +579,13 @@ bool UPawnStatsComponent::ApplyDamage(const FDamageInfo& _damageInfo)
 	return true;
 }
 
+bool UPawnStatsComponent::IsUsingHeavyWeapon() const
+{
+	EGearType gearType = GetCurrentActivatedWeapon()->GetGearType();
+	return gearType == EGearType::GreatSword || gearType == EGearType::Hammer || gearType == EGearType::BattleAxe || gearType == EGearType::Shield;
+
+}
+
 AArmor * UPawnStatsComponent::GetCurrentArmor() const
 {
 	return Armor;

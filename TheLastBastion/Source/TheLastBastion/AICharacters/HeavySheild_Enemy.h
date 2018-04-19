@@ -64,7 +64,9 @@ private:
 	int GetMeleeComboSel_Guardian(bool _bIsMoving) const;
 	int GetMeleeComboSel_UltiGuardian(bool _bIsMoving) const;
 
-
+	/** Called when parry is done successfully*/
+	void OnParrySuccess(const class UPawnStatsComponent* const _damageCauserPawnStats);
+	/** Check if parry is available for current animation state, according to damage causer's current weapon, before the directional check*/
 	bool IsParrySuccess(const class UPawnStatsComponent* const _damageCauserPawnStats, EAIActionState _currentActionState) const;
 	bool IsParrySuccess_Ulti(const class UPawnStatsComponent* const _damageCauserPawnStats, EAIActionState _currentActionState) const;
 

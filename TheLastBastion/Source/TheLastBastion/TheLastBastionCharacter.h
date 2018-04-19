@@ -227,6 +227,7 @@ public:
 
 
 	bool IsOnDefend() const;
+	bool IsUsingHeavyWeapon() const;
 
 	float GetCurrentMaxSpeed() const;
 	class AArmor* GetCurrentArmor() const;
