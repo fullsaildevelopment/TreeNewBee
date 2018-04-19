@@ -406,7 +406,7 @@ private:
 	// enter defend pose with double hand weapon and shield
 	void OnDefendOn_Dh();
 
-	void LaunchCounterAttack(const FName& _sectionName);
+	void LaunchCounterAttack(const FName& _sectionName, float _rate = 1.0f);
 
 	void LaunchCombo();
 	/** Reset Combo when attack montage gets blended out without any interrupt*/

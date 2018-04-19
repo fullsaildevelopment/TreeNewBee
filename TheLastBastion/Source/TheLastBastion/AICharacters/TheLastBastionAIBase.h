@@ -70,8 +70,8 @@
 #define Sns_Ulti_Combo_Counter_Min 2
 #define Sns_Ulti_Combo_Counter_Max 4
 
-#define Sns_Parry_End_Min 2
-#define Sns_Parry_End_Max 3
+#define Sns_Parry_End_Min 3
+#define Sns_Parry_End_Max 5
 
 #define Sns_Ulti_InPlace_Left_Min 4
 #define Sns_Ulti_InPlace_Left_Max 6
@@ -79,6 +79,9 @@
 #define Sns_Ulti_InPlace_Right_Max 3
 #define Sns_Ulti_Move_Min 7
 #define Sns_Ulti_Move_Max 9
+#define Sns_Ulti_Counter_Min 2
+#define Sns_Ulti_Counter_Max 3
+
 
 #define Sns_Ulti_ShieldBash 10
 
@@ -206,12 +209,18 @@ public:
 
 	/** Get Melee Attack selection by distance, toggle bAttackFromRight */
 	int MeleeComboSelection(float _distSq); 
+
 	/** Get How many combos the ai character will do in a row*/
 	FORCEINLINE virtual int GetComboCounter() const { return 1; }
 	/** Get how many hit can this AI endurance before it has to parry this attack*/
 	FORCEINLINE virtual int GetParryEndurance() const { return 1; }
 	/** Get how many hit can this AI endurance before it has to dodge this attack*/
 	FORCEINLINE virtual int GetAutoDodgeEndurance() const { return 1; }
+	/** Get how many hit can this AI endurance before it counter this attack*/
+	FORCEINLINE virtual int GetCounterEndurance() const { return 1; }
+
+	/** Called during the start of ai melee combo, if there is anything needs to reset*/
+	virtual void ClearEndurance() {}
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE bool IsRangeUnit() const { return bIsRangeUnit; }
@@ -289,6 +298,9 @@ protected:
 
 	/** Get Melee Attack selection by distance, called during GetMeleeSel*/
 	virtual int GetMeleeComboSel(bool _IsMoving) const { return 0; }
+
+	/** Update the endurance for */
+	virtual void UpdateEnduranceOnBeingHit(const AActor* const _damageCauser);
 
 	///** AI shared behavior*/
 	//UFUNCTION(BlueprintCallable)

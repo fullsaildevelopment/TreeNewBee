@@ -22,6 +22,8 @@ const FName SnsParryAndBlockSectionName[6] =
 FName("Block_Top_Down_Right"),FName("Block_Top_Up_Mid") ,FName("Block_Down") };
 
 
+enum class EAIActionState : uint8;
+
 UCLASS()
 class THELASTBASTION_API AHeavySheild_Enemy : public ATheLastBastionEnemyCharacter
 {
@@ -40,8 +42,12 @@ public:
 
 	FORCEINLINE int GetComboCounter() const override { return CharacterType == ECharacterType::LanTrooper_Shield ? FMath::RandRange(Sns_Combo_Counter_Min, Sns_Combo_Counter_Max) : FMath::RandRange(Sns_Ulti_Combo_Counter_Min, Sns_Ulti_Combo_Counter_Max); }
 
-	/** Get How many melee attack this AI can parry before getting hit*/
+	/** Get How many melee attack this AI can parry before getting hit, 
+	for Ulti guardian, this is once being hit how many melee attack it can takes before parrying attack*/
 	FORCEINLINE int GetParryEndurance() const override { return FMath::RandRange(Sns_Parry_End_Min, Sns_Parry_End_Max); }
+	FORCEINLINE int GetCounterEndurance() const override {return  FMath::RandRange(Sns_Ulti_Counter_Min, Sns_Ulti_Counter_Max);}
+
+	void ClearEndurance() override;
 
 protected:
 
@@ -51,13 +57,15 @@ protected:
 
 	FName GetCounterAttackSectionName(const struct FDamageInfo* const _damageInfo) const;
 
+	void UpdateEnduranceOnBeingHit(const AActor* const _damageCauser) override;
+
 private:
 
 	int GetMeleeComboSel_Guardian(bool _bIsMoving) const;
 	int GetMeleeComboSel_UltiGuardian(bool _bIsMoving) const;
 
 
-	bool IsParrySuccess(const class UPawnStatsComponent* const _damageCauserPawnStats) const;
-	bool IsParrySuccess_Ulti(const class UPawnStatsComponent* const _damageCauserPawnStats) const;
+	bool IsParrySuccess(const class UPawnStatsComponent* const _damageCauserPawnStats, EAIActionState _currentActionState) const;
+	bool IsParrySuccess_Ulti(const class UPawnStatsComponent* const _damageCauserPawnStats, EAIActionState _currentActionState) const;
 
 };

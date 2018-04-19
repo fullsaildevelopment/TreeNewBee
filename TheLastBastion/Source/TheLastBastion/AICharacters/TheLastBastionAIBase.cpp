@@ -93,6 +93,7 @@ void ATheLastBastionAIBase::BeginPlay()
 
 	ParryEndurance = GetParryEndurance();
 	DodgeEndurance = GetAutoDodgeEndurance();
+	CounterEndurance = GetCounterEndurance();
 
 }
 
@@ -370,11 +371,7 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 		return;
 	}
 
-	// endurance reduction, and when it less than zero, 
-	// ai will do something else based on the class
-	ParryEndurance--;
-	DodgeEndurance--;
-	
+	UpdateEnduranceOnBeingHit(DamageCauser);
 	// play animation
 	////////////////////////////////////////////// innocent line ////////////////////////////
 	if (isStun)
@@ -446,6 +443,12 @@ void ATheLastBastionAIBase::AddExp(ATheLastBastionHeroCharacter * _heroAttacker)
 			}
 		}
 	}
+}
+
+void ATheLastBastionAIBase::UpdateEnduranceOnBeingHit(const AActor* const _damageCauser)
+{
+	ParryEndurance--;
+	DodgeEndurance--;
 }
 
 //bool ATheLastBastionAIBase::MountainOnDodgeParry(FName _boneName, const FVector & _damageCauserRelative, const UPawnStatsComponent * const _damageCauserPawnStats)

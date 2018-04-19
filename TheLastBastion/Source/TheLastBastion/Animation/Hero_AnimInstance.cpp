@@ -63,6 +63,7 @@ const TArray<FName> KatanaAirAttack_Montage_SN
 #define JumpZ_HV  700
 #define JumpZ_Katana 850
 #define JumpZ_Travel 900
+#define GreatSwordAnimRate 1.1f
 
 
 
@@ -1096,10 +1097,11 @@ bool UHero_AnimInstance::OnCounterAttack(const FVector & _damageCauserRelative)
 					LaunchCounterAttack(sectionName);
 					return true;
 				}
-				else
+				else 
 				{
 					sectionName = MONTAGE_SN_CA_Hammer;
-					LaunchCounterAttack(sectionName);
+					float rate = (currentWeapon->GetGearType() == EGearType::GreatSword) ? GreatSwordAnimRate : 1.0f;
+					LaunchCounterAttack(sectionName, rate);
 					return true;
 				}
 			}
@@ -1189,11 +1191,11 @@ void UHero_AnimInstance::OnDefendOff()
 	TargetDefendPoseAlpha = 0.0f;
 }
 
-void UHero_AnimInstance::LaunchCounterAttack(const FName & _sectionName)
+void UHero_AnimInstance::LaunchCounterAttack(const FName & _sectionName, float _rate)
 {
-	UE_LOG(LogTemp, Log, TEXT(" UHero_AnimInstance::LaunchCounterAttack"));
+	//UE_LOG(LogTemp, Log, TEXT(" UHero_AnimInstance::LaunchCounterAttack"));
 
-	this->PlayMontage(CounterAttack_Montage, 1.0f, _sectionName);
+	this->PlayMontage(CounterAttack_Montage, _rate, _sectionName);
 	bVelocityOverrideByAnim = true;
 
 	if (!bIsFocused)
@@ -1386,7 +1388,7 @@ void UHero_AnimInstance::LaunchCombo()
 		CurrentComboIndex = 0;
 	}
 
-	float attackSpeed = (mCharacter->GetCurrentWeapon()->GetGearType() == EGearType::GreatSword) ? 1.1f : 1.0f;
+	float attackSpeed = (mCharacter->GetCurrentWeapon()->GetGearType() == EGearType::GreatSword) ? GreatSwordAnimRate : 1.0f;
 	this->PlayMontage(Attack_Montage, attackSpeed, (*Current_AttackSectionName)[CurrentComboIndex]);
 	bVelocityOverrideByAnim = true;
 

@@ -16,7 +16,10 @@ bool AHeavySheild_Enemy::OnCounterAttack(const struct FDamageInfo* const _damage
 	const class UPawnStatsComponent* const _damageCauserPawnStats)
 {
 
-	// 2. Action check, is this ai 's current action is fit for parrying ?
+	// 1. CharacterType Check 
+	if (CharacterType == ECharacterType::LanTrooper_Shield)
+		return false;
+
 	UAIMelee_AnimInstance* animRef = Cast<UAIMelee_AnimInstance>(GetAnimInstanceRef());
 	if (animRef == nullptr)
 	{
@@ -24,35 +27,56 @@ bool AHeavySheild_Enemy::OnCounterAttack(const struct FDamageInfo* const _damage
 		return false;
 	}
 
+	//2. Check correct weapon type
+	AGear* damageCauserGear = _damageCauserPawnStats->GetCurrentRightHandWeapon();
+	EGearType gearType;
 
-	// 4. direction check, less than 45 from forward vector
-	float forwardDot = FVector::DotProduct(GetActorForwardVector(), _damageInfo->hitDirection);
-
-	if (forwardDot >= 0.707f)
+	if (damageCauserGear)
+		gearType = damageCauserGear->GetGearType();
+	else
 	{
-		ATheLastBastionBaseAIController* baseAICtrl
-			= Cast<ATheLastBastionBaseAIController>(GetController());
-		if (baseAICtrl == nullptr)
+		UE_LOG(LogTemp, Error, TEXT("damageCauserGear == nullptr,ASingleSwordMan_Enemy::OnParry "));
+		return false;
+	}
+
+	bool weaponCanNotCounter = gearType == EGearType::GreatSword 
+		|| gearType == EGearType::Hammer 
+		|| gearType == EGearType::BattleAxe;
+
+	if (weaponCanNotCounter == false && CounterEndurance <= 0)
+	{
+		// 3. direction check, less than 45 from forward vector
+		float forwardDot = FVector::DotProduct(GetActorForwardVector(), _damageInfo->hitDirection);
+
+		if (forwardDot >= 0.707f)
 		{
-			UE_LOG(LogTemp, Error, TEXT("baseAICtrl is nullptr - ASingleSwordMan_Enemy::OnParry"));
+			ATheLastBastionBaseAIController* baseAICtrl
+				= Cast<ATheLastBastionBaseAIController>(GetController());
+			if (baseAICtrl == nullptr)
+			{
+				UE_LOG(LogTemp, Error, TEXT("baseAICtrl is nullptr - ASingleSwordMan_Enemy::OnParry"));
+				return false;
+			}
+			baseAICtrl->SetIsPaused_BBC(true);
+
+			animRef->OnCounterAttack(GetCounterAttackSectionName(_damageInfo));
+
+			UParticleSystem * sparkVFX = UVfxManager::GetVfx(EVfxType::metalImpact_sputtering);
+
+			USoundCue* sparkSFX = UAudioManager::GetSFX(ESoundEffectType::EMeleeCounterAttackImpact);
+
+			if (sparkSFX && sparkVFX)
+			{
+				UWorld* world = GetWorld();
+				UGameplayStatics::SpawnEmitterAtLocation(world, sparkVFX, _damageInfo->hitResult.ImpactPoint);
+				UGameplayStatics::PlaySoundAtLocation(world, sparkSFX, _damageInfo->hitResult.ImpactPoint);
+			}
+
+			CounterEndurance = GetCounterEndurance();
+			return true;
+		}
+		else
 			return false;
-		}
-		baseAICtrl->SetIsPaused_BBC(true);
-
-		animRef->OnCounterAttack(GetCounterAttackSectionName(_damageInfo));
-
-		UParticleSystem * sparkVFX = UVfxManager::GetVfx(EVfxType::metalImpact_sputtering);
-
-		USoundCue* sparkSFX = UAudioManager::GetSFX(ESoundEffectType::EMeleeCounterAttackImpact);
-
-		if (sparkSFX && sparkVFX)
-		{
-			UWorld* world = GetWorld();
-			UGameplayStatics::SpawnEmitterAtLocation(world, sparkVFX, _damageInfo->hitResult.ImpactPoint);
-			UGameplayStatics::PlaySoundAtLocation(world, sparkSFX, _damageInfo->hitResult.ImpactPoint);
-		}
-
-		return true;
 	}
 	else
 		return false;
@@ -60,17 +84,11 @@ bool AHeavySheild_Enemy::OnCounterAttack(const struct FDamageInfo* const _damage
 
 }
 
-
 bool AHeavySheild_Enemy::OnParry(const struct FDamageInfo* const _damageInfo,
 	const class UPawnStatsComponent* const _damageCauserPawnStats)
 {
 
-	bool accept = 
-		(CharacterType == ECharacterType::LanTrooper_Shield) ? 
-		IsParrySuccess(_damageCauserPawnStats) : IsParrySuccess_Ulti(_damageCauserPawnStats);
-
-
-	// 2. Action check, is this ai 's current action is fit for parrying ?
+	// 1. get the current animation state
 	UAIMelee_AnimInstance* animRef = Cast<UAIMelee_AnimInstance>(GetAnimInstanceRef());
 	if (animRef == nullptr)
 	{
@@ -79,12 +97,13 @@ bool AHeavySheild_Enemy::OnParry(const struct FDamageInfo* const _damageInfo,
 	}
 
 	EAIActionState currentState = animRef->GetCurrentActionState();
-	bool isRightState = currentState == EAIActionState::None ||
-		currentState == EAIActionState::Defend ||
-		currentState == EAIActionState::MeleePreAttack ||
-		currentState == EAIActionState::MeleePostAttack;
 
-	if (!isRightState)
+	// 2. condition check based on the character type
+	bool accept = 
+		(CharacterType == ECharacterType::LanTrooper_Shield) ? 
+		IsParrySuccess(_damageCauserPawnStats, currentState) : IsParrySuccess_Ulti(_damageCauserPawnStats, currentState);
+
+	if (accept == false)
 		return false;
 
 	// 4. direction check, less than 45 from forward vector
@@ -120,6 +139,7 @@ bool AHeavySheild_Enemy::OnParry(const struct FDamageInfo* const _damageInfo,
 
 		// reset the endurance for next parry
 		ParryEndurance = GetParryEndurance();
+		CounterEndurance--;
 
 		return true;
 	}
@@ -134,6 +154,10 @@ int AHeavySheild_Enemy::GetMeleeComboSel(bool _bIsMoving) const
 		GetMeleeComboSel_Guardian(_bIsMoving) : GetMeleeComboSel_UltiGuardian(_bIsMoving);
 }
 
+void AHeavySheild_Enemy::ClearEndurance()
+{
+	CounterEndurance = GetCounterEndurance();
+}
 
 int AHeavySheild_Enemy::GetParrySectionNameIndex(const FDamageInfo * const _damageInfo) const
 {
@@ -227,6 +251,25 @@ FName AHeavySheild_Enemy::GetCounterAttackSectionName(const FDamageInfo * const 
 
 }
 
+void AHeavySheild_Enemy::UpdateEnduranceOnBeingHit(const AActor* const _damageCauser)
+{
+	const ATheLastBastionCharacter* damageCauser = Cast<ATheLastBastionCharacter>(_damageCauser);
+	if (damageCauser)
+	{
+		EGearType damageCauserGear = damageCauser->GetPawnStatsComp_Const()->GetCurrentRightHandWeapon()->GetGearType();
+
+		// if hit by heavy weapon, endurance will not grow
+		if (damageCauserGear == EGearType::GreatSword 
+			|| damageCauserGear == EGearType::BattleAxe 
+			|| damageCauserGear == EGearType::Hammer)
+			return;
+
+		ParryEndurance--;
+	}
+	else
+		UE_LOG(LogTemp, Error, TEXT("damageCauser == nullptr - AHeavySheild_Enemy::UpdateEnduranceOnBeingHit"));
+}
+
 int AHeavySheild_Enemy::GetMeleeComboSel_Guardian(bool _bIsMoving) const
 {
 	//if (_bIsMoving)
@@ -252,24 +295,8 @@ int AHeavySheild_Enemy::GetMeleeComboSel_UltiGuardian(bool _bIsMoving) const
 		FMath::RandRange(Sns_Ulti_InPlace_Left_Min, Sns_Ulti_InPlace_Left_Max);
 }
 
-bool AHeavySheild_Enemy::IsParrySuccess(const class UPawnStatsComponent* const _damageCauserPawnStats) const
+bool AHeavySheild_Enemy::IsParrySuccess(const class UPawnStatsComponent* const _damageCauserPawnStats, EAIActionState _currentActionState) const
 {
-	return true;
-}
-
-bool AHeavySheild_Enemy::IsParrySuccess_Ulti(const class UPawnStatsComponent* const _damageCauserPawnStats) const
-{
-	return true;
-
-	if (CharacterType != ECharacterType::LanTrooper_Power)
-		return false;
-
-
-	bool accept = ParryEndurance <= 0;
-	if (!accept)
-		return false;
-
-
 	//3. Check correct weapon type
 	AGear* damageCauserGear = _damageCauserPawnStats->GetCurrentRightHandWeapon();
 	EGearType gearType;
@@ -287,4 +314,26 @@ bool AHeavySheild_Enemy::IsParrySuccess_Ulti(const class UPawnStatsComponent* co
 	if (weaponTypeThatAbleToParry == false)
 		return false;
 
+	return true;
+}
+
+bool AHeavySheild_Enemy::IsParrySuccess_Ulti(const class UPawnStatsComponent* const _damageCauserPawnStats, EAIActionState _currentActionState) const
+{
+	// parry happen whenever the right animatino state or parry endurance less equal to zero
+
+	EGearType gearType = _damageCauserPawnStats->GetCurrentRightHandWeapon()->GetGearType();
+	bool damageCauserHoldingHeavyWeapon
+		= gearType == EGearType::GreatSword || gearType == EGearType::Hammer || gearType == EGearType::BattleAxe;
+
+	// it can parry during attack if the attack did not damage him with heavy weapon
+	bool isRightState =
+		_currentActionState == EAIActionState::None ||
+		_currentActionState == EAIActionState::Defend ||
+		_currentActionState == EAIActionState::MeleePreAttack ||
+		_currentActionState == EAIActionState::MeleePostAttack || 
+		(!damageCauserHoldingHeavyWeapon && _currentActionState == EAIActionState::MeleeAttack);
+
+	bool accept = ParryEndurance <= 0 || isRightState;
+
+	return accept;
 }

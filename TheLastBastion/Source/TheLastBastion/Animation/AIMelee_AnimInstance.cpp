@@ -64,6 +64,8 @@ void UAIMelee_AnimInstance::Attack(int _attackType, int _maxCounter)
 	CurrentActionState = NextAction;
 	attackChoice = _attackType;
 
+	mCharacter->ClearEndurance();
+
 	MaxComboCounter = _maxCounter;
 	CurrentComboCounter = 1;
 	bComboOddIndex = true;
