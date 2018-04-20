@@ -244,7 +244,12 @@ void AEnemyGroupSpawner::GetSpawnTransform(FVector& _location, FQuat& _rotation,
 void AEnemyGroupSpawner::EnableSpawning()
 {
 	if (bIsCurrentWaveFinished == true)
-	{
+	{   
+		// Turn off the text notification
+		ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+		if (pc)
+			pc->GetInGameHUD()->SetStartWaveNotificationVisibility(false);
+
 		bIsCurrentWaveFinished = false;
 
 		InitCurrentWave();
