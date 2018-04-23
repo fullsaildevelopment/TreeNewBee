@@ -233,7 +233,9 @@ void ASinglePlayerGM::UnRegisterEnemyGroupAt(int _index)
 	// tell UI to show "press Enter to start next wave"
 	if (Enemies.Num() <= 0)
 	{
-		// TODO:  
+		// TODO:  Display the notification for player once all the enemy groups in this wave get killed
+		if (pc)
+			pc->GetInGameHUD()->SetStartWaveNotificationVisibility(true);
 
 		return;
 	}
