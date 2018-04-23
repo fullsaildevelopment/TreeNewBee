@@ -213,6 +213,7 @@ void UHero_AnimInstance::MeleeUpdate(UCharacterMovementComponent * movementComp,
 			break;
 		}
 		case EAttackState::BeingHit:
+		case EAttackState::BeingStuned:
 		{
 			overrideVelocity = damageMomentum * GetCurveValue("Speed");;
 			movementComp->Velocity = FVector(overrideVelocity.X, overrideVelocity.Y, Z);
@@ -455,6 +456,13 @@ void UHero_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontag
 		OnDodgeFinish(_bInterruptted);
 	}
 	else if (_animMontage == Hit_Montage)
+	{
+		if (AttackState == EAttackState::BeingStuned && !_bInterruptted)
+			PlayMontage(AM_Dazed, 1.2f);
+		else
+			RecoverFromBeingHit(_bInterruptted);
+	}
+	else if (_animMontage == AM_Dazed)
 	{
 		RecoverFromBeingHit(_bInterruptted);
 	}
@@ -1122,7 +1130,9 @@ void UHero_AnimInstance::OnDefendOn_Sns()
 		return;
 	}
 
-	bool wrongState = AttackState == EAttackState::Dodging && Montage_IsPlaying(CounterAttack_Montage);
+	bool wrongState = AttackState == EAttackState::Dodging 
+		|| AttackState == EAttackState::BeingStuned
+		|| Montage_IsPlaying(CounterAttack_Montage);
 	if (wrongState)
 		return;
 
@@ -1163,6 +1173,7 @@ void UHero_AnimInstance::OnDefendOn_Dh()
 		return;
 
 	bool wrongState = AttackState == EAttackState::BeingHit ||
+		AttackState == EAttackState::BeingStuned ||
 		AttackState == EAttackState::Attacking ||
 		AttackState == EAttackState::Dodging ||
 		Montage_IsPlaying(CounterAttack_Montage);
@@ -1425,7 +1436,8 @@ void UHero_AnimInstance::ResetCombo()
 
 void UHero_AnimInstance::OnEnableDamage(bool bIsright, bool bIsAll)
 {
-	if (mCharacter)
+	bool rightState = AttackState == EAttackState::PreWinding || AttackState == EAttackState::Attacking;
+	if (mCharacter && rightState)
 	{
 		AttackState = EAttackState::Attacking;
 		mCharacter->GetHeroStatsComp()->SetEnableWeapon(true, bIsright, bIsAll);
@@ -1742,6 +1754,156 @@ FName UHero_AnimInstance::GetBackDodgeSection() const
 	}
 }
 
+FName UHero_AnimInstance::GetHitResponseSection_SnsCB(FName _boneName, const FVector & _damageCauseRelative, const FVector & _hitLocation)
+{
+	FName sectionName;
+
+	bool HitFromFront = FVector::DotProduct(mCharacter->GetActorForwardVector(), _damageCauseRelative) > 0.3f;
+
+	if (HitFromFront)
+	{
+		FVector hitRelative = _hitLocation - GetSkelMeshComponent()->GetSocketLocation(_boneName);
+		float hitZOffset = hitRelative.Z;
+		hitRelative.Z = 0;
+		hitRelative = hitRelative.GetSafeNormal();
+
+		float vert = FVector::DotProduct(mCharacter->GetActorForwardVector(), hitRelative);
+		if (vert >= 0.7f)
+		{
+			if (_hitLocation.Z > GetSkelMeshComponent()->GetSocketLocation(TEXT("spine_03")).Z)
+				sectionName = TEXT("HitHead");
+			else
+				sectionName = TEXT("HitCenter");
+		}
+		else
+		{
+			float hor = FVector::DotProduct(mCharacter->GetActorRightVector(), hitRelative);
+			if (hor > 0)
+				sectionName = TEXT("HitRight");
+			else
+				sectionName = TEXT("HitLeft");
+		}
+
+		damageMomentum = -MomentumRatioByActor * _damageCauseRelative - (1 - MomentumRatioByActor) * hitRelative;
+		damageMomentum = damageMomentum.GetUnsafeNormal();
+	}
+	else
+	{
+		sectionName = TEXT("HitBack");
+		damageMomentum = -_damageCauseRelative;
+	}
+
+	return sectionName;
+}
+
+FName UHero_AnimInstance::GetHitResponseSection_HV(FName _boneName, const FVector & _damageCauseRelative, const FVector & _hitLocation) 
+{
+	FName sectionName;
+
+	bool HitFromFront = FVector::DotProduct(mCharacter->GetActorForwardVector(), _damageCauseRelative) > 0.3f;
+
+	bool randomSel = FMath::RandRange(-5, 5) >= 0;
+
+	if (HitFromFront)
+	{
+		FVector hitRelative = _hitLocation - GetSkelMeshComponent()->GetSocketLocation(_boneName);
+		float hitZOffset = hitRelative.Z;
+		hitRelative.Z = 0;
+		hitRelative = hitRelative.GetSafeNormal();
+
+
+		float vert = FVector::DotProduct(mCharacter->GetActorForwardVector(), hitRelative);
+
+		if (vert > 0.86f)
+			sectionName = randomSel ? TEXT("HitFront_0") : TEXT("HitFront_1");
+		else
+		{
+			float hor = FVector::DotProduct(mCharacter->GetActorRightVector(), hitRelative);
+			if (hor > 0)
+				sectionName = randomSel ? TEXT("HitRight_0") : TEXT("HitRight_1");
+			else
+				sectionName = randomSel ? TEXT("HitLeft_0") : TEXT("HitLeft_1");
+		}
+
+
+		damageMomentum = -MomentumRatioByActor * _damageCauseRelative - (1 - MomentumRatioByActor) * hitRelative;
+		damageMomentum = damageMomentum.GetUnsafeNormal();
+	}
+	else
+	{
+		sectionName = randomSel ? TEXT("HitBack_0") : TEXT("HitBack_1");
+		damageMomentum = -_damageCauseRelative;
+	}
+
+	return sectionName;
+}
+
+FName UHero_AnimInstance::GetHitResponseSection_Katana(FName _boneName, const FVector & _damageCauseRelative, const FVector & _hitLocation) 
+{
+	FName sectionName;
+
+	bool HitFromFront = FVector::DotProduct(mCharacter->GetActorForwardVector(), _damageCauseRelative) > 0.3f;
+
+	if (HitFromFront)
+	{
+		FVector hitRelative = _hitLocation - GetSkelMeshComponent()->GetSocketLocation(_boneName);
+		float hitZOffset = hitRelative.Z;
+		hitRelative.Z = 0;
+		hitRelative = hitRelative.GetSafeNormal();
+
+
+		FVector chestLocation = GetSkelMeshComponent()->GetSocketLocation(TEXT("spine_03"));
+
+		if (_hitLocation.Z >= chestLocation.Z)
+		{
+			// hit top
+			float vert = FVector::DotProduct(mCharacter->GetActorForwardVector(), hitRelative);
+
+			if (vert > 0.86f)
+				sectionName = TEXT("HitFront_Head");
+			else
+			{
+				float hor = FVector::DotProduct(mCharacter->GetActorRightVector(), hitRelative);
+				if (hor > 0)
+					sectionName = TEXT("HitRight_Head");
+				else
+					sectionName = TEXT("HitLeft_Head");
+			}
+		}
+		else
+		{
+			float kneeLevel = 0.5f * (GetSkelMeshComponent()->GetSocketLocation(TEXT("calf_l")).Z + GetSkelMeshComponent()->GetSocketLocation(TEXT("calf_r")).Z);
+
+			if (_hitLocation.Z <= kneeLevel)
+				sectionName = TEXT("HitFront_Hip");
+			else
+			{
+				float vert = FVector::DotProduct(mCharacter->GetActorForwardVector(), hitRelative);
+				if (vert > 0.86f)
+					sectionName = TEXT("HitFront_Hip");
+				else
+				{
+					float hor = FVector::DotProduct(mCharacter->GetActorRightVector(), hitRelative);
+					if (hor > 0)
+						sectionName = TEXT("HitRight");
+					else
+						sectionName = TEXT("HitLeft");
+				}
+			}
+		}
+
+		damageMomentum = -MomentumRatioByActor * _damageCauseRelative - (1 - MomentumRatioByActor) * hitRelative;
+		damageMomentum = damageMomentum.GetUnsafeNormal();
+	}
+	else
+	{
+		sectionName = TEXT("HitBack");
+		damageMomentum = -_damageCauseRelative;
+	}
+
+	return sectionName;
+}
+
 FVector UHero_AnimInstance::GetFocusDodgeDirection() const
 {
 	switch (FocusDodgeDirection)
@@ -1783,51 +1945,25 @@ FVector UHero_AnimInstance::GetFocusDodgeDirection() const
 
 void UHero_AnimInstance::OnBeingHit(FName boneName, const FVector & _damageCauseRelative, const FVector & _hitLocation)
 {
-	if (bAnimInterruptRobust)
-		return;
 
 	if (Hit_Montage)
 	{
 
-		// reset the attack state and movement override, cuz we are being attack except we are doing counter attack or skill
-		ResetOnBeingHit();
-
-		bool HitFromFront = FVector::DotProduct(mCharacter->GetActorForwardVector(), _damageCauseRelative) > 0.3f;
 		FName sectionName;
-
-		if (HitFromFront)
+		switch (CurrentEquipment)
 		{
-			FVector hitRelative = _hitLocation - GetSkelMeshComponent()->GetSocketLocation(boneName);
-			float hitZOffset = hitRelative.Z;
-			hitRelative.Z = 0;
-			hitRelative = hitRelative.GetSafeNormal();
-			float vert = FVector::DotProduct(mCharacter->GetActorForwardVector(), hitRelative);
-			if (vert >= 0.7f)
-			{
-				if (boneName.Compare("neck_01") == 0)
-					sectionName = TEXT("HitHead");
-				else
-					sectionName = TEXT("HitCenter");
-			}
-			else
-			{
-				float hor = FVector::DotProduct(mCharacter->GetActorRightVector(), hitRelative);
-				if (hor > 0)
-					sectionName = TEXT("HitRight");
-				else
-					sectionName = TEXT("HitLeft");
-			}
-
-			damageMomentum = - MomentumRatioByActor * _damageCauseRelative - (1 - MomentumRatioByActor) * hitRelative;
-			damageMomentum = damageMomentum.GetUnsafeNormal();
+		case EEquipType::ShieldSword:
+		case EEquipType::CrossBow:
+		default:
+			sectionName = GetHitResponseSection_SnsCB(boneName, _damageCauseRelative, _hitLocation);
+			break;
+		case EEquipType::TwoHandSword:
+			sectionName = GetHitResponseSection_Katana(boneName, _damageCauseRelative, _hitLocation);
+			break;
+		case EEquipType::HeavyWeapon:
+			sectionName = GetHitResponseSection_HV(boneName, _damageCauseRelative, _hitLocation);
+			break;
 		}
-		else
-		{
-			sectionName = TEXT("HitBack");
-			damageMomentum = -_damageCauseRelative;
-		}
-
-		//UE_LOG(LogTemp, Log, TEXT("%f, %f, %f"), damageMomentum.X, damageMomentum.Y, damageMomentum.Z);
 
 		this->PlayMontage(Hit_Montage, 1.0f, sectionName);
 	}
@@ -1846,6 +1982,27 @@ void UHero_AnimInstance::ResetOnBeingHit()
 	if (ActivatedEquipment == EEquipType::Travel)
 	{
 		AttachWeapon(); 
+	}
+	mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	mCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
+
+	CurrentComboIndex = 0;
+	OnDisableDamage(false, true);
+	// for case, that counter attack failed, such attack from back
+	OnDefendOff();
+}
+
+void UHero_AnimInstance::ResetOnBeingStuned()
+{
+	mCharacter->bIsMovementDisabled = true;
+	AttackState = EAttackState::BeingStuned;
+	NextAction = EActionType::None;
+
+	bVelocityOverrideByAnim = true;
+
+	if (ActivatedEquipment == EEquipType::Travel)
+	{
+		AttachWeapon();
 	}
 	mCharacter->GetCharacterMovement()->bUseControllerDesiredRotation = false;
 	mCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
@@ -1946,6 +2103,13 @@ void UHero_AnimInstance::OnZeroSp()
 void UHero_AnimInstance::HeadTrack()
 {
 	
+	if (AttackState == EAttackState::BeingStuned)
+	{
+		HeadTrackYaw = 0;
+		HeadTrackPitch = 0;
+		return;
+	}
+
 	// Calculate the headTrack yaw and pitch
 	FRotator actorRotation = mCharacter->GetActorRotation();
 	FRotator delta = UKismetMathLibrary::NormalizedDeltaRotator(mCharacter->GetControlRotation(), actorRotation);

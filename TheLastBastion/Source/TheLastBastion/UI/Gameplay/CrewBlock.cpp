@@ -30,7 +30,7 @@ bool UCrewBlock::Initialize()
 		Minus->OnClicked.AddDynamic(this, &UCrewBlock::OnMinusClick);
 		FastRecruit->OnClicked.AddDynamic(this, &UCrewBlock::OnFastRecruitClick);
 		CrewSlot->SetDragDropMode(EDragDropMode::EDropOnly);
-		CrewSlot->SetSize(96, 96);
+		CrewSlot->SetSize(164, 164);
 	}
 	else
 		return false;
@@ -63,7 +63,7 @@ bool UCrewBlock::NativeOnDrop(const FGeometry & InGeometry, const FDragDropEvent
 void UCrewBlock::OnPlusClick()
 {
 	int crewNumTemp = CrewNum;
-	UpdateResourcePreview(1);
+	//UpdateResourcePreview(1);
 	CrewNum++;
 	if (CrewNum > 3)
 		Minus->SetIsEnabled(true);

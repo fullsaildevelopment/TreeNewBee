@@ -47,7 +47,9 @@ UBase_AnimInstance::UBase_AnimInstance(const FObjectInitializer& _objectInitaliz
 	FindMontage(AM_CounterAttack,
 		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_CA"));
 
-	
+	FindMontage(AM_Dazed,
+		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_Dazed"));
+
 
 }
 

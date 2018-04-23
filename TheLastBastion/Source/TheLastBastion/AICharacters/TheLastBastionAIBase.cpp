@@ -26,6 +26,7 @@ ATheLastBastionAIBase::ATheLastBastionAIBase()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(50.0f, 90.0f);
+	//GetMesh()->bCastDynamicShadow = false;
 
 	TSubclassOf<UUserWidget> aiHUD_Class;
 	UCustomType::FindClass<UUserWidget>(aiHUD_Class, TEXT("/Game/UI/In-Game/WBP_AIHealthHUD"));
@@ -371,13 +372,14 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 		return;
 	}
 
-	UpdateEnduranceOnBeingHit(DamageCauser);
 	// play animation
 	////////////////////////////////////////////// innocent line ////////////////////////////
+
 	if (isStun)
 	{
 
-		mAnimInstanceRef->ResetOnBeingHit();
+		mAnimInstanceRef->ResetOnBeingStuned();
+		mAnimInstanceRef->OnBeingHit(BoneName, damageCauserRelative, HitLocation);
 
 		//// if this ai is not get simulate ragdoll physics, play hit animation
 		//KnockOut(RagDollImpulse, DamageCauser,BoneName);
@@ -390,15 +392,16 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 	}
 	else
 	{
-
 		if (ShouldPlayHitAnimation())
 		{
 			mAnimInstanceRef->ResetOnBeingHit();
 			//if this ai is not get stunned, play hit animation
 			mAnimInstanceRef->OnBeingHit(BoneName, damageCauserRelative, HitLocation);
 		}
+
 	}
 
+	UpdateEnduranceOnBeingHit(DamageCauser);
 }
 
 void ATheLastBastionAIBase::EvaluateAttackerThreat(AActor * DamageCauser, float hp) {}
@@ -447,6 +450,9 @@ void ATheLastBastionAIBase::AddExp(ATheLastBastionHeroCharacter * _heroAttacker)
 
 void ATheLastBastionAIBase::UpdateEnduranceOnBeingHit(const AActor* const _damageCauser)
 {
+	if (IsStuned())
+		return;
+
 	ParryEndurance--;
 	DodgeEndurance--;
 }
@@ -469,6 +475,11 @@ void ATheLastBastionAIBase::Kill()
 	}
 
 	Destroy();
+}
+
+bool ATheLastBastionAIBase::IsStuned() const
+{
+	return mAnimInstanceRef->GetCurrentActionState() == EAIActionState::GettingStuned;
 }
 
 bool ATheLastBastionAIBase::OnFriendFireCheck(const ATheLastBastionCharacter * _target)

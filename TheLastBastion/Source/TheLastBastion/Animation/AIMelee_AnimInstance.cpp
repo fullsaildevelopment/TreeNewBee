@@ -38,8 +38,9 @@ void UAIMelee_AnimInstance::OnEnableWeapon(bool bIsright, bool bIsAll)
 {
 	if (mCharacter)
 	{
+		bool rightState = CurrentActionState == EAIActionState::MeleePreAttack || CurrentActionState == EAIActionState::MeleeAttack;
 		//UE_LOG(LogTemp, Log, TEXT("enable weapon"));
-		if (CurrentActionState == EAIActionState::MeleePreAttack && !mCharacter->GetIsDead())
+		if (rightState && !mCharacter->GetIsDead())
 		{
 			CurrentActionState = EAIActionState::MeleeAttack;
 			mCharacter->GetEnemyStatsComponent()->SetEnableWeapon(true, bIsright, bIsAll);
@@ -91,9 +92,9 @@ void UAIMelee_AnimInstance::OnNextCombo()
 	else
 	{
 		attackChoice = 1;
-		UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr, CurrentComboCounter - UAIMelee_AnimInstance::OnNextCombo"));
+		//UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr, CurrentComboCounter - UAIMelee_AnimInstance::OnNextCombo"));
 	}
-	UE_LOG(LogTemp, Warning, TEXT("%f: AttackChoice - UAIMelee_AnimInstance::OnNextCombo"), attackChoice);
+	//UE_LOG(LogTemp, Warning, TEXT("%f: AttackChoice - UAIMelee_AnimInstance::OnNextCombo"), attackChoice);
 }
 
 void UAIMelee_AnimInstance::FinishAttack()

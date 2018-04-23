@@ -49,6 +49,7 @@ enum class EAttackState : uint8
 	PostDodging = 5 UMETA(DisplayName = "PostDodging"),
 	/** Player has no control */
 	BeingHit = 6        UMETA(DisplayName = "BeingHit"),
+	BeingStuned = 7     UMETA(DisplayName = "BeingStuned")
 	//AirAttacking = 7    UMETA(DisplayName = "AirAttacking"),
 	//AirReadyForNext = 8 UMETA(DisplayName = "AirReadyForNext")
 };
@@ -189,7 +190,7 @@ protected:
 	
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Defend)
-		/** Animation will not be interrupt */
+		/** Animation will not be interrupt by taking damage, i.e counter attack, skill */
 		bool bAnimInterruptRobust;
 
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
@@ -421,6 +422,12 @@ private:
 	FName GetLeftDodgeSection() const;
 	FName GetBackDodgeSection() const;
 
+	/** Called during OnBeingHit, return section name for montage, updating the damageMomentum */
+	FName GetHitResponseSection_SnsCB (FName _boneName, const FVector & _damageCauseRelative, const FVector & _hitLocation);
+	FName GetHitResponseSection_HV    (FName _boneName, const FVector & _damageCauseRelative, const FVector & _hitLocation);
+	FName GetHitResponseSection_Katana(FName _boneName, const FVector & _damageCauseRelative, const FVector & _hitLocation);
+
+
 	FVector GetFocusDodgeDirection() const;
 	/** Toggle Focus mode on and off*/
 	void ToggleFocusMode(bool _IsOn);
@@ -501,20 +508,23 @@ protected:
 #pragma endregion
 
 
-	void ResetOnBeingHit() override;
 
 public:
 
 	FORCEINLINE bool IsVelocityOverrideByAnim() const { return bVelocityOverrideByAnim; }
 	FORCEINLINE bool GetIsJumpEnable() const { return bEnableJump; }
 	FORCEINLINE void SetIsJump(bool _val) { bTryToJump = _val; }
-
+	FORCEINLINE bool IsAnimCanNotInterruptByTakingDamage() const { return bAnimInterruptRobust; }
 	FORCEINLINE EEquipType GetCurrentEquipmentType() const { return CurrentEquipment; }
 	FORCEINLINE EEquipType GetActivatedEquipmentType() const { return ActivatedEquipment; }
+	FORCEINLINE EAttackState GetCurrentAttackState() const { return AttackState; }
 
 	FORCEINLINE bool GetIsFocus() const { return bIsFocused; }
 	FORCEINLINE bool GetFocusPendingEnter() const { return bIsFocusEnterPending; }
 	FORCEINLINE bool GetFocusPendingExit() const { return bIsFocusExitPending; }
 	FORCEINLINE bool IsDoingGainDpAttack() const { return Montage_IsPlaying(CounterAttack_Montage) || bDuringGainDpAttack; }
+
+	void ResetOnBeingHit() override;
+	void ResetOnBeingStuned() override;
 
 };

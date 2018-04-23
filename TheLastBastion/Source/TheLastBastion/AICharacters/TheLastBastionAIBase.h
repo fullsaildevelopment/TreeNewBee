@@ -16,17 +16,19 @@
 #define HV_ComboSel_InPlace_Jr_Min 0
 #define HV_ComboSel_InPlace_Jr_Max 2
 
-#define HV_ComboSel_Move_Jr_Min 5
+#define HV_ComboSel_Move_Jr_Min 4
 #define HV_ComboSel_Move_Jr_Max 6
 
 #define HV_ComboSel_InPlace_Sr_Min 0
-#define HV_ComboSel_InPlace_Sr_Max 4
+#define HV_ComboSel_InPlace_Sr_Max 3
 
-#define HV_ComboSel_Move_Sr_Min 5
-#define HV_ComboSel_Move_Sr_Max 10
+#define HV_ComboSel_Move_Sr_Min 4
+#define HV_ComboSel_Move_Sr_Max 9
 
-#define HV_Combo_Counter_Jr 1
-#define HV_Combo_Counter_Sr_Min 1
+#define HV_Combo_Counter_Jr_Min 1
+#define HV_Combo_Counter_Jr_Max 2
+
+#define HV_Combo_Counter_Sr_Min 2
 #define HV_Combo_Counter_Sr_Max 3
 
 
@@ -66,8 +68,8 @@
 #define SH_Fast_Dodge_End_Max 4
 
 #define Sns_Combo_Counter_Min 1
-#define Sns_Combo_Counter_Max 2
-#define Sns_Ulti_Combo_Counter_Min 2
+#define Sns_Combo_Counter_Max 3
+#define Sns_Ulti_Combo_Counter_Min 3
 #define Sns_Ulti_Combo_Counter_Max 4
 
 #define Sns_Parry_End_Min 3
@@ -82,9 +84,36 @@
 #define Sns_Ulti_Counter_Min 2
 #define Sns_Ulti_Counter_Max 3
 
-
 #define Sns_Ulti_ShieldBash 10
 
+#define Sns_InPlace_Min 0
+#define Sns_InPlace_Max 2
+#define Sns_Move_Min 3
+#define Sns_Move_Max 5
+
+#define Parry_Up_Right 0 
+#define Parry_Up_Left 1 
+#define Parry_Top_Left 2 
+#define Parry_Right_Down_Weak 3 
+#define Parry_Left_Mid_Down_Weak 4 
+#define Parry_Left_Mid_Up_Weak 5 
+#define Parry_Top_Mid_Weak 6 
+
+
+#define Block_Top_Down_Right 7 
+#define Block_Top_Up_Mid 8
+#define Block_Down 9 
+#define Block_Right_Top_Weak 10 
+#define Block_Right_Mid_Up_Weak 11 
+#define Block_Left_Top_Weak 12 
+
+#define Easy_Parry_Threshold 2
+
+const FName SnsParryAndBlockSectionName[13] =
+{ FName("Parry_Up_Right"),FName("Parry_Up_Left"), FName("Parry_Top_Left"), FName("Parry_Right_Down_Weak"),
+FName("Parry_Left_Mid_Down_Weak") , FName("Parry_Left_Mid_Up_Weak"),FName("Parry_Top_Mid_Weak"),
+FName("Block_Top_Down_Right"),FName("Block_Top_Up_Mid") ,FName("Block_Down"),
+FName("Block_Right_Top_Weak"), FName("Block_Right_Mid_Up_Weak"), FName("Block_Left_Top_Weak") };
 
 UCLASS()
 class THELASTBASTION_API ATheLastBastionAIBase : public ATheLastBastionCharacter
@@ -256,6 +285,9 @@ public:
 	virtual void ToggleAIHUD(bool _val);
 
 	bool HasFullHealth() const;
+
+
+	bool IsStuned() const override;
 
 	bool OnFriendFireCheck(const ATheLastBastionCharacter* _target);
 

@@ -42,7 +42,5 @@ private:
 	int GetMeleeComboSel_Rookie(bool _bIsMoving) const;
 	int GetMeleeComboSel_Fast(bool _bIsMoving) const;
 	int GetMeleeComboSel_Power(bool _bIsMoving) const;
-	int GetMeleeComboSel_Shield(bool _bIsMoving) const;
-	int GetMeleeComboSel_HeavyShield(bool _bIsMoving) const;
 
 };

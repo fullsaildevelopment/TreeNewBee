@@ -336,11 +336,14 @@ public:
 	* if cool down time is passed*/
 	bool SkillCheck(int _skillIndex);
 
+	bool IsStuned() const override;
+
 	/** Check if this character is able to counter attack this attack*/
 	virtual bool OnCounterAttack(const struct FDamageInfo* const _damageInfo,
 		const class UPawnStatsComponent* const _damageCauserPawnStats);
 
 	bool IsDoingCounterAttack() const;
+	bool ShouldPlayHitAnimation() const;
 
 	FORCEINLINE class USphereComponent* GetTargetDetector() const { return TargetDetector; }
 	/** Returns CameraBoom subobject **/

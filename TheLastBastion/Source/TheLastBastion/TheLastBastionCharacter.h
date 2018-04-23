@@ -1,4 +1,4 @@
-// Copyright 1998-2017 Epic Games, Inc. All Rights Reserved.
+// Copyright 1998-201	7 Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
@@ -29,6 +29,18 @@ enum class ECharacterType : uint8
 	Lan_QueenGuard           UMETA(DisplayName = "Lannester Queen Guard"),
 	Lan_Shooter              UMETA(DisplayName = "Lannester Shooter"),
 	Lan_SharpShooter         UMETA(DisplayName = "Lannester SharpShooter"),
+	HillTribe_Rookie_LS      UMETA(DisplayName = "HillTribe Bandit"),
+	HillTribe_Heavy_BA       UMETA(DisplayName = "HillTribe Barbarian"),
+	HillTribe_Shooter        UMETA(DisplayName = "HillTribe Hunter"),
+	Wolf_Shield_Mace         UMETA(DisplayName = "Wolf Patriot"),
+	Wolf_HV_GS               UMETA(DisplayName = "Wolf Warrior"),
+	Wolf_Fast_LS             UMETA(DisplayName = "Wolf Striker"),
+	Nord_HeavyShield_Axe	 UMETA(DisplayName = "Nord Protecter"),
+	Nord_Power_LS			 UMETA(DisplayName = "Nord Vanguard"),
+	Nord_Shooter			 UMETA(DisplayName = "Nord SharpShooter"),
+	Dwarven_HeavyShield_Mace UMETA(DisplayName = "Dwarven Champion"),
+	Dwarven_Shooter			 UMETA(DisplayName = "Dwarven Sniper"),
+	Ebony_Heavy_BA	 UMETA(DisplayName = "Ebony Legend")
 };
 
 UENUM(BlueprintType)
@@ -76,7 +88,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = RagDoll)
 		uint8 newRagDollIndex;
-
+				
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = RagDoll)
 		uint8 oldRagDollIndex;
 
@@ -168,7 +180,7 @@ private:
 
 public:
 
-	bool IsEnemy() const { return bIsEnemy; }
+	FORCEINLINE bool IsEnemy() const { return bIsEnemy; }
 	void DuringRagDoll();
 	virtual void RagDollRecoverOnFinish();
 	void DuringRagDollRecovering(float _deltaTime);
@@ -195,6 +207,8 @@ public:
 
 
 public:
+
+	virtual bool IsStuned() const { return false; }
 
 	FORCEINLINE float GetMaxTurnRateForTravel() const { return  maxTurnRate_Travel; }
 	FORCEINLINE float GetMaxTurnRateForCombat() const { return  maxTurnRate_Combat; }

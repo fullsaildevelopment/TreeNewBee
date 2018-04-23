@@ -10,16 +10,7 @@
  * 
  */
 
-#define Parry_Up_Right 0 
-#define Parry_Up_Left 1 
-#define Parry_Top_Left 2 
-#define Block_Top_Down_Right 3 
-#define Block_Top_Up_Mid 4 
-#define Block_Down 5 
 
-const FName SnsParryAndBlockSectionName[6] = 
-{ FName("Parry_Up_Right"),FName("Parry_Up_Left"), FName("Parry_Top_Left"), 
-FName("Block_Top_Down_Right"),FName("Block_Top_Up_Mid") ,FName("Block_Down") };
 
 
 enum class EAIActionState : uint8;
@@ -51,7 +42,12 @@ public:
 
 protected:
 
-	int GetParrySectionNameIndex(const struct FDamageInfo* const _damageInfo) const;
+
+	int GetParrySectionNameIndex(bool _damageByHeavyWeapon, const struct FDamageInfo* const _damageInfo) const;
+
+	int GetParrySectionNameIndex_Easy(const struct FDamageInfo* const _damageInfo) const;
+
+	int GetParrySectionNameIndex_Weak(const struct FDamageInfo* const _damageInfo) const;
 
 	FORCEINLINE FName GetParrySectionName(int _index) const { return SnsParryAndBlockSectionName[_index]; }
 
@@ -67,7 +63,7 @@ private:
 	/** Called when parry is done successfully*/
 	void OnParrySuccess(const class UPawnStatsComponent* const _damageCauserPawnStats);
 	/** Check if parry is available for current animation state, according to damage causer's current weapon, before the directional check*/
-	bool IsParrySuccess(const class UPawnStatsComponent* const _damageCauserPawnStats, EAIActionState _currentActionState) const;
-	bool IsParrySuccess_Ulti(const class UPawnStatsComponent* const _damageCauserPawnStats, EAIActionState _currentActionState) const;
+	bool IsParrySuccess(bool _damageByHeavyWeapon, EAIActionState _currentActionState) const;
+	bool IsParrySuccess_Ulti(bool _damageByHeavyWeapon, EAIActionState _currentActionState) const;
 
 };

@@ -21,11 +21,11 @@ struct FUnitData
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 		UTexture2D* Unit_Image = nullptr;
 
-	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	//	int Price = 0;
+	////UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	////	int Price = 0;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-		bool IsMelee;
+	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	//	bool IsMelee;
 };
 
 
@@ -65,7 +65,7 @@ protected:
 public:
 
 	FORCEINLINE TSubclassOf<class ATheLastBastionAIBase> GetUnitClass() const { return Unit_Data.Unit_Bp; }
-	FORCEINLINE bool IsMeleeGroup() const { return Unit_Data.IsMelee; }
+	bool IsMeleeGroup() const;// { return Unit_Data.IsMelee; }
 	FORCEINLINE void SetUnitClass(TSubclassOf<class ATheLastBastionAIBase> _class) { Unit_Data.Unit_Bp = _class; }
 	/** Set thumbNail Image*/
 	FORCEINLINE void SetImage(UTexture2D* _image) override { Unit_Data.Unit_Image = _image; }
@@ -77,6 +77,7 @@ public:
 	//void SetPrice(int _price);
 
 	void SetUnitData(const FUnitData& _data);//, bool _bShowPrice = false);
+	void SetUnitData(TSubclassOf<class ATheLastBastionAIBase> _aiClassBp);//, bool _bShowPrice = false);
 
 	/** set the amount of this unit player currently have*/
 	void SetUnitNumber(int _number);

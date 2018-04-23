@@ -65,7 +65,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = DamageCollision)
 		FVector DamageVolumnExtend_Current;
 
-	UPROPERTY(BlueprintReadOnly, Category = DamageCollision)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = DamageCollision)
 		/** The actor to ignore in one slash*/
 		TArray<AActor*> IgnoredActors;
 

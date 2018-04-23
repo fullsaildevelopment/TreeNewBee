@@ -30,6 +30,7 @@ namespace
 	UAnimMontage* AM_SH_Parry = nullptr;
 	UAnimMontage* AM_SH_Dodge = nullptr;
 	UAnimMontage* AM_Sns_Parry = nullptr;
+	UAnimMontage* AM_Dazed = nullptr;
 }
 
 enum class EGearType : uint8;
@@ -83,6 +84,8 @@ protected:
 
 	UFUNCTION()
 		virtual void ResetOnBeingHit();
+
+	virtual void ResetOnBeingStuned() {}
 
 	UFUNCTION(BlueprintCallable, Category = Effects)
 		/** Play sfx and vfx for one foot step*/

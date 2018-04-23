@@ -35,12 +35,25 @@ bool URecruitMenu::Initialize()
 		unitRow = Cast<UUnitRow>(UnitList->GetChildAt(i));
 		if (unitRow)
 		{
-			unitRow->SetEachSlotSize(96, 96);
+			unitRow->SetEachSlotSize(164, 164);
 		}
 	}
 
 	HillTribe->SetHeadingText(FText::FromString(TEXT("Hill Tribe: ")));
 	HillTribe->SetEachSlotAction(HillTribe_Data);
+
+	Wolf->SetHeadingText(FText::FromString(TEXT("Wolf: ")));
+	Wolf->SetEachSlotAction(Wolf_Data);
+
+	Nord->SetHeadingText(FText::FromString(TEXT("North: ")));
+	Nord->SetEachSlotAction(Nord_Data);
+
+	Dwarven->SetHeadingText(FText::FromString(TEXT("Dwarven: ")));
+	Dwarven->SetEachSlotAction(Dwarven_Data);
+
+	Ebony->SetHeadingText(FText::FromString(TEXT("Ebony: ")));
+	Ebony->SetEachSlotAction(Ebony_Data);
+
 
 	bIsOpened = false;
 	return true;

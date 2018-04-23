@@ -95,11 +95,13 @@ bool AHeavySheild_Enemy::OnParry(const struct FDamageInfo* const _damageInfo,
 	}
 
 	EAIActionState currentState = animRef->GetCurrentActionState();
+	bool damageCauserHoldingHeavyWeapon = _damageCauserPawnStats->IsUsingHeavyWeapon();
 
 	// 2. condition check based on the character type
 	bool accept = 
 		(CharacterType == ECharacterType::LanTrooper_Shield) ? 
-		IsParrySuccess(_damageCauserPawnStats, currentState) : IsParrySuccess_Ulti(_damageCauserPawnStats, currentState);
+		IsParrySuccess(damageCauserHoldingHeavyWeapon, currentState) 
+		: IsParrySuccess_Ulti(damageCauserHoldingHeavyWeapon, currentState);
 
 	if (accept == false)
 		return false;
@@ -117,10 +119,9 @@ bool AHeavySheild_Enemy::OnParry(const struct FDamageInfo* const _damageInfo,
 			return false;
 		}
 		baseAICtrl->SetIsPaused_BBC(true);
-
-
-		int parrySectionName = GetParrySectionNameIndex(_damageInfo);
 		
+		int parrySectionName = GetParrySectionNameIndex(damageCauserHoldingHeavyWeapon, _damageInfo);
+
 		animRef->OnParry(GetParrySectionName(parrySectionName));
 
 		UParticleSystem * sparkVFX = UVfxManager::GetVfx(EVfxType::metalImpact_sputtering);
@@ -153,13 +154,24 @@ int AHeavySheild_Enemy::GetMeleeComboSel(bool _bIsMoving) const
 void AHeavySheild_Enemy::ClearEndurance()
 {
 
-	if (CharacterType == ECharacterType::LanTrooper_HeavyShield)
-		CounterEndurance = GetCounterEndurance();
-	else
+	if (CharacterType == ECharacterType::LanTrooper_Shield)
 		ParryEndurance = GetParryEndurance();
+	else
+		CounterEndurance = GetCounterEndurance();
+
 }
 
-int AHeavySheild_Enemy::GetParrySectionNameIndex(const FDamageInfo * const _damageInfo) const
+int AHeavySheild_Enemy::GetParrySectionNameIndex(bool _damageByHeavyWeapon, const FDamageInfo * const _damageInfo) const
+{
+
+	if (CharacterType == ECharacterType::LanTrooper_Shield)
+		return (ParryEndurance > Easy_Parry_Threshold) ? GetParrySectionNameIndex_Easy(_damageInfo) : GetParrySectionNameIndex_Weak(_damageInfo);
+	else
+		return (_damageByHeavyWeapon) ? GetParrySectionNameIndex_Weak(_damageInfo) : GetParrySectionNameIndex_Easy(_damageInfo);
+
+}
+
+int AHeavySheild_Enemy::GetParrySectionNameIndex_Easy(const FDamageInfo * const _damageInfo) const
 {
 
 	// figure out the anim section to play
@@ -227,6 +239,74 @@ int AHeavySheild_Enemy::GetParrySectionNameIndex(const FDamageInfo * const _dama
 	}
 }
 
+int AHeavySheild_Enemy::GetParrySectionNameIndex_Weak(const FDamageInfo * const _damageInfo) const
+{
+	// figure out the anim section to play
+	FVector impactPoint = _damageInfo->hitResult.ImpactPoint;
+
+	FVector hitDir = (impactPoint - GetActorLocation());
+	hitDir.Z = 0.0f;
+	hitDir = hitDir.GetUnsafeNormal();
+
+	FVector pelvisLocation = GetMesh()->GetBoneLocation(TEXT("pelvis"));
+
+	if (impactPoint.Z >= pelvisLocation.Z)
+	{
+		FVector chestLocation = GetMesh()->GetBoneLocation(TEXT("spine_03"));
+
+		if (impactPoint.Z > chestLocation.Z)
+		{
+			// top hit
+			float dirDotFor = FVector::DotProduct(hitDir, GetActorForwardVector());
+
+			if (dirDotFor >= 0.86f)
+				return Parry_Top_Mid_Weak;
+			else
+			{
+				float dirDotRight = FVector::DotProduct(hitDir, GetActorRightVector());
+				if (dirDotRight > 0)
+					return Block_Right_Top_Weak;
+				else
+					return Block_Left_Top_Weak;
+			}
+
+		}
+		else
+		{
+			// Upper body hit
+			float dirDotFor = FVector::DotProduct(hitDir, GetActorForwardVector());
+
+			if (dirDotFor >= 0.86f)
+				return (FMath::RandRange(-5, 5) > 0) ? Parry_Left_Mid_Up_Weak : Block_Right_Mid_Up_Weak;
+			else
+			{
+				float dirDotRight = FVector::DotProduct(hitDir, GetActorRightVector());
+				if (dirDotRight > 0)
+					return Block_Right_Mid_Up_Weak;
+				else
+					return Parry_Left_Mid_Up_Weak;
+			}
+
+		}
+	}
+	else
+	{
+		float dirDotFor = FVector::DotProduct(hitDir, GetActorForwardVector());
+
+		if (dirDotFor >= 0.86f)
+			return Parry_Left_Mid_Down_Weak;
+		else
+		{
+			float dirDotRight = FVector::DotProduct(hitDir, GetActorRightVector());
+			if (dirDotRight > 0)
+				return Parry_Right_Down_Weak;
+			else
+				return Parry_Left_Mid_Down_Weak;
+		}
+	}
+}
+
+
 FName AHeavySheild_Enemy::GetCounterAttackSectionName(const FDamageInfo * const _damageInfo) const
 {
 	// figure out the anim section to play
@@ -254,7 +334,7 @@ FName AHeavySheild_Enemy::GetCounterAttackSectionName(const FDamageInfo * const 
 void AHeavySheild_Enemy::UpdateEnduranceOnBeingHit(const AActor* const _damageCauser)
 {
 
-	if (CharacterType == ECharacterType::LanTrooper_Shield)
+	if (CharacterType == ECharacterType::LanTrooper_Shield || IsStuned())
 		return;
 
 	const ATheLastBastionCharacter* damageCauser = Cast<ATheLastBastionCharacter>(_damageCauser);
@@ -276,13 +356,11 @@ void AHeavySheild_Enemy::UpdateEnduranceOnBeingHit(const AActor* const _damageCa
 
 int AHeavySheild_Enemy::GetMeleeComboSel_Guardian(bool _bIsMoving) const
 {
-	//if (_bIsMoving)
-	//	return bAttackFromRight ? FMath::RandRange(SH_Roo_Move_Right_Min, SH_Roo_Move_Right_Max) :
-	//	FMath::RandRange(SH_Roo_Move_Left_Min, SH_Roo_Move_Left_Max);
-	//else
-	//	return bAttackFromRight ? FMath::RandRange(SH_Roo_InPlace_Right_Min, SH_Roo_InPlace_Right_Max) :
-	//	FMath::RandRange(SH_Roo_InPlace_Left_Min, SH_Roo_InPlace_Left_Max);
-	return 0;
+	if (_bIsMoving)
+		return FMath::RandRange(Sns_Move_Min, Sns_Move_Max);
+	else
+		return FMath::RandRange(Sns_InPlace_Min, Sns_InPlace_Max);
+
 }
 
 int AHeavySheild_Enemy::GetMeleeComboSel_UltiGuardian(bool _bIsMoving) const
@@ -301,41 +379,26 @@ int AHeavySheild_Enemy::GetMeleeComboSel_UltiGuardian(bool _bIsMoving) const
 
 void AHeavySheild_Enemy::OnParrySuccess(const class UPawnStatsComponent* const _damageCauserPawnStats)
 {
-	if (CharacterType == ECharacterType::LanTrooper_HeavyShield)
-	{
-		// reset the endurance for next parry
-		ParryEndurance = GetParryEndurance();
-		CounterEndurance--;
-	}
-	else
+	if (CharacterType == ECharacterType::LanTrooper_Shield)
 	{
 		EGearType damageCauserGear = _damageCauserPawnStats->GetCurrentRightHandWeapon()->GetGearType();
 		if (damageCauserGear == EGearType::LongSword || damageCauserGear == EGearType::DoubleHandWeapon)
 			ParryEndurance--;
 		else
 			ParryEndurance -= 2;
+	}
+	else
+	{
+		// reset the endurance for next parry
+		ParryEndurance = GetParryEndurance();
+		CounterEndurance--;
 
 	}
 
 }
 
-bool AHeavySheild_Enemy::IsParrySuccess(const class UPawnStatsComponent* const _damageCauserPawnStats, EAIActionState _currentActionState) const
+bool AHeavySheild_Enemy::IsParrySuccess(bool _damageByHeavyWeapon, EAIActionState _currentActionState) const
 {
-	//3. Check correct weapon type
-	AGear* damageCauserGear = _damageCauserPawnStats->GetCurrentActivatedWeapon();
-	EGearType gearType;
-
-	if (damageCauserGear)
-		gearType = damageCauserGear->GetGearType();
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("damageCauserGear == nullptr,ASingleSwordMan_Enemy::OnParry "));
-		return false;
-	}
-
-	bool damageCauserHoldingHeavyWeapon
-		= _damageCauserPawnStats->IsUsingHeavyWeapon();
-
 	bool isRightState =
 		_currentActionState == EAIActionState::None ||
 		_currentActionState == EAIActionState::Defend ||
@@ -343,18 +406,15 @@ bool AHeavySheild_Enemy::IsParrySuccess(const class UPawnStatsComponent* const _
 		_currentActionState == EAIActionState::MeleePostAttack ||
 		_currentActionState == EAIActionState::MeleeAttack;
 
-	if (!damageCauserHoldingHeavyWeapon && isRightState && ParryEndurance > 0)
+	if (!_damageByHeavyWeapon && isRightState && ParryEndurance > 0)
 		return true;
 	else
 		return false;
 }
 
-bool AHeavySheild_Enemy::IsParrySuccess_Ulti(const class UPawnStatsComponent* const _damageCauserPawnStats, EAIActionState _currentActionState) const
+bool AHeavySheild_Enemy::IsParrySuccess_Ulti(bool _damageByHeavyWeapon, EAIActionState _currentActionState) const
 {
 	// parry happen whenever the right animatino state or parry endurance less equal to zero
-
-	bool damageCauserHoldingHeavyWeapon
-		= _damageCauserPawnStats->IsUsingHeavyWeapon();
 
 	// it can parry during attack if the attack did not damage him with heavy weapon
 	bool isRightState =
@@ -362,7 +422,7 @@ bool AHeavySheild_Enemy::IsParrySuccess_Ulti(const class UPawnStatsComponent* co
 		_currentActionState == EAIActionState::Defend ||
 		_currentActionState == EAIActionState::MeleePreAttack ||
 		_currentActionState == EAIActionState::MeleePostAttack || 
-		(!damageCauserHoldingHeavyWeapon && _currentActionState == EAIActionState::MeleeAttack);
+		(!_damageByHeavyWeapon && _currentActionState == EAIActionState::MeleeAttack);
 
 	bool accept = ParryEndurance <= 0 || isRightState;
 

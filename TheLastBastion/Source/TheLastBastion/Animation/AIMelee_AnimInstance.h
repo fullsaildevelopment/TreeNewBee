@@ -81,7 +81,6 @@ protected:
 		/** How many times we already have launched combos */
 		int CurrentComboCounter;
 
-
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = MeleeAttackChoice)
 		/** is the combo has odd index*/
 		bool bComboOddIndex;

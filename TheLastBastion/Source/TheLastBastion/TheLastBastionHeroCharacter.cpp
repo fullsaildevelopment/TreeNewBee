@@ -921,6 +921,11 @@ bool ATheLastBastionHeroCharacter::SkillCheck(int _skillIndex)
 	return success;
 }
 
+bool ATheLastBastionHeroCharacter::IsStuned() const
+{
+	return mAnimInstanceRef->GetCurrentAttackState() == EAttackState::BeingStuned;
+}
+
 bool ATheLastBastionHeroCharacter::OnCounterAttack(const FDamageInfo * const _damageInfo, const UPawnStatsComponent * const _damageCauserPawnStats)
 {
 
@@ -955,6 +960,20 @@ bool ATheLastBastionHeroCharacter::OnCounterAttack(const FDamageInfo * const _da
 bool ATheLastBastionHeroCharacter::IsDoingCounterAttack() const
 {
 	return mAnimInstanceRef->IsDoingGainDpAttack();
+}
+
+bool ATheLastBastionHeroCharacter::ShouldPlayHitAnimation() const
+{
+
+	if (mAnimInstanceRef->GetCurrentEquipmentType() == EEquipType::HeavyWeapon)
+	{
+		return mAnimInstanceRef->GetCurrentAttackState() != EAttackState::BeingHit 
+			&& !mAnimInstanceRef->IsAnimCanNotInterruptByTakingDamage();
+	}
+	else
+	{
+		return !mAnimInstanceRef->IsAnimCanNotInterruptByTakingDamage();
+	}
 }
 
 bool ATheLastBastionHeroCharacter::IsSkillCooled(int _index) const
@@ -999,6 +1018,9 @@ void ATheLastBastionHeroCharacter::OnTakePointDamageHandle(AActor * DamagedActor
 
 	float totalDamage = HeroStats->CalculateDamage(Damage, DamageCauser, isCritical, isStun);
 
+	if (mAnimInstanceRef->IsAnimCanNotInterruptByTakingDamage())
+		isStun = false;
+
 	bool HasDpLeft = HeroStats->GetDpCurrent() > 0;
 
 	/// update HUD hp or dp bar
@@ -1021,13 +1043,44 @@ void ATheLastBastionHeroCharacter::OnTakePointDamageHandle(AActor * DamagedActor
 	UWorld* world = GetWorld();
 	if (world && fT_WBP)
 	{
+		UInGameFloatingText* criticalFT = nullptr;
+		UInGameFloatingText* stunFT = nullptr;
+
 		UInGameFloatingText* damageFT = Cast<UInGameFloatingText>(CreateWidget<UUserWidget>(world, fT_WBP));
 		if (damageFT)
 		{
 			damageFT->SetInGameFTProperty(FText::AsNumber((int)totalDamage));
 			damageFT->SetRenderTranslation(screenPos);
 			if (isCritical)
+			{
+
+				criticalFT = Cast<UInGameFloatingText>(CreateWidget<UUserWidget>(world, fT_WBP));
+				criticalFT->SetInGameFTProperty(FText::FromString(TEXT("Critical !!!")));
+				criticalFT
+					->SetRenderTranslation(
+						FVector2D(screenPos.X + FMath::RandRange(-20.0f, 20.0f),
+							screenPos.Y + FMath::RandRange(-10.0f, -30.0f)));
+				criticalFT->AddToViewport();
+
 				damageFT->SetFontSize(FontSize_Critical);
+				criticalFT->SetFontSize(FontSize_Critical);
+				criticalFT->SetStyle(EFloatingTextStyle::Enemy);
+			}
+			else if (isStun)
+			{
+				stunFT = Cast<UInGameFloatingText>(CreateWidget<UUserWidget>(world, fT_WBP));
+				stunFT->SetInGameFTProperty(FText::FromString(TEXT("Stun !!!")));
+				stunFT
+					->SetRenderTranslation(
+						FVector2D(screenPos.X + FMath::RandRange(-20.0f, 20.0f),
+							screenPos.Y + FMath::RandRange(10.0f, 20.0f)));
+
+				stunFT->AddToViewport();
+				stunFT->SetStyle(EFloatingTextStyle::Enemy);
+				stunFT->SetFontSize(FontSize_Critical);
+				//stunFT->SetStyle(EFloatingTextStyle::Stun);
+			}
+
 			damageFT->SetStyle(EFloatingTextStyle::Enemy);
 			damageFT->AddToViewport();
 		}
@@ -1040,17 +1093,27 @@ void ATheLastBastionHeroCharacter::OnTakePointDamageHandle(AActor * DamagedActor
 
 	/// Animation response to Hit
 	FVector RagDollImpulse = HitLocation - DamageCauser->GetTargetLocation();
+
 	if (isStun)
-	{
-		//KnockOut(RagDollImpulse, DamageCauser, BoneName);
+	{		
 		// play hit response and mark it for stun
+		mAnimInstanceRef->ResetOnBeingStuned();
 		mAnimInstanceRef->OnBeingHit(BoneName, damageCauserRelative, HitLocation);
+		resetHpCovering = false;
 	}
 	else
 	{
 		// we have dp left, we will not react to the hit by animation
+
 		if (HasDpLeft == false)
-			mAnimInstanceRef->OnBeingHit(BoneName, damageCauserRelative, HitLocation);
+		{
+			if (ShouldPlayHitAnimation())
+			{
+				// reset the attack state and movement override, cuz we are being attack except we are doing counter attack or skill
+				mAnimInstanceRef->ResetOnBeingHit();
+				mAnimInstanceRef->OnBeingHit(BoneName, damageCauserRelative, HitLocation);
+			}
+		}
 		else
 			resetHpCovering = false;
 	}

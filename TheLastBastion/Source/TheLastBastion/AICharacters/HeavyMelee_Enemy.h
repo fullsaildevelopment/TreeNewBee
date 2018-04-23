@@ -23,7 +23,7 @@ public:
 
 	int GetMeleeComboSel(bool _bIsMoving) const override;
 
-	FORCEINLINE int GetComboCounter() const override { return CharacterType == ECharacterType::Lan_QueenGuard ? FMath::RandRange(HV_Combo_Counter_Sr_Min, HV_Combo_Counter_Sr_Max) : HV_Combo_Counter_Jr;}
+	FORCEINLINE int GetComboCounter() const override { return CharacterType == ECharacterType::Lan_QueenGuard ? FMath::RandRange(HV_Combo_Counter_Sr_Min, HV_Combo_Counter_Sr_Max) : FMath::RandRange(HV_Combo_Counter_Jr_Min, HV_Combo_Counter_Jr_Max); }
 
 protected:
 

@@ -15,12 +15,7 @@ bool AHeavyMelee_Enemy::OnParry(const struct FDamageInfo* const _damageInfo, con
 
 	bool accept = false;
 	if (CharacterType != ECharacterType::Lan_QueenGuard)
-	{
 		return false;
-		// 1. weapon check, queens guard can block attack from any melee weapon
-
-		// 2. endurance check 
-	}
 
 	// 3. Action check, is this ai 's current action is fit for parrying ?
 	UAIMelee_AnimInstance* animRef = Cast<UAIMelee_AnimInstance>(GetAnimInstanceRef());
@@ -85,7 +80,7 @@ bool AHeavyMelee_Enemy::OnParry(const struct FDamageInfo* const _damageInfo, con
 
 int AHeavyMelee_Enemy::GetMeleeComboSel(bool _bIsMoving) const
 {
-	return 0;
+	//return 0;
 	bool IsQueensGuard = CharacterType == ECharacterType::Lan_QueenGuard;
 	if (_bIsMoving)
 		return IsQueensGuard ? FMath::RandRange(HV_ComboSel_Move_Sr_Min, HV_ComboSel_Move_Sr_Max) : FMath::RandRange(HV_ComboSel_Move_Jr_Min, HV_ComboSel_Move_Jr_Max);
@@ -165,10 +160,5 @@ FName AHeavyMelee_Enemy::GetParrySectionName(const struct FDamageInfo* const _da
 
 bool AHeavyMelee_Enemy::ShouldPlayHitAnimation() const
 {
-
-	if (CharacterType == ECharacterType::Lan_QueenGuard)
-		return mAnimInstanceRef->GetCurrentActionState() != EAIActionState::GettingHurt;
-	else
-		return true;
-
+	return mAnimInstanceRef->GetCurrentActionState() != EAIActionState::GettingHurt ;
 }

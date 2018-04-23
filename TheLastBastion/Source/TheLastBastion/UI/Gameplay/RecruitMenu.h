@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Gameplay/CrewSlotUI.h"
+//#include "UI/Gameplay/CrewSlotUI.h"
 #include "Blueprint/UserWidget.h"
 #include "RecruitMenu.generated.h"
 
@@ -35,8 +35,31 @@ protected:
 		class UUnitRow* HillTribe;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UnitLists")
-		TArray<struct FUnitData> HillTribe_Data;
+		TArray<TSubclassOf<class ATheLastBastionAIBase>> HillTribe_Data;
 
+	UPROPERTY(meta = (BindWidget))
+		class UUnitRow* Wolf;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UnitLists")
+		TArray<TSubclassOf<class ATheLastBastionAIBase>> Wolf_Data;
+
+	UPROPERTY(meta = (BindWidget))
+		class UUnitRow* Nord;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UnitLists")
+		TArray<TSubclassOf<class ATheLastBastionAIBase>> Nord_Data;
+
+	UPROPERTY(meta = (BindWidget))
+		class UUnitRow* Dwarven;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UnitLists")
+		TArray<TSubclassOf<class ATheLastBastionAIBase>> Dwarven_Data;
+
+	UPROPERTY(meta = (BindWidget))
+		class UUnitRow* Ebony;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UnitLists")
+		TArray<TSubclassOf<class ATheLastBastionAIBase>> Ebony_Data;
 
 	UPROPERTY(meta = (BindWidget))
 		class UButton* Cancel;

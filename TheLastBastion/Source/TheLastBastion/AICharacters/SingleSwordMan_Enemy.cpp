@@ -94,8 +94,6 @@ bool ASingleSwordMan_Enemy::OnParry(const struct FDamageInfo* const _damageInfo,
 
 }
 
-
-
 bool ASingleSwordMan_Enemy::OnAutoDodge(const FDamageInfo * const _damageInfo, const UPawnStatsComponent * const _damageCauserPawnStats)
 {
 	//1. Check correct character type 
@@ -163,10 +161,6 @@ int ASingleSwordMan_Enemy::GetMeleeComboSel(bool _bIsMoving) const
 		return GetMeleeComboSel_Fast(_bIsMoving);
 	case ECharacterType::LanTrooper_Power:
 		return GetMeleeComboSel_Power(_bIsMoving);
-	case ECharacterType::LanTrooper_Shield:
-		return GetMeleeComboSel_Shield(_bIsMoving);
-	case ECharacterType::LanTrooper_HeavyShield:
-		return GetMeleeComboSel_HeavyShield(_bIsMoving);
 	default:
 		return Super::GetMeleeComboSel(_bIsMoving);
 	}
@@ -298,15 +292,6 @@ int ASingleSwordMan_Enemy::GetMeleeComboSel_Power(bool _bIsMoving) const
 		FMath::RandRange(SH_Pow_InPlace_Left_Min, SH_Pow_InPlace_Left_Max);
 }
 
-int ASingleSwordMan_Enemy::GetMeleeComboSel_Shield(bool _bIsMoving) const
-{
-	return 0;
-}
-
-int ASingleSwordMan_Enemy::GetMeleeComboSel_HeavyShield(bool _bIsMoving) const
-{
-	return 0;
-}
 
 
 

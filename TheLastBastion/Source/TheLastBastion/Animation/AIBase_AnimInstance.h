@@ -18,7 +18,9 @@ enum class EAIActionState : uint8
 	Fire           UMETA(DisplayName = "Fire"),
 	Dodge          UMETA(DisplayName = "Dodge"),
 	Defend         UMETA(DisplayName = "Defend"),
-	GettingHurt    UMETA(DisplayName = "GettingHurt")
+	GettingHurt    UMETA(DisplayName = "GettingHurt"),
+	GettingStuned  UMETA(DisplayName = "GettingStuned")
+
 };
 
 UENUM(BlueprintType)
@@ -63,7 +65,7 @@ enum class EAIMeleeAttackType : uint8
 #define TH_HitReact_Right    TEXT("HitRight")
 #define TH_HitReact_Front    TEXT("HitFront_Hip")
 
-#define SnsCB_HitReact_Front     TEXT("HitFront")
+#define SnsCB_HitReact_Front     TEXT("HitCenter")
 #define SnsCB_HitReact_FrontTop  TEXT("HitHead")
 #define SnsCB_HitReact_Left      TEXT("HitLeft")
 #define SnsCB_HitReact_Right     TEXT("HitRight")
@@ -151,6 +153,10 @@ public:
 	// Called when ai being hit
 	void ResetOnBeingHit() override;
 
+	// Called when ai being hit
+	void ResetOnBeingStuned() override;
+
+
 	void OnBeingHit(FName boneName, const FVector& _damageCauseRelative,
 		const FVector& _hitLocation) override;
 
@@ -191,5 +197,8 @@ protected:
 
 	// Called on recoverred from ragdoll
 	void OnGetupMontageEnd();
+
+	/** Called when hit animation transfer into dazed*/
+	void OnTurnToDazedLoop();
 
 };

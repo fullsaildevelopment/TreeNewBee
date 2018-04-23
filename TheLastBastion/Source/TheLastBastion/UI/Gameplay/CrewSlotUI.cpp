@@ -121,9 +121,38 @@ void UCrewSlotUI::NativeOnMouseEnter(const FGeometry & InGeometry, const FPointe
 void UCrewSlotUI::SetUnitData(const FUnitData & _data)//, bool _bShowPrice)
 {
 	Unit_Data = _data;
+}
 
-	//if (_bShowPrice)
-	//	SetPrice(Unit_Data.Price);
+void UCrewSlotUI::SetUnitData(TSubclassOf<class ATheLastBastionAIBase> _aiClassBp)
+{
+	if (_aiClassBp)
+	{
+		Unit_Data.Unit_Bp = _aiClassBp;
+
+		ATheLastBastionAIBase* defaultAI = _aiClassBp.GetDefaultObject();
+
+		if (defaultAI)
+			Unit_Data.Unit_Image = defaultAI->GetThumbNailImage();
+	}
+}
+
+
+bool UCrewSlotUI::IsMeleeGroup() const
+{
+	if (Unit_Data.Unit_Bp)
+	{
+		ATheLastBastionAIBase* defaultAIBase = Unit_Data.Unit_Bp.GetDefaultObject();
+
+		if (defaultAIBase)
+			return !defaultAIBase->IsRangeUnit();
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("defaultAIBase == nullptr, UCrewSlotUI::IsMeleeGroup()"));
+			return true;
+		}
+	}
+
+	return true;
 }
 
 void UCrewSlotUI::ClearNumericValue()
@@ -136,6 +165,7 @@ void UCrewSlotUI::ClearNumericValue()
 //	NumericValue->SetText(FText::AsNumber(_price));	
 //	NumericValue->SetColorAndOpacity(FLinearColor::Yellow);
 //}
+
 
 void UCrewSlotUI::SetUnitNumber(int _number)
 {

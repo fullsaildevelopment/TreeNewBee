@@ -9,7 +9,7 @@
 /**
  * 
  */
-#define UnitRowSize 4
+#define UnitRowSize 3
 
 UCLASS()
 class THELASTBASTION_API UUnitRow : public UUserWidget
@@ -38,9 +38,6 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UCrewSlotUI* Slot_2;
 
-	UPROPERTY(meta = (BindWidget))
-		class UCrewSlotUI* Slot_3;
-
 
 public:
 
@@ -48,7 +45,7 @@ public:
 
 	void SetEachSlotSize(float _width, float _height);
 
-	void SetEachSlotAction(const TArray<struct FUnitData>& _unitData);
+	void SetEachSlotAction(const TArray<TSubclassOf<class ATheLastBastionAIBase>>& _unitClass);
 
 	//void SetEachSlotImage(const TArray<UTexture2D*>& _actionImages);
 

@@ -14,14 +14,13 @@ bool UUnitRow::Initialize()
 	// Bind Delegetes to Widget components
 	bool bAllWidgetAreGood =
 		UnitsClassRow && UnitClassName &&
-		Slot_0 && Slot_1 && Slot_2 && Slot_3;
+		Slot_0 && Slot_1 && Slot_2;
 
 	if (bAllWidgetAreGood)
 	{
 		Slot_0->SetDragDropMode(EDragDropMode::EDragOnly);
 		Slot_1->SetDragDropMode(EDragDropMode::EDragOnly);
 		Slot_2->SetDragDropMode(EDragDropMode::EDragOnly);
-		Slot_3->SetDragDropMode(EDragDropMode::EDragOnly);
 	}
 	else
 		return false;
@@ -46,15 +45,15 @@ void UUnitRow::SetEachSlotSize(float _width, float _height)
 	}
 }
 
-void UUnitRow::SetEachSlotAction(const TArray<FUnitData>& _unitData)
+void UUnitRow::SetEachSlotAction(const TArray<TSubclassOf<class ATheLastBastionAIBase>>& _unitClass)
 {
 	UCrewSlotUI* slot = nullptr;
 	for (size_t i = 0; i < UnitsClassRow->GetChildrenCount(); i++)
 	{
 		slot = Cast<UCrewSlotUI>(UnitsClassRow->GetChildAt(i));
-		if (slot && _unitData.IsValidIndex(i))
+		if (slot && _unitClass.IsValidIndex(i))
 		{
-			slot->SetUnitData(_unitData[i]);
+			slot->SetUnitData(_unitClass[i]);
 		}
 	}
 

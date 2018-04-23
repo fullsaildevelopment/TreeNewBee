@@ -88,6 +88,7 @@ void UAIBase_AnimInstance::OnUpdate(float _deltaTime)
 		SyncMotionForMeleeAttack();
 		break;
 	case EAIActionState::GettingHurt:
+	case EAIActionState::GettingStuned:
 		SyncMotionForGettingHurt();
 		break;
 
@@ -113,6 +114,7 @@ void UAIBase_AnimInstance::OnPostEvaluate()
 void UAIBase_AnimInstance::ResetOnBeingHit()
 {
 	CurrentActionState = EAIActionState::GettingHurt;
+	mCharacter->GetCharacterMovement()->RotationRate.Yaw = AICharacter_RotatingRate;
 
 	ATheLastBastionBaseAIController* baseAICtrl 
 		= Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
@@ -126,6 +128,22 @@ void UAIBase_AnimInstance::ResetOnBeingHit()
 
 
 	//baseAICtrl->OnBeingHit(mCharacter->GetCharacterType());
+}
+
+void UAIBase_AnimInstance::ResetOnBeingStuned()
+{
+	CurrentActionState = EAIActionState::GettingStuned;
+
+	mCharacter->GetCharacterMovement()->RotationRate.Yaw = AICharacter_RotatingRate;
+	ATheLastBastionBaseAIController* baseAICtrl
+		= Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
+	if (baseAICtrl == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("baseAICtrl is nullptr - UAIBase_AnimInstance::ResetOnBeingHit"));
+		return;
+	}
+
+	baseAICtrl->SetIsPaused_BBC(true);
 }
 
 void UAIBase_AnimInstance::OnBeingHit(FName boneName, const FVector & _damageCauseRelative, const FVector & _hitLocation)
@@ -269,7 +287,15 @@ void UAIBase_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMont
 
 	if (!_bInterruptted)
 	{
-		if (_animMontage == Hit_Montage || _animMontage == Parry_Montage || _animMontage == Dodge_Montage || _animMontage == CounterAttack_Montage)
+
+		if (_animMontage == Hit_Montage)
+		{
+			if (CurrentActionState == EAIActionState::GettingStuned)
+				OnTurnToDazedLoop();
+			else
+				OnHitMontageEnd();
+		}
+		else if (_animMontage == Parry_Montage || _animMontage == Dodge_Montage || _animMontage == CounterAttack_Montage || _animMontage == AM_Dazed)
 		{
 			OnHitMontageEnd();
 		}
@@ -630,4 +656,10 @@ void UAIBase_AnimInstance::OnGetupMontageEnd()
 		}
 	}
 
+}
+
+void UAIBase_AnimInstance::OnTurnToDazedLoop()
+{
+	mCharacter->GetCharacterMovement()->RotationRate.Yaw = 0.0f;
+	PlayMontage(AM_Dazed);
 }
