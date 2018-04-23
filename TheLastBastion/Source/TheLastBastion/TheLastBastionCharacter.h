@@ -40,7 +40,9 @@ enum class ECharacterType : uint8
 	Nord_Shooter			 UMETA(DisplayName = "Nord SharpShooter"),
 	Dwarven_HeavyShield_Mace UMETA(DisplayName = "Dwarven Champion"),
 	Dwarven_Shooter			 UMETA(DisplayName = "Dwarven Sniper"),
-	Ebony_Heavy_BA	 UMETA(DisplayName = "Ebony Legend")
+	Ebony_Heavy_BA	         UMETA(DisplayName = "Ebony Legend"),
+	White_NK                 UMETA(DisplayName = "NightKing")
+
 };
 
 UENUM(BlueprintType)

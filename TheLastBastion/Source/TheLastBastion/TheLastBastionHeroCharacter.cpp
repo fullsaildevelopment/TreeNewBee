@@ -425,8 +425,8 @@ void ATheLastBastionHeroCharacter::OnCommandMarch()
 	{
 
 		FVector ImpactLocation = Hit.ImpactPoint;
-		UE_LOG(LogTemp, Log, TEXT("%s"), *Hit.GetActor()->GetName());
-		DrawDebugSphere(GetWorld(), ImpactLocation, 50.0f, 8, FColor::Green, false, 5.0f);
+		//UE_LOG(LogTemp, Log, TEXT("%s"), *Hit.GetActor()->GetName());
+		//DrawDebugSphere(GetWorld(), ImpactLocation, 50.0f, 8, FColor::Green, false, 5.0f);
 
 		if (CommandedGroup)
 		{
