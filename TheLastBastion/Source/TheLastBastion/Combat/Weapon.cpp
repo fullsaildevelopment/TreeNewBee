@@ -160,6 +160,7 @@ void AWeapon::GetRayCastPosition(FVector & _start, FVector & _end)
 		break;
 	}
 	case EGearType::DoubleHandWeapon:
+	case EGearType::DaiKatana:
 	{
 		_start = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_start_Current.Y + GetActorUpVector() * DamageEdgeOffset_start_Current.Z;;
 		_end = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_end_Current.Y;
@@ -182,11 +183,11 @@ void AWeapon::GetRayCastPosition(FVector & _start, FVector & _end)
 		//_rotator = FRotator(this->GetActorRotation().Pitch, -this->GetActorRotation().Yaw, this->GetActorRotation().Roll);
 		break;
 	}
-	case EGearType::TwinBlade:
-	{
-		_start = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_start_Current;
-		_end = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_end_Current;
-	}
+	//case EGearType::TwinBlade:
+	//{
+	//	_start = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_start_Current;
+	//	_end = GetActorLocation() + GetActorForwardVector() * DamageEdgeOffset_end_Current;
+	//}
 	case EGearType::Shield:
 	{
 		_start = GetActorLocation() + DamageEdgeOffset_start_Current;
@@ -213,6 +214,7 @@ void AWeapon::GetRayCastPosition_Debug(FVector & _start, FVector & _end)
 		break;
 	}
 	case EGearType::DoubleHandWeapon:
+	case EGearType::DaiKatana:
 	{
 		_start = GetActorLocation() + GetActorRightVector() * DamageEdgeOffset_start.Y + 
 			GetActorUpVector() * DamageEdgeOffset_start.Z;;
@@ -264,6 +266,7 @@ UParticleSystemComponent * AWeapon::OnWeaponEnchant()
 		{
 
 		case EGearType::DoubleHandWeapon:
+		case EGearType::DaiKatana:
 			relativeRotator = FRotator(0, 0, 90);
 			break;
 		case EGearType::GreatSword:

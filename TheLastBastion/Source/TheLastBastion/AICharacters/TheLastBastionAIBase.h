@@ -115,14 +115,8 @@ FName("Block_Top_Down_Right"),FName("Block_Top_Up_Mid") ,FName("Block_Down"),
 FName("Block_Right_Top_Weak"), FName("Block_Right_Mid_Up_Weak"), FName("Block_Left_Top_Weak") };
 
 
-#define NK_InPlace_Left_Min 0 
-#define NK_InPlace_Left_Max 3 
-#define NK_InPlace_Right_Min 4 
-#define NK_InPlace_Right_Max 8 
-#define NK_Move_Left_Min 9 
-#define NK_Move_Left_Max 12
-#define NK_Move_Right_Min 13 
-#define NK_Move_Right_Max 17
+
+
 
 
 

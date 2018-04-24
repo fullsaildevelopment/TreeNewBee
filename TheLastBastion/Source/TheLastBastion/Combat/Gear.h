@@ -23,6 +23,7 @@ enum class EGearType : uint8
 	Mace = 11                  UMETA(DisplayName = "Mace"),
 	BattleAxe = 12             UMETA(DisplayName = "BattleAxe"),
 	Hammer = 13                UMETA(DisplayName = "Hammer"),
+	DaiKatana = 14             UMETA(DisplayName = "DaiKatana"),
 };
 
 UENUM()

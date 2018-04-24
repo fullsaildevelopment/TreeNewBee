@@ -179,6 +179,7 @@ void UAIBase_AnimInstance::OnBeingHit(FName boneName, const FVector & _damageCau
 		break;
 	}
 	case EGearType::DoubleHandWeapon:
+	case EGearType::DaiKatana:
 		sectionToPlay = HitReaction_Katana(boneName, _damageCauseRelative, _hitLocation);
 		break;
 
@@ -208,6 +209,8 @@ void UAIBase_AnimInstance::OnCounterAttack(FName sectionName)
 		return;
 	}
 
+	mCharacter->GetCharacterMovement()->RotationRate.Yaw = AICharacter_RotatingRate;
+
 	//OnDisableWeapon(true, true);
 	PlayMontage(CounterAttack_Montage, 1.0f, sectionName);
 }
@@ -220,6 +223,8 @@ void UAIBase_AnimInstance::OnParry(FName sectionName)
 		UE_LOG(LogTemp, Error, TEXT("Parry_Montage == nullptr ,UAIBase_AnimInstance::OnParry "));
 		return;
 	}
+	mCharacter->GetCharacterMovement()->RotationRate.Yaw = AICharacter_RotatingRate;
+
 	OnDisableWeapon(true, true);
 	PlayMontage(Parry_Montage, 1.0f, sectionName);
 }
@@ -232,6 +237,8 @@ void UAIBase_AnimInstance::OnDodge(FName sectionName)
 		UE_LOG(LogTemp, Error, TEXT("Dodge_Montage == nullptr ,UAIBase_AnimInstance::OnDodge "));
 		return;
 	}
+	mCharacter->GetCharacterMovement()->RotationRate.Yaw = AICharacter_RotatingRate;
+
 	OnDisableWeapon(true, true);
 	PlayMontage(Dodge_Montage, 1.0f, sectionName);
 
@@ -273,6 +280,12 @@ void UAIBase_AnimInstance::UpdateAnimationSetOnWeaponChange(EGearType _gearType)
 		break;
 	case EGearType::CrossBow:
 		Hit_Montage = AM_CB_HitReaction;
+		break;
+	case EGearType::DaiKatana:
+		Hit_Montage = AM_TH_HitReaction;
+		Parry_Montage = AM_Katana_Parry;
+		Dodge_Montage = AM_Katana_Dodge;
+		CounterAttack_Montage = AM_CounterAttack;
 		break;
 	default:
 		break;

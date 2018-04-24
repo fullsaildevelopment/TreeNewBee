@@ -31,6 +31,8 @@ namespace
 	UAnimMontage* AM_SH_Dodge = nullptr;
 	UAnimMontage* AM_Sns_Parry = nullptr;
 	UAnimMontage* AM_Dazed = nullptr;
+	UAnimMontage* AM_Katana_Parry = nullptr; // for AI katana parry
+	UAnimMontage* AM_Katana_Dodge = nullptr; // for AI katana dodge
 }
 
 enum class EGearType : uint8;

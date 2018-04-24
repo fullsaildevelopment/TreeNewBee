@@ -49,6 +49,10 @@ UBase_AnimInstance::UBase_AnimInstance(const FObjectInitializer& _objectInitaliz
 
 	FindMontage(AM_Dazed,
 		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_Dazed"));
+	FindMontage(AM_Katana_Parry,
+		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_Katana_Parry"));
+	FindMontage(AM_Katana_Dodge,
+		TEXT("/Game/Blueprints/AnimationBP/AnimAssets/Montage_Katana_Dodge"));
 
 
 }
@@ -191,6 +195,7 @@ void UBase_AnimInstance::FxMeleeSwing(bool _rightHand)
 			case EGearType::GreatSword:
 			case EGearType::Hammer:
 			case EGearType::Shield:
+			case EGearType::DaiKatana:
 				weaponType = 2;
 				break;
 			default:

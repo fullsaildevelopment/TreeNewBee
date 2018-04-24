@@ -207,6 +207,7 @@ USoundCue* UAudioManager::GetMeleeWeaponImpactSFXByGearType(EGearType _gearType)
 		return nullptr;
 
 	case EGearType::GreatSword:
+	case EGearType::DaiKatana:
 		return HeavyWeaponImpact;
 
 	case EGearType::Bow:

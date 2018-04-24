@@ -44,6 +44,7 @@ void AGear::Equip(class USkeletalMeshComponent* const _skeletonMeshComponent)
 	case EGearType::BattleAxe:
 	case EGearType::GreatSword:
 	case EGearType::Hammer:
+	case EGearType::DaiKatana:
 		SlotName = TEXT("HeavyEquip");
 		break;
 	case EGearType::CrossBow:
@@ -88,6 +89,7 @@ void AGear::Arm(USkeletalMeshComponent * const _skeletonMeshComponent)
 		SlotName = TEXT("SingleHandWeapon");
 		break;
 	case EGearType::DoubleHandWeapon:
+	case EGearType::DaiKatana:
 		SlotName = TEXT("TwoHandWeapon");
 		break;
 	case EGearType::CrossBow:
