@@ -82,6 +82,8 @@ UParticleSystem * UVfxManager::GetVfxBySurfaceType(EPhysicalSurface _surfaceType
 	{
 	case SURFACE_FLESH:
 		return bloodImpact_sputtering_PS;
+	case SURFACE_ICE:
+		return iceImpact_sputtering_PS;
 	case SURFACE_LightShield:
 	case SURFACE_METAL:
 	case SURFACE_HeavyShield:

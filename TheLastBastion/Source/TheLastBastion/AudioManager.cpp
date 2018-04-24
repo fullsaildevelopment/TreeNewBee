@@ -167,8 +167,8 @@ USoundCue * UAudioManager::GetProjectileImpactByMaterial(EPhysicalSurface _surfa
 	{
 	case SURFACE_FLESH:
 	case SURFACE_METAL:
+	case SURFACE_ICE:
 		return BoltsHitImpactOnCharacter;
-
 	case SURFACE_LightShield:
 		return BoltsHitImpactOnLightShield;
 

@@ -147,7 +147,7 @@ void UBase_AnimInstance::ResetOnBeingHit() {}
 
 void UBase_AnimInstance::FxFootStep()
 {
-	if (mBaseCharacter)
+	if (mBaseCharacter && !mBaseCharacter->GetIsDead())
 	{
 		USoundCue* sfx = nullptr;
 		AArmor* armor = mBaseCharacter->GetCurrentArmor();
