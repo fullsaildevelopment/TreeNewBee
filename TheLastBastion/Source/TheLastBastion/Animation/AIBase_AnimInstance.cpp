@@ -199,7 +199,7 @@ void UAIBase_AnimInstance::OnBeingHit(FName boneName, const FVector & _damageCau
 	PlayMontage(Hit_Montage, 1.0f, sectionToPlay);
 }
 
-void UAIBase_AnimInstance::OnCounterAttack(FName sectionName)
+void UAIBase_AnimInstance::OnCounterAttack(FName sectionName, float _rate)
 {
 	CurrentActionState = EAIActionState::MeleePreAttack;
 
@@ -212,7 +212,7 @@ void UAIBase_AnimInstance::OnCounterAttack(FName sectionName)
 	mCharacter->GetCharacterMovement()->RotationRate.Yaw = AICharacter_RotatingRate;
 
 	//OnDisableWeapon(true, true);
-	PlayMontage(CounterAttack_Montage, 1.0f, sectionName);
+	PlayMontage(CounterAttack_Montage, _rate, sectionName);
 }
 
 void UAIBase_AnimInstance::OnParry(FName sectionName)

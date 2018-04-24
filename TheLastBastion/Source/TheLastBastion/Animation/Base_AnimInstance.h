@@ -178,6 +178,7 @@ protected:
 public:
 
 	FORCEINLINE bool IsOnDefend() const { return bOnDefend; }
+	FORCEINLINE bool IsDoingCounterAttackAnimation() const { return Montage_IsPlaying(CounterAttack_Montage); }
 	FORCEINLINE void SetHitMontage(class UAnimMontage* _hitMontage) { Hit_Montage = _hitMontage; }
 
 	virtual void UpdateAnimationSetOnWeaponChange(EGearType _gearType) {}

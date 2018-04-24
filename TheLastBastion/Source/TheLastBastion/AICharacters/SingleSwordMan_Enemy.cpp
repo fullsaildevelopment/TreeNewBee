@@ -156,6 +156,7 @@ int ASingleSwordMan_Enemy::GetMeleeComboSel(bool _bIsMoving) const
 	switch (CharacterType)
 	{
 	case ECharacterType::LanTrooper_Rookie:
+	case ECharacterType::White_Walkers:
 		return GetMeleeComboSel_Rookie(_bIsMoving);
 	case ECharacterType::LanTrooper_Fast:
 		return GetMeleeComboSel_Fast(_bIsMoving);

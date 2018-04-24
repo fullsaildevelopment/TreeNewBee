@@ -957,7 +957,7 @@ bool ATheLastBastionHeroCharacter::OnCounterAttack(const FDamageInfo * const _da
 	return false;
 }
 
-bool ATheLastBastionHeroCharacter::IsDoingCounterAttack() const
+bool ATheLastBastionHeroCharacter::IsDoingGainDpAttack() const
 {
 	return mAnimInstanceRef->IsDoingGainDpAttack();
 }

@@ -14,7 +14,7 @@ bool AHeavyMelee_Enemy::OnParry(const struct FDamageInfo* const _damageInfo, con
 {
 
 	bool accept = false;
-	if (CharacterType != ECharacterType::Lan_QueenGuard)
+	if (CharacterType == ECharacterType::Lan_Heavy)
 		return false;
 
 	// 3. Action check, is this ai 's current action is fit for parrying ?
@@ -81,11 +81,11 @@ bool AHeavyMelee_Enemy::OnParry(const struct FDamageInfo* const _damageInfo, con
 int AHeavyMelee_Enemy::GetMeleeComboSel(bool _bIsMoving) const
 {
 	//return 0;
-	bool IsQueensGuard = CharacterType == ECharacterType::Lan_QueenGuard;
+	bool IsJrHeavy = CharacterType == ECharacterType::Lan_Heavy;
 	if (_bIsMoving)
-		return IsQueensGuard ? FMath::RandRange(HV_ComboSel_Move_Sr_Min, HV_ComboSel_Move_Sr_Max) : FMath::RandRange(HV_ComboSel_Move_Jr_Min, HV_ComboSel_Move_Jr_Max);
+		return IsJrHeavy ? FMath::RandRange(HV_ComboSel_Move_Jr_Min, HV_ComboSel_Move_Jr_Max) : FMath::RandRange(HV_ComboSel_Move_Sr_Min, HV_ComboSel_Move_Sr_Max);
 	else
-		return IsQueensGuard ? FMath::RandRange(HV_ComboSel_InPlace_Sr_Min, HV_ComboSel_InPlace_Sr_Max) : FMath::RandRange(HV_ComboSel_InPlace_Jr_Min, HV_ComboSel_InPlace_Jr_Max);
+		return IsJrHeavy ? FMath::RandRange(HV_ComboSel_InPlace_Jr_Min, HV_ComboSel_InPlace_Jr_Max) : FMath::RandRange(HV_ComboSel_InPlace_Sr_Min, HV_ComboSel_InPlace_Sr_Max);
 }
 
 FName AHeavyMelee_Enemy::GetParrySectionName(const struct FDamageInfo* const _damageInfo) const

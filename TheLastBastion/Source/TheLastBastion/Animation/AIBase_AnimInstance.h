@@ -160,7 +160,7 @@ public:
 	void OnBeingHit(FName boneName, const FVector& _damageCauseRelative,
 		const FVector& _hitLocation) override;
 
-	void OnCounterAttack(FName sectionName);
+	void OnCounterAttack(FName sectionName, float _rate = 1.0f);
 
 	void OnParry(FName sectionName);
 

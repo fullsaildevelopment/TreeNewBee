@@ -41,7 +41,10 @@ enum class ECharacterType : uint8
 	Dwarven_HeavyShield_Mace UMETA(DisplayName = "Dwarven Champion"),
 	Dwarven_Shooter			 UMETA(DisplayName = "Dwarven Sniper"),
 	Ebony_Heavy_BA	         UMETA(DisplayName = "Ebony Legend"),
-	White_NK                 UMETA(DisplayName = "NightKing")
+	White_NK                 UMETA(DisplayName = "NightKing"), 
+	White_Walkers            UMETA(DisplayName = "White Walker"),
+	White_Berserker          UMETA(DisplayName = "White Berserker"),
+	White_Raider             UMETA(DisplayName = "White Raider")
 
 };
 
@@ -234,6 +237,7 @@ public:
 	FORCEINLINE class UAudioComponent* GetAudioComp() const { return AudioComp; }
 
 	virtual bool ShouldPlayHitAnimation() const { return true; }
+	virtual bool IsDoingCounterAttack() const;
 	
 
 	// Called during Spawn, setup the ai level, so the its raw stats can use

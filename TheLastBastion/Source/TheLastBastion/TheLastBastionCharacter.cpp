@@ -296,6 +296,11 @@ void ATheLastBastionCharacter::DuringRagDollRecovering(float _deltaTime)
 	}
 }
 
+bool ATheLastBastionCharacter::IsDoingCounterAttack() const
+{
+	return mBaseAnimRef->IsDoingCounterAttackAnimation();
+}
+
 void ATheLastBastionCharacter::SetCharacterLevel(int _level)
 {
 	PawnStats->SetCharacterLevel(_level);

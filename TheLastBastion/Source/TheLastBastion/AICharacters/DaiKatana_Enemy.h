@@ -45,37 +45,21 @@ public:
 
 	FORCEINLINE int GetComboCounter() const override { return NK_Combo_Counter; } 
 
+	FORCEINLINE int GetAutoDodgeEndurance() const override { return  NK_Counter_End; }
 	FORCEINLINE int GetCounterEndurance() const override { return  NK_Counter_End; }
+	FORCEINLINE int GetParryEndurance() const override { return  NK_Counter_End; }
 
 	void ClearEndurance() override;
 
 protected:
 
-
-
-	//int GetParrySectionNameIndex_Easy(const struct FDamageInfo* const _damageInfo) const;
-
-	//int GetParrySectionNameIndex_Weak(const struct FDamageInfo* const _damageInfo) const;
-
-	//FORCEINLINE FName GetParrySectionName(int _index) const { return SnsParryAndBlockSectionName[_index]; }
-
-	//FName GetCounterAttackSectionName(const struct FDamageInfo* const _damageInfo) const;
+	bool ShouldPlayHitAnimation() const override;
 
 private:
 
 	FName GetParrySectionName(bool _damageByHeavyWeapon, const struct FDamageInfo* const _damageInfo) const;
 
 	FName GetDodgeSectionName(const struct FDamageInfo* const _damageInfo) const;
-
-
-	//int GetMeleeComboSel_Guardian(bool _bIsMoving) const;
-	//int GetMeleeComboSel_UltiGuardian(bool _bIsMoving) const;
-
-	///** Called when parry is done successfully*/
-	//void OnParrySuccess(const class UPawnStatsComponent* const _damageCauserPawnStats);
-	///** Check if parry is available for current animation state, according to damage causer's current weapon, before the directional check*/
-	//bool IsParrySuccess(bool _damageByHeavyWeapon, EAIActionState _currentActionState) const;
-	//bool IsParrySuccess_Ulti(bool _damageByHeavyWeapon, EAIActionState _currentActionState) const;
 
 	
 };

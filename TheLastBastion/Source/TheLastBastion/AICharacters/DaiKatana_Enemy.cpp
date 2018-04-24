@@ -36,7 +36,7 @@ bool ADaiKatana_Enemy::OnCounterAttack(const FDamageInfo * const _damageInfo, co
 			}
 			baseAICtrl->SetIsPaused_BBC(true);
 
-			animRef->OnCounterAttack(FName("Katana"));
+			animRef->OnCounterAttack(FName("Katana"), 0.9f);
 
 			UParticleSystem * sparkVFX = UVfxManager::GetVfx(EVfxType::metalImpact_sputtering);
 
@@ -73,17 +73,19 @@ bool ADaiKatana_Enemy::OnParry(const struct FDamageInfo* const _damageInfo,
 		return false;
 	}
 
+	// 2. cant parry during counter attack
+	if (animRef->IsDoingCounterAttackAnimation())
+		return false;
+
 	EAIActionState currentState = animRef->GetCurrentActionState();
 	bool damageCauserHoldingHeavyWeapon = _damageCauserPawnStats->IsUsingHeavyWeapon();
 
-	// 2. condition check based on the character type
-	//bool accept =
-	//	(CharacterType == ECharacterType::LanTrooper_Shield) ?
-	//	IsParrySuccess(damageCauserHoldingHeavyWeapon, currentState)
-	//	: IsParrySuccess_Ulti(damageCauserHoldingHeavyWeapon, currentState);
+	// 3. condition check based on the character type
+	bool wrongState = currentState == EAIActionState::GettingHurt || currentState == EAIActionState::GettingStuned;
 
-	//if (accept == false)
-	//	return false;
+	bool accept = !wrongState || ParryEndurance <= 0;
+	if (accept == false)
+		return false;
 
 	// 4. direction check, less than 45 from forward vector
 	float forwardDot = FVector::DotProduct(GetActorForwardVector(), _damageInfo->hitDirection);
@@ -125,7 +127,6 @@ bool ADaiKatana_Enemy::OnParry(const struct FDamageInfo* const _damageInfo,
 
 }
 
-
 bool ADaiKatana_Enemy::OnAutoDodge(const FDamageInfo * const _damageInfo, const UPawnStatsComponent * const _damageCauserPawnStats)
 {
 
@@ -140,9 +141,10 @@ bool ADaiKatana_Enemy::OnAutoDodge(const FDamageInfo * const _damageInfo, const 
 	EAIActionState currentState = animRef->GetCurrentActionState();
 	bool isRightState =
 		currentState == EAIActionState::MeleePreAttack ||
-		currentState == EAIActionState::MeleePostAttack || currentState == EAIActionState::None;
+		currentState == EAIActionState::MeleePostAttack || 
+		currentState == EAIActionState::None;
 
-	bool accept = DodgeEndurance <= 0 || isRightState;
+	bool accept = isRightState;
 
 	if (!accept)
 		return false;
@@ -176,7 +178,6 @@ bool ADaiKatana_Enemy::OnAutoDodge(const FDamageInfo * const _damageInfo, const 
 	else
 		return false;
 }
-
 
 FName ADaiKatana_Enemy::GetParrySectionName(bool _damageByHeavyWeapon, const FDamageInfo * const _damageInfo) const
 {
@@ -283,4 +284,10 @@ int ADaiKatana_Enemy::GetMeleeComboSel(bool _bIsMoving) const
 void ADaiKatana_Enemy::ClearEndurance()
 {
 	CounterEndurance = GetCounterEndurance();
+	ParryEndurance = GetParryEndurance();
+}
+
+bool ADaiKatana_Enemy::ShouldPlayHitAnimation() const
+{
+	return mAnimInstanceRef->GetCurrentActionState() != EAIActionState::GettingHurt;
 }

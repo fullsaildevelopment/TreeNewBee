@@ -28,9 +28,11 @@ public:
 
 	int GetMeleeComboSel(bool _bIsMoving) const override;
 
+	FORCEINLINE int IsRookie() const { return CharacterType == ECharacterType::LanTrooper_Rookie || CharacterType == ECharacterType::White_Walkers; }
+
 	FORCEINLINE int GetAutoDodgeEndurance() const override { return FMath::RandRange(SH_Fast_Dodge_End_Min, SH_Fast_Dodge_End_Max); }
 	FORCEINLINE int GetParryEndurance() const override { return FMath::RandRange(SH_Pow_Parry_End_Min, SH_Pow_Parry_End_Max); }
-	FORCEINLINE int GetComboCounter() const override { return CharacterType == ECharacterType::LanTrooper_Rookie ? FMath::RandRange(SH_Roo_Combo_Counter_Min, SH_Roo_Combo_Counter_Max) : FMath::RandRange(SH_PowFast_Combo_Counter_Min, SH_PowFast_Combo_Counter_Max); }
+	FORCEINLINE int GetComboCounter() const override { return IsRookie() ? FMath::RandRange(SH_Roo_Combo_Counter_Min, SH_Roo_Combo_Counter_Max) : FMath::RandRange(SH_PowFast_Combo_Counter_Min, SH_PowFast_Combo_Counter_Max); }
 
 protected:
 

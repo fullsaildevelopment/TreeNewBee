@@ -342,7 +342,7 @@ public:
 	virtual bool OnCounterAttack(const struct FDamageInfo* const _damageInfo,
 		const class UPawnStatsComponent* const _damageCauserPawnStats);
 
-	bool IsDoingCounterAttack() const;
+	bool IsDoingGainDpAttack() const;
 	bool ShouldPlayHitAnimation() const;
 
 	FORCEINLINE class USphereComponent* GetTargetDetector() const { return TargetDetector; }
