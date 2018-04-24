@@ -7,6 +7,7 @@
 
 UParticleSystem* UVfxManager::bloodImpact_sputtering_PS = nullptr;
 UParticleSystem* UVfxManager::metalImpact_sputtering_PS = nullptr;
+UParticleSystem* UVfxManager::iceImpact_sputtering_PS = nullptr;
 UParticleSystem* UVfxManager::WeaponNormalTrail = nullptr;
 UParticleSystem* UVfxManager::WeaponFireTrail = nullptr;
 UParticleSystem* UVfxManager::WeaponFireEnchantment = nullptr;
@@ -18,6 +19,7 @@ UVfxManager::UVfxManager()
 {
 	bloodImpact_sputtering_PS = FindParticalSystem(TEXT("/Game/Assets/Partical/P_blood_sputtering"));
 	metalImpact_sputtering_PS = FindParticalSystem(TEXT("/Game/Assets/Partical/P_metalImpact_sputtering"));
+	iceImpact_sputtering_PS = FindParticalSystem(TEXT("/Game/Assets/Partical/P_iceImpact_sputtering"));
 	WeaponNormalTrail = FindParticalSystem(TEXT("/Game/Assets/Partical/WeaponEffects/MeleeWeaponTrail/P_NormalTrail"));
 	WeaponFireTrail = FindParticalSystem(TEXT("/Game/Assets/Partical/WeaponEffects/MeleeWeaponTrail/P_FireTrail"));
 	WeaponFireEnchantment = FindParticalSystem(TEXT("/Game/Assets/Partical/WeaponEffects/FireEnchantment/WeaponFireEnchantment"));
@@ -45,6 +47,9 @@ UParticleSystem * UVfxManager::GetVfx(EVfxType _vfxType)
 
 	case EVfxType::metalImpact_sputtering:
 		return metalImpact_sputtering_PS;
+
+	case EVfxType::iceImpact_sputtering:
+		return iceImpact_sputtering_PS;
 
 	case EVfxType::WeaponNormalTrail:
 		return WeaponNormalTrail;
