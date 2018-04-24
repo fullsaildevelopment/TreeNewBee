@@ -312,6 +312,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = CharacterStats)
 		bool bCanOpenRecruitMenu;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = CharacterStats)
+		bool bCanStartNextWave;
+
+
 private:
 
 	void UpdateHeroStats(float _deltaTime);
@@ -361,6 +365,8 @@ public:
 	bool IsSkillCooled(int _index) const;
 	FORCEINLINE float GetSkillCoolDownTimeAt(int _index) const { return SkillSlots[_index].CoolDownTime; }
 	FORCEINLINE float GetSkillSpCostAt(int _index) const { return SkillSlots[_index].SpCost; }
+	FORCEINLINE bool GetCanStartNextWave() const { return bCanStartNextWave; }
+
 
 	bool IsIntentedSkillCooled() const;
 	FORCEINLINE float GetIntentedSkillCoolDownTimeAt() const { return SkillSlots[TryToUseSkill].CoolDownTime; }
@@ -370,6 +376,8 @@ public:
 	FORCEINLINE void SetSkillSectionNameAt(int _skillIndex, FName _sectionName) { SkillSlots[_skillIndex].AM_sectionName = _sectionName; }
 	FORCEINLINE void EnableHpRecovering() { bHpRecovering = true; }
 	FORCEINLINE void DisnableHpRecovering() { bHpRecovering = false; }
+	FORCEINLINE void SetCanStartNextWave(bool _val) { bCanStartNextWave = _val; }
+
 	FORCEINLINE float GetCommandPresence() const { return CommanderPresence; }
 
 	FORCEINLINE void SetCommandPresence(float _val) { CommanderPresence = _val; }

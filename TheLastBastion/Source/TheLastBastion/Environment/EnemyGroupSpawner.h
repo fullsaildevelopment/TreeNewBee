@@ -102,13 +102,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		TArray<FWave> AllWaves;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpawnPreset, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpawnTest, meta = (AllowPrivateAccess = "true"))
 		TSubclassOf<class AEnemyGroup> TestGroup;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpawnPreset, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpawnTest, meta = (AllowPrivateAccess = "true"))
 		int TestGroupAmount;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpawnPreset, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpawnTest, meta = (AllowPrivateAccess = "true"))
 		int TestGroupSize;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
@@ -142,9 +142,7 @@ protected:
 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
-		/** All Unit Spawn Position*/
 		bool bIsCurrentWaveFinished;
-
 
 private:
 
@@ -161,6 +159,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	FTransform GetNextWayPointFrom(int _pathIndex, int _nextWaypoint) const;
+
+	FORCEINLINE bool IsCurrentWaveFinished() const { return bIsCurrentWaveFinished; }
+
 	FORCEINLINE bool HasNextWayPointOnPath
 	(int _pathIndex, int _wayPointIndex) const { return Paths[_pathIndex].WayPoints.IsValidIndex(_wayPointIndex); }
 

@@ -6,10 +6,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameMode/SpawnLocation.h"
 #include "TimerManager.h"
-#include "TheLastBastionCharacter.h"
+#include "TheLastBastionHeroCharacter.h"
 #include "AI/AllyGroup.h"
 #include "AudioManager.h"
 #include "Environment/Barracks.h"
+#include "Environment/EnemyGroupSpawner.h"
 
 #include "UI/InGameHUD.h"
 #include "UI/Gameplay/TradeMenu.h"
@@ -231,12 +232,15 @@ void ASinglePlayerGM::UnRegisterEnemyGroupAt(int _index)
 		pc->GetInGameHUD()->RemoveEnemyGroupAt(_index);
 
 	// tell UI to show "press Enter to start next wave"
-	if (Enemies.Num() <= 0)
+	if (Enemies.Num() <= 0 && EnemyGroupSpawner->IsCurrentWaveFinished())
 	{
 		// TODO:  Display the notification for player once all the enemy groups in this wave get killed
 		if (pc)
 			pc->GetInGameHUD()->SetStartWaveNotificationVisibility(true);
-
+		
+		ATheLastBastionHeroCharacter* Hero = Cast<ATheLastBastionHeroCharacter>(pc->GetCharacter());
+		if (Hero)
+			Hero->SetCanStartNextWave(true);
 		return;
 	}
 

@@ -3,6 +3,7 @@
 #include "Outpost.h"
 #include "Components/BoxComponent.h"
 #include "AI/EnemyGroup.h"
+#include "Environment/EnemyGroupSpawner.h"
 #include "Gamemode/SinglePlayerGM.h"
 #include "Kismet/GameplayStatics.h"
 #include "AudioManager.h"
@@ -62,7 +63,15 @@ void AOutpost::Tick(float DeltaTime)
 void AOutpost::UpdateByTimer()
 {
 
-	if (bDisabled)
+
+	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (gm == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("gm == nullptr"));
+		return;
+	}
+
+	if (bDisabled || gm->GetEnemyGroupSpawner()->IsCurrentWaveFinished())
 		return;
 
 	for (int iGroup = 0; iGroup < EnemiesGroup.Num(); iGroup++)
@@ -81,13 +90,6 @@ void AOutpost::UpdateByTimer()
 
 	if (bIsOccupied == false)
 	{
-
-		ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
-		if (gm == nullptr)
-		{
-			UE_LOG(LogTemp, Error, TEXT("gm == nullptr"));
-			return;
-		}
 
 		switch (OutpostType)
 		{

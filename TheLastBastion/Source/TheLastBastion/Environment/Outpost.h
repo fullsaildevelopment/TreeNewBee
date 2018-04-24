@@ -64,10 +64,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Outpost)
 		EOutpostType OutpostType;
 
+
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Outpost)
 		/** if true, the outpost is occupied by enemies, and will not produce resource for hero*/
 		bool bIsOccupied;
-
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Outpost)
 		/** if true, the outpost is occupied by enemies, and will not produce resource for hero*/

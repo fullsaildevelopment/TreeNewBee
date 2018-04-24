@@ -131,6 +131,8 @@ void ATheLastBastionHeroCharacter::BeginPlay()
 
 	mInGameHUD->InitStats(HeroStats);
 
+	bCanStartNextWave = true;
+
 }
 
 void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -397,9 +399,10 @@ void ATheLastBastionHeroCharacter::OpenRecruitMenu()
 void ATheLastBastionHeroCharacter::EnableEnemySpawner()
 {
 	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (gm)
+	if (gm && GetCanStartNextWave())
 	{
 		gm->GetEnemyGroupSpawner()->EnableSpawning();
+		SetCanStartNextWave(false);
 	}
 }
 

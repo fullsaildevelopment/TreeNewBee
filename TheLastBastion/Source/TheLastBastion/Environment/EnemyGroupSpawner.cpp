@@ -162,7 +162,7 @@ void AEnemyGroupSpawner::Spawn()
 	}
 
 	bool HasRoomToSpawn = (bTestingMode) ? 
-		gm->GetEnemyGroupAmount() < TestGroupAmount : gm->HasRoomNewEnemyGroup();
+		gm->GetEnemyGroupAmount() < TestGroupAmount : true;
 
 	if (HasRoomToSpawn)
 	{
@@ -243,26 +243,22 @@ void AEnemyGroupSpawner::GetSpawnTransform(FVector& _location, FQuat& _rotation,
 
 void AEnemyGroupSpawner::EnableSpawning()
 {
-	if (bIsCurrentWaveFinished == true)
-	{   
-		// Turn off the text notification
-		ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-		if (pc)
-			pc->GetInGameHUD()->SetStartWaveNotificationVisibility(false);
+	// Turn off the text notification
+	ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (pc)
+		pc->GetInGameHUD()->SetStartWaveNotificationVisibility(false);
 
-		bIsCurrentWaveFinished = false;
+	bIsCurrentWaveFinished = false;
 
-		InitCurrentWave();
+	InitCurrentWave();
 
-		if (AllWaves.IsValidIndex(CurrentWaveIndex) && AllWaves[CurrentWaveIndex].WaveUnits.IsValidIndex(0))
-		{
-			SpawnDelay = AllWaves[CurrentWaveIndex].WaveUnits[CurrentWaveUnitIndex].SpawnDelay;
-			GetWorldTimerManager().ClearTimer(SpawnTimer);
-			GetWorldTimerManager().SetTimer(SpawnTimer, this,
-				&AEnemyGroupSpawner::Spawn, 0.1f, false, SpawnDelay);
-		}
-
-
+	if (AllWaves.IsValidIndex(CurrentWaveIndex) && AllWaves[CurrentWaveIndex].WaveUnits.IsValidIndex(0))
+	{
+		SpawnDelay = AllWaves[CurrentWaveIndex].WaveUnits[CurrentWaveUnitIndex].SpawnDelay;
+		GetWorldTimerManager().ClearTimer(SpawnTimer);
+		GetWorldTimerManager().SetTimer(SpawnTimer, this,
+			&AEnemyGroupSpawner::Spawn, 0.1f, false, SpawnDelay);
 	}
+
 }
 
