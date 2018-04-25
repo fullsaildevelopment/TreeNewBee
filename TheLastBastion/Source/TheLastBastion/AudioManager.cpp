@@ -31,6 +31,11 @@ USoundCue* UAudioManager::FoodWarning = nullptr;
 USoundCue* UAudioManager::MineWarning = nullptr;
 USoundCue* UAudioManager::StoneWarning = nullptr;
 USoundCue* UAudioManager::WoodWarning = nullptr;
+USoundCue* UAudioManager::SoldierDialog = nullptr;
+USoundCue* UAudioManager::DefaultTheme = nullptr;
+USoundCue* UAudioManager::LannisterTheme1 = nullptr;
+USoundCue* UAudioManager::LannisterTheme2 = nullptr;
+USoundCue* UAudioManager::WhiteWalkerTheme = nullptr;
 
 UAudioManager::UAudioManager()
 {   
@@ -73,6 +78,12 @@ UAudioManager::UAudioManager()
 	StoneWarning = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Vocal/StoneWarning"));
 	WoodWarning = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Vocal/WoodWarning"));
 
+	// BGM
+	SoldierDialog= FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Vocal/SoldiersDialog"));
+	DefaultTheme = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/DefaultTheme"));
+	LannisterTheme1 = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/LannisterTheme1"));
+	LannisterTheme2 = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/LannisterTheme2"));
+	WhiteWalkerTheme = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/WhiteWalkerTheme"));
 }
 
 USoundCue* UAudioManager::FindSoundCue(const TCHAR* _path)
@@ -153,6 +164,21 @@ USoundCue * UAudioManager::GetSFX(ESoundEffectType _sfxType)
 
 	case ESoundEffectType::EWoodWarning:
 		return WoodWarning;
+
+	case ESoundEffectType::ESoldierDialog:
+		return SoldierDialog;
+
+	case ESoundEffectType::EDefaultTheme:
+		return DefaultTheme;
+
+	case ESoundEffectType::ELannisterTheme1:
+		return LannisterTheme1;
+
+	case ESoundEffectType::ELannisterTheme2:
+		return LannisterTheme2;
+
+	case ESoundEffectType::EWhiteWalkerTheme:
+		return WhiteWalkerTheme;
 
 	default:
 		return nullptr;

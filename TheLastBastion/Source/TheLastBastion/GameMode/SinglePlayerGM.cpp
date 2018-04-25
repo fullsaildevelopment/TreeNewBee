@@ -94,6 +94,7 @@ void ASinglePlayerGM::BeginPlay()
 	HeroPC = Cast<ASinglePlayerPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	if (HeroPC == nullptr)
 		UE_LOG(LogTemp, Error, TEXT("HeroPC == nullptr - ASinglePlayerGM::AddFood"));
+
 }
 
 void ASinglePlayerGM::GetAllSpawnClass()
@@ -237,6 +238,9 @@ void ASinglePlayerGM::UnRegisterEnemyGroupAt(int _index)
 		// TODO:  Display the notification for player once all the enemy groups in this wave get killed
 		if (pc)
 			pc->GetInGameHUD()->SetStartWaveNotificationVisibility(true);
+
+		// Fade in default theme
+		EnemyGroupSpawner->PlayDefaultTheme();
 		
 		ATheLastBastionHeroCharacter* Hero = Cast<ATheLastBastionHeroCharacter>(pc->GetCharacter());
 		if (Hero)

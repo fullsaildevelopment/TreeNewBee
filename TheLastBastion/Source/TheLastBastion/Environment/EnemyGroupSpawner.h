@@ -10,6 +10,23 @@
 //#define South_TrooperRoute_1 1
 //#define South_ShooterRoute_0 2
 //#define North_WoodOutputTakingRoute 3
+#define LannisterFirstWave 0
+#define LannisterMiddleWave 5
+#define LannisterLastWave 9
+#define WhiteWalkerFirstWave 10
+#define WhiteWalkerLastWave 14
+#define DefaultTheme_StartPoint_0 0.0f
+#define DefaultTheme_StartPoint_1 42.0f
+
+#define LannisterTheme1_StartPoint_0 0.0f
+#define LannisterTheme1_StartPoint_1 31.0f
+#define LannisterTheme1_StartPoint_2 71.0f
+
+#define LannisterTheme2_StartPoint_0 0.0f
+#define LannisterTheme2_StartPoint_1 53.0f
+
+#define WhiteWalkerTheme_StartPoint_0 0.0f
+#define WhiteWalkerTheme_StartPoint_1 23.0f
 
 
 UENUM(BlueprintType)
@@ -99,6 +116,8 @@ protected:
 
 	FTimerHandle SpawnTimer;
 
+	FTimerHandle MusicFadeInTimer;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		TArray<FWave> AllWaves;
 
@@ -144,6 +163,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
 		bool bIsCurrentWaveFinished;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Music)
+		class UAudioComponent* MusicPlayer;
+
 private:
 
 	UPROPERTY()
@@ -166,6 +188,14 @@ public:
 	(int _pathIndex, int _wayPointIndex) const { return Paths[_pathIndex].WayPoints.IsValidIndex(_wayPointIndex); }
 
 	void EnableSpawning();
+
+	void PlayDefaultTheme();
+
+	void PlayLannisterFirstTheme();
+
+	void PlayLannisterSecondTheme();
+
+	void PlayWhiteWalkerTheme();
 
 private:
 
@@ -190,4 +220,14 @@ private:
 
 	/** Get Spawn Location and direction by path*/
 	void GetSpawnTransform(FVector& _location, FQuat& _rotation, int _pathIndex) const;
+
+	void FadeInDefaultTheme();
+
+	void FadeInLannisterTheme1();
+
+	void FadeInLannisterTheme2();
+
+	void FadeInWhiteWalkerTheme();
+
+	void FirstTimeFadeInWhiteWalkerTheme();
 };
