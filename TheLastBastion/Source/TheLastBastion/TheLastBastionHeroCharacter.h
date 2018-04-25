@@ -15,14 +15,30 @@
 
 #define  Skill__Combo 0
 #define  Skill__PowerHit 1    
-#define  Skill__Taunt 2 
+#define  Skill__Heal 2   
 #define  Skill__WeaponCastingFire 3
-#define  Skill__Heal 4   
-#define  Skill__BattleCommand 5        
+
+#define  Skill_Heal_Radius_Init 500
+#define  Skill_Heal_Radius_Increment_OnLevelUp 50
+#define  SKill_Heal_Amount_Init 20 // percentage
+#define  SKILL_Heal_Amount_Increment_OnLevelUp 4
+
+//#define  Skill__BattleCommand 5    
+
+#define Skill_Combo_CD      12.0f
+#define Skill_PowerHit_CD	12.0f
+#define Skill_Heal_CD               18.0f
+#define Skill_WeaponCastingFire_CD  1.0f
+
+#define Skill_LevelUp_CD_Deduction 1.0f;
+
+
+
+
 
 #define CommandPresence_LevelUpDelta 0.05f
 
-DECLARE_DELEGATE(FOnSkillUsed)
+//DECLARE_DELEGATE(FOnSkillUsed)
 
 USTRUCT(BlueprintType)
 struct FSkillSlot
@@ -219,6 +235,12 @@ protected:
 		int TryToUseSkill;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
+		float HealAmount_Skill;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
+		float HealRadius_Skill;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
 		/** Hero Skill sets*/
 		TArray<FSkillSlot> SkillSlots;
 
@@ -320,6 +342,7 @@ private:
 
 	void UpdateHeroStats(float _deltaTime);
 	void OnWeaponEnchantStart();
+	void InitSkillSlotProperties();
 
 public:
 
@@ -348,6 +371,7 @@ public:
 
 	bool IsDoingGainDpAttack() const;
 	bool ShouldPlayHitAnimation() const;
+	bool IsUnStopableAttack() const override;
 
 	FORCEINLINE class USphereComponent* GetTargetDetector() const { return TargetDetector; }
 	/** Returns CameraBoom subobject **/

@@ -238,6 +238,9 @@ public:
 
 	virtual bool ShouldPlayHitAnimation() const { return true; }
 	virtual bool IsDoingCounterAttack() const;
+
+	/** Attack that can not be blocked */
+	virtual bool IsUnStopableAttack() const { return false; }
 	
 
 	// Called during Spawn, setup the ai level, so the its raw stats can use

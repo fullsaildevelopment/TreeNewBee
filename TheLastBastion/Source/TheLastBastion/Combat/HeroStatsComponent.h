@@ -12,10 +12,12 @@
  */
 enum class EEquipType : uint8;
 
-#define HeroHpRecoverRate_Init 0.1f   // percentage
-#define HeroHpRecoverDelay_Init 5.0f  // seconds
-#define HeroSpRecoverRate_Init 0.115f   // percentage
-#define HeroDpGainOnCA_Init 10.0f	  // percentage
+#define HeroHpRecoverRate_Init 0.1f           // percentage
+#define HeroHpRecoverDelay_Init 10.0f         // seconds
+#define HeroSpRecoverRate_Init 0.115f         // percentage
+#define HeroDpGainOn_CounterAttack_Init 7.5f  // percentage
+#define HeroDpGainOn_ShieldBash_Init 10.0f	  // percentage
+#define HeroDpGainOn_HVPowerHit_Init 5.0f	  // percentage
 
 #define HeroMeleeAttackSpCost_Init_Hammer_BattleAxe -30.0f;
 #define HeroMeleeAttackSpCost_Init_GreatSword -25.0f;
@@ -32,10 +34,38 @@ enum class EEquipType : uint8;
 #define HereDodgeSpCost_Init_Katana     -20.0f
 #define HereDodgeSpCost_Init_Sns        -25.0f
 
+#define SpConsumeRateDeductionOnEachLevel 0.05f
+#define HpRegenDelayDeductionOnEachLevel 0.1f
+#define DpGainIncrementOnEachLevel 0.1f
+
 #define HereDefenceSpCost_Init_HammerBattleAxe -0.8f 
 #define HereDefenceSpCost_Init_GreatSword      -0.6f 
 #define HereDefenceSpCost_Init_Katana          -0.5f
 #define HereDefenceSpCost_Init_Sns             -0.2f 
+
+
+#define SurvivalTrainingLevel 0 
+#define StaminaTraingingLevel 1
+#define FarmerLevel 2
+#define BuilderLevel 3
+#define MinerLevel 4
+#define SawyerLevel 5
+#define HitThemHardLevel 6
+#define MakeThemSufferLevel 7
+#define FaithLevel 8
+#define LeaderLevel 9
+#define SkillNum 10
+
+
+#define SpCost_PowerHit      -60
+#define SpCost_Heal          -80
+
+#define SpCost_Combo_HV      -40
+#define SpCost_Combo_Katana  -20
+#define SpCost_Combo_Sns     -25
+
+
+
 
 
 UCLASS()
@@ -57,6 +87,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Gear)
 		int LastMeleeWeapon_Index;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
+		int SkillPoints;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
+		/** Contains the skill level for each skill in skill menu*/
+		TArray<int> SkillsSet;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
 		/** Scaler to the time delay of health recover after being hit in seconds*/
@@ -76,7 +112,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
 		/** Scaler the percentage of hero dp gain by counter attack*/
-		float Hero_DpGainOnCA_Scaler;
+		float Hero_DpGain_Scaler;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
 		/** current hero sp consumed by melee attack*/
@@ -124,6 +160,8 @@ public:
 
 	bool ApplyDamage(const FDamageInfo& _hit) override;
 
+	void LevelUp() override;
+
 public:
 
 	FORCEINLINE const class ATheLastBastionEnemyCharacter* GetCurrentTarget() const { return mCurrentTarget; }
@@ -143,9 +181,32 @@ public:
 	FORCEINLINE float GetSpCost_Dodge() const { return Hero_Dodge_SpCost * HeroSpConsumeRate_Scaler; }
 	/** Get Defence sp cost*/
 	FORCEINLINE float GetSpCost_Defence() const { return Hero_Defence_SpCost * HeroSpConsumeRate_Scaler * 100.0f; }
-	/** Get Dp Gain By percentage on successful counter attack*/
-	FORCEINLINE float GetDpGainPercentage_CounterAttack() const { return HeroDpGainOnCA_Init * Hero_DpGainOnCA_Scaler * 0.01f; }
 
+	/** Get Dp Gain By percentage on successful counter attack*/
+	FORCEINLINE float GetDpGainPercentage_CounterAttack() const { return HeroDpGainOn_CounterAttack_Init * Hero_DpGain_Scaler * 0.01f; }
+	/** Get Dp Gain By percentage on successful Shield bash*/
+	FORCEINLINE float GetDpGainPercentage_ShieldBash() const { return HeroDpGainOn_ShieldBash_Init * Hero_DpGain_Scaler * 0.01f; }
+	/** Get Dp Gain By percentage on successful HV powerHit*/
+	FORCEINLINE float GetDpGainPercentage_HVPowerHit() const { return HeroDpGainOn_HVPowerHit_Init * Hero_DpGain_Scaler * 0.01f; }
+
+
+
+
+	/** A Unit value to scale the sp consume rate*/
+	FORCEINLINE float GetHeroSpConsumeRate_Scaler() const { return HeroSpConsumeRate_Scaler; }
+	FORCEINLINE float GetHeroHpRecoverDelay_Scaler() const { return HeroHpRecoverDelay_Scaler; }
+	FORCEINLINE float GetDpGain_Scaler() const { return Hero_DpGain_Scaler; }
+
+
+	FORCEINLINE void SetHeroSpConsumeRateByLevel_Scaler(int _level) { HeroSpConsumeRate_Scaler = 1 - SpConsumeRateDeductionOnEachLevel * _level; }
+	FORCEINLINE void SetHeroHpRecoverDelayByLevel_Scaler(int _level) { HeroHpRecoverDelay_Scaler = 1 - HpRegenDelayDeductionOnEachLevel * _level; }
+	FORCEINLINE void SetDpGain_Scaler(int _level) {  Hero_DpGain_Scaler = 1 + DpGainIncrementOnEachLevel * _level ; }
+
+	
+	FORCEINLINE int GetSkillPoints() const { return SkillPoints; }
+	FORCEINLINE void SetSkillPoints(int _val) { SkillPoints = _val; }
+	FORCEINLINE int GetSkillLevelAt(int _index) { return SkillsSet[_index]; }
+	FORCEINLINE void SetSkillLevelAt(int _index, int _val) {SkillsSet[_index] = _val; }
 
 	/** Called on Switch Weapon, 
 	* update Sp Cost

@@ -9,6 +9,23 @@
 /**
  * 
  */
+
+
+#define MaxSkillLevel 5
+#define ResourceSkillAddAmountOnEachLevel 0.2
+
+USTRUCT()
+struct FSkillLevel
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+		class UTextBlock* Text;
+	UPROPERTY()
+		int Level;
+};
+
+
 UCLASS()
 class THELASTBASTION_API UInGameMenu : public UUserWidget
 {
@@ -64,10 +81,83 @@ protected:
 		class UButton* Accept_Option;
 
 
+	// skill menu
+	UPROPERTY(meta = (BindWidget))
+		class UButton* Accept_Skill;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* CurrentSurvivalTrainingLevel;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* CurrentStaminaTraingingLevel;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* CurrentFarmerLevel;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* CurrentBuilderLevel;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* CurrentMinerLevel;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* CurrentSawyerLevel;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* CurrentHitThemHardLevel;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* CurrentMakeThemSufferLevel;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* CurrentFaithLevel;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* CurrentLeaderLevel;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* CurrentSkillPoints;
+
+	// plus button
+
+	UPROPERTY(meta = (BindWidget))
+		class UButton* SurviorPlus_Btn;
+
+	UPROPERTY(meta = (BindWidget))
+		class UButton* StaminaPlus_Btn;
+
+	UPROPERTY(meta = (BindWidget))
+		class UButton* FarmerPlus_Btn;
+
+	UPROPERTY(meta = (BindWidget))
+		class UButton* BuilderPlus_Btn;
+
+	UPROPERTY(meta = (BindWidget))
+		class UButton* MinerPlus_Btn;
+
+	UPROPERTY(meta = (BindWidget))
+		class UButton* SawyerPlus_Btn;
+
+	UPROPERTY(meta = (BindWidget))
+		class UButton* HitThemHardPlus_Btn;
+
+	UPROPERTY(meta = (BindWidget))
+		class UButton* MakeThemSufferPlus_Btn;
+
+	UPROPERTY(meta = (BindWidget))
+		class UButton* FaithPlus_Btn;
+
+	UPROPERTY(meta = (BindWidget))
+		class UButton* LeaderPlus_Btn;
+
+	int CurrentSkillPoints_int;
+
 private:
 
 	MenuType CurrentMenuIndex;
 
+	UPROPERTY()
+		TArray<FSkillLevel> AllSkillLevel;
 	
 protected:
 
@@ -118,5 +208,43 @@ private:
 	void OnOpenOptionMenu();
 
 	void OnOpenSkillMenu();
+	void LoadSkillsSetFromHero();
+
+	UFUNCTION()
+		void OnSurviorPlusClicked();
+
+	UFUNCTION()
+		void OnStaminaPlusClicked();
+
+	UFUNCTION()
+		void OnFarmerPlusClicked();
+
+	UFUNCTION()
+		void OnBuilderPlusClicked();
+
+	UFUNCTION()
+		void OnMinerPlusClicked();
+
+	UFUNCTION()
+		void OnSawyerPlusClicked();
+
+	UFUNCTION()
+		void OnHitThemHardPlusClicked();
+
+	UFUNCTION()
+		void OnMakeThemSufferPlusClicked();
+
+	UFUNCTION()
+		void OnFaithPlusClicked();
+
+	UFUNCTION()
+		void OnLeaderPlusClicked();
+
+	UFUNCTION()
+		void OnAcceptClicked_Skill();
+
+
+	void OnPlusBtnClicked(int _index);
+
 
 };

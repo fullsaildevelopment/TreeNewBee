@@ -171,7 +171,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-private:
+protected:
 
 	virtual float GetBaseDamage();
 
@@ -206,7 +206,7 @@ public:
 	void GenerateMaxStats(bool _setCurrentToMax = true);
 
 	// Called after character is level up, generater raw && max stats, recover full health
-	void LevelUp();
+	virtual void LevelUp();
 
 	// Called 
 	void Born();

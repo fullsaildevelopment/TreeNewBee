@@ -66,6 +66,9 @@ public:
 		void LevelUp(int _deltaLevel);
 
 	UFUNCTION(Exec)
+		void GainSkillPoints(int _val);
+
+	UFUNCTION(Exec)
 		void CloseTradeMenu();
 
 	UFUNCTION(Exec)

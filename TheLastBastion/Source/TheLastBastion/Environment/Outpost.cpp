@@ -32,6 +32,7 @@ AOutpost::AOutpost()
 
 	UpdateFreq = 1.0f;
 	bDisabled = false;
+	AdditionAmount = 0;
 }
 
 // Called when the game starts or when spawned
@@ -47,6 +48,15 @@ void AOutpost::BeginPlay()
 			&AOutpost::OnOutPostBoxOverlap_End);
 	}
 	
+	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (gm == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("gm == nullptr"));
+		return;
+	}
+
+	gm->RegisterOutpost(this);
+
 	float delay = FMath::RandRange(0.1f, 3.0f);
 	// Set Health update timer;
 	GetWorldTimerManager().SetTimer(UpdateTimer, this, &AOutpost::UpdateByTimer, UpdateFreq, true, delay);
@@ -94,16 +104,16 @@ void AOutpost::UpdateByTimer()
 		switch (OutpostType)
 		{
 		case EOutpostType::Food:
-			gm->AddFood(FoodIncrement);
+			gm->AddFood(FoodIncrement + AdditionAmount * FoodIncrement);
 			break;
 		case EOutpostType::Metal:
-			gm->AddMetal(FoodIncrement);
+			gm->AddMetal(MetalIncrement + AdditionAmount * MetalIncrement);
 			break;
 		case EOutpostType::Stone:
-			gm->AddStone(StoneIncrement);
+			gm->AddStone(StoneIncrement + AdditionAmount * StoneIncrement);
 			break;
 		case EOutpostType::Wood:
-			gm->AddWood(WoodIncrement);
+			gm->AddWood(WoodIncrement + AdditionAmount * WoodIncrement);
 			break;
 		case EOutpostType::None:
 		default:

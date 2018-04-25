@@ -61,6 +61,12 @@ protected:
 		/** Time gap to check on if we should produce any resource*/
 		float UpdateFreq;
 
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Outpost)
+		/** Addition Amount in unit value, that will add to each increment*/
+		float AdditionAmount;
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Outpost)
 		EOutpostType OutpostType;
 
@@ -88,5 +94,13 @@ protected:
 	UFUNCTION()
 		virtual void OnOutPostBoxOverlap_End(UPrimitiveComponent* OverlappedComponent,
 			AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+
+
+public:
+
+	FORCEINLINE EOutpostType GetOutpostType() const { return OutpostType; }
+	FORCEINLINE float GetAdditionAmount() const { return AdditionAmount; }
+	FORCEINLINE void SetAdditionAmount( float _val) {  AdditionAmount = _val; }
 
 };

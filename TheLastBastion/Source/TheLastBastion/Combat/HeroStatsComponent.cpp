@@ -27,7 +27,9 @@ UHeroStatsComponent::UHeroStatsComponent()
 	HeroHpRecoverRate_Scaler = 1.0f;
 	HeroSpRecoverRate_Scaler = 1.0f;
 	HeroSpConsumeRate_Scaler = 1.0f;
-	Hero_DpGainOnCA_Scaler = 1.0f;
+	Hero_DpGain_Scaler = 1.0f;
+
+	SkillsSet.SetNum(SkillNum);
 
 }
 
@@ -353,8 +355,41 @@ bool UHeroStatsComponent::ApplyDamage(const FDamageInfo & _hit)
 			AddDpByPercent(GetDpGainPercentage_CounterAttack());
 			mHeroCharacter->GetInGameHUD()->SetDpOnDpChange(this);
 		}
+		else
+		{
+			ESkillBuff skillBuff = mHeroCharacter->GetAnimInstanceRef()->GetCurrentSkillBuff();
+
+			switch (skillBuff)
+			{
+			case ESkillBuff::GainDp:
+				AddDpByPercent(GetDpGainPercentage_ShieldBash());
+				break;
+			case ESkillBuff::UnStoppable:
+				AddDpByPercent(GetDpGainPercentage_HVPowerHit());
+				break;
+			default:
+				break;
+			}
+
+			mHeroCharacter->GetInGameHUD()->SetDpOnDpChange(this);
+		}
 	}
 	return successHit;
+}
+
+void UHeroStatsComponent::LevelUp()
+{
+	Level++;
+	SkillPoints++;
+	// Update the row value, so the gear merits can add on
+	GenerateRawStatsByLevel(Level, BaseDamage, HpRaw);
+	// apply the gear merits
+	GenerateMaxStats(true);
+
+	// Play Effects once level up
+	USkeletalMeshComponent* PlayerMesh = mCharacter->GetMesh();
+	UParticleSystem* LevelUpParticle = UVfxManager::GetVfx(EVfxType::PlayerLevelUp);
+	UGameplayStatics::SpawnEmitterAttached(LevelUpParticle, PlayerMesh);
 }
 
 void UHeroStatsComponent::UpdateOnWeaponChange(EGearType _gearType)
@@ -367,7 +402,11 @@ void UHeroStatsComponent::UpdateOnWeaponChange(EGearType _gearType)
 		Hero_Dodge_SpCost = HereDodgeSpCost_Init_Sns;
 		Hero_Defence_SpCost = HereDefenceSpCost_Init_Sns;
 
+
+
 		mHeroCharacter->SetSkillSectionNameAt(Skill__Combo, Montage_SN_SkillCombo_LongSword);
+		mHeroCharacter->SetSkillSectionNameAt(Skill__WeaponCastingFire, Montage_SN_SkillCombo_LongSword);
+
 		mHeroCharacter->SetSkillSectionNameAt(Skill__PowerHit, Montage_SN_SkillPowerHit_Sns);
 		break;
 	case EGearType::Mace:
@@ -378,6 +417,8 @@ void UHeroStatsComponent::UpdateOnWeaponChange(EGearType _gearType)
 		Hero_Defence_SpCost = HereDefenceSpCost_Init_Sns;
 
 		mHeroCharacter->SetSkillSectionNameAt(Skill__Combo, Montage_SN_SkillCombo_AxeMace);
+		mHeroCharacter->SetSkillSectionNameAt(Skill__WeaponCastingFire, Montage_SN_SkillCombo_AxeMace);
+
 		mHeroCharacter->SetSkillSectionNameAt(Skill__PowerHit, Montage_SN_SkillPowerHit_Sns);
 		break;
 	case EGearType::Hammer:
@@ -387,6 +428,8 @@ void UHeroStatsComponent::UpdateOnWeaponChange(EGearType _gearType)
 		Hero_Defence_SpCost = HereDefenceSpCost_Init_HammerBattleAxe;
 
 		mHeroCharacter->SetSkillSectionNameAt(Skill__Combo, Montage_SN_SkillCombo_Hammer);
+		mHeroCharacter->SetSkillSectionNameAt(Skill__WeaponCastingFire, Montage_SN_SkillCombo_Hammer);
+
 		mHeroCharacter->SetSkillSectionNameAt(Skill__PowerHit, Montage_SN_SkillPowerHit_HV);
 		break;
 	case EGearType::BattleAxe:
@@ -396,6 +439,8 @@ void UHeroStatsComponent::UpdateOnWeaponChange(EGearType _gearType)
 		Hero_Defence_SpCost = HereDefenceSpCost_Init_HammerBattleAxe;
 
 		mHeroCharacter->SetSkillSectionNameAt(Skill__Combo, Montage_SN_SkillCombo_BA_GS);
+		mHeroCharacter->SetSkillSectionNameAt(Skill__WeaponCastingFire, Montage_SN_SkillCombo_BA_GS);
+
 		mHeroCharacter->SetSkillSectionNameAt(Skill__PowerHit, Montage_SN_SkillPowerHit_HV);
 		break;
 	case EGearType::GreatSword:
@@ -405,6 +450,8 @@ void UHeroStatsComponent::UpdateOnWeaponChange(EGearType _gearType)
 		Hero_Defence_SpCost = HereDefenceSpCost_Init_GreatSword;
 
 		mHeroCharacter->SetSkillSectionNameAt(Skill__Combo, Montage_SN_SkillCombo_BA_GS);
+		mHeroCharacter->SetSkillSectionNameAt(Skill__WeaponCastingFire, Montage_SN_SkillCombo_BA_GS);
+
 		mHeroCharacter->SetSkillSectionNameAt(Skill__PowerHit, Montage_SN_SkillPowerHit_HV);
 		break;
 	case EGearType::DoubleHandWeapon:
@@ -414,6 +461,8 @@ void UHeroStatsComponent::UpdateOnWeaponChange(EGearType _gearType)
 		Hero_Defence_SpCost = HereDefenceSpCost_Init_Katana;
 
 		mHeroCharacter->SetSkillSectionNameAt(Skill__Combo, Montage_SN_SkillCombo_Katana);
+		mHeroCharacter->SetSkillSectionNameAt(Skill__WeaponCastingFire, Montage_SN_SkillCombo_Katana);
+
 		mHeroCharacter->SetSkillSectionNameAt(Skill__PowerHit, Montage_SN_SkillPowerHit_Katana);
 		break;
 	default:

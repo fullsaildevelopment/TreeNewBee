@@ -35,6 +35,8 @@
 #include "Components/AudioComponent.h"
 
 
+
+#include "VfxManager.h"
 #include "Particles/ParticleSystemComponent.h"
 
 #include "DrawDebugHelpers.h"
@@ -101,7 +103,10 @@ ATheLastBastionHeroCharacter::ATheLastBastionHeroCharacter()
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	// Init Skill Slot
-	SkillSlots.SetNum(7);
+
+	InitSkillSlotProperties();
+
+
 }
 
 void ATheLastBastionHeroCharacter::BeginPlay()
@@ -709,8 +714,26 @@ void ATheLastBastionHeroCharacter::OnSkillPressed_1()
 
 void ATheLastBastionHeroCharacter::OnSkillPressed_2()
 {
-	TryToUseSkill = Skill__Taunt;
+	TryToUseSkill = Skill__Heal;
 	mAnimInstanceRef->OnSkill(TryToUseSkill);
+
+	FVector myLocation = GetActorLocation();
+
+	TArray<FHitResult> OutHits;
+	FCollisionObjectQueryParams ObjectParams;
+	ObjectParams.AddObjectTypesToQuery(CollisionObjectType_Ally);
+	ObjectParams.AddObjectTypesToQuery(CollisionObjectType_Hero);
+
+	UWorld* World = GetWorld();
+	bool const bHit = World ? World->SweepMultiByObjectType(OutHits, myLocation, myLocation, FQuat::Identity, ObjectParams, FCollisionShape::MakeSphere(HealRadius_Skill)) : false;
+
+	for (int i = 0; i < OutHits.Num(); i++)
+	{
+
+		if (OutHits[i].GetActor())
+			UE_LOG(LogTemp, Warning, TEXT("%s is healled"), *OutHits[i].GetActor()->GetName());
+	}
+
 }
 
 void ATheLastBastionHeroCharacter::OnSkillPressed_3()
@@ -729,14 +752,12 @@ void ATheLastBastionHeroCharacter::OnSkillPressed_3()
 
 void ATheLastBastionHeroCharacter::OnSkillPressed_4()
 {	
-	TryToUseSkill = Skill__Heal;
-	mAnimInstanceRef->OnSkill(TryToUseSkill);
 
 }
 void ATheLastBastionHeroCharacter::OnSkillPressed_5()
 {
-	TryToUseSkill = Skill__BattleCommand;
-	mAnimInstanceRef->OnSkill(TryToUseSkill);
+	//TryToUseSkill = Skill__BattleCommand;
+	//mAnimInstanceRef->OnSkill(TryToUseSkill);
 }
 
 //void ATheLastBastionHeroCharacter::OnSkillPressed_6()
@@ -802,6 +823,26 @@ void ATheLastBastionHeroCharacter::OnWeaponEnchantStart()
 	bHasEnchartedWeapon = true;
 }
 
+void ATheLastBastionHeroCharacter::InitSkillSlotProperties()
+{
+	SkillSlots.SetNum(SkillSlot_Size);
+
+	// Set Up cool down time for skill
+	SkillSlots[Skill__Combo].CoolDownTime = Skill_PowerHit_CD;
+	SkillSlots[Skill__PowerHit].CoolDownTime = Skill_PowerHit_CD;
+	SkillSlots[Skill__WeaponCastingFire].CoolDownTime = Skill_WeaponCastingFire_CD;
+	SkillSlots[Skill__Heal].CoolDownTime = Skill_Heal_CD;
+
+	SkillSlots[Skill__PowerHit].SpCost = SpCost_PowerHit;
+	SkillSlots[Skill__Heal].SpCost = SpCost_Heal;
+
+	SkillSlots[Skill__Heal].AM_sectionName = FName("Heal");
+
+	HealAmount_Skill = SKill_Heal_Amount_Init;
+	HealRadius_Skill = Skill_Heal_Radius_Init;
+
+}
+
 void ATheLastBastionHeroCharacter::OnPlaySkillParticle(int _skillIndex)
 {
 	switch (_skillIndex)
@@ -811,8 +852,15 @@ void ATheLastBastionHeroCharacter::OnPlaySkillParticle(int _skillIndex)
 		AGear * currentWeapon = GetCurrentWeapon();
 		if (currentWeapon)
 			WeaponEnchantment_PSC = currentWeapon->OnWeaponEnchant();
-	}
 		break;
+	}
+	case Skill__Heal:
+	{
+		UParticleSystem* healVFX = UVfxManager::GetVfx(EVfxType::PlayerHealing);
+		if (healVFX)
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), healVFX, GetActorLocation());
+		break;
+	}
 	default:
 		break;
 	}
@@ -911,7 +959,7 @@ bool ATheLastBastionHeroCharacter::CounterAttackSpCheck()
 
 bool ATheLastBastionHeroCharacter::SkillCheck(int _skillIndex)
 {
-	float spCost = GetSkillSpCostAt(_skillIndex);
+	float spCost = GetSkillSpCostAt(_skillIndex) * HeroStats->GetHeroSpConsumeRate_Scaler();
 	float spRemain = HeroStats->GetStaminaCurrent() + spCost;
 	bool success = spRemain > 0 && IsSkillCooled(_skillIndex);
 
@@ -965,6 +1013,7 @@ bool ATheLastBastionHeroCharacter::IsDoingGainDpAttack() const
 	return mAnimInstanceRef->IsDoingGainDpAttack();
 }
 
+
 bool ATheLastBastionHeroCharacter::ShouldPlayHitAnimation() const
 {
 
@@ -977,6 +1026,11 @@ bool ATheLastBastionHeroCharacter::ShouldPlayHitAnimation() const
 	{
 		return !mAnimInstanceRef->IsAnimCanNotInterruptByTakingDamage();
 	}
+}
+
+bool ATheLastBastionHeroCharacter::IsUnStopableAttack() const
+{
+	return mAnimInstanceRef->GetCurrentSkillBuff() == ESkillBuff::UnStoppable;;
 }
 
 bool ATheLastBastionHeroCharacter::IsSkillCooled(int _index) const

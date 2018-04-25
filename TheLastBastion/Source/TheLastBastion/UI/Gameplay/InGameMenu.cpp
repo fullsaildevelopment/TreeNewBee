@@ -6,6 +6,11 @@
 #include "Components/TextBlock.h"
 #include "Components/WidgetSwitcher.h"
 #include "GI_TheLastBastion.h"
+
+#include "GameMode/SinglePlayerGM.h"
+#include "Kismet/GameplayStatics.h"
+#include "Environment/Outpost.h"
+
 #include "Combat/HeroStatsComponent.h"
 #include "TheLastBastionHeroCharacter.h"
 
@@ -20,9 +25,16 @@ bool UInGameMenu::Initialize()
 
 	// Bind Delegetes to Widget components
 	bool bAllWidgetAreGood =
-		ResumeButton && ResumeButton && ToMainMenuButton && 
+		ResumeButton && ResumeButton && ToMainMenuButton &&
 		MenuName && ToggleLeft && ToggleRight &&
-		HideSH && HideHV && HideTH && HideCB && Accept_Option;
+		HideSH && HideHV && HideTH && HideCB && Accept_Option &&
+		Accept_Skill && CurrentSurvivalTrainingLevel && CurrentStaminaTraingingLevel && CurrentFarmerLevel
+		&& CurrentBuilderLevel && CurrentMinerLevel && CurrentSawyerLevel && CurrentHitThemHardLevel &&
+		CurrentMakeThemSufferLevel && CurrentFaithLevel && CurrentLeaderLevel && CurrentSkillPoints &&
+		SurviorPlus_Btn && StaminaPlus_Btn &&
+		FarmerPlus_Btn && BuilderPlus_Btn && MinerPlus_Btn && SawyerPlus_Btn &&
+		HitThemHardPlus_Btn && MakeThemSufferPlus_Btn && FaithPlus_Btn && LeaderPlus_Btn;
+
 
 	if (bAllWidgetAreGood)
 	{
@@ -39,9 +51,57 @@ bool UInGameMenu::Initialize()
 		HideTH->OnCheckStateChanged.AddDynamic(this, &UInGameMenu::OnHideTHChanged);
 		HideCB->OnCheckStateChanged.AddDynamic(this, &UInGameMenu::OnHideCBChanged);
 
+		Accept_Skill->OnClicked.AddDynamic(this, &UInGameMenu::OnAcceptClicked_Skill);
+		SurviorPlus_Btn->OnClicked.AddDynamic(this, &UInGameMenu::OnSurviorPlusClicked);
+		StaminaPlus_Btn->OnClicked.AddDynamic(this, &UInGameMenu::OnStaminaPlusClicked);
+		FarmerPlus_Btn->OnClicked.AddDynamic(this, &UInGameMenu::OnFarmerPlusClicked);
+		BuilderPlus_Btn->OnClicked.AddDynamic(this, &UInGameMenu::OnBuilderPlusClicked);
+		MinerPlus_Btn->OnClicked.AddDynamic(this, &UInGameMenu::OnMinerPlusClicked);
+		SawyerPlus_Btn->OnClicked.AddDynamic(this, &UInGameMenu::OnSawyerPlusClicked);
+		HitThemHardPlus_Btn->OnClicked.AddDynamic(this, &UInGameMenu::OnHitThemHardPlusClicked);
+		MakeThemSufferPlus_Btn->OnClicked.AddDynamic(this, &UInGameMenu::OnMakeThemSufferPlusClicked);
+		FaithPlus_Btn->OnClicked.AddDynamic(this, &UInGameMenu::OnFaithPlusClicked);
+		LeaderPlus_Btn->OnClicked.AddDynamic(this, &UInGameMenu::OnLeaderPlusClicked);
+
 	}
 	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("bAllWidgetAreGood == false, UInGameMenu::Initialize"));
 		return false;
+
+	}
+
+	AllSkillLevel.SetNum(SkillNum);
+	AllSkillLevel[SurvivalTrainingLevel].Text = CurrentSurvivalTrainingLevel;
+	AllSkillLevel[SurvivalTrainingLevel].Level = 0;
+
+	AllSkillLevel[StaminaTraingingLevel].Text = CurrentStaminaTraingingLevel;
+	AllSkillLevel[StaminaTraingingLevel].Level = 0;
+
+	AllSkillLevel[FarmerLevel].Text = CurrentFarmerLevel;
+	AllSkillLevel[FarmerLevel].Level = 0;
+
+	AllSkillLevel[BuilderLevel].Text = CurrentBuilderLevel;
+	AllSkillLevel[BuilderLevel].Level = 0;
+
+	AllSkillLevel[MinerLevel].Text = CurrentMinerLevel;
+	AllSkillLevel[MinerLevel].Level = 0;
+
+	AllSkillLevel[SawyerLevel].Text = CurrentSawyerLevel;
+	AllSkillLevel[SawyerLevel].Level = 0;
+
+	AllSkillLevel[HitThemHardLevel].Text = CurrentHitThemHardLevel;
+	AllSkillLevel[HitThemHardLevel].Level = 0;
+
+	AllSkillLevel[MakeThemSufferLevel].Text = CurrentMakeThemSufferLevel;
+	AllSkillLevel[MakeThemSufferLevel].Level = 0;
+
+	AllSkillLevel[FaithLevel].Text = CurrentFaithLevel;
+	AllSkillLevel[FaithLevel].Level = 0;
+
+	AllSkillLevel[LeaderLevel].Text = CurrentLeaderLevel;
+	AllSkillLevel[LeaderLevel].Level = 0;
+
 
 	return true;
 }
@@ -232,6 +292,196 @@ void UInGameMenu::OnOpenOptionMenu()
 
 void UInGameMenu::OnOpenSkillMenu()
 {
+	// Set Name
 	MenuName->SetText(FText::FromString(MenuNameList[(int)CurrentMenuIndex]));
 
+
+	// Load CurrentSkillpoint from player
+	LoadSkillsSetFromHero();
 }
+
+void UInGameMenu::LoadSkillsSetFromHero()
+{
+
+	APlayerController* pc = GetOwningPlayer();
+	if (pc == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("pc is null - UInGameMenu::OnOpenOptionMenu"));
+		return;
+	}
+	ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(pc->GetCharacter());
+	if (hero == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("hero is null - UInGameMenu::OnOpenOptionMenu"));
+		return;
+	}
+	UHeroStatsComponent* heroStats = hero->GetHeroStatsComp();
+	if (heroStats == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("heroStats is null - UInGameMenu::OnOpenOptionMenu"));
+		return;
+	}
+
+
+	CurrentSkillPoints_int = heroStats->GetSkillPoints();
+	CurrentSkillPoints->SetText(FText::AsNumber(CurrentSkillPoints_int));
+
+
+	int currentSkillLevel = 0;
+	for (int i = 0; i < SkillNum; i++)
+	{
+		currentSkillLevel = heroStats->GetSkillLevelAt(i);
+		if (currentSkillLevel != AllSkillLevel[i].Level)
+		{
+			AllSkillLevel[i].Level = currentSkillLevel;
+			AllSkillLevel[i].Text->SetText(FText::AsNumber(currentSkillLevel));
+		}
+	}
+
+}
+
+void UInGameMenu::OnSurviorPlusClicked()
+{
+
+	OnPlusBtnClicked(SurvivalTrainingLevel);
+
+}
+
+void UInGameMenu::OnStaminaPlusClicked()
+{
+	OnPlusBtnClicked(StaminaTraingingLevel);
+
+}
+
+void UInGameMenu::OnFarmerPlusClicked()
+{
+	OnPlusBtnClicked(FarmerLevel);
+
+}
+
+void UInGameMenu::OnBuilderPlusClicked()
+{
+
+	OnPlusBtnClicked(BuilderLevel);
+}
+
+void UInGameMenu::OnMinerPlusClicked()
+{
+	OnPlusBtnClicked(MinerLevel);
+}
+
+void UInGameMenu::OnSawyerPlusClicked()
+{
+	OnPlusBtnClicked(SawyerLevel);
+}
+
+void UInGameMenu::OnHitThemHardPlusClicked()
+{
+	OnPlusBtnClicked(HitThemHardLevel);
+
+}
+
+void UInGameMenu::OnMakeThemSufferPlusClicked()
+{
+	OnPlusBtnClicked(MakeThemSufferLevel);
+
+}
+
+void UInGameMenu::OnFaithPlusClicked()
+{
+	OnPlusBtnClicked(FaithLevel);
+}
+
+void UInGameMenu::OnLeaderPlusClicked()
+{
+	OnPlusBtnClicked(LeaderLevel);
+
+}
+
+
+void UInGameMenu::OnAcceptClicked_Skill()
+{
+	APlayerController* pc = GetOwningPlayer();
+	if (pc == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("pc is null - UInGameMenu::OnOpenOptionMenu"));
+		return;
+	}
+	ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(pc->GetCharacter());
+	if (hero == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("hero is null - UInGameMenu::OnOpenOptionMenu"));
+		return;
+	}
+	UHeroStatsComponent* heroStats = hero->GetHeroStatsComp();
+	if (heroStats == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("heroStats is null - UInGameMenu::OnOpenOptionMenu"));
+		return;
+	}
+
+	// read skiil points
+	heroStats->SetSkillPoints(CurrentSkillPoints_int);
+
+	for (int i = 0; i < SkillNum; i++)
+	{
+		heroStats->SetSkillLevelAt(i, AllSkillLevel[i].Level);
+	}
+
+	// apply changes on outpost
+	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (gm == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("gm == nullptr,  UInGameMenu::OnAcceptClicked_Skill"));
+		return;
+	}
+
+	AOutpost* outPost_Temp = nullptr;
+	EOutpostType outpostType_Temp;
+	for (int iOutpost = 0; iOutpost < gm->GetAllOutpostAmount(); iOutpost++)
+	{
+		outPost_Temp = gm->GetOutpostAt(iOutpost);
+		outpostType_Temp = outPost_Temp->GetOutpostType();
+
+		switch (outpostType_Temp)
+		{
+		case EOutpostType::None:
+		default:
+			break;
+		case EOutpostType::Food:
+			outPost_Temp->SetAdditionAmount(ResourceSkillAddAmountOnEachLevel * AllSkillLevel[FarmerLevel].Level);
+			break;
+		case EOutpostType::Wood:
+			outPost_Temp->SetAdditionAmount(ResourceSkillAddAmountOnEachLevel * AllSkillLevel[BuilderLevel].Level);
+			break;
+		case EOutpostType::Metal:
+			outPost_Temp->SetAdditionAmount(ResourceSkillAddAmountOnEachLevel * AllSkillLevel[MinerLevel].Level);
+			break;
+		case EOutpostType::Stone:
+			outPost_Temp->SetAdditionAmount(ResourceSkillAddAmountOnEachLevel * AllSkillLevel[SawyerLevel].Level);
+			break;
+		}
+	}
+
+	// apply changes on hero fitness
+	heroStats->SetHeroHpRecoverDelayByLevel_Scaler(AllSkillLevel[SurvivalTrainingLevel].Level);
+	heroStats->SetDpGain_Scaler(AllSkillLevel[SurvivalTrainingLevel].Level);
+
+
+	heroStats->SetHeroSpConsumeRateByLevel_Scaler(AllSkillLevel[StaminaTraingingLevel].Level);
+
+}
+
+void UInGameMenu::OnPlusBtnClicked(int _index)
+{
+	if (CurrentSkillPoints_int <= 0 || AllSkillLevel[_index].Level >= MaxSkillLevel)
+		return;
+
+	// update current Skill points
+	CurrentSkillPoints_int--;
+	CurrentSkillPoints->SetText(FText::AsNumber(CurrentSkillPoints_int));
+
+	AllSkillLevel[_index].Level++;
+	AllSkillLevel[_index].Text->SetText(FText::AsNumber(AllSkillLevel[_index].Level));
+}
+

@@ -220,6 +220,21 @@ void ASinglePlayerPC::LevelUp(int _deltaLevel)
 
 }
 
+void ASinglePlayerPC::GainSkillPoints(int _val)
+{
+	ATheLastBastionHeroCharacter* heroCharacter = Cast<ATheLastBastionHeroCharacter>(GetCharacter());
+	if (heroCharacter)
+	{
+		UHeroStatsComponent* HeroStats = heroCharacter->GetHeroStatsComp();
+
+		if (HeroStats)
+		{
+			HeroStats->SetSkillPoints(_val);
+		}
+	}
+
+}
+
 void ASinglePlayerPC::CloseTradeMenu()
 {
 	if (mTradeMenu)

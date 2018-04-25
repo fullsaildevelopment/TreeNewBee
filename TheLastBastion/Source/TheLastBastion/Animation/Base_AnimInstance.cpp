@@ -153,14 +153,8 @@ void UBase_AnimInstance::FxFootStep()
 		AArmor* armor = mBaseCharacter->GetCurrentArmor();
 		UParticleSystem* vfx = UVfxManager::GetVfx(EVfxType::FootSteps);
 		FVector FootLocation = mBaseCharacter->GetMesh()->GetBoneLocation(TEXT("ik_foot_root"), EBoneSpaces::WorldSpace);
-		if (armor && armor->IsHeavyArmor())
-		{
 
-		}
-		else
-		{
-			sfx = UAudioManager::GetSFX(ESoundEffectType::ELightArmorFootStepOnDirt);
-		}
+		sfx = UAudioManager::GetSFX(ESoundEffectType::ELightArmorFootStepOnDirt);
 
 		if (sfx && vfx)
 		{

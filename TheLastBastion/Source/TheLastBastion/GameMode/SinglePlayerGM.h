@@ -56,6 +56,9 @@ private:
 		TArray<class AAllyGroup*> Allies;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
+		TArray<class AOutpost*> AllOutpost;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
 		class ABarracks* Barracks;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
@@ -132,12 +135,18 @@ public:
 	FORCEINLINE int GetMetalTotal() const { return Metal; }
 	FORCEINLINE int GetWoodTotal() const { return Wood; }
 	FORCEINLINE int GetStoneTotal() const { return Stone; }
-	
-	void OnTradeMenuAccept(int _metal, int _wood);
-	void OnRecruitMenuAccept(int _food, int _metal,int _wood);
+
+	FORCEINLINE void RegisterOutpost(class AOutpost* _outpost) { AllOutpost.Add(_outpost); }
+	FORCEINLINE class AOutpost* GetOutpostAt(int _index) { return AllOutpost[_index]; }
+	FORCEINLINE int GetAllOutpostAmount() const { return AllOutpost.Num(); }
 
 	void AddFood(int _val);
 	void AddMetal(int _val);
 	void AddWood(int _val);
 	void AddStone(int _val);
+
+
+	void OnTradeMenuAccept(int _metal, int _wood);
+	void OnRecruitMenuAccept(int _food, int _metal, int _wood);
+
 };

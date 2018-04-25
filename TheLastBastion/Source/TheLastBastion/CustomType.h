@@ -31,8 +31,10 @@
 #define StunHit_FTColor		   FLinearColor(0.709889f,1.0f,0.0f)
 
 #define CollisionObjectType_Hero ECollisionChannel::ECC_GameTraceChannel8
+#define CollisionObjectType_Ally ECollisionChannel::ECC_GameTraceChannel9
 
 
+#define SkillSlot_Size 4
 
 
 

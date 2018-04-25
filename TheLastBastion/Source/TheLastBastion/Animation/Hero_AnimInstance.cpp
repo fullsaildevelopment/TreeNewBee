@@ -92,7 +92,7 @@ UHero_AnimInstance::UHero_AnimInstance(const FObjectInitializer& _objectInitaliz
 
 	FocusDodgeDirection = EFocusDodgeDirection::None;
 	bIsFocused = false;
-	bDuringGainDpAttack = false;
+	//bDuringGainDpAttack = false;
 
 	
 	CurrentDefendPoseAlpha = 0.0f;
@@ -105,6 +105,7 @@ UHero_AnimInstance::UHero_AnimInstance(const FObjectInitializer& _objectInitaliz
 	CameraZoomOffset = FVector(200, 50, 10);
 
 	Skill_Montage = AM_Skill;
+	SkillBuff = ESkillBuff::None;
 
 }
 
@@ -472,14 +473,17 @@ void UHero_AnimInstance::OnMontageBlendOutStartHandle(UAnimMontage * _animMontag
 		// recover movement from melee attack
 		if (!_bInterruptted)
 		{
-			bDuringGainDpAttack = false;
+			//bDuringGainDpAttack = false;
+			SkillBuff = ESkillBuff::None;
 			ResetCombo();
 		}
 	}
 	else if (_animMontage == Skill_Montage)
 	{
 		bAnimInterruptRobust = false;
-		bDuringGainDpAttack = false;
+		SkillBuff = ESkillBuff::None;
+
+		//bDuringGainDpAttack = false;
 
 		// recover movement from melee attack
 		if (!_bInterruptted)
@@ -1272,6 +1276,10 @@ void UHero_AnimInstance::OnSkill(int _skillIndex)
 void UHero_AnimInstance::LaunchSkill(int _skillIndex)
 {
 
+	// For now we dont have anything for CrossBow Yet
+	if (CurrentEquipment == EEquipType::CrossBow && _skillIndex != Skill__Heal)
+		return;
+
 	if (mCharacter->SkillCheck(_skillIndex) == false)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No Enough Stamina - UHero_AnimInstance::LaunchSkill"));
@@ -1294,8 +1302,34 @@ void UHero_AnimInstance::LaunchSkill(int _skillIndex)
 
 	float attackSpeed = (mCharacter->GetCurrentWeapon()->GetGearType() == EGearType::GreatSword) ? 1.1f : 1.0f;
 
-	if (sectionToPlay.Compare(Montage_SN_SkillPowerHit_Sns) == 0)
-		bDuringGainDpAttack = true;
+
+	if (_skillIndex == Skill__PowerHit)
+	{
+
+		switch (CurrentEquipment)
+		{
+		case EEquipType::ShieldSword:
+			SkillBuff = ESkillBuff::GainDp;
+			break;
+		case EEquipType::TwoHandSword:
+			SkillBuff = ESkillBuff::MultiDamage;
+			break;
+		case EEquipType::HeavyWeapon:
+			SkillBuff = ESkillBuff::UnStoppable;
+			break;
+		default:
+		case EEquipType::Travel:
+		case EEquipType::CrossBow:
+			SkillBuff = ESkillBuff::None;
+			break;
+		}
+	}
+	else if (_skillIndex == Skill__Combo)
+	{
+		SkillBuff = ESkillBuff::Combo;
+	}
+
+	//bDuringGainDpAttack = true;
 
 	this->PlayMontage(Skill_Montage, attackSpeed, sectionToPlay);
 	bVelocityOverrideByAnim = true;

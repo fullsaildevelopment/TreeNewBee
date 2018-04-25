@@ -282,17 +282,6 @@ void UPawnStatsComponent::GenerateMaxStats(bool _setCurrentToMax)
 
 void UPawnStatsComponent::LevelUp()
 {
-	Level++;
-	// Update the row value, so the gear merits can add on
-	GenerateRawStatsByLevel(Level, BaseDamage, HpRaw);
-	// apply the gear merits
-	GenerateMaxStats(true);
-
-	// Play Effects once level up
-	USkeletalMeshComponent* PlayerMesh = mCharacter->GetMesh();
-	UParticleSystem* LevelUpParticle = UVfxManager::GetVfx(EVfxType::PlayerLevelUp);
-	UGameplayStatics::SpawnEmitterAttached(LevelUpParticle, PlayerMesh);
-
 
 }
 

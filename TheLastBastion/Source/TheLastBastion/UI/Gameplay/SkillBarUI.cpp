@@ -3,6 +3,7 @@
 #include "SkillBarUI.h"
 #include "Components/HorizontalBox.h"
 #include "UI/Gameplay/SkillSlotUI.h"
+#include "CustomType.h"
 
 bool USkillBarUI::Initialize()
 {
@@ -23,7 +24,7 @@ bool USkillBarUI::Initialize()
 	// Set Key Text
 
 	USkillSlotUI* skillSlot =  nullptr;
-	if (SkillRow->GetChildrenCount() == 7 && SkillThumbNails.Num() == 7)
+	if (SkillRow->GetChildrenCount() == SkillSlot_Size && SkillThumbNails.Num() == SkillSlot_Size)
 	{
 		skillSlot = Cast<USkillSlotUI>(SkillRow->GetChildAt(0));
 		skillSlot->SetKeyText(FText::FromString(TEXT("q")));
@@ -37,15 +38,15 @@ bool USkillBarUI::Initialize()
 		skillSlot = Cast<USkillSlotUI>(SkillRow->GetChildAt(3));
 		skillSlot->SetKeyText(FText::FromString(TEXT("f")));
 		skillSlot->SetSkillTN(SkillThumbNails[3]);
-		skillSlot = Cast<USkillSlotUI>(SkillRow->GetChildAt(4));
-		skillSlot->SetKeyText(FText::FromString(TEXT("1")));
-		skillSlot->SetSkillTN(SkillThumbNails[4]);
-		skillSlot = Cast<USkillSlotUI>(SkillRow->GetChildAt(5));
-		skillSlot->SetKeyText(FText::FromString(TEXT("2")));
-		skillSlot->SetSkillTN(SkillThumbNails[5]);
-		skillSlot = Cast<USkillSlotUI>(SkillRow->GetChildAt(6));
-		skillSlot->SetKeyText(FText::FromString(TEXT("3")));
-		skillSlot->SetSkillTN(SkillThumbNails[6]);
+		//skillSlot = Cast<USkillSlotUI>(SkillRow->GetChildAt(4));
+		//skillSlot->SetKeyText(FText::FromString(TEXT("1")));
+		//skillSlot->SetSkillTN(SkillThumbNails[4]);
+		//skillSlot = Cast<USkillSlotUI>(SkillRow->GetChildAt(5));
+		//skillSlot->SetKeyText(FText::FromString(TEXT("2")));
+		//skillSlot->SetSkillTN(SkillThumbNails[5]);
+		//skillSlot = Cast<USkillSlotUI>(SkillRow->GetChildAt(6));
+		//skillSlot->SetKeyText(FText::FromString(TEXT("3")));
+		//skillSlot->SetSkillTN(SkillThumbNails[6]);
 	}
 
 
