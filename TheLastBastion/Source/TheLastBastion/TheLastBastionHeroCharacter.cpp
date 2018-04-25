@@ -754,6 +754,7 @@ void ATheLastBastionHeroCharacter::OnSkillPressed_4()
 {	
 
 }
+
 void ATheLastBastionHeroCharacter::OnSkillPressed_5()
 {
 	//TryToUseSkill = Skill__BattleCommand;
