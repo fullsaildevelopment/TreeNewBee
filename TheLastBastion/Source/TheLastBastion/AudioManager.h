@@ -33,7 +33,12 @@ enum class ESoundEffectType : uint8
 	EFoodWarning,
 	EMineWarning,
 	EStoneWarning,
-	EWoodWarning
+	EWoodWarning,
+	ESoldierDialog,
+	EDefaultTheme,
+	ELannisterTheme1,
+	ELannisterTheme2,
+	EWhiteWalkerTheme
 };
 /**
  * 
@@ -83,6 +88,13 @@ private:
 	static class USoundCue* MineWarning;
 	static class USoundCue* StoneWarning;
 	static class USoundCue* WoodWarning;
+
+	// Background music
+	static class USoundCue* SoldierDialog;
+	static class USoundCue* DefaultTheme;
+	static class USoundCue* LannisterTheme1;
+	static class USoundCue* LannisterTheme2;
+	static class USoundCue* WhiteWalkerTheme;
 
 public:
 

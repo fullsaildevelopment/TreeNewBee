@@ -7,6 +7,9 @@
 #include "GameMode/SinglePlayerGM.h"
 #include "Sound/SoundCue.h"
 #include "TheLastBastionCharacter.h"
+#include "AudioManager.h"
+#include "Components/AudioComponent.h"
+#include "TimerManager.h"
 
 // Sets default values
 AEnemyGroupSpawner::AEnemyGroupSpawner()
@@ -14,6 +17,8 @@ AEnemyGroupSpawner::AEnemyGroupSpawner()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+	// Initialize music player
+	MusicPlayer = CreateDefaultSubobject<UAudioComponent>(TEXT("MusicPlayer"));
 
 	//FindAllEnemyGroupPreset();
 
@@ -50,6 +55,9 @@ void AEnemyGroupSpawner::BeginPlay()
 
 	bIsCurrentWaveFinished = true;
 	gm->RegisterEnemySpawner(this);
+
+	//
+	PlayDefaultTheme();
 
 }
 
@@ -241,6 +249,7 @@ void AEnemyGroupSpawner::GetSpawnTransform(FVector& _location, FQuat& _rotation,
 	//	forward.X, forward.Y, forward.Z );
 }
 
+
 void AEnemyGroupSpawner::EnableSpawning()
 {
 	// Turn off the text notification
@@ -258,7 +267,156 @@ void AEnemyGroupSpawner::EnableSpawning()
 		GetWorldTimerManager().ClearTimer(SpawnTimer);
 		GetWorldTimerManager().SetTimer(SpawnTimer, this,
 			&AEnemyGroupSpawner::Spawn, 0.1f, false, SpawnDelay);
+		
+		// Fade In BGM
+		if (CurrentWaveIndex >= LannisterFirstWave && CurrentWaveIndex < LannisterMiddleWave)
+			PlayLannisterFirstTheme();
+
+		else if (CurrentWaveIndex >= LannisterMiddleWave && CurrentWaveIndex <= LannisterLastWave)
+			PlayLannisterSecondTheme();
+
+		else if (CurrentWaveIndex >= WhiteWalkerFirstWave && CurrentWaveIndex <= WhiteWalkerLastWave)
+			PlayWhiteWalkerTheme();
+
 	}
 
+}
+
+void AEnemyGroupSpawner::PlayDefaultTheme()
+{   
+	if (MusicPlayer)
+	{
+		// Check if music play is playing another song
+		if (MusicPlayer->IsPlaying() == true)
+		{   
+			float FadeOutTime = 5.0f;
+			MusicPlayer->FadeOut(FadeOutTime, 0.0f);
+
+			// After FadeOut, FadeIn new music
+			GetWorldTimerManager().ClearTimer(MusicFadeInTimer);
+			GetWorldTimerManager().SetTimer(MusicFadeInTimer, this, &AEnemyGroupSpawner::FadeInDefaultTheme, 1.0F, false, FadeOutTime);
+		}
+
+		else
+			FadeInDefaultTheme();
+
+	}
+}
+
+void AEnemyGroupSpawner::PlayLannisterFirstTheme()
+{
+	if (MusicPlayer)
+	{
+		// Check if music play is playing another song
+		if (MusicPlayer->IsPlaying() == true)
+		{
+			float FadeOutTime = 5.0f;
+			MusicPlayer->FadeOut(FadeOutTime, 0.0f);
+
+			// After FadeOut, FadeIn new music
+			GetWorldTimerManager().ClearTimer(MusicFadeInTimer);
+			GetWorldTimerManager().SetTimer(MusicFadeInTimer, this, &AEnemyGroupSpawner::FadeInLannisterTheme1, 1.0F, false, FadeOutTime);
+		}
+	}
+}
+
+void AEnemyGroupSpawner::PlayLannisterSecondTheme()
+{
+	if (MusicPlayer)
+	{
+		// Check if music play is playing another song
+		if (MusicPlayer->IsPlaying() == true)
+		{
+			float FadeOutTime = 5.0f;
+			MusicPlayer->FadeOut(FadeOutTime, 0.0f);
+
+			// After FadeOut, FadeIn new music
+			GetWorldTimerManager().ClearTimer(MusicFadeInTimer);
+			GetWorldTimerManager().SetTimer(MusicFadeInTimer, this, &AEnemyGroupSpawner::FadeInLannisterTheme2, 1.0F, false, FadeOutTime);
+		}
+	}
+}
+
+void AEnemyGroupSpawner::PlayWhiteWalkerTheme()
+{
+	if (MusicPlayer)
+	{
+		// Check if music play is playing another song
+		if (MusicPlayer->IsPlaying() == true)
+		{
+			float FadeOutTime = 5.0f;
+			MusicPlayer->FadeOut(FadeOutTime, 0.0f);
+
+			// After FadeOut, FadeIn new music
+			GetWorldTimerManager().ClearTimer(MusicFadeInTimer);
+			GetWorldTimerManager().SetTimer(MusicFadeInTimer, this, &AEnemyGroupSpawner::FadeInWhiteWalkerTheme, 0.0F, false, FadeOutTime);
+		}
+	}
+}
+
+void AEnemyGroupSpawner::FadeInDefaultTheme()
+{
+	// Set Music for Music Player
+	MusicPlayer->SetSound(UAudioManager::GetSFX(ESoundEffectType::EDefaultTheme));
+	int StartPoint = FMath::RandRange(0, 1);
+	if (StartPoint == 0)
+		MusicPlayer->FadeIn(10.0f, 1.0f, DefaultTheme_StartPoint_0);
+	else
+		MusicPlayer->FadeIn(10.0f, 1.0f, DefaultTheme_StartPoint_1);
+}
+
+void AEnemyGroupSpawner::FadeInLannisterTheme1()
+{
+	// Set Music for Music Player
+	MusicPlayer->SetSound(UAudioManager::GetSFX(ESoundEffectType::ELannisterTheme1));
+	int StartPoint = FMath::RandRange(0, 2);
+	if (StartPoint == 0)
+		MusicPlayer->FadeIn(10.0f, 1.0f, LannisterTheme1_StartPoint_0);
+	else if (StartPoint == 1)
+		MusicPlayer->FadeIn(10.0f, 1.0f, LannisterTheme1_StartPoint_1);
+	else
+		MusicPlayer->FadeIn(10.0f, 1.0f, LannisterTheme1_StartPoint_2);
+}
+
+void AEnemyGroupSpawner::FadeInLannisterTheme2()
+{
+	// Set Music for Music Player
+	MusicPlayer->SetSound(UAudioManager::GetSFX(ESoundEffectType::ELannisterTheme2));
+	int StartPoint = FMath::RandRange(0, 1);
+	if (StartPoint == 0)
+		MusicPlayer->FadeIn(10.0f, 1.0f, LannisterTheme2_StartPoint_0);
+	else
+		MusicPlayer->FadeIn(10.0f, 1.0f, LannisterTheme2_StartPoint_1);
+}
+
+void AEnemyGroupSpawner::FadeInWhiteWalkerTheme()
+{
+	// Set Music for Music Player
+	if (CurrentWaveIndex == WhiteWalkerFirstWave)
+	{
+		MusicPlayer->SetSound(UAudioManager::GetSFX(ESoundEffectType::ESoldierDialog));
+		MusicPlayer->FadeIn(2.0f);
+
+		// Setup a delay
+		float DialogDuration = 21.0f;
+		GetWorldTimerManager().ClearTimer(MusicFadeInTimer);
+		GetWorldTimerManager().SetTimer(MusicFadeInTimer, this, &AEnemyGroupSpawner::FirstTimeFadeInWhiteWalkerTheme, 1.0F, false, DialogDuration);
+
+	}
+	else
+	{
+		MusicPlayer->SetSound(UAudioManager::GetSFX(ESoundEffectType::EWhiteWalkerTheme));
+		int StartPoint = FMath::RandRange(0, 1);
+		if (StartPoint == 0)
+			MusicPlayer->FadeIn(10.0f, 1.0f, WhiteWalkerTheme_StartPoint_0);
+		else
+			MusicPlayer->FadeIn(10.0f, 1.0f, WhiteWalkerTheme_StartPoint_1);
+	}
+}
+
+void AEnemyGroupSpawner::FirstTimeFadeInWhiteWalkerTheme()
+{
+	MusicPlayer->SetSound(UAudioManager::GetSFX(ESoundEffectType::EWhiteWalkerTheme));
+	MusicPlayer->FadeIn(5.0f, 1.0f, WhiteWalkerTheme_StartPoint_0);
 }
 
