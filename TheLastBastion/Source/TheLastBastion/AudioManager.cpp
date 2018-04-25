@@ -36,6 +36,8 @@ USoundCue* UAudioManager::DefaultTheme = nullptr;
 USoundCue* UAudioManager::LannisterTheme1 = nullptr;
 USoundCue* UAudioManager::LannisterTheme2 = nullptr;
 USoundCue* UAudioManager::WhiteWalkerTheme = nullptr;
+USoundCue* UAudioManager::PlayerLevelUp = nullptr;
+USoundCue* UAudioManager::PlayerCastHealing = nullptr;
 
 UAudioManager::UAudioManager()
 {   
@@ -84,6 +86,10 @@ UAudioManager::UAudioManager()
 	LannisterTheme1 = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/LannisterTheme1"));
 	LannisterTheme2 = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/LannisterTheme2"));
 	WhiteWalkerTheme = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/WhiteWalkerTheme"));
+
+	//Player ability
+	PlayerLevelUp = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Player/PlayerLevelUp"));
+	PlayerCastHealing = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Player/PlayerCastHealing"));
 }
 
 USoundCue* UAudioManager::FindSoundCue(const TCHAR* _path)
@@ -179,6 +185,12 @@ USoundCue * UAudioManager::GetSFX(ESoundEffectType _sfxType)
 
 	case ESoundEffectType::EWhiteWalkerTheme:
 		return WhiteWalkerTheme;
+
+	case ESoundEffectType::EPlayerLevelUp:
+		return PlayerLevelUp;
+
+	case ESoundEffectType::EPlayerCastHealing:
+		return PlayerCastHealing;
 
 	default:
 		return nullptr;
