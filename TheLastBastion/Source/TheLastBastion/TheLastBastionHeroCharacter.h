@@ -334,6 +334,11 @@ private:
 	void UpdateHeroStats(float _deltaTime);
 	void OnWeaponEnchantStart();
 	void InitSkillSlotProperties();
+	void Reborn();
+
+protected:
+	void OnDead(const FVector& dir, const AActor* _damageCauser, FName _boneName) override;
+
 
 public:
 

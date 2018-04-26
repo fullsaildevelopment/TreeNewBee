@@ -377,6 +377,8 @@ public:
 #pragma endregion
 
 	
+	void OnReborn();
+
 	void OnBeingHit
 	(FName boneName, const FVector& _damageCauseRelative, const FVector& _hitLocation) override;
 

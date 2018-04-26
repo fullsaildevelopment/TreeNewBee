@@ -827,6 +827,59 @@ void ATheLastBastionHeroCharacter::InitSkillSlotProperties()
 	SkillSlots[Skill__WeaponCastingFire].AM_sectionName = FName("Heal");
 }
 
+void ATheLastBastionHeroCharacter::Reborn()
+{
+	UE_LOG(LogTemp, Warning, TEXT("reborn - ATheLastBastionHeroCharacter::Reborn"));
+
+	ASinglePlayerPC* singlePC = Cast<ASinglePlayerPC>(GetController());
+	if (singlePC == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("reborn"));
+		return;
+	}
+
+	AActor* spawnPoint = singlePC->GetPlayerStart();
+	if (spawnPoint)
+	{
+		SetActorTransform(spawnPoint->GetTransform());
+
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		
+		GetMesh()->SetAllBodiesBelowSimulatePhysics(TEXT("pelvis"), false);
+
+
+		
+		mAnimInstanceRef->OnReborn();
+		HeroStats->GenerateMaxStats(true);
+		mInGameHUD->SetHpOnHealthChange(HeroStats);
+
+		bIsDead = false;
+		APlayerController* pc = Cast<APlayerController>(GetController());
+		if (pc)
+			EnableInput(pc);
+
+
+	}
+}
+
+void ATheLastBastionHeroCharacter::OnDead(const FVector & dir, const AActor * _damageCauser, FName _boneName)
+{
+	bIsDead = true;
+	OnWeaponEnchantStop();
+
+	bHpRecovering = false;
+	GetWorldTimerManager().ClearTimer(HpRecoverTimer);
+
+
+	Super::OnDead(dir, _damageCauser, _boneName);
+
+	GetWorldTimerManager().ClearTimer(mRagDollTimer);
+	GetWorldTimerManager().SetTimer(mRagDollTimer, this, &ATheLastBastionHeroCharacter::Reborn, 1.0f, false, SecondBeforeKill);
+
+
+}
+
 void ATheLastBastionHeroCharacter::OnPlaySkillParticle(int _skillIndex)
 {
 	switch (_skillIndex)
@@ -1202,10 +1255,17 @@ void ATheLastBastionHeroCharacter::OnTakePointDamageHandle(AActor * DamagedActor
 
 #pragma endregion
 
-	bool resetHpCovering = true; // are we reset the hp covering timer after this hit
 
-	/// Animation response to Hit
-	FVector RagDollImpulse = HitLocation - DamageCauser->GetTargetLocation();
+	float currentHp = HeroStats->GetHpCurrent();
+
+	if (currentHp <= 0)
+	{		// calculate impulse direction in case this ai is killed
+		FVector RagDollImpulse = HitLocation - DamageCauser->GetActorLocation();
+		OnDead(RagDollImpulse, DamageCauser, BoneName);
+		return;
+	}
+
+	bool resetHpCovering = true; // are we reset the hp covering timer after this hit
 
 	if (isStun)
 	{		

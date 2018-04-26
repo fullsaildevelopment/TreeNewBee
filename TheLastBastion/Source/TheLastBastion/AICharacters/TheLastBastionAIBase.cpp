@@ -20,7 +20,7 @@
 #include "CustomType.h"
 
 #define NavPointHeightAdjustLimit 2000.0f;
-#define SecondBeforeKill 10.0f
+
 
 ATheLastBastionAIBase::ATheLastBastionAIBase()
 {
@@ -261,7 +261,7 @@ void ATheLastBastionAIBase::SetTarget(AActor * _target, bool _asGroupMember)
 
 	if (baseAICtrl == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr - AAIGroupBase::SetTarget"));
+		UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr - ATheLastBastionAIBase::SetTarget"));
 		baseAICtrl->SetOldCommandIndex_BBC(0);
 		return;
 	}
@@ -280,10 +280,15 @@ void ATheLastBastionAIBase::SetTarget(AActor * _target, bool _asGroupMember)
 
 		if (baseAICtrl->GetOldCommandIndex_BBC() == GC_FIGHT)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("no target left - ATheLastBastionAIBase::SetTarget"));
+
 			baseAICtrl->SetOldCommandIndex_BBC(0);
-			return;
 		}
+		return;
+
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("new target %s - ATheLastBastionAIBase::SetTarget"), *_target->GetName());
 
 	// if our target is changed to a new target
 	if (_target != currentTarget)

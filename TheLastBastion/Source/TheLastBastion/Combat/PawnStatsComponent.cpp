@@ -403,7 +403,7 @@ float UPawnStatsComponent::CalculateDamage(float baseDamage, AActor * _damageCau
 	if (dcLeftHandWeapon)
 		weaponDamage += dcLeftHandWeapon->GetPhysicalDamage();
 
-	float totalDamage = 10.0f;// baseDamage + FMath::RandRange(10, 100) + weaponDamage;
+	float totalDamage = baseDamage + FMath::RandRange(10, 100) + weaponDamage;
 	totalDamage = damageCauser->PostDamageCalculate(totalDamage);
 
 	if (DpCurrent > 0)

@@ -107,6 +107,7 @@ UHero_AnimInstance::UHero_AnimInstance(const FObjectInitializer& _objectInitaliz
 	Skill_Montage = AM_Skill;
 	SkillBuff = ESkillBuff::None;
 
+
 }
 
 void UHero_AnimInstance::OnBeginPlay()
@@ -1983,6 +1984,11 @@ FVector UHero_AnimInstance::GetFocusDodgeDirection() const
 }
 
 #pragma endregion
+
+void UHero_AnimInstance::OnReborn()
+{
+	RecoverFromBeingHit(false);
+}
 
 void UHero_AnimInstance::OnBeingHit(FName boneName, const FVector & _damageCauseRelative, const FVector & _hitLocation)
 {
