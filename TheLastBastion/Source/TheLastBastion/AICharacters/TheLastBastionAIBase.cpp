@@ -20,7 +20,7 @@
 #include "CustomType.h"
 
 #define NavPointHeightAdjustLimit 2000.0f;
-#define SecondBeforeKill 10.0f
+
 
 ATheLastBastionAIBase::ATheLastBastionAIBase()
 {
@@ -100,6 +100,11 @@ void ATheLastBastionAIBase::BeginPlay()
 
 void ATheLastBastionAIBase::ToggleAIHUD(bool _val)
 {
+}
+
+void ATheLastBastionAIBase::UpdateHUD()
+{
+	AI_HUD->UpdateHealthBar(AIStats);
 }
 
 bool ATheLastBastionAIBase::HasFullHealth() const
@@ -256,7 +261,7 @@ void ATheLastBastionAIBase::SetTarget(AActor * _target, bool _asGroupMember)
 
 	if (baseAICtrl == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr - AAIGroupBase::SetTarget"));
+		UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr - ATheLastBastionAIBase::SetTarget"));
 		baseAICtrl->SetOldCommandIndex_BBC(0);
 		return;
 	}
@@ -275,10 +280,15 @@ void ATheLastBastionAIBase::SetTarget(AActor * _target, bool _asGroupMember)
 
 		if (baseAICtrl->GetOldCommandIndex_BBC() == GC_FIGHT)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("no target left - ATheLastBastionAIBase::SetTarget"));
+
 			baseAICtrl->SetOldCommandIndex_BBC(0);
-			return;
 		}
+		return;
+
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("new target %s - ATheLastBastionAIBase::SetTarget"), *_target->GetName());
 
 	// if our target is changed to a new target
 	if (_target != currentTarget)
@@ -342,12 +352,13 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 	// the relative position of damage causer to damaged actor
 	FVector damageCauserRelative = ShotFromDirection;
 
+	ATheLastBastionHeroCharacter* heroAttacker = Cast<ATheLastBastionHeroCharacter>(DamageCauser);
+
 	float totalDamage = AIStats->CalculateDamage(Damage, DamageCauser, isCritical, isStun);
 	float currentHp = AIStats->GetHpCurrent();
 
 	AI_HUD->UpdateHealthBar(AIStats);
 
-	ATheLastBastionHeroCharacter* heroAttacker = Cast<ATheLastBastionHeroCharacter>(DamageCauser);
 	if (heroAttacker)
 	{
 		OnTakeDamageFromHero(HitLocation, heroAttacker, totalDamage, isCritical, isStun);

@@ -18,18 +18,15 @@
 #define  Skill__Heal 2   
 #define  Skill__WeaponCastingFire 3
 
-#define  Skill_Heal_Radius_Init 500
-#define  Skill_Heal_Radius_Increment_OnLevelUp 50
-#define  SKill_Heal_Amount_Init 20 // percentage
-#define  SKILL_Heal_Amount_Increment_OnLevelUp 4
+
 
 //#define  Skill__BattleCommand 5    
 
-#define Skill_Combo_CD      12.0f
-#define Skill_PowerHit_CD	12.0f
+#define Skill_Combo_CD       12.0f
+#define Skill_PowerHit_CD	 12.0f
 #define Skill_Heal_CD               18.0f
 #define Skill_WeaponCastingFire_CD  1.0f
-
+#define WeaponCasting_DamageBuff 1.5f
 #define Skill_LevelUp_CD_Deduction 1.0f;
 
 
@@ -230,17 +227,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AnimationMovementControl)
 		float MoveRightAxis;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Skill)
 		/** The index of skill that play try to use in the skill list*/
 		int TryToUseSkill;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
-		float HealAmount_Skill;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
-		float HealRadius_Skill;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Skill)
 		/** Hero Skill sets*/
 		TArray<FSkillSlot> SkillSlots;
 
@@ -343,6 +334,11 @@ private:
 	void UpdateHeroStats(float _deltaTime);
 	void OnWeaponEnchantStart();
 	void InitSkillSlotProperties();
+	void Reborn();
+
+protected:
+	void OnDead(const FVector& dir, const AActor* _damageCauser, FName _boneName) override;
+
 
 public:
 
@@ -362,6 +358,11 @@ public:
 	* if current sp is enought to perform skill, and consume sp
 	* if cool down time is passed*/
 	bool SkillCheck(int _skillIndex);
+
+	/** Called after heal skill is succefully casted*/
+	void OnHealSkillCastSuccess();
+
+	float PostDamageCalculate(float _damage) const override;
 
 	bool IsStuned() const override;
 
@@ -389,18 +390,20 @@ public:
 	bool IsSkillCooled(int _index) const;
 	FORCEINLINE float GetSkillCoolDownTimeAt(int _index) const { return SkillSlots[_index].CoolDownTime; }
 	FORCEINLINE float GetSkillSpCostAt(int _index) const { return SkillSlots[_index].SpCost; }
-	FORCEINLINE bool GetCanStartNextWave() const { return bCanStartNextWave; }
-
 
 	bool IsIntentedSkillCooled() const;
 	FORCEINLINE float GetIntentedSkillCoolDownTimeAt() const { return SkillSlots[TryToUseSkill].CoolDownTime; }
 	FORCEINLINE float GetIntentedSkillSpCostAt() const { return SkillSlots[TryToUseSkill].SpCost; }
 	FORCEINLINE FName GetSkillSectionNameAt(int _skillIndex) const { return SkillSlots[_skillIndex].AM_sectionName; }
 
+	void SetSkillCoolDownTimeByLevelAt(int _skillIndex, int _level);
+
 	FORCEINLINE void SetSkillSectionNameAt(int _skillIndex, FName _sectionName) { SkillSlots[_skillIndex].AM_sectionName = _sectionName; }
 	FORCEINLINE void EnableHpRecovering() { bHpRecovering = true; }
 	FORCEINLINE void DisnableHpRecovering() { bHpRecovering = false; }
+
 	FORCEINLINE void SetCanStartNextWave(bool _val) { bCanStartNextWave = _val; }
+	FORCEINLINE bool GetCanStartNextWave() const { return bCanStartNextWave; }
 
 	FORCEINLINE float GetCommandPresence() const { return CommanderPresence; }
 

@@ -67,6 +67,8 @@ void ASinglePlayerPC::OnPostLogin()
 			return;
 	}
 
+	playerSpawnPoint = playerStarts[0];
+
 	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
 	
 	if (gm)
@@ -74,7 +76,7 @@ void ASinglePlayerPC::OnPostLogin()
 		FActorSpawnParameters spawnParam;
 		spawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		ATheLastBastionHeroCharacter* hero
-			= GetWorld()->SpawnActor<ATheLastBastionHeroCharacter>(gm->DefaultPawnClass, playerStarts[0]->GetTransform(), spawnParam);
+			= GetWorld()->SpawnActor<ATheLastBastionHeroCharacter>(gm->DefaultPawnClass, playerSpawnPoint->GetTransform(), spawnParam);
 		this->Possess(hero);
 	}
 

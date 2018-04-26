@@ -376,6 +376,7 @@ float UPawnStatsComponent::CalculateDamage(float baseDamage, AActor * _damageCau
 	{
 		UE_LOG(LogTemp, Error, TEXT("damageCauser == nullptr - UPawnStatsComponent::CalculateDamage"));
 	}
+
 	UPawnStatsComponent* dCPawnStats = damageCauser->GetPawnStatsComp();
 	if (dCPawnStats == nullptr)
 	{
@@ -403,6 +404,7 @@ float UPawnStatsComponent::CalculateDamage(float baseDamage, AActor * _damageCau
 		weaponDamage += dcLeftHandWeapon->GetPhysicalDamage();
 
 	float totalDamage = baseDamage + FMath::RandRange(10, 100) + weaponDamage;
+	totalDamage = damageCauser->PostDamageCalculate(totalDamage);
 
 	if (DpCurrent > 0)
 	{

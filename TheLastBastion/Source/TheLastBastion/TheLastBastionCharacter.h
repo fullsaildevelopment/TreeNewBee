@@ -10,7 +10,7 @@
 #define FontSize_Critical 26
 #define RagDoll_RecoverLerpSpeed 5.0f
 #define RagDoll_MinimumGetUpTime 2.0f
-
+#define SecondBeforeKill 3.0f
 DECLARE_MULTICAST_DELEGATE(FOnBecomeUnavailbleTargetEvent);
 
 
@@ -210,6 +210,8 @@ public:
 	// Called on actor destroyed
 	virtual void Kill();
 
+	/** Calculate the damage based on the character extra buff*/
+	virtual float PostDamageCalculate(float _damage) const { return _damage; }
 
 public:
 

@@ -717,22 +717,6 @@ void ATheLastBastionHeroCharacter::OnSkillPressed_2()
 	TryToUseSkill = Skill__Heal;
 	mAnimInstanceRef->OnSkill(TryToUseSkill);
 
-	FVector myLocation = GetActorLocation();
-
-	TArray<FHitResult> OutHits;
-	FCollisionObjectQueryParams ObjectParams;
-	ObjectParams.AddObjectTypesToQuery(CollisionObjectType_Ally);
-	ObjectParams.AddObjectTypesToQuery(CollisionObjectType_Hero);
-
-	UWorld* World = GetWorld();
-	bool const bHit = World ? World->SweepMultiByObjectType(OutHits, myLocation, myLocation, FQuat::Identity, ObjectParams, FCollisionShape::MakeSphere(HealRadius_Skill)) : false;
-
-	for (int i = 0; i < OutHits.Num(); i++)
-	{
-
-		if (OutHits[i].GetActor())
-			UE_LOG(LogTemp, Warning, TEXT("%s is healled"), *OutHits[i].GetActor()->GetName());
-	}
 
 }
 
@@ -822,6 +806,7 @@ void ATheLastBastionHeroCharacter::OnWeaponEnchantStart()
 {
 	mAnimInstanceRef->OnSkill(TryToUseSkill);
 	bHasEnchartedWeapon = true;
+	HeroStats->EnableFaith(bHasEnchartedWeapon);
 }
 
 void ATheLastBastionHeroCharacter::InitSkillSlotProperties()
@@ -836,11 +821,62 @@ void ATheLastBastionHeroCharacter::InitSkillSlotProperties()
 
 	SkillSlots[Skill__PowerHit].SpCost = SpCost_PowerHit;
 	SkillSlots[Skill__Heal].SpCost = SpCost_Heal;
+	SkillSlots[Skill__WeaponCastingFire].SpCost = 0;
 
 	SkillSlots[Skill__Heal].AM_sectionName = FName("Heal");
+	SkillSlots[Skill__WeaponCastingFire].AM_sectionName = FName("Heal");
+}
 
-	HealAmount_Skill = SKill_Heal_Amount_Init;
-	HealRadius_Skill = Skill_Heal_Radius_Init;
+void ATheLastBastionHeroCharacter::Reborn()
+{
+	UE_LOG(LogTemp, Warning, TEXT("reborn - ATheLastBastionHeroCharacter::Reborn"));
+
+	ASinglePlayerPC* singlePC = Cast<ASinglePlayerPC>(GetController());
+	if (singlePC == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("reborn"));
+		return;
+	}
+
+	AActor* spawnPoint = singlePC->GetPlayerStart();
+	if (spawnPoint)
+	{
+		SetActorTransform(spawnPoint->GetTransform());
+
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		
+		GetMesh()->SetAllBodiesBelowSimulatePhysics(TEXT("pelvis"), false);
+
+
+		
+		mAnimInstanceRef->OnReborn();
+		HeroStats->GenerateMaxStats(true);
+		mInGameHUD->SetHpOnHealthChange(HeroStats);
+
+		bIsDead = false;
+		APlayerController* pc = Cast<APlayerController>(GetController());
+		if (pc)
+			EnableInput(pc);
+
+
+	}
+}
+
+void ATheLastBastionHeroCharacter::OnDead(const FVector & dir, const AActor * _damageCauser, FName _boneName)
+{
+	bIsDead = true;
+	OnWeaponEnchantStop();
+
+	bHpRecovering = false;
+	GetWorldTimerManager().ClearTimer(HpRecoverTimer);
+
+
+	Super::OnDead(dir, _damageCauser, _boneName);
+
+	GetWorldTimerManager().ClearTimer(mRagDollTimer);
+	GetWorldTimerManager().SetTimer(mRagDollTimer, this, &ATheLastBastionHeroCharacter::Reborn, 1.0f, false, SecondBeforeKill);
+
 
 }
 
@@ -875,8 +911,8 @@ void ATheLastBastionHeroCharacter::OnWeaponEnchantStop()
 		WeaponEnchantment_PSC->DestroyComponent();
 
 	bHasEnchartedWeapon = false;
+	HeroStats->EnableFaith(bHasEnchartedWeapon);
 }
-
 
 FVector ATheLastBastionHeroCharacter::GetPawnViewLocation() const
 {
@@ -973,6 +1009,58 @@ bool ATheLastBastionHeroCharacter::SkillCheck(int _skillIndex)
 	return success;
 }
 
+void ATheLastBastionHeroCharacter::OnHealSkillCastSuccess()
+{
+	FVector myLocation = GetActorLocation();
+
+	TArray<FHitResult> OutHits;
+	FCollisionObjectQueryParams ObjectParams;
+	ObjectParams.AddObjectTypesToQuery(CollisionObjectType_Ally);
+	ObjectParams.AddObjectTypesToQuery(CollisionObjectType_Hero);
+
+	UWorld* World = GetWorld();
+	bool const bHit = World ? World->SweepMultiByObjectType(OutHits, myLocation, myLocation, FQuat::Identity, ObjectParams, 
+		FCollisionShape::MakeSphere(HeroStats->GetHealRadius())) : false;
+	ATheLastBastionAIBase* aiBase = nullptr;
+
+	USoundCue* healSfx = UAudioManager::GetSFX(ESoundEffectType::EPlayerCastHealing);
+	if (healSfx)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), healSfx, GetActorLocation());
+	}
+
+	for (int i = 0; i < OutHits.Num(); i++)
+	{
+		aiBase = Cast<ATheLastBastionAIBase>(OutHits[i].GetActor());
+		if (aiBase && !aiBase->GetIsDead())
+		{
+			aiBase->ToggleAIHUD(true);
+			aiBase->GetPawnStatsComp()->AddHpByPercent(HeroStats->GetHealAmount());
+			aiBase->UpdateHUD();
+		}
+	}
+
+}
+
+float ATheLastBastionHeroCharacter::PostDamageCalculate(float _damage) const
+{
+
+	if (bHasEnchartedWeapon)
+		_damage *= WeaponCasting_DamageBuff;
+	ESkillBuff currentSkillBuff = mAnimInstanceRef->GetCurrentSkillBuff();
+	switch (currentSkillBuff)
+	{
+	case ESkillBuff::Combo:
+		return _damage * HeroStats->GetCombo_DamageMultiplier();
+	case ESkillBuff::UnStoppable:
+	case ESkillBuff::MultiDamage:
+	case ESkillBuff::GainDp:
+		return _damage * HeroStats->GetPowerHit_DamageMultiplier();
+	default:
+		return _damage;
+	}
+}
+
 bool ATheLastBastionHeroCharacter::IsStuned() const
 {
 	return mAnimInstanceRef->GetCurrentAttackState() == EAttackState::BeingStuned;
@@ -1042,6 +1130,26 @@ bool ATheLastBastionHeroCharacter::IsSkillCooled(int _index) const
 bool ATheLastBastionHeroCharacter::IsIntentedSkillCooled() const
 {
 	return 	mInGameHUD->IsSkilledCooledDown(TryToUseSkill);
+}
+
+void ATheLastBastionHeroCharacter::SetSkillCoolDownTimeByLevelAt(int _skillIndex, int _level)
+{
+	switch (_skillIndex)
+	{
+	case Skill__Combo:
+		SkillSlots[_skillIndex].CoolDownTime = Skill_Combo_CD - _level * Skill_LevelUp_CD_Deduction;
+		break;
+
+	case Skill__PowerHit:
+		SkillSlots[_skillIndex].CoolDownTime = Skill_PowerHit_CD - _level * Skill_LevelUp_CD_Deduction;
+		break;
+
+	case Skill__Heal:
+		SkillSlots[_skillIndex].CoolDownTime = Skill_Heal_CD - _level * Skill_LevelUp_CD_Deduction;
+		break;
+	default:
+		break;
+	}
 }
 
 
@@ -1147,10 +1255,17 @@ void ATheLastBastionHeroCharacter::OnTakePointDamageHandle(AActor * DamagedActor
 
 #pragma endregion
 
-	bool resetHpCovering = true; // are we reset the hp covering timer after this hit
 
-	/// Animation response to Hit
-	FVector RagDollImpulse = HitLocation - DamageCauser->GetTargetLocation();
+	float currentHp = HeroStats->GetHpCurrent();
+
+	if (currentHp <= 0)
+	{		// calculate impulse direction in case this ai is killed
+		FVector RagDollImpulse = HitLocation - DamageCauser->GetActorLocation();
+		OnDead(RagDollImpulse, DamageCauser, BoneName);
+		return;
+	}
+
+	bool resetHpCovering = true; // are we reset the hp covering timer after this hit
 
 	if (isStun)
 	{		

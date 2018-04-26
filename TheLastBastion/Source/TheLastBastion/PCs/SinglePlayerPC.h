@@ -42,6 +42,12 @@ private:
 	UPROPERTY()	
 		struct FPlayerProfile   playerProfile;
 
+protected:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		AActor* playerSpawnPoint;
+
+
 public:
 
 	UFUNCTION()
@@ -83,12 +89,12 @@ public:
 	void OnSelectedCrewAt(int _index);
 
 
-
 	/** Update the stats based on the change of gears*/
 	void OnTradeMenuAccept(class UHeroStatsComponent* _heroStats);
 
 public:
 
+	FORCEINLINE AActor* GetPlayerStart() const { return playerSpawnPoint; }
 	FORCEINLINE class UInGameHUD* GetInGameHUD() const { return mInGameHUD; }
 	FORCEINLINE class UTradeMenu* GetTradeMenu() const { return mTradeMenu; }
 	FORCEINLINE class URecruitMenu* GetRecruitMenu() const { return mRecruitMenu; }

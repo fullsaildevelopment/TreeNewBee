@@ -107,6 +107,7 @@ UHero_AnimInstance::UHero_AnimInstance(const FObjectInitializer& _objectInitaliz
 	Skill_Montage = AM_Skill;
 	SkillBuff = ESkillBuff::None;
 
+
 }
 
 void UHero_AnimInstance::OnBeginPlay()
@@ -1302,10 +1303,9 @@ void UHero_AnimInstance::LaunchSkill(int _skillIndex)
 
 	float attackSpeed = (mCharacter->GetCurrentWeapon()->GetGearType() == EGearType::GreatSword) ? 1.1f : 1.0f;
 
-
-	if (_skillIndex == Skill__PowerHit)
+	switch (_skillIndex)
 	{
-
+	case Skill__PowerHit:
 		switch (CurrentEquipment)
 		{
 		case EEquipType::ShieldSword:
@@ -1323,13 +1323,23 @@ void UHero_AnimInstance::LaunchSkill(int _skillIndex)
 			SkillBuff = ESkillBuff::None;
 			break;
 		}
-	}
-	else if (_skillIndex == Skill__Combo)
-	{
+		break;
+	case Skill__Combo:
 		SkillBuff = ESkillBuff::Combo;
+		break;
+	case Skill__Heal:
+		mCharacter->OnHealSkillCastSuccess();
+		break;
+	case Skill__WeaponCastingFire:
+		break;
+	default:
+		break;
 	}
 
 	//bDuringGainDpAttack = true;
+
+	AttackState = EAttackState::PreWinding;
+	NextAction = EActionType::None;
 
 	this->PlayMontage(Skill_Montage, attackSpeed, sectionToPlay);
 	bVelocityOverrideByAnim = true;
@@ -1341,8 +1351,6 @@ void UHero_AnimInstance::LaunchSkill(int _skillIndex)
 		mCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 	}
 
-	AttackState = EAttackState::PreWinding;
-	NextAction = EActionType::None;
 }
 
 void UHero_AnimInstance::OnRangeAttack()
@@ -1976,6 +1984,11 @@ FVector UHero_AnimInstance::GetFocusDodgeDirection() const
 }
 
 #pragma endregion
+
+void UHero_AnimInstance::OnReborn()
+{
+	RecoverFromBeingHit(false);
+}
 
 void UHero_AnimInstance::OnBeingHit(FName boneName, const FVector & _damageCauseRelative, const FVector & _hitLocation)
 {

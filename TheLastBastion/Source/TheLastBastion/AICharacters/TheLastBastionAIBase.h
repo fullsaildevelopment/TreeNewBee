@@ -288,6 +288,7 @@ public:
 
 	/** Toggle the AI hud to screen*/
 	virtual void ToggleAIHUD(bool _val);
+	void UpdateHUD();
 
 	bool HasFullHealth() const;
 
