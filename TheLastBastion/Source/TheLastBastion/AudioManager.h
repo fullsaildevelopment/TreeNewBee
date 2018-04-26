@@ -38,7 +38,9 @@ enum class ESoundEffectType : uint8
 	EDefaultTheme,
 	ELannisterTheme1,
 	ELannisterTheme2,
-	EWhiteWalkerTheme
+	EWhiteWalkerTheme,
+	EPlayerLevelUp,
+	EPlayerCastHealing
 };
 /**
  * 
@@ -95,6 +97,10 @@ private:
 	static class USoundCue* LannisterTheme1;
 	static class USoundCue* LannisterTheme2;
 	static class USoundCue* WhiteWalkerTheme;
+
+	// Player Ability
+	static class USoundCue* PlayerLevelUp;
+	static class USoundCue* PlayerCastHealing;
 
 public:
 
