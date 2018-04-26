@@ -32,6 +32,11 @@ ASinglePlayerGM::ASinglePlayerGM(const FObjectInitializer & _objectInitilizer) :
 	// Change the tick rate
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickInterval = 2.0f;
+
+	Wood = 500.0f;
+	Food = 500.0f;
+	Metal = 500.0f;
+	Stone = 500.0f;
 }
 
 void ASinglePlayerGM::PostLogin(APlayerController * NewPlayer)
