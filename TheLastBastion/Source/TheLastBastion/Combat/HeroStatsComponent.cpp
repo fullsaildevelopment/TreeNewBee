@@ -15,6 +15,7 @@
 #include "Animation/Hero_AnimInstance.h"
 #include "AICharacters/TheLastBastionEnemyCharacter.h"
 #include "UI/Gameplay/InventoryUI.h"
+#include "AudioManager.h"
 
 
 UHeroStatsComponent::UHeroStatsComponent()
@@ -28,6 +29,17 @@ UHeroStatsComponent::UHeroStatsComponent()
 	HeroSpRecoverRate_Scaler = 1.0f;
 	HeroSpConsumeRate_Scaler = 1.0f;
 	Hero_DpGain_Scaler = 1.0f;
+
+	Hero_DpGain_OnShieldBash = HeroDpGainOn_ShieldBash_Init;
+	Hero_DpGain_OnHVPowerHit = HeroDpGainOn_HVPowerHit_Init;
+
+	Hero_Combo_DamageMultiplier = DamageMultiplier_Combo;
+	Hero_PowerHit_DamageMultiplier_Sns = DamageMultiplier_PowerHit_Sns;
+	Hero_PowerHit_DamageMultiplier_Katana = DamageMultiplier_PowerHit_Katana;
+	Hero_PowerHit_DamageMultiplier_HV = DamageMultiplier_PowerHit_HV;
+	HeroSpRecoverRateDuringFaith_Scaler = StaminaRecoverRateDuringFaith;
+	HealAmount_Skill = Skill_Heal_Amount_Init;
+	HealRadius_Skill = Skill_Heal_Radius_Init;
 
 	SkillsSet.SetNum(SkillNum);
 
@@ -388,6 +400,7 @@ void UHeroStatsComponent::LevelUp()
 
 	// Play Effects once level up
 	USkeletalMeshComponent* PlayerMesh = mCharacter->GetMesh();
+	//USoundCue* levelUpSfx = UAudioManager::GetSFX(ESoundEffectType::)
 	UParticleSystem* LevelUpParticle = UVfxManager::GetVfx(EVfxType::PlayerLevelUp);
 	UGameplayStatics::SpawnEmitterAttached(LevelUpParticle, PlayerMesh);
 }
@@ -402,10 +415,9 @@ void UHeroStatsComponent::UpdateOnWeaponChange(EGearType _gearType)
 		Hero_Dodge_SpCost = HereDodgeSpCost_Init_Sns;
 		Hero_Defence_SpCost = HereDefenceSpCost_Init_Sns;
 
-
-
+		Hero_PowerHit_DamageMultiplier = Hero_PowerHit_DamageMultiplier_Sns;
 		mHeroCharacter->SetSkillSectionNameAt(Skill__Combo, Montage_SN_SkillCombo_LongSword);
-		mHeroCharacter->SetSkillSectionNameAt(Skill__WeaponCastingFire, Montage_SN_SkillCombo_LongSword);
+		//mHeroCharacter->SetSkillSectionNameAt(Skill__WeaponCastingFire, Montage_SN_SkillCombo_LongSword);
 
 		mHeroCharacter->SetSkillSectionNameAt(Skill__PowerHit, Montage_SN_SkillPowerHit_Sns);
 		break;
@@ -416,8 +428,9 @@ void UHeroStatsComponent::UpdateOnWeaponChange(EGearType _gearType)
 		Hero_Dodge_SpCost = HereDodgeSpCost_Init_Sns;
 		Hero_Defence_SpCost = HereDefenceSpCost_Init_Sns;
 
+		Hero_PowerHit_DamageMultiplier = Hero_PowerHit_DamageMultiplier_Sns;
 		mHeroCharacter->SetSkillSectionNameAt(Skill__Combo, Montage_SN_SkillCombo_AxeMace);
-		mHeroCharacter->SetSkillSectionNameAt(Skill__WeaponCastingFire, Montage_SN_SkillCombo_AxeMace);
+		//mHeroCharacter->SetSkillSectionNameAt(Skill__WeaponCastingFire, Montage_SN_SkillCombo_AxeMace);
 
 		mHeroCharacter->SetSkillSectionNameAt(Skill__PowerHit, Montage_SN_SkillPowerHit_Sns);
 		break;
@@ -427,8 +440,9 @@ void UHeroStatsComponent::UpdateOnWeaponChange(EGearType _gearType)
 		Hero_Dodge_SpCost = HereDodgeSpCost_Init_HammerBattleAxe;
 		Hero_Defence_SpCost = HereDefenceSpCost_Init_HammerBattleAxe;
 
+		Hero_PowerHit_DamageMultiplier = Hero_PowerHit_DamageMultiplier_HV;
 		mHeroCharacter->SetSkillSectionNameAt(Skill__Combo, Montage_SN_SkillCombo_Hammer);
-		mHeroCharacter->SetSkillSectionNameAt(Skill__WeaponCastingFire, Montage_SN_SkillCombo_Hammer);
+		//mHeroCharacter->SetSkillSectionNameAt(Skill__WeaponCastingFire, Montage_SN_SkillCombo_Hammer);
 
 		mHeroCharacter->SetSkillSectionNameAt(Skill__PowerHit, Montage_SN_SkillPowerHit_HV);
 		break;
@@ -438,8 +452,9 @@ void UHeroStatsComponent::UpdateOnWeaponChange(EGearType _gearType)
 		Hero_Dodge_SpCost = HereDodgeSpCost_Init_HammerBattleAxe;
 		Hero_Defence_SpCost = HereDefenceSpCost_Init_HammerBattleAxe;
 
+		Hero_PowerHit_DamageMultiplier = Hero_PowerHit_DamageMultiplier_HV;
 		mHeroCharacter->SetSkillSectionNameAt(Skill__Combo, Montage_SN_SkillCombo_BA_GS);
-		mHeroCharacter->SetSkillSectionNameAt(Skill__WeaponCastingFire, Montage_SN_SkillCombo_BA_GS);
+		//mHeroCharacter->SetSkillSectionNameAt(Skill__WeaponCastingFire, Montage_SN_SkillCombo_BA_GS);
 
 		mHeroCharacter->SetSkillSectionNameAt(Skill__PowerHit, Montage_SN_SkillPowerHit_HV);
 		break;
@@ -449,8 +464,9 @@ void UHeroStatsComponent::UpdateOnWeaponChange(EGearType _gearType)
 		Hero_Dodge_SpCost = HereDodgeSpCost_Init_GreatSword;
 		Hero_Defence_SpCost = HereDefenceSpCost_Init_GreatSword;
 
+		Hero_PowerHit_DamageMultiplier = Hero_PowerHit_DamageMultiplier_HV;
 		mHeroCharacter->SetSkillSectionNameAt(Skill__Combo, Montage_SN_SkillCombo_BA_GS);
-		mHeroCharacter->SetSkillSectionNameAt(Skill__WeaponCastingFire, Montage_SN_SkillCombo_BA_GS);
+		//mHeroCharacter->SetSkillSectionNameAt(Skill__WeaponCastingFire, Montage_SN_SkillCombo_BA_GS);
 
 		mHeroCharacter->SetSkillSectionNameAt(Skill__PowerHit, Montage_SN_SkillPowerHit_HV);
 		break;
@@ -460,8 +476,9 @@ void UHeroStatsComponent::UpdateOnWeaponChange(EGearType _gearType)
 		Hero_Dodge_SpCost = HereDodgeSpCost_Init_Katana;
 		Hero_Defence_SpCost = HereDefenceSpCost_Init_Katana;
 
+		Hero_PowerHit_DamageMultiplier = Hero_PowerHit_DamageMultiplier_Katana;
 		mHeroCharacter->SetSkillSectionNameAt(Skill__Combo, Montage_SN_SkillCombo_Katana);
-		mHeroCharacter->SetSkillSectionNameAt(Skill__WeaponCastingFire, Montage_SN_SkillCombo_Katana);
+		//mHeroCharacter->SetSkillSectionNameAt(Skill__WeaponCastingFire, Montage_SN_SkillCombo_Katana);
 
 		mHeroCharacter->SetSkillSectionNameAt(Skill__PowerHit, Montage_SN_SkillPowerHit_Katana);
 		break;

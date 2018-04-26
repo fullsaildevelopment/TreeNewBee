@@ -466,9 +466,31 @@ void UInGameMenu::OnAcceptClicked_Skill()
 	// apply changes on hero fitness
 	heroStats->SetHeroHpRecoverDelayByLevel_Scaler(AllSkillLevel[SurvivalTrainingLevel].Level);
 	heroStats->SetDpGain_Scaler(AllSkillLevel[SurvivalTrainingLevel].Level);
-
-
 	heroStats->SetHeroSpConsumeRateByLevel_Scaler(AllSkillLevel[StaminaTraingingLevel].Level);
+
+	/// apply chanage on combat skill
+
+	// combo - hit them hard, set cool down time, set damage multiplier
+	int level = AllSkillLevel[HitThemHardLevel].Level;
+	heroStats->SetDamageMultiplierByLevel_Combo(level);
+	hero->SetSkillCoolDownTimeByLevelAt(Skill__Combo, level);
+
+	// powerHit - hit them hard, set cool down time, set damage multiplier
+	level = AllSkillLevel[MakeThemSufferLevel].Level;
+	heroStats->SetDamageMultiplierByLevel_PowerHit_Sns(level);
+	heroStats->SetDamageMultiplierByLevel_PowerHit_Katana(level);
+	heroStats->SetDamageMultiplierByLevel_PowerHit_HV(level);
+	hero->SetSkillCoolDownTimeByLevelAt(Skill__PowerHit, level);
+
+	// Heal - heal amount and heal radius and CD
+	level = AllSkillLevel[LeaderLevel].Level;
+	heroStats->SetHealRadiusByLevel(level);
+	heroStats->SetHealAmountByLevel(level);
+	hero->SetSkillCoolDownTimeByLevelAt(Skill__Heal, level);
+
+	// faith - reduce the stamina recover punishment
+	level = AllSkillLevel[FaithLevel].Level;
+	heroStats->SetSpRecoverRateDuringFaith(level);
 
 }
 

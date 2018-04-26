@@ -19,15 +19,15 @@ enum class EEquipType : uint8;
 #define HeroDpGainOn_ShieldBash_Init 10.0f	  // percentage
 #define HeroDpGainOn_HVPowerHit_Init 5.0f	  // percentage
 
-#define HeroMeleeAttackSpCost_Init_Hammer_BattleAxe -30.0f;
-#define HeroMeleeAttackSpCost_Init_GreatSword -25.0f;
-#define HeroMeleeAttackSpCost_Init_Katana -10.0f;
-#define HeroMeleeAttackSpCost_Init_SnAxeMace -15.0f;
-#define HeroMeleeAttackSpCost_Init_SnSword -13.0f;
+#define HeroMeleeAttackSpCost_Init_Hammer_BattleAxe -30.0f
+#define HeroMeleeAttackSpCost_Init_GreatSword -25.0f
+#define HeroMeleeAttackSpCost_Init_Katana -10.0f
+#define HeroMeleeAttackSpCost_Init_SnAxeMace -15.0f
+#define HeroMeleeAttackSpCost_Init_SnSword -13.0f
 
-#define HeroCounterAttackSpCost_Init_Hammer -90.0f;
-#define HeroCounterAttackSpCost_Init_BattleAxe_GreatSword  -55.0f;
-#define HeroCounterAttackSpCost_Init_Katana_Sns -20.0f;
+#define HeroCounterAttackSpCost_Init_Hammer -90.0f
+#define HeroCounterAttackSpCost_Init_BattleAxe_GreatSword  -55.0f
+#define HeroCounterAttackSpCost_Init_Katana_Sns -20.0f
 
 #define HereDodgeSpCost_Init_HammerBattleAxe -50.0f 
 #define HereDodgeSpCost_Init_GreatSword -35.0f
@@ -37,6 +37,7 @@ enum class EEquipType : uint8;
 #define SpConsumeRateDeductionOnEachLevel 0.05f
 #define HpRegenDelayDeductionOnEachLevel 0.1f
 #define DpGainIncrementOnEachLevel 0.1f
+#define DpGain_Increment_OnEachLevel 1.0f
 
 #define HereDefenceSpCost_Init_HammerBattleAxe -0.8f 
 #define HereDefenceSpCost_Init_GreatSword      -0.6f 
@@ -65,7 +66,20 @@ enum class EEquipType : uint8;
 #define SpCost_Combo_Sns     -25
 
 
+#define DamageMultiplier_Combo 1.5f
+#define DamageMultiplier_PowerHit_Sns 1
+#define DamageMultiplier_PowerHit_Katana 3
+#define DamageMultiplier_PowerHit_HV 2
 
+#define DamageMultiplier_increment_onEachLevel_Combo 0.1f
+
+#define  Skill_Heal_Radius_Init 500
+#define  Skill_Heal_Radius_Increment_OnLevelUp 50
+#define  Skill_Heal_Amount_Init 20 // percentage
+#define  Skill_Heal_Amount_Increment_OnLevelUp 4
+
+#define StaminaRecoverRateDuringFaith 0.5f
+#define StaminaRecoverRateDuringFaith_Increment_OnLevelUp 0.05f;
 
 
 UCLASS()
@@ -107,12 +121,42 @@ protected:
 		float HeroSpRecoverRate_Scaler;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
+		/** Scaler the percentage of hero sp recoverd at each frame with enchanted weapon*/
+		float HeroSpRecoverRateDuringFaith_Scaler;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
 		/** Scaler the percentage of hero sp consumed by action(melee, skill, dodge, defence) at each frame*/
 		float HeroSpConsumeRate_Scaler;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
 		/** Scaler the percentage of hero dp gain by counter attack*/
 		float Hero_DpGain_Scaler;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
+		/** Scaler the percentage of hero dp gain by ShieldBash*/
+		float Hero_DpGain_OnShieldBash;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
+		/** Scaler the percentage of hero dp gain by HV power hit*/
+		float Hero_DpGain_OnHVPowerHit;
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
+		float Hero_Combo_DamageMultiplier;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
+		float Hero_PowerHit_DamageMultiplier;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
+		float Hero_PowerHit_DamageMultiplier_Sns;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
+		float Hero_PowerHit_DamageMultiplier_Katana;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
+		float Hero_PowerHit_DamageMultiplier_HV;
+
+
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
 		/** current hero sp consumed by melee attack*/
@@ -129,6 +173,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
 		/** current hero sp consumed by defence mode*/
 		float Hero_Defence_SpCost;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
+		float HealAmount_Skill;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
+		float HealRadius_Skill;
 
 private:
 
@@ -185,9 +235,9 @@ public:
 	/** Get Dp Gain By percentage on successful counter attack*/
 	FORCEINLINE float GetDpGainPercentage_CounterAttack() const { return HeroDpGainOn_CounterAttack_Init * Hero_DpGain_Scaler * 0.01f; }
 	/** Get Dp Gain By percentage on successful Shield bash*/
-	FORCEINLINE float GetDpGainPercentage_ShieldBash() const { return HeroDpGainOn_ShieldBash_Init * Hero_DpGain_Scaler * 0.01f; }
+	FORCEINLINE float GetDpGainPercentage_ShieldBash() const { return Hero_DpGain_OnShieldBash * Hero_DpGain_Scaler * 0.01f; }
 	/** Get Dp Gain By percentage on successful HV powerHit*/
-	FORCEINLINE float GetDpGainPercentage_HVPowerHit() const { return HeroDpGainOn_HVPowerHit_Init * Hero_DpGain_Scaler * 0.01f; }
+	FORCEINLINE float GetDpGainPercentage_HVPowerHit() const { return Hero_DpGain_OnHVPowerHit * Hero_DpGain_Scaler * 0.01f; }
 
 
 
@@ -196,18 +246,33 @@ public:
 	FORCEINLINE float GetHeroSpConsumeRate_Scaler() const { return HeroSpConsumeRate_Scaler; }
 	FORCEINLINE float GetHeroHpRecoverDelay_Scaler() const { return HeroHpRecoverDelay_Scaler; }
 	FORCEINLINE float GetDpGain_Scaler() const { return Hero_DpGain_Scaler; }
-
+	FORCEINLINE float GetDpGain_OnShieldBash() const { return Hero_DpGain_OnShieldBash; }
+	FORCEINLINE float GetDpGain_OnHVPowerHit() const { return Hero_DpGain_OnHVPowerHit; }
+	FORCEINLINE float GetPowerHit_DamageMultiplier() const { return Hero_PowerHit_DamageMultiplier; }
+	FORCEINLINE float GetCombo_DamageMultiplier() const { return Hero_Combo_DamageMultiplier; }
+	FORCEINLINE float GetHealRadius() const { return HealRadius_Skill; }
+	FORCEINLINE float GetHealAmount() const { return HealAmount_Skill * 0.01f; }
+	
 
 	FORCEINLINE void SetHeroSpConsumeRateByLevel_Scaler(int _level) { HeroSpConsumeRate_Scaler = 1 - SpConsumeRateDeductionOnEachLevel * _level; }
 	FORCEINLINE void SetHeroHpRecoverDelayByLevel_Scaler(int _level) { HeroHpRecoverDelay_Scaler = 1 - HpRegenDelayDeductionOnEachLevel * _level; }
 	FORCEINLINE void SetDpGain_Scaler(int _level) {  Hero_DpGain_Scaler = 1 + DpGainIncrementOnEachLevel * _level ; }
+	FORCEINLINE void SetDpGainByLevel_OnShieldBash(int _level) { Hero_DpGain_OnShieldBash = HeroDpGainOn_ShieldBash_Init + DpGain_Increment_OnEachLevel * _level; }
+	FORCEINLINE void SetDpGainByLevel_OnHVPowerHit(int _level) { Hero_DpGain_OnHVPowerHit = HeroDpGainOn_HVPowerHit_Init + DpGain_Increment_OnEachLevel * _level; }
+	FORCEINLINE void SetDamageMultiplierByLevel_Combo(int _level) { Hero_Combo_DamageMultiplier = DamageMultiplier_Combo + DamageMultiplier_increment_onEachLevel_Combo * _level; }
+	FORCEINLINE void SetDamageMultiplierByLevel_PowerHit_Sns(int _level) { Hero_Combo_DamageMultiplier = DamageMultiplier_PowerHit_Sns + DamageMultiplier_increment_onEachLevel_Combo * _level; }
+	FORCEINLINE void SetDamageMultiplierByLevel_PowerHit_Katana(int _level) { Hero_Combo_DamageMultiplier = DamageMultiplier_PowerHit_Katana + DamageMultiplier_increment_onEachLevel_Combo * _level; }
+	FORCEINLINE void SetDamageMultiplierByLevel_PowerHit_HV(int _level) { Hero_Combo_DamageMultiplier = DamageMultiplier_PowerHit_HV + DamageMultiplier_increment_onEachLevel_Combo * _level; }
+	FORCEINLINE void SetHealRadiusByLevel(int _level) { HealRadius_Skill = Skill_Heal_Radius_Init + _level * Skill_Heal_Radius_Increment_OnLevelUp; }
+	FORCEINLINE void SetHealAmountByLevel(int _level) { HealAmount_Skill = Skill_Heal_Amount_Init + _level * Skill_Heal_Amount_Increment_OnLevelUp; }
+	FORCEINLINE void SetSpRecoverRateDuringFaith(int _level) { HeroSpRecoverRateDuringFaith_Scaler = StaminaRecoverRateDuringFaith + _level * StaminaRecoverRateDuringFaith_Increment_OnLevelUp; }
 
-	
 	FORCEINLINE int GetSkillPoints() const { return SkillPoints; }
 	FORCEINLINE void SetSkillPoints(int _val) { SkillPoints = _val; }
 	FORCEINLINE int GetSkillLevelAt(int _index) { return SkillsSet[_index]; }
 	FORCEINLINE void SetSkillLevelAt(int _index, int _val) {SkillsSet[_index] = _val; }
 
+	FORCEINLINE void EnableFaith(bool _val) { HeroSpRecoverRate_Scaler = (_val) ? HeroSpRecoverRateDuringFaith_Scaler : 1; }
 	/** Called on Switch Weapon, 
 	* update Sp Cost
 	* update Skill animation section name*/

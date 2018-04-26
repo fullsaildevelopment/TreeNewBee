@@ -102,6 +102,11 @@ void ATheLastBastionAIBase::ToggleAIHUD(bool _val)
 {
 }
 
+void ATheLastBastionAIBase::UpdateHUD()
+{
+	AI_HUD->UpdateHealthBar(AIStats);
+}
+
 bool ATheLastBastionAIBase::HasFullHealth() const
 {
 	return AIStats->GetHpCurrent() == AIStats->GetHpMax();
@@ -342,12 +347,13 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 	// the relative position of damage causer to damaged actor
 	FVector damageCauserRelative = ShotFromDirection;
 
+	ATheLastBastionHeroCharacter* heroAttacker = Cast<ATheLastBastionHeroCharacter>(DamageCauser);
+
 	float totalDamage = AIStats->CalculateDamage(Damage, DamageCauser, isCritical, isStun);
 	float currentHp = AIStats->GetHpCurrent();
 
 	AI_HUD->UpdateHealthBar(AIStats);
 
-	ATheLastBastionHeroCharacter* heroAttacker = Cast<ATheLastBastionHeroCharacter>(DamageCauser);
 	if (heroAttacker)
 	{
 		OnTakeDamageFromHero(HitLocation, heroAttacker, totalDamage, isCritical, isStun);

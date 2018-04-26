@@ -210,6 +210,8 @@ public:
 	// Called on actor destroyed
 	virtual void Kill();
 
+	/** Calculate the damage based on the character extra buff*/
+	virtual float PostDamageCalculate(float _damage) const { return _damage; }
 
 public:
 
