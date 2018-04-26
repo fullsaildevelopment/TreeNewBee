@@ -16,6 +16,7 @@
 #include "AICharacters/TheLastBastionEnemyCharacter.h"
 #include "UI/Gameplay/InventoryUI.h"
 #include "AudioManager.h"
+#include "Sound/SoundCue.h"
 
 
 UHeroStatsComponent::UHeroStatsComponent()
@@ -400,9 +401,14 @@ void UHeroStatsComponent::LevelUp()
 
 	// Play Effects once level up
 	USkeletalMeshComponent* PlayerMesh = mCharacter->GetMesh();
-	//USoundCue* levelUpSfx = UAudioManager::GetSFX(ESoundEffectType::)
+	USoundCue* levelUpSfx = UAudioManager::GetSFX(ESoundEffectType::EPlayerLevelUp);
 	UParticleSystem* LevelUpParticle = UVfxManager::GetVfx(EVfxType::PlayerLevelUp);
-	UGameplayStatics::SpawnEmitterAttached(LevelUpParticle, PlayerMesh);
+
+	if (levelUpSfx && LevelUpParticle)
+	{
+		UGameplayStatics::SpawnEmitterAttached(LevelUpParticle, PlayerMesh);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), levelUpSfx, mHeroCharacter->GetActorLocation());
+	}
 }
 
 void UHeroStatsComponent::UpdateOnWeaponChange(EGearType _gearType)

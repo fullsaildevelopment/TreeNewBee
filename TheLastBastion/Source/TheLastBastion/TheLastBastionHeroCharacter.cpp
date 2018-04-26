@@ -970,6 +970,12 @@ void ATheLastBastionHeroCharacter::OnHealSkillCastSuccess()
 		FCollisionShape::MakeSphere(HeroStats->GetHealRadius())) : false;
 	ATheLastBastionAIBase* aiBase = nullptr;
 
+	USoundCue* healSfx = UAudioManager::GetSFX(ESoundEffectType::EPlayerCastHealing);
+	if (healSfx)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), healSfx, GetActorLocation());
+	}
+
 	for (int i = 0; i < OutHits.Num(); i++)
 	{
 		aiBase = Cast<ATheLastBastionAIBase>(OutHits[i].GetActor());
