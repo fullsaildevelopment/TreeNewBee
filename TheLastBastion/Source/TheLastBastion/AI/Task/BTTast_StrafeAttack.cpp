@@ -96,8 +96,8 @@ EBTNodeResult::Type UBTTast_StrafeAttack::ExecuteTask(UBehaviorTreeComponent & O
 			}
 
 
-			NodeResult = EBTNodeResult::InProgress;
-			animRef->OnFinishAttackDelegate.BindUObject(this, &UBTTast_StrafeAttack::OnFinishAttackHandle);
+			NodeResult = EBTNodeResult::Failed;
+			//animRef->OnFinishAttackDelegate.BindUObject(this, &UBTTast_StrafeAttack::OnFinishAttackHandle);
 
 
 
@@ -107,6 +107,7 @@ EBTNodeResult::Type UBTTast_StrafeAttack::ExecuteTask(UBehaviorTreeComponent & O
 			//else
 			//	attackType = (FMath::RandBool()) ? EAIMeleeAttackType::Move : (EAIMeleeAttackType::Move_InPlace);
 
+			baseAICtrl->SetIsPaused_BBC(true);
 			animRef->Attack(me->MeleeComboSelection(distanceSqr), me->GetComboCounter());
 			//baseAICtrl->SetIsRelocate(false);
 			return NodeResult;

@@ -176,7 +176,7 @@ public:
 	FOnBecomeUnavailbleTargetEvent OnBecomeUnvailbleTargetEvent;
 
 
-private:
+protected:
 
 	void ClampCapsuleToMesh();
 

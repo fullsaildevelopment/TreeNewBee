@@ -26,9 +26,12 @@ void UBTService_SharedService::TickNode(UBehaviorTreeComponent & _ownerComp, uin
 	case EAISharedServiceType::SyncMeleeAttackRotationRateAndVelocity:
 		SyncMeleeAttackRotationRateAndVelocity(_ownerComp);
 		break;
-
+	//case EAISharedServiceType::UpdateSquDistanceToTargetDuringMeleeAttack:
+	//	SyncMeleeAttackRotationRateAndVelocity(_ownerComp);
+	//	break;
 	}
 }
+
 
 void UBTService_SharedService::UpdateSqrDistanceToTarget(UBehaviorTreeComponent & _ownerComp)
 {
@@ -57,12 +60,49 @@ void UBTService_SharedService::UpdateSqrDistanceToTarget(UBehaviorTreeComponent 
 		return;
 	}
 
-
 	float distanceToTargetSqr = (me->GetActorLocation() - targetActor->GetActorLocation()).SizeSquared();
 
 
 	bbc->SetValue<UBlackboardKeyType_Float>(enemyC->GetKeyID_ToTargetActorDistanceSqr(), distanceToTargetSqr);
 }
+
+
+
+
+//void UBTService_SharedService::UpdateSqrDistanceToTargetDuringMelee(UBehaviorTreeComponent & _ownerComp)
+//{
+//	UBlackboardComponent* const bbc = _ownerComp.GetBlackboardComponent();
+//
+//	ATheLastBastionBaseAIController* const enemyC = Cast<ATheLastBastionBaseAIController>(_ownerComp.GetAIOwner());
+//
+//	if (enemyC == nullptr)
+//	{
+//		//UE_LOG(LogTemp, Warning, TEXT("UpdateSqrDistanceToTarget get controller failed"));
+//		return;
+//	}
+//
+//	const AActor* const targetActor = Cast<AActor>(bbc->GetValue<UBlackboardKeyType_Object>(enemyC->GetKeyID_TargetActor()));
+//	if (targetActor == nullptr)
+//	{
+//		//UE_LOG(LogTemp, Warning, TEXT("UpdateSqrDistanceToTarget get target actor failed"));
+//		return;
+//	}
+//
+//	const APawn* const me = enemyC->GetPawn();
+//
+//	if (me == nullptr)
+//	{
+//		//UE_LOG(LogTemp, Error, TEXT("enemyC->GetPawn() is NULL - UBTService_SharedService::UpdateSqrDistanceToTarget"));
+//		return;
+//	}
+//
+//
+//	float distanceToTargetSqr = (me->GetActorLocation() - targetActor->GetActorLocation()).SizeSquared();
+//
+//
+//	bbc->SetValue<UBlackboardKeyType_Float>(enemyC->GetKeyID_ToTargetActorDistanceSqr(), distanceToTargetSqr);
+//}
+
 
 
 /** Sync the melee attack velocity based on animation frame, 

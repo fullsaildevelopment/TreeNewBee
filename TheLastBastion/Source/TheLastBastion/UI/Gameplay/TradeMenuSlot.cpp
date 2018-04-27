@@ -175,7 +175,7 @@ void UTradeMenuSlot::NativeOnMouseEnter(const FGeometry & InGeometry, const FPoi
 		USlateBlueprintLibrary::AbsoluteToViewport(GetWorld(), 
 			MouseLocation, pixelPosition, viewPortPosition);
 
-		PopUpWidget->SetAlignmentInViewport(FVector2D(1.0f, 0.0));
+		PopUpWidget->SetAlignmentInViewport(FVector2D(1.0f, 0.0f));
 		PopUpWidget->SetPositionInViewport(viewPortPosition);
 
 		UTradeMenu_PopUp* PopUp = Cast<UTradeMenu_PopUp>(PopUpWidget);

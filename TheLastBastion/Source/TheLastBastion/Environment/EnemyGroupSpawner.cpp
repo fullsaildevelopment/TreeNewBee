@@ -6,7 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameMode/SinglePlayerGM.h"
 #include "Sound/SoundCue.h"
-#include "TheLastBastionCharacter.h"
+#include "TheLastBastionHeroCharacter.h"
 #include "AudioManager.h"
 #include "Components/AudioComponent.h"
 #include "TimerManager.h"
@@ -29,7 +29,7 @@ AEnemyGroupSpawner::AEnemyGroupSpawner()
 
 	// initialize default spawning state
 	bEnableSpawning = false;
-	bIsCurrentWaveFinished = true;
+	bIsCurrentWaveFinishSpawning = true;
 	CurrentWaveIndex = 0;
 }
 
@@ -40,20 +40,24 @@ void AEnemyGroupSpawner::BeginPlay()
 	
 	//EditWaves();
 
-	Hero = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	Hero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if (Hero == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Hero is null - AEnemyGroupSpawner::BeginPlay"));
+		return;
 
+	}
 	//GetWorldTimerManager().SetTimer(SpawnTimer, this, 
 	//	&AEnemyGroupSpawner::Spawn, SpawnFrequency, true, FirstSpawnDelay);
 
 	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (gm == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("gm is null - ABarracks::BeginPlay"));
+		UE_LOG(LogTemp, Error, TEXT("gm is null - AEnemyGroupSpawner::BeginPlay"));
 		return;
 	}
 
-
-	bIsCurrentWaveFinished = true;
+	bIsCurrentWaveFinishSpawning = true;
 	gm->RegisterEnemySpawner(this);
 
 	//
@@ -88,6 +92,11 @@ void AEnemyGroupSpawner::Tick(float DeltaTime)
 FTransform AEnemyGroupSpawner::GetNextWayPointFrom(int _pathIndex, int _nextWaypoint) const
 {
 	return Paths[_pathIndex].WayPoints[_nextWaypoint];
+}
+
+bool AEnemyGroupSpawner::IsDuringWait() const
+{
+	return (Hero)? Hero->GetCanStartNextWave() : true;
 }
 
 void AEnemyGroupSpawner::InitWaveSpawner()
@@ -130,7 +139,7 @@ void AEnemyGroupSpawner::OnSpawnFinished()
 	// if the current wave is finished spawning
 	if (CurrentWaveUnitIndex >= MaxWaveUnitAmount)
 	{
-		bIsCurrentWaveFinished = true;
+		bIsCurrentWaveFinishSpawning = true;
 		CurrentWaveIndex++;
 		return;
 	}
@@ -257,7 +266,7 @@ void AEnemyGroupSpawner::EnableSpawning()
 	if (pc)
 		pc->GetInGameHUD()->SetStartWaveNotificationVisibility(false);
 
-	bIsCurrentWaveFinished = false;
+	bIsCurrentWaveFinishSpawning = false;
 
 	InitCurrentWave();
 

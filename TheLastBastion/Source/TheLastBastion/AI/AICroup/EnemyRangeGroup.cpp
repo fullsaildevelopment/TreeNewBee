@@ -64,16 +64,16 @@ void AEnemyRangeGroup::OnRangeVisionOverrlapEnd(UPrimitiveComponent* OverlappedC
 	}
 }
 
-void AEnemyRangeGroup::SetGroupVisionVolumn(float _maxGroupWidth, float _maxGroupLength)
-{
-
-	MeleeVision->SetBoxExtent(FVector(_maxGroupLength, _maxGroupWidth, GroupVolumnZ), true);
-
-	_maxGroupWidth += EnemyRangeUnitShootingRange;
-	_maxGroupLength += EnemyRangeUnitShootingRange;
-
-	RangeVision->SetBoxExtent(FVector(_maxGroupLength, _maxGroupWidth, GroupVolumnZ), true);
-}
+//void AEnemyRangeGroup::SetGroupVisionVolumn(float _maxGroupWidth, float _maxGroupLength)
+//{
+//
+//	MeleeVision->SetBoxExtent(FVector(_maxGroupLength, _maxGroupWidth, GroupVolumnZ), true);
+//
+//	_maxGroupWidth += EnemyRangeUnitShootingRange;
+//	_maxGroupLength += EnemyRangeUnitShootingRange;
+//
+//	RangeVision->SetBoxExtent(FVector(_maxGroupLength, _maxGroupWidth, GroupVolumnZ), true);
+//}
 
 void AEnemyRangeGroup::SetRangeGroupTarget_OnOverLap(ATheLastBastionCharacter * _target)
 {

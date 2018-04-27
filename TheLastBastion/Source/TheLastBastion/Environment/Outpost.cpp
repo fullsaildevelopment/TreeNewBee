@@ -81,7 +81,7 @@ void AOutpost::UpdateByTimer()
 		return;
 	}
 
-	if (bDisabled || gm->GetEnemyGroupSpawner()->IsCurrentWaveFinished())
+	if (bDisabled || gm->GetEnemyGroupSpawner()->IsDuringWait())
 		return;
 
 	for (int iGroup = 0; iGroup < EnemiesGroup.Num(); iGroup++)

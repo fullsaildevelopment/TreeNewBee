@@ -9,11 +9,18 @@
 /**
  * 
  */
+#define PowerFire_Range 1000.0f
+
+#define Bullet_Spread_Range 80.0f
+
 UCLASS()
 class THELASTBASTION_API ARangeWeapon : public AGear
 {
 	GENERATED_BODY()
-	
+public:
+	// Sets default values for this actor's properties
+	ARangeWeapon();
+
 protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -26,8 +33,16 @@ protected:
 	float ShootingRange;
 
 	UPROPERTY(EditDefaultsOnly, Category = "RangeWeapon")
-		//* horizontal velocity //
+	//* horizontal velocity //
 	float BulletSpeed;
+
+	UPROPERTY(EditDefaultsOnly, Category = "RangeWeapon")
+	//* PowerShoot bullet amount //
+	int BulletSpreadAmount;
+
+	UPROPERTY(EditAnywhere, Category = "RangeWeapon")
+		//* the less, the accurate for combo shot //
+		float ComboShootVibrate;
 
 	UPROPERTY(EditDefaultsOnly, Category = "RangeWeapon")
 	float DivByBulletSpeed;
@@ -46,14 +61,16 @@ protected:
 	float MaxHorizontalAimOffset;
 
 public:
-	// Sets default values for this actor's properties
-	ARangeWeapon();
 
 	class USceneComponent* GetMesh() const override;
 
 	// 
 	UFUNCTION(BlueprintCallable)
 	virtual void Fire();
+
+	void PowerFire();
+
+	void ComboFire();
 
 	UFUNCTION(BlueprintCallable)
 	virtual void NPCFire(const AActor* _target);

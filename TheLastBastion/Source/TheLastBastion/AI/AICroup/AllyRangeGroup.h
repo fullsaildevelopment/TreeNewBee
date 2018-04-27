@@ -35,9 +35,10 @@ protected:
 
 	//void UpdateTargetsOnOverlapEnd(AActor* CurrentTargetActor);
 
-	void SetGroupVisionVolumn(float _maxGroupWidth, float _maxGroupLength) override;
 
-	//AActor* OnTargetRequest(const ATheLastBastionCharacter* _requestSender) override;
+	FORCEINLINE void SetGroupVisionVolumn() override { SetGroupVisionBox(true); }
+
+	//void SetGroupVisionVolumn(float _maxGroupWidth, float _maxGroupLength) override;
 
 	/** Put the overlap target in to primary target list, if there is a room*/
 	void SetRangeGroupTarget_OnOverLap(class ATheLastBastionCharacter* _target);
@@ -48,5 +49,10 @@ protected:
 	/** Evaluate the threat map, update the primary target list
 	and assign target to group member*/
 	void SetRangeGroupTarget_OnRequest();
+
+public:
+
+	FORCEINLINE virtual float GetRangeUnitShootingRange() { return AllyRangeUnitShootingRange; }
+
 
 };

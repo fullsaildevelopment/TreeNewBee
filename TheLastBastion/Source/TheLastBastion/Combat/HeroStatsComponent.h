@@ -71,15 +71,26 @@ enum class EEquipType : uint8;
 #define DamageMultiplier_PowerHit_Katana 3
 #define DamageMultiplier_PowerHit_HV 2
 
+#define DamageMultiplier_ComboShoot 0.6f
+#define DamageMultiplier_ComboShoot_Increment_onEachLevel 0.03f
+
+#define PowerShot_ExtraProjectile_Amount_Init 1
+#define PowerShot_AddProjectile_Amount 1
+#define PowerShot_BulletsSpreadDistance 1000
+#define PowerShot_BulletsSpreadImprove_onEachLevel 200
+
+
 #define DamageMultiplier_increment_onEachLevel_Combo 0.1f
+#define DamageMultiplier_increment_onEachLevel_Katana 0.25f
 
 #define  Skill_Heal_Radius_Init 500
-#define  Skill_Heal_Radius_Increment_OnLevelUp 50
-#define  Skill_Heal_Amount_Init 20 // percentage
-#define  Skill_Heal_Amount_Increment_OnLevelUp 4
+#define  Skill_Heal_Radius_Increment_OnLevelUp 100
+#define  Skill_Heal_Amount_Init 35 // percentage
+#define  Skill_Heal_Amount_Increment_OnLevelUp 5
 
 #define StaminaRecoverRateDuringFaith 0.5f
-#define StaminaRecoverRateDuringFaith_Increment_OnLevelUp 0.05f;
+#define StaminaRecoverRateDuringFaith_Increment_OnLevelUp 0.05f
+
 
 
 UCLASS()
@@ -180,6 +191,16 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
 		float HealRadius_Skill;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
+		float ComboShootDamage_Scaler;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
+		int PowerProjectileExtraAmount;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterStats)
+		int PowerShotBulletSpreadDistance;
+
+
 private:
 
 	UPROPERTY()
@@ -252,7 +273,10 @@ public:
 	FORCEINLINE float GetCombo_DamageMultiplier() const { return Hero_Combo_DamageMultiplier; }
 	FORCEINLINE float GetHealRadius() const { return HealRadius_Skill; }
 	FORCEINLINE float GetHealAmount() const { return HealAmount_Skill * 0.01f; }
-	
+	FORCEINLINE int GetExtraProjectileAmount() const { return PowerProjectileExtraAmount; }
+	FORCEINLINE int GetComboShootDamage_Scaler() const { return ComboShootDamage_Scaler; }
+	FORCEINLINE int GetPowerShotBulletSpreadDistance() const {return PowerShotBulletSpreadDistance;}
+
 
 	FORCEINLINE void SetHeroSpConsumeRateByLevel_Scaler(int _level) { HeroSpConsumeRate_Scaler = 1 - SpConsumeRateDeductionOnEachLevel * _level; }
 	FORCEINLINE void SetHeroHpRecoverDelayByLevel_Scaler(int _level) { HeroHpRecoverDelay_Scaler = 1 - HpRegenDelayDeductionOnEachLevel * _level; }
@@ -260,12 +284,17 @@ public:
 	FORCEINLINE void SetDpGainByLevel_OnShieldBash(int _level) { Hero_DpGain_OnShieldBash = HeroDpGainOn_ShieldBash_Init + DpGain_Increment_OnEachLevel * _level; }
 	FORCEINLINE void SetDpGainByLevel_OnHVPowerHit(int _level) { Hero_DpGain_OnHVPowerHit = HeroDpGainOn_HVPowerHit_Init + DpGain_Increment_OnEachLevel * _level; }
 	FORCEINLINE void SetDamageMultiplierByLevel_Combo(int _level) { Hero_Combo_DamageMultiplier = DamageMultiplier_Combo + DamageMultiplier_increment_onEachLevel_Combo * _level; }
+
 	FORCEINLINE void SetDamageMultiplierByLevel_PowerHit_Sns(int _level) { Hero_Combo_DamageMultiplier = DamageMultiplier_PowerHit_Sns + DamageMultiplier_increment_onEachLevel_Combo * _level; }
-	FORCEINLINE void SetDamageMultiplierByLevel_PowerHit_Katana(int _level) { Hero_Combo_DamageMultiplier = DamageMultiplier_PowerHit_Katana + DamageMultiplier_increment_onEachLevel_Combo * _level; }
+	FORCEINLINE void SetDamageMultiplierByLevel_PowerHit_Katana(int _level) { Hero_Combo_DamageMultiplier = DamageMultiplier_PowerHit_Katana + DamageMultiplier_increment_onEachLevel_Katana * _level; }
 	FORCEINLINE void SetDamageMultiplierByLevel_PowerHit_HV(int _level) { Hero_Combo_DamageMultiplier = DamageMultiplier_PowerHit_HV + DamageMultiplier_increment_onEachLevel_Combo * _level; }
 	FORCEINLINE void SetHealRadiusByLevel(int _level) { HealRadius_Skill = Skill_Heal_Radius_Init + _level * Skill_Heal_Radius_Increment_OnLevelUp; }
 	FORCEINLINE void SetHealAmountByLevel(int _level) { HealAmount_Skill = Skill_Heal_Amount_Init + _level * Skill_Heal_Amount_Increment_OnLevelUp; }
 	FORCEINLINE void SetSpRecoverRateDuringFaith(int _level) { HeroSpRecoverRateDuringFaith_Scaler = StaminaRecoverRateDuringFaith + _level * StaminaRecoverRateDuringFaith_Increment_OnLevelUp; }
+	FORCEINLINE void SetExtraProjectileAmountByLevel(int _level) { PowerProjectileExtraAmount = 0.5f * (PowerShot_ExtraProjectile_Amount_Init + _level * PowerShot_AddProjectile_Amount); }
+	FORCEINLINE void SetComboShootDamageScalerByLevel(int _level) {ComboShootDamage_Scaler = DamageMultiplier_ComboShoot + _level * DamageMultiplier_ComboShoot_Increment_onEachLevel;}
+	FORCEINLINE void SetPowerShotBulletSpreadDistanceByLevel(int _level) { PowerShotBulletSpreadDistance = PowerShot_BulletsSpreadDistance + _level * PowerShot_BulletsSpreadImprove_onEachLevel; }
+
 
 	FORCEINLINE int GetSkillPoints() const { return SkillPoints; }
 	FORCEINLINE void SetSkillPoints(int _val) { SkillPoints = _val; }

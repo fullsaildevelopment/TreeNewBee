@@ -22,12 +22,12 @@
 
 //#define  Skill__BattleCommand 5    
 
-#define Skill_Combo_CD       12.0f
-#define Skill_PowerHit_CD	 12.0f
+#define Skill_Combo_CD       7.0f//12.0f
+#define Skill_PowerHit_CD	 7.0f//12.0f
 #define Skill_Heal_CD               18.0f
-#define Skill_WeaponCastingFire_CD  1.0f
-#define WeaponCasting_DamageBuff 1.5f
-#define Skill_LevelUp_CD_Deduction 1.0f;
+#define Skill_WeaponCastingFire_CD  5.0f
+#define WeaponCasting_DamageBuff    1.5f
+#define Skill_LevelUp_CD_Deduction  1.0f
 
 
 
@@ -370,9 +370,15 @@ public:
 	virtual bool OnCounterAttack(const struct FDamageInfo* const _damageInfo,
 		const class UPawnStatsComponent* const _damageCauserPawnStats);
 
+	void PowerShot();
+
+
 	bool IsDoingGainDpAttack() const;
 	bool ShouldPlayHitAnimation() const;
 	bool IsUnStopableAttack() const override;
+
+	int GetExtraPowerShootBullet() const;
+	int GetPowerShotDistance() const;
 
 	FORCEINLINE class USphereComponent* GetTargetDetector() const { return TargetDetector; }
 	/** Returns CameraBoom subobject **/
@@ -433,4 +439,6 @@ public:
 
 	/** Play partical based on skill index, called after stanima check*/
 	void OnPlaySkillParticle(int _skillIndex);
+
+	
 };

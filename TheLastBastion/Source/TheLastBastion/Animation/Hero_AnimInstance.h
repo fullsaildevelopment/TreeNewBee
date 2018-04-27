@@ -15,6 +15,8 @@
 #define Montage_SN_SkillPowerHit_Sns     TEXT("PH_Sns")
 #define Montage_SN_SkillPowerHit_Katana  TEXT("PH_Katana")
 #define Montage_SN_SkillPowerHit_HV      TEXT("PH_HV")
+#define Montage_SN_SkillPowerFire        TEXT("PowerShoot")
+#define Montage_SN_SkillBurstFire        TEXT("Burst")
 
 
 /**
@@ -289,6 +291,11 @@ protected:
 		* reset itself while the range weapon is switch off */
 		bool bTryToZoomIn;
 
+	UPROPERTY(BlueprintReadOnly, Category = Fire)
+		/** Only set while player try to zoom in when holding range weapon,
+		* reset itself while the range weapon is switch off */
+		bool bIsShooting;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Fire)
 		/** FOV blend rate zoom in and zoom out*/
 		float CameraZoomInRate;
@@ -321,6 +328,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 		void FxMeleeSwing(bool _rightHand = true) override;
+
+	UFUNCTION(BlueprintCallable)
+		void OnAutoFire() override;
 
 
 	UFUNCTION()
@@ -393,6 +403,9 @@ public:
 
 	/** Called when sp == 0*/
 	void OnZeroSp();
+
+	/** Does animation allow us to shoot */
+	FORCEINLINE bool CanNotShoot() const { return !bTryToZoomIn && bIsSprinting; }
 
 private:
 

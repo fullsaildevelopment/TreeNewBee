@@ -34,11 +34,12 @@ EBTNodeResult::Type UBTTask_HitReaction::ExecuteTask(UBehaviorTreeComponent & Ow
 		return NodeResult;
 	}
 
-	const APawn* const me = baseAICtrl->GetPawn();
+	//const APawn* const me = baseAICtrl->GetPawn();
 
 	//baseAICtrl->SetIsRelocate(false);
-
-	if (animRef->GetCurrentActionState()== EAIActionState::GettingHurt)
+	
+	
+	if (baseAICtrl->GetIsPaused_BBC())
 	{
 		NodeResult = EBTNodeResult::InProgress;
 		animRef->OnRecoverFromHitSignature.BindUObject(this, &UBTTask_HitReaction::OnRecoverFromHitHandle);

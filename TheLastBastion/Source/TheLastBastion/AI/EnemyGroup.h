@@ -67,6 +67,11 @@ public:
 	int GetMainTask() const { return MainTask; }
 	int GetMaxColoumnCount() const override;
 	int GetMaxRowCount() const override;
+
+	FORCEINLINE float GetCurrentRowPadding() const override { return (AIToSpawn.IsValidIndex(0))? AIToSpawn[0].RowPadding : DefaultPadding; }
+	FORCEINLINE float GetCurrentColumnPadding() const override { return (AIToSpawn.IsValidIndex(0)) ? AIToSpawn[0].ColumnPadding : DefaultPadding;; }
+
+
 	FORCEINLINE class UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
 
 

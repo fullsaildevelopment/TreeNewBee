@@ -166,8 +166,8 @@ void AAllyGroup::SpawnChildGroup()
 
 	// set thumbNail in UI
 	ThumbNail = AICharactersInfo[0].AICharacter->GetThumbNailImage();
-
-	SetAllyGroupVisionVolumn();
+	SetGroupVisionVolumn();
+	//SetAllyGroupVisionVolumn();
 }
 
 void AAllyGroup::OnReform()
@@ -177,8 +177,6 @@ void AAllyGroup::OnReform()
 	int CurrentCharacterIndex = 0;
 
 	int totalAllyCount = AICharactersInfo.Num();
-	int maxColCount = FormationInfo[0];
-	int maxRowCount = FormationInfo.Num();
 
 	if (bUseSquareFormation && totalAllyCount > 3)
 		SwitchToSquare();
@@ -193,10 +191,15 @@ void AAllyGroup::OnReform()
 	//	groupSpeed = (speed < groupSpeed) ? speed : groupSpeed;
 	//}
 
-	float maxGroupWidth = (maxColCount - 1) * CurrentPadding * 0.5f + SIDEPADDING;
-	float maxGroupLength = (maxRowCount - 1) * CurrentPadding + 0.5 * SIDEPADDING;
+	//int maxColCount = FormationInfo[0];
+	//int maxRowCount = FormationInfo.Num();
 
-	SetGroupVisionVolumn(maxGroupWidth, maxGroupLength);
+	//float maxGroupWidth = (maxColCount - 1) * CurrentPadding * 0.5f + SIDEPADDING;
+	//float maxGroupLength = (maxRowCount - 1) * CurrentPadding + 0.5 * SIDEPADDING;
+
+	//SetGroupVisionVolumn(maxGroupWidth, maxGroupLength);
+
+	SetGroupVisionVolumn();
 
 	//MoveComp->MaxSpeed = groupSpeed;
 	bReformPending = false;
@@ -280,8 +283,9 @@ void AAllyGroup::SwitchToScatter()
 	CurrentPadding = (bUseSquareFormation) ? GroupFormation_ScatterPadding_Square : GroupFormation_ScatterPadding_Row;
 
 	RedistributeBy(CurrentPadding);
+	SetGroupVisionVolumn();
 
-	SetAllyGroupVisionVolumn();
+	//SetAllyGroupVisionVolumn();
 }
 
 void AAllyGroup::SwitchToCompact()
@@ -290,8 +294,9 @@ void AAllyGroup::SwitchToCompact()
 	CurrentPadding = (bUseSquareFormation) ? GroupFormation_CompactPadding_Square : GroupFormation_CompactPadding_Row;
 
 	RedistributeBy(CurrentPadding);
+	SetGroupVisionVolumn();
 
-	SetAllyGroupVisionVolumn();
+	//SetAllyGroupVisionVolumn();
 }
 
 void AAllyGroup::SwitchToSquare()
@@ -326,7 +331,8 @@ void AAllyGroup::SwitchToSquare()
 		xOffset += CurrentPadding;
 	}
 
-	SetAllyGroupVisionVolumn();
+	//SetAllyGroupVisionVolumn();
+	SetGroupVisionVolumn();
 
 }
 
@@ -348,8 +354,9 @@ void AAllyGroup::SwitchToRow()
 		yOffset = i * CurrentPadding - centerOffset;
 		AICharactersInfo[i].GroupRelativeOffset = FVector(xOffset, yOffset, 0);
 	}
+	SetGroupVisionVolumn();
 
-	SetAllyGroupVisionVolumn();
+	//SetAllyGroupVisionVolumn();
 }
 
 void AAllyGroup::UpdateFormationInfoByTotalNum(int _totalNum)
@@ -622,8 +629,9 @@ void AAllyGroup::OnGroupSizeChangeByNum(int _delta)
 	{
 		OnGroupSizeChanged_GroupSizeDecresed(expectedTotalNumber);
 	}
+	SetGroupVisionVolumn();
 
-	SetAllyGroupVisionVolumn();
+	//SetAllyGroupVisionVolumn();
 }
 
 void AAllyGroup::OnGroupSizeChanged_GroupSizeIncresed(int _expectedNum)
@@ -770,16 +778,16 @@ void AAllyGroup::OnGroupSizeChanged_GroupSizeDecresed(int _expectedNum)
 	}
 }
 
-void AAllyGroup::SetAllyGroupVisionVolumn()
-{
-	int maxRowCount = GetMaxRowCount();
-	int maxColCount = GetMaxColoumnCount();
-
-	float maxGroupWidth = (maxColCount - 1) * CurrentPadding * 0.5f + SIDEPADDING;
-	float maxGroupLength = ((maxRowCount) * CurrentPadding + FRONTPADDING) * 0.5f;
-
-	SetGroupVisionVolumn(maxGroupWidth, maxGroupLength);
-}
+//void AAllyGroup::SetAllyGroupVisionVolumn()
+//{
+//	int maxRowCount = GetMaxRowCount();
+//	int maxColCount = GetMaxColoumnCount();
+//
+//	float maxGroupWidth = (maxColCount - 1) * CurrentPadding * 0.5f + SIDEPADDING;
+//	float maxGroupLength = ((maxRowCount) * CurrentPadding ) * 0.5f + FRONTPADDING;
+//
+//	SetGroupVisionVolumn(maxGroupWidth, maxGroupLength);
+//}
 
 int AAllyGroup::GetMaxColoumnCount() const
 {

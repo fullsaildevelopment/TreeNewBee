@@ -87,19 +87,19 @@ void ATheLastBastionBaseAIController::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ATheLastBastionBaseAIController::OnBeingHit(ECharacterType _characterType)
-{
-
-	switch (_characterType)
-	{
-	case ECharacterType::LanTrooper_Rookie:
-	case ECharacterType::Lan_Shooter:
-	default:
-		//SetAICurrentActionState_BBC(EAIActionState::GettingHurt);
-		SetIsPaused_BBC(true);
-		break;
-	}
-}
+//void ATheLastBastionBaseAIController::OnBeingHit(ECharacterType _characterType)
+//{
+//
+//	switch (_characterType)
+//	{
+//	case ECharacterType::LanTrooper_Rookie:
+//	case ECharacterType::Lan_Shooter:
+//	default:
+//		//SetAICurrentActionState_BBC(EAIActionState::GettingHurt);
+//		SetIsPaused_BBC(true);
+//		break;
+//	}
+//}
 
 void ATheLastBastionBaseAIController::SetTargetActor_BBC(AActor* _target)
 {

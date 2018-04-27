@@ -83,7 +83,7 @@ private:
 	// when group size is decreased, called in OnGroupSizeChangeByNum
 	void OnGroupSizeChanged_GroupSizeDecresed(int _expectedNum);
 
-	void SetAllyGroupVisionVolumn();
+	//void SetAllyGroupVisionVolumn();
 
 	TSubclassOf<class ATheLastBastionAIBase> GetClassDuringAllySpawn(int _currentIndex) const;
 
@@ -127,6 +127,11 @@ public:
 
 	FORCEINLINE bool IsSquareFormation() const { return bUseSquareFormation; }
 	FORCEINLINE bool IsScatterFormation() const { return bUseScatterFormation; }
+
+	FORCEINLINE float GetCurrentRowPadding() const override { return CurrentPadding; }
+	FORCEINLINE float GetCurrentColumnPadding() const override { return CurrentPadding; }
+
+	//FORCEINLINE virtual float GetRowPadding() const { return IsSquareFormation() ? (IsScatterFormation()? GroupFormation_ScatterPadding_Square : GroupFormation_CompactPadding_Square) : (IsScatterFormation() ? GroupFormation_CompactPadding_Square : GroupFormation_CompactPadding_Row); }
 
 
 	void SetSpawnInfo(const FAISpawnInfo& _aiToSpawn); 

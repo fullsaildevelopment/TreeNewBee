@@ -3,12 +3,15 @@
 #include "RangeWeapon.h"
 #include "Components/StaticMeshComponent.h"
 #include "AICharacters/TheLastBastionEnemyCharacter.h"
+#include "TheLastBastionHeroCharacter.h"
+
 #include "Projectile.h"
 #include "DrawDebugHelpers.h"
 #include "AudioManager.h"
 #include "Kismet/GameplayStatics.h"
 
 #define CLOSESHOTDISTANCE 350
+
 static FName MuzzleSocketName =TEXT( "MuzzleSocket");
 static FName LaunchLocationName = TEXT("LaunchLocation");
 
@@ -27,6 +30,9 @@ ARangeWeapon::ARangeWeapon()
 	MaxVerticalAimOffset = 50.0f;
 	MinHorizontalAimOffset = -20.0f;
 	MaxHorizontalAimOffset = 20.0f;
+	BulletSpreadAmount = 3;
+
+	ComboShootVibrate = 50.0f;
 }
 
 USceneComponent * ARangeWeapon::GetMesh() const
@@ -43,7 +49,6 @@ void ARangeWeapon::BeginPlay()
 
 void ARangeWeapon::Fire()
 {   
-	//UE_LOG(LogTemp, Warning, TEXT("Fire in the hole"));
 
 	//GearOwner = Cast<ATheLastBastionCharacter>(GetOwner());
 	UWorld* world = GetWorld();
@@ -110,6 +115,147 @@ void ARangeWeapon::Fire()
 		}
 
 	}
+}
+
+void ARangeWeapon::PowerFire()
+{
+	//GearOwner = Cast<ATheLastBastionCharacter>(GetOwner());
+	UWorld* world = GetWorld();
+
+	// Trace the world from pawn eyes to crosshair location
+	if (GearOwner != nullptr && ProjectileClassBP != nullptr)
+	{
+		// Find Player eyes location and rotation
+		FVector EyesLocation;
+		FRotator EyesRotation;
+		GearOwner->GetActorEyesViewPoint(EyesLocation, EyesRotation);
+
+		ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(GearOwner);
+
+		int extraBullets, powerFireRange;
+
+		if (hero == nullptr)
+		{
+			extraBullets = 0;
+			powerFireRange = PowerFire_Range;
+			UE_LOG(LogTemp, Error, TEXT("hero == nullptr -  ARangeWeapon::PowerFire"));
+		}
+		else
+		{
+			extraBullets = hero->GetExtraPowerShootBullet();
+			powerFireRange = hero->GetPowerShotDistance();
+		}
+
+		int bulletCount = BulletSpreadAmount + extraBullets;
+
+		// Find the impact location
+		FVector ShotDirection = EyesRotation.Vector();
+		FVector TraceEnd_Ideal = EyesLocation + (ShotDirection * powerFireRange);
+
+
+
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(GearOwner);
+		QueryParams.AddIgnoredActor(this);
+		QueryParams.bTraceComplex = true;
+		QueryParams.bReturnPhysicalMaterial = false;
+
+
+		// Correctly Spawn the projectile
+		FVector MuzzleLocation = MeshComp->GetSocketLocation(MuzzleSocketName);
+		FVector LaunchLocation = MeshComp->GetSocketLocation(LaunchLocationName);
+
+		FTransform spawnTransform;
+		spawnTransform.SetLocation(MuzzleLocation);
+		spawnTransform.SetRotation(EyesRotation.Quaternion());
+		spawnTransform.SetScale3D(FVector(1.5f, 1.5f, 1.5f));
+
+
+		AProjectile* CrossbowProjectile = nullptr;
+		FVector TraceEnd_Actual; 
+
+	
+
+
+		for (int i = 0; i < bulletCount; i++)
+		{
+			CrossbowProjectile =
+				world->SpawnActorDeferred<AProjectile>(ProjectileClassBP,
+					spawnTransform, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+
+			CrossbowProjectile->ProjectileOnFire(this);
+			CrossbowProjectile->FinishSpawning(spawnTransform);
+
+
+
+			TraceEnd_Actual = TraceEnd_Ideal + FMath::RandRange(-Bullet_Spread_Range, Bullet_Spread_Range) * GetActorForwardVector();
+			TraceEnd_Actual.Z += FMath::RandRange(-Bullet_Spread_Range, Bullet_Spread_Range);
+
+			if (CrossbowProjectile)
+			{
+				FVector FlyDir = (TraceEnd_Actual - LaunchLocation).GetSafeNormal();
+				CrossbowProjectile->GetProjectileMovementComp()->Velocity = FlyDir * BulletSpeed;
+				PlayCrossbowFireSFXAtLocation(world, MuzzleLocation);
+			}
+		}
+	}
+
+}
+
+void ARangeWeapon::ComboFire()
+{
+	UWorld* world = GetWorld();
+
+	// Trace the world from pawn eyes to crosshair location
+	if (GearOwner != nullptr && ProjectileClassBP != nullptr)
+	{
+		// Find Player eyes location and rotation
+		FVector EyesLocation;
+		FRotator EyesRotation;
+		GearOwner->GetActorEyesViewPoint(EyesLocation, EyesRotation);
+
+		// Find the impact location
+		FVector ShotDirection = EyesRotation.Vector();
+		FVector TraceEnd_Ideal = EyesLocation + (ShotDirection * ShootingRange);
+
+
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(GearOwner);
+		QueryParams.AddIgnoredActor(this);
+		QueryParams.bTraceComplex = true;
+		QueryParams.bReturnPhysicalMaterial = false;
+
+
+		// Correctly Spawn the projectile
+		FVector MuzzleLocation = MeshComp->GetSocketLocation(MuzzleSocketName);
+		FVector LaunchLocation = MeshComp->GetSocketLocation(LaunchLocationName);
+
+		FTransform spawnTransform;
+		spawnTransform.SetLocation(MuzzleLocation);
+		spawnTransform.SetRotation(EyesRotation.Quaternion());
+		spawnTransform.SetScale3D(FVector(1.5f, 1.5f, 1.5f));
+
+
+		FVector TraceEnd_Actual;
+
+		AProjectile* CrossbowProjectile =
+			world->SpawnActorDeferred<AProjectile>(ProjectileClassBP,
+				spawnTransform, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+
+		CrossbowProjectile->ProjectileOnFire(this);
+		CrossbowProjectile->FinishSpawning(spawnTransform);
+			
+		TraceEnd_Actual = TraceEnd_Ideal + FMath::RandRange(-ComboShootVibrate, ComboShootVibrate) * GetActorForwardVector();
+		TraceEnd_Actual.Z += FMath::RandRange(-ComboShootVibrate, ComboShootVibrate);
+
+		if (CrossbowProjectile)
+		{
+			FVector FlyDir = (TraceEnd_Actual - LaunchLocation).GetSafeNormal();
+			CrossbowProjectile->GetProjectileMovementComp()->Velocity = FlyDir * BulletSpeed;
+			PlayCrossbowFireSFXAtLocation(world, MuzzleLocation);
+		}
+	}
+
 }
 
 void ARangeWeapon::NPCFire(const AActor* _target)

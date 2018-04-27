@@ -280,7 +280,7 @@ void ATheLastBastionAIBase::SetTarget(AActor * _target, bool _asGroupMember)
 
 		if (baseAICtrl->GetOldCommandIndex_BBC() == GC_FIGHT)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("no target left - ATheLastBastionAIBase::SetTarget"));
+			//UE_LOG(LogTemp, Warning, TEXT("no target left - ATheLastBastionAIBase::SetTarget"));
 
 			baseAICtrl->SetOldCommandIndex_BBC(0);
 		}
@@ -288,7 +288,7 @@ void ATheLastBastionAIBase::SetTarget(AActor * _target, bool _asGroupMember)
 
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("new target %s - ATheLastBastionAIBase::SetTarget"), *_target->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("new target %s - ATheLastBastionAIBase::SetTarget"), *_target->GetName());
 
 	// if our target is changed to a new target
 	if (_target != currentTarget)

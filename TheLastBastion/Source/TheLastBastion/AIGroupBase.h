@@ -8,8 +8,8 @@
 #include "AIGroupBase.generated.h"
 
 
-#define SIDEPADDING 350.0f
-#define FRONTPADDING 500.0f
+#define SIDEPADDING 600 //350.0f
+#define FRONTPADDING 800 //500.0f
 #define GroupFrontExtraVision 200.0f
 #define RangeGroupTargetAmount 4
 
@@ -47,6 +47,7 @@
 #define EnemyRangeUnitShootingRange 5500
 
 #define VisionHalfHeight 200.0f
+#define DefaultPadding 300.0f
 
 
 USTRUCT(BlueprintType)
@@ -288,10 +289,16 @@ protected:
 	/** Range Unit version of OnTarget Request*/
 	AActor* OnTargetRequest_Range(const AActor* _requestSender);
 
+	void SetGroupVisionBox(bool _includeRangeVision = false);
 
-	virtual void SetGroupVisionVolumn(float _maxGroupWidth, float _maxGroupLength);
+	/** Update Melee Vision box and range vision box based on group shape*/
+	FORCEINLINE virtual void SetGroupVisionVolumn() { SetGroupVisionBox(); }
+
+	//virtual void SetGroupVisionVolumn(float _maxGroupWidth, float _maxGroupLength);
 
 	float GetDivider(int _index) const;
+
+
 
 
 
@@ -381,15 +388,23 @@ public:
 	FORCEINLINE void SetGroupIndex(int _index) { GroupIndex = _index; }
 	FORCEINLINE class ATheLastBastionAIBase* GetGroupMemberAt(int _index) const { return AICharactersInfo[_index].AICharacter; }
 
+
+
 	virtual int GetMaxColoumnCount() const;
 	virtual int GetMaxRowCount() const;
+
+	virtual float GetCurrentRowPadding() const { return DefaultPadding; }
+	virtual float GetCurrentColumnPadding() const { return DefaultPadding; }
+
+
+	FORCEINLINE virtual float GetRangeUnitShootingRange() { return EnemyRangeUnitShootingRange; }
 
 	FORCEINLINE FVector GetGroupRelativeOffsetAt(int _index) const { return AICharactersInfo[_index].GroupRelativeOffset; }
 	FORCEINLINE FVector GetGroupTargetLocation() const { return GroupTargetLocation; }
 	FORCEINLINE FVector GetGroupTargetForward() const { return GroupTargetForward; }
 	FORCEINLINE FVector GetGroupTargetRight() const { return GroupTargetRight; }
 	FORCEINLINE UTexture2D* GetThumbNail() const { return ThumbNail; };
-
+	FORCEINLINE virtual float GetRowPadding() const { return AIToSpawn.IsValidIndex(0) ? AIToSpawn[0].RowPadding : DefaultPadding;}
 	///** Get the group center offset for the melee vision box when not in battle*/
 	//FVector GetGroupCenterOffset() const;
 

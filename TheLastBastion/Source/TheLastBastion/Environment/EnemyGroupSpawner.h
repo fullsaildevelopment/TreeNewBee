@@ -161,7 +161,7 @@ protected:
 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
-		bool bIsCurrentWaveFinished;
+		bool bIsCurrentWaveFinishSpawning;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Music)
 		class UAudioComponent* MusicPlayer;
@@ -170,7 +170,7 @@ private:
 
 	UPROPERTY()
 	/** Single Player Character ref*/
-		const class ACharacter* Hero;
+		const class ATheLastBastionHeroCharacter* Hero;
 
 	/** Hard Coded spawn waves for game cycle*/
 	void EditWaves();
@@ -182,7 +182,10 @@ public:
 
 	FTransform GetNextWayPointFrom(int _pathIndex, int _nextWaypoint) const;
 
-	FORCEINLINE bool IsCurrentWaveFinished() const { return bIsCurrentWaveFinished; }
+	FORCEINLINE bool IsCurrentWaveFinishSpawning() const { return bIsCurrentWaveFinishSpawning; }
+	/** The resting gap between waves */
+    bool IsDuringWait() const;
+
 
 	FORCEINLINE bool HasNextWayPointOnPath
 	(int _pathIndex, int _wayPointIndex) const { return Paths[_pathIndex].WayPoints.IsValidIndex(_wayPointIndex); }

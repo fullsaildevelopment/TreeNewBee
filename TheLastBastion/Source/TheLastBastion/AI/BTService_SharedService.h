@@ -15,7 +15,8 @@ enum class EAISharedServiceType : uint8
 {
 	None = 0                                     UMETA(DisplayName = "None"),
 	UpdateSqrDistanceToTarget = 1                UMETA(DisplayName = "Update Squared Distance To Target Actor"),
-	SyncMeleeAttackRotationRateAndVelocity = 2   UMETA(DisplayName = "Sync Melee Attack Motion")
+	SyncMeleeAttackRotationRateAndVelocity = 2   UMETA(DisplayName = "Sync Melee Attack Motion"),
+	UpdateSquDistanceToTargetDuringMeleeAttack = 3 UMETA(DisplayName = "Update Squared Distance To Target Actor, During Melee Attack") 
 };
 
 
@@ -35,6 +36,8 @@ protected:
 	void TickNode(UBehaviorTreeComponent& _ownerComp, uint8* _nodeMemory, float _deltaSecond) override;
 
 private:
+
+	//void UpdateSqrDistanceToTargetDuringMelee(UBehaviorTreeComponent & _ownerComp);
 
 	void UpdateSqrDistanceToTarget(UBehaviorTreeComponent & _ownerComp);
 

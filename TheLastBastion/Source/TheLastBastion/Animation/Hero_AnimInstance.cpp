@@ -136,12 +136,7 @@ void UHero_AnimInstance::OnUpdate(float _deltaTime)
 {
 	if (mCharacter != nullptr)
 	{
-		Super::OnUpdate(_deltaTime);
-
-		if (mCharacter->IsRagDoll())
-			return;
-
-
+		//Super::OnUpdate(_deltaTime);
 
 		// Head Track
 		HeadTrack();
@@ -167,6 +162,8 @@ void UHero_AnimInstance::OnUpdate(float _deltaTime)
 		Acceleration_bodySpace
 			= UKismetMathLibrary::InverseTransformDirection(mCharacter->GetTransform(), mAccelerationDirection);
 		turn = FMath::RadiansToDegrees(FMath::Atan2(Acceleration_bodySpace.Y, Acceleration_bodySpace.X));
+
+		bIsShooting = Montage_IsPlaying(Fire_Montage);
 
 		switch (CurrentEquipment)
 		{
@@ -437,6 +434,25 @@ void UHero_AnimInstance::FxMeleeSwing(bool _rightHand)
 	}
 
 	Super::FxMeleeSwing(_rightHand);
+}
+
+void UHero_AnimInstance::OnAutoFire()
+{
+	if (AttackState == EAttackState::BeingHit || AttackState == EAttackState::BeingStuned)
+		return;
+	UHeroStatsComponent* heroStats = mCharacter->GetHeroStatsComp();
+	if (heroStats)
+	{
+		ARangeWeapon* rangeWeapon = Cast<ARangeWeapon>(heroStats->GetCurrentRightHandWeapon());
+
+		if (rangeWeapon == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Current Weapon is not a range weapon - UHero_AnimInstance::OnAutoFire"));
+			return;
+		}
+
+		rangeWeapon->ComboFire();
+	}
 }
 
 #pragma endregion
@@ -1244,7 +1260,12 @@ void UHero_AnimInstance::OnSkill(int _skillIndex)
 
 	// equip weapon to weapon socket if we havent
 	if (ActivatedEquipment == EEquipType::Travel)
-		SkipEquip();
+	{
+		OnEquip();
+		return;
+
+	}
+	//SkipEquip();
 
 	switch (AttackState)
 	{
@@ -1276,10 +1297,10 @@ void UHero_AnimInstance::OnSkill(int _skillIndex)
 
 void UHero_AnimInstance::LaunchSkill(int _skillIndex)
 {
+	if (CurrentEquipment == EEquipType::CrossBow && (CanNotShoot()||_skillIndex == Skill__WeaponCastingFire))
+			return;
 
 	// For now we dont have anything for CrossBow Yet
-	if (CurrentEquipment == EEquipType::CrossBow && _skillIndex != Skill__Heal)
-		return;
 
 	if (mCharacter->SkillCheck(_skillIndex) == false)
 	{
@@ -1298,6 +1319,8 @@ void UHero_AnimInstance::LaunchSkill(int _skillIndex)
 
 	FName sectionToPlay = mCharacter->GetSkillSectionNameAt(_skillIndex);
 
+
+
 	// Play partical on hero
 	mCharacter->OnPlaySkillParticle(_skillIndex);
 
@@ -1306,6 +1329,7 @@ void UHero_AnimInstance::LaunchSkill(int _skillIndex)
 	switch (_skillIndex)
 	{
 	case Skill__PowerHit:
+	{
 		switch (CurrentEquipment)
 		{
 		case EEquipType::ShieldSword:
@@ -1317,15 +1341,32 @@ void UHero_AnimInstance::LaunchSkill(int _skillIndex)
 		case EEquipType::HeavyWeapon:
 			SkillBuff = ESkillBuff::UnStoppable;
 			break;
+
+		case EEquipType::CrossBow:
+		{		
+			mCharacter->PowerShot();
+			this->PlayMontage(Fire_Montage, 1.0f, sectionToPlay);
+			return;
+		}
 		default:
 		case EEquipType::Travel:
-		case EEquipType::CrossBow:
+		{
 			SkillBuff = ESkillBuff::None;
-			break;
+			return;
+		}
 		}
 		break;
+	}
 	case Skill__Combo:
-		SkillBuff = ESkillBuff::Combo;
+	{
+		if (CurrentEquipment == EEquipType::CrossBow)
+		{
+			this->PlayMontage(Fire_Montage, 1.0f, sectionToPlay);
+			return;
+		}
+		else
+			SkillBuff = ESkillBuff::Combo;
+	}
 		break;
 	case Skill__Heal:
 		mCharacter->OnHealSkillCastSuccess();
@@ -1384,10 +1425,8 @@ void UHero_AnimInstance::OnRangeAttack()
 			return;
 		}
 
-		// Full sprint can not fire
-		if (bIsSprinting && !bTryToZoomIn)
+		if (CanNotShoot())
 			return;
-
 
 		rangeWeapon->Fire();
 		PlayMontage(Fire_Montage, 1.0f, MONTAGE_CB_FireOnce);

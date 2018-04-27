@@ -33,6 +33,7 @@ namespace
 	UAnimMontage* AM_Dazed = nullptr;
 	UAnimMontage* AM_Katana_Parry = nullptr; // for AI katana parry
 	UAnimMontage* AM_Katana_Dodge = nullptr; // for AI katana dodge
+	UAnimMontage* AM_CB_Reload = nullptr;
 }
 
 enum class EGearType : uint8;
@@ -115,6 +116,8 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = Effects)
 		virtual void EndMeleeWeaponTrail(bool _rightHand = true);
+
+	virtual void OnAutoFire() {}
 
 protected:
 

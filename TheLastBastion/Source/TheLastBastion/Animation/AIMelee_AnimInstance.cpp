@@ -88,10 +88,18 @@ void UAIMelee_AnimInstance::OnNextCombo()
 
 	ATheLastBastionBaseAIController* baseAICtrl = Cast<ATheLastBastionBaseAIController>(mCharacter->GetController());
 	if (baseAICtrl)
-		attackChoice = mCharacter->MeleeComboSelection(baseAICtrl->GetToTargetActorDistanceSqr());
+	{
+		bool continueAttack = baseAICtrl->GetTargetActor_BBC() && baseAICtrl->GetToTargetActorDistanceSqr() < mCharacter->GetMeleeAttackDist_Sq();
+		if (continueAttack)
+			attackChoice = mCharacter->MeleeComboSelection(baseAICtrl->GetToTargetActorDistanceSqr());
+		else
+			// Set counter greater than max to exit the combo 
+			CurrentComboCounter = MaxComboCounter + 1;
+	}
 	else
 	{
 		attackChoice = 1;
+		CurrentComboCounter = MaxComboCounter + 1;
 		//UE_LOG(LogTemp, Error, TEXT("baseAICtrl == nullptr, CurrentComboCounter - UAIMelee_AnimInstance::OnNextCombo"));
 	}
 	//UE_LOG(LogTemp, Warning, TEXT("%f: AttackChoice - UAIMelee_AnimInstance::OnNextCombo"), attackChoice);
@@ -107,10 +115,11 @@ void UAIMelee_AnimInstance::FinishAttack()
 		if (baseAICtrl)
 		{
 			UBehaviorTreeComponent* btc = baseAICtrl->GetBTComp();
+			//baseAICtrl->SetAICurrentActionState_BBC(CurrentActionState);
+			baseAICtrl->SetIsPaused_BBC(false);
 			if (btc)
 			{
-				OnFinishAttackDelegate.ExecuteIfBound(btc);
-				//OnFinishAttackDelegate.Unbind();
+				OnRecoverFromHitSignature.ExecuteIfBound(btc);
 			}
 		}
 	}

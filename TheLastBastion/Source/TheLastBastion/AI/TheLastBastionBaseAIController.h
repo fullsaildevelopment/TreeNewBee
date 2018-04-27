@@ -84,7 +84,7 @@ public:
 		FORCEINLINE uint8 GetKeyID_IsPaused() const { return bIsPaused_KeyID; }
 
 
-	void OnBeingHit(ECharacterType _characterType);
+	//void OnBeingHit(ECharacterType _characterType);
 
 	void SetTargetActor_BBC(AActor* _target);
 

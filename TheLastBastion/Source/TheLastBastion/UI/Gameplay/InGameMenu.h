@@ -21,6 +21,10 @@ struct FSkillLevel
 
 	UPROPERTY()
 		class UTextBlock* Text;
+
+	UPROPERTY()
+		class UButton* Button;
+
 	UPROPERTY()
 		int Level;
 };
@@ -37,6 +41,9 @@ class THELASTBASTION_API UInGameMenu : public UUserWidget
 		OptionMenu = 1,
 		SkillTree = 2
 	};
+
+public:
+	UInGameMenu(const FObjectInitializer & ObjectInit);
 
 protected:
 	
@@ -80,6 +87,12 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UButton* Accept_Option;
 
+#pragma region Skill Menu
+
+	static TSubclassOf<UUserWidget> WBP_SkillMenuPopUp;
+
+	UPROPERTY()
+		class UUserWidget* PopUpWidget;
 
 	// skill menu
 	UPROPERTY(meta = (BindWidget))
@@ -152,6 +165,9 @@ protected:
 
 	int CurrentSkillPoints_int;
 
+#pragma endregion
+
+
 private:
 
 	MenuType CurrentMenuIndex;
@@ -196,6 +212,8 @@ public:
 
 	void OpenPauseMenu();
 
+	FORCEINLINE int GetSkillLevelAt(int _index) const { return AllSkillLevel[_index].Level; }
+
 private:
 
 	void SwitchMenu(int _val);
@@ -209,6 +227,12 @@ private:
 
 	void OnOpenSkillMenu();
 	void LoadSkillsSetFromHero();
+
+	UFUNCTION()
+		void OnAcceptClicked_Skill();
+
+
+#pragma region Plus Clicked
 
 	UFUNCTION()
 		void OnSurviorPlusClicked();
@@ -240,8 +264,42 @@ private:
 	UFUNCTION()
 		void OnLeaderPlusClicked();
 
+
+#pragma endregion
+
+#pragma region Plus Hovered && unHovered
+
 	UFUNCTION()
-		void OnAcceptClicked_Skill();
+		void OnSurviorPlusHovered();
+	UFUNCTION()
+		void OnStaminaPlusHovered();
+	UFUNCTION()
+		void OnFarmerPlusHovered();
+	UFUNCTION()
+		void OnBuilderPlusHovered();
+	UFUNCTION()
+		void OnMinerPlusHovered();
+	UFUNCTION()
+		void OnSawyerPlusHovered();
+	UFUNCTION()
+		void OnHitThemHardPlusHovered();
+	UFUNCTION()
+		void OnMakeThemSufferPlusHovered();
+	UFUNCTION()
+		void OnFaithPlusHovered();
+	UFUNCTION()
+		void OnLeaderPlusHovered();
+
+
+	void OnPlusHovered(int _index);
+
+
+	UFUNCTION()
+		void OnPlusUnHovered();
+
+
+#pragma endregion
+
 
 
 	void OnPlusBtnClicked(int _index);

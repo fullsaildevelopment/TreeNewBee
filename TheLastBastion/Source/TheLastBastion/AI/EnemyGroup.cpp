@@ -169,10 +169,11 @@ void AEnemyGroup::SpawnChildGroup()
 					AIToSpawn[iClass].NumOfRow = maxRow;
 				}
 
-				maxGroupWidth = maxGroupWidth * 0.5f + SIDEPADDING;
-				maxGroupLength = ((xOffset - rowPadding) + FRONTPADDING) * 0.5f;
+				SetGroupVisionVolumn();
+				//maxGroupWidth = maxGroupWidth * 0.5f + SIDEPADDING;
+				//maxGroupLength = (xOffset - rowPadding) * 0.5f * FRONTPADDING;
 
-				SetGroupVisionVolumn(maxGroupWidth, maxGroupLength);
+				//SetGroupVisionVolumn(maxGroupWidth, maxGroupLength);
 				// set thumbNail Image for UI
 				ThumbNail = AICharactersInfo[0].AICharacter->GetThumbNailImage();
 
@@ -221,10 +222,11 @@ void AEnemyGroup::OnReform()
 			xOffset += rowPadding;
 		}
 
-		float groupWidth = (FormationInfo[0] - 1) * colPadding * 0.5f + SIDEPADDING;
-		float groupLength = (xOffset - rowPadding) + 0.5f * SIDEPADDING;
+		//float groupWidth = (FormationInfo[0] - 1) * colPadding * 0.5f + SIDEPADDING;
+		//float groupLength = (xOffset - rowPadding) + 0.5f * SIDEPADDING;
 
-		SetGroupVisionVolumn(groupWidth, groupLength);
+		//SetGroupVisionVolumn(groupWidth, groupLength);
+		SetGroupVisionVolumn();
 		//GroupVolumn->SetBoxExtent(FVector(groupLength, groupWidth, GroupVolumnZ), true);
 		//MoveComp->MaxSpeed = groupSpeed;
 	}

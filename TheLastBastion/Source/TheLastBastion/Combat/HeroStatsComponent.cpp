@@ -42,6 +42,10 @@ UHeroStatsComponent::UHeroStatsComponent()
 	HealAmount_Skill = Skill_Heal_Amount_Init;
 	HealRadius_Skill = Skill_Heal_Radius_Init;
 
+	PowerProjectileExtraAmount = 0;
+	ComboShootDamage_Scaler = DamageMultiplier_ComboShoot;
+	PowerShotBulletSpreadDistance = PowerShot_BulletsSpreadDistance;
+
 	SkillsSet.SetNum(SkillNum);
 
 }
@@ -415,6 +419,13 @@ void UHeroStatsComponent::UpdateOnWeaponChange(EGearType _gearType)
 {
 	switch (_gearType)
 	{
+
+	case EGearType::CrossBow:
+		Hero_PowerHit_DamageMultiplier = 1.0f;
+		mHeroCharacter->SetSkillSectionNameAt(Skill__Combo, Montage_SN_SkillBurstFire);
+		mHeroCharacter->SetSkillSectionNameAt(Skill__PowerHit, Montage_SN_SkillPowerFire);
+		break;
+
 	case EGearType::LongSword:
 		Hero_MeleeAttack_SpCost = HeroMeleeAttackSpCost_Init_SnSword;
 		Hero_CounterAttack_SpCost = HeroCounterAttackSpCost_Init_Katana_Sns;

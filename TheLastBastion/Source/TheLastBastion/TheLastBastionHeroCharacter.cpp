@@ -12,6 +12,8 @@
 
 #include "Animation/Hero_AnimInstance.h"
 #include "CustomType.h"
+
+#include "Combat/RangeWeapon.h"
 #include "Combat/Weapon.h"
 #include "Combat/Armor.h"
 #include "Combat/HeroStatsComponent.h"
@@ -216,7 +218,15 @@ void ATheLastBastionHeroCharacter::SetupPlayerInputComponent(class UInputCompone
 
 void ATheLastBastionHeroCharacter::Tick(float _deltaTime)
 {
-	UpdateHeroStats(_deltaTime);
+
+	if (bIsDead)
+	{
+		ClampCapsuleToMesh();
+	}
+	else
+	{
+		UpdateHeroStats(_deltaTime);
+	}
 }
 
 #pragma region On Player Input
@@ -1097,6 +1107,22 @@ bool ATheLastBastionHeroCharacter::OnCounterAttack(const FDamageInfo * const _da
 	return false;
 }
 
+void ATheLastBastionHeroCharacter::PowerShot()
+{
+	if (HeroStats)
+	{
+		ARangeWeapon* rangeWeapon = Cast<ARangeWeapon>(HeroStats->GetCurrentRightHandWeapon());
+
+		if (rangeWeapon == nullptr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Current Weapon is not a range weapon - UHero_AnimInstance::OnAutoFire"));
+			return;
+		}
+
+		rangeWeapon->PowerFire();
+	}
+}
+
 bool ATheLastBastionHeroCharacter::IsDoingGainDpAttack() const
 {
 	return mAnimInstanceRef->IsDoingGainDpAttack();
@@ -1120,6 +1146,16 @@ bool ATheLastBastionHeroCharacter::ShouldPlayHitAnimation() const
 bool ATheLastBastionHeroCharacter::IsUnStopableAttack() const
 {
 	return mAnimInstanceRef->GetCurrentSkillBuff() == ESkillBuff::UnStoppable;;
+}
+
+int ATheLastBastionHeroCharacter::GetExtraPowerShootBullet() const
+{
+	return HeroStats->GetExtraProjectileAmount();
+}
+
+int ATheLastBastionHeroCharacter::GetPowerShotDistance() const
+{
+	return HeroStats->GetPowerShotBulletSpreadDistance();
 }
 
 bool ATheLastBastionHeroCharacter::IsSkillCooled(int _index) const

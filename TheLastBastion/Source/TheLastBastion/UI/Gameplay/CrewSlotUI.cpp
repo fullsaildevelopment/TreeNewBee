@@ -103,7 +103,7 @@ void UCrewSlotUI::NativeOnMouseEnter(const FGeometry & InGeometry, const FPointe
 		USlateBlueprintLibrary::AbsoluteToViewport(GetWorld(),
 			MouseLocation, pixelPosition, viewPortPosition);
 
-		PopUpWidget->SetAlignmentInViewport(FVector2D(1.0f, 0.0));
+		PopUpWidget->SetAlignmentInViewport(FVector2D(1.0f, 0.0f));
 		PopUpWidget->SetPositionInViewport(viewPortPosition);
 
 		URecruitMenu_PopUp* PopUp = Cast<URecruitMenu_PopUp>(PopUpWidget);

@@ -31,8 +31,8 @@ protected:
 	UFUNCTION()
 		void OnRangeVisionOverrlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 
-
-	void SetGroupVisionVolumn(float _maxGroupWidth, float _maxGroupLength) override;
+	FORCEINLINE void SetGroupVisionVolumn() override { SetGroupVisionBox(true); }
+	//void SetGroupVisionVolumn(float _maxGroupWidth, float _maxGroupLength) override;
 
 	//AActor* OnTargetRequest(const ATheLastBastionCharacter* _requestSender) override;
 

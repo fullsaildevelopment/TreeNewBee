@@ -13,10 +13,25 @@
 
 #include "Combat/HeroStatsComponent.h"
 #include "TheLastBastionHeroCharacter.h"
-
+#include "CustomType.h"
+#include "UI/Gameplay/SkillMenu_PopUp.h"
+#include "SlateBlueprintLibrary.h"
 
 #define MENUCOUNT 3
 const FString MenuNameList[MENUCOUNT] = { TEXT("Pause Menu"), TEXT("Option Menu"), TEXT("Skill Menu") };
+
+
+TSubclassOf<UUserWidget> UInGameMenu::WBP_SkillMenuPopUp = nullptr;
+
+UInGameMenu::UInGameMenu(const FObjectInitializer & ObjectInit) : Super(ObjectInit)
+{
+	if (WBP_SkillMenuPopUp == nullptr)
+	{
+		UCustomType::FindClass<UUserWidget>(WBP_SkillMenuPopUp,
+			TEXT("/Game/UI/In-Game/WBP_SkillMenu_PopUp"));
+	}
+
+}
 
 bool UInGameMenu::Initialize()
 {
@@ -52,18 +67,42 @@ bool UInGameMenu::Initialize()
 		HideCB->OnCheckStateChanged.AddDynamic(this, &UInGameMenu::OnHideCBChanged);
 
 		Accept_Skill->OnClicked.AddDynamic(this, &UInGameMenu::OnAcceptClicked_Skill);
-		SurviorPlus_Btn->OnClicked.AddDynamic(this, &UInGameMenu::OnSurviorPlusClicked);
-		StaminaPlus_Btn->OnClicked.AddDynamic(this, &UInGameMenu::OnStaminaPlusClicked);
-		FarmerPlus_Btn->OnClicked.AddDynamic(this, &UInGameMenu::OnFarmerPlusClicked);
-		BuilderPlus_Btn->OnClicked.AddDynamic(this, &UInGameMenu::OnBuilderPlusClicked);
-		MinerPlus_Btn->OnClicked.AddDynamic(this, &UInGameMenu::OnMinerPlusClicked);
-		SawyerPlus_Btn->OnClicked.AddDynamic(this, &UInGameMenu::OnSawyerPlusClicked);
-		HitThemHardPlus_Btn->OnClicked.AddDynamic(this, &UInGameMenu::OnHitThemHardPlusClicked);
+		SurviorPlus_Btn       ->OnClicked.AddDynamic(this, &UInGameMenu::OnSurviorPlusClicked);
+		StaminaPlus_Btn       ->OnClicked.AddDynamic(this, &UInGameMenu::OnStaminaPlusClicked);
+		FarmerPlus_Btn        ->OnClicked.AddDynamic(this, &UInGameMenu::OnFarmerPlusClicked);
+		BuilderPlus_Btn       ->OnClicked.AddDynamic(this, &UInGameMenu::OnBuilderPlusClicked);
+		MinerPlus_Btn         ->OnClicked.AddDynamic(this, &UInGameMenu::OnMinerPlusClicked);
+		SawyerPlus_Btn        ->OnClicked.AddDynamic(this, &UInGameMenu::OnSawyerPlusClicked);
+		HitThemHardPlus_Btn   ->OnClicked.AddDynamic(this, &UInGameMenu::OnHitThemHardPlusClicked);
 		MakeThemSufferPlus_Btn->OnClicked.AddDynamic(this, &UInGameMenu::OnMakeThemSufferPlusClicked);
-		FaithPlus_Btn->OnClicked.AddDynamic(this, &UInGameMenu::OnFaithPlusClicked);
-		LeaderPlus_Btn->OnClicked.AddDynamic(this, &UInGameMenu::OnLeaderPlusClicked);
+		FaithPlus_Btn         ->OnClicked.AddDynamic(this, &UInGameMenu::OnFaithPlusClicked);
+		LeaderPlus_Btn        ->OnClicked.AddDynamic(this, &UInGameMenu::OnLeaderPlusClicked);
 
-	}
+
+		SurviorPlus_Btn->OnHovered.AddDynamic(this, &UInGameMenu::OnSurviorPlusHovered);
+		StaminaPlus_Btn->OnHovered.AddDynamic(this, &UInGameMenu::OnStaminaPlusHovered);
+		FarmerPlus_Btn->OnHovered.AddDynamic(this, &UInGameMenu::OnFarmerPlusHovered);
+		BuilderPlus_Btn->OnHovered.AddDynamic(this, &UInGameMenu::OnBuilderPlusHovered);
+		MinerPlus_Btn->OnHovered.AddDynamic(this, &UInGameMenu::OnMinerPlusHovered);
+		SawyerPlus_Btn->OnHovered.AddDynamic(this, &UInGameMenu::OnSawyerPlusHovered);
+		HitThemHardPlus_Btn->OnHovered.AddDynamic(this, &UInGameMenu::OnHitThemHardPlusHovered);
+		MakeThemSufferPlus_Btn->OnHovered.AddDynamic(this, &UInGameMenu::OnMakeThemSufferPlusHovered);
+		FaithPlus_Btn->OnHovered.AddDynamic(this, &UInGameMenu::OnFaithPlusHovered);
+		LeaderPlus_Btn->OnHovered.AddDynamic(this, &UInGameMenu::OnLeaderPlusHovered);
+
+
+
+		SurviorPlus_Btn->OnUnhovered.AddDynamic(this, &UInGameMenu::OnPlusUnHovered);
+		StaminaPlus_Btn->OnUnhovered.AddDynamic(this, &UInGameMenu::OnPlusUnHovered);
+		FarmerPlus_Btn->OnUnhovered.AddDynamic(this, &UInGameMenu::OnPlusUnHovered);
+		BuilderPlus_Btn->OnUnhovered.AddDynamic(this, &UInGameMenu::OnPlusUnHovered);
+		MinerPlus_Btn->OnUnhovered.AddDynamic(this, &UInGameMenu::OnPlusUnHovered);
+		SawyerPlus_Btn->OnUnhovered.AddDynamic(this, &UInGameMenu::OnPlusUnHovered);
+		HitThemHardPlus_Btn->OnUnhovered.AddDynamic(this, &UInGameMenu::OnPlusUnHovered);
+		MakeThemSufferPlus_Btn->OnUnhovered.AddDynamic(this, &UInGameMenu::OnPlusUnHovered);
+		FaithPlus_Btn->OnUnhovered.AddDynamic(this, &UInGameMenu::OnPlusUnHovered);
+		LeaderPlus_Btn->OnUnhovered.AddDynamic(this, &UInGameMenu::OnPlusUnHovered);
+	}	
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("bAllWidgetAreGood == false, UInGameMenu::Initialize"));
@@ -74,34 +113,43 @@ bool UInGameMenu::Initialize()
 	AllSkillLevel.SetNum(SkillNum);
 	AllSkillLevel[SurvivalTrainingLevel].Text = CurrentSurvivalTrainingLevel;
 	AllSkillLevel[SurvivalTrainingLevel].Level = 0;
+	AllSkillLevel[SurvivalTrainingLevel].Button = SurviorPlus_Btn;
 
 	AllSkillLevel[StaminaTraingingLevel].Text = CurrentStaminaTraingingLevel;
 	AllSkillLevel[StaminaTraingingLevel].Level = 0;
+	AllSkillLevel[StaminaTraingingLevel].Button = StaminaPlus_Btn;
 
 	AllSkillLevel[FarmerLevel].Text = CurrentFarmerLevel;
 	AllSkillLevel[FarmerLevel].Level = 0;
+	AllSkillLevel[FarmerLevel].Button = FarmerPlus_Btn;
 
 	AllSkillLevel[BuilderLevel].Text = CurrentBuilderLevel;
 	AllSkillLevel[BuilderLevel].Level = 0;
+	AllSkillLevel[BuilderLevel].Button = BuilderPlus_Btn;
 
 	AllSkillLevel[MinerLevel].Text = CurrentMinerLevel;
 	AllSkillLevel[MinerLevel].Level = 0;
+	AllSkillLevel[MinerLevel].Button = MinerPlus_Btn;
 
 	AllSkillLevel[SawyerLevel].Text = CurrentSawyerLevel;
 	AllSkillLevel[SawyerLevel].Level = 0;
+	AllSkillLevel[SawyerLevel].Button = SawyerPlus_Btn;
 
 	AllSkillLevel[HitThemHardLevel].Text = CurrentHitThemHardLevel;
 	AllSkillLevel[HitThemHardLevel].Level = 0;
+	AllSkillLevel[HitThemHardLevel].Button = HitThemHardPlus_Btn;
 
 	AllSkillLevel[MakeThemSufferLevel].Text = CurrentMakeThemSufferLevel;
 	AllSkillLevel[MakeThemSufferLevel].Level = 0;
+	AllSkillLevel[MakeThemSufferLevel].Button = MakeThemSufferPlus_Btn;
 
 	AllSkillLevel[FaithLevel].Text = CurrentFaithLevel;
 	AllSkillLevel[FaithLevel].Level = 0;
+	AllSkillLevel[FaithLevel].Button = FaithPlus_Btn;
 
 	AllSkillLevel[LeaderLevel].Text = CurrentLeaderLevel;
 	AllSkillLevel[LeaderLevel].Level = 0;
-
+	AllSkillLevel[LeaderLevel].Button = LeaderPlus_Btn;
 
 	return true;
 }
@@ -340,65 +388,6 @@ void UInGameMenu::LoadSkillsSetFromHero()
 
 }
 
-void UInGameMenu::OnSurviorPlusClicked()
-{
-
-	OnPlusBtnClicked(SurvivalTrainingLevel);
-
-}
-
-void UInGameMenu::OnStaminaPlusClicked()
-{
-	OnPlusBtnClicked(StaminaTraingingLevel);
-
-}
-
-void UInGameMenu::OnFarmerPlusClicked()
-{
-	OnPlusBtnClicked(FarmerLevel);
-
-}
-
-void UInGameMenu::OnBuilderPlusClicked()
-{
-
-	OnPlusBtnClicked(BuilderLevel);
-}
-
-void UInGameMenu::OnMinerPlusClicked()
-{
-	OnPlusBtnClicked(MinerLevel);
-}
-
-void UInGameMenu::OnSawyerPlusClicked()
-{
-	OnPlusBtnClicked(SawyerLevel);
-}
-
-void UInGameMenu::OnHitThemHardPlusClicked()
-{
-	OnPlusBtnClicked(HitThemHardLevel);
-
-}
-
-void UInGameMenu::OnMakeThemSufferPlusClicked()
-{
-	OnPlusBtnClicked(MakeThemSufferLevel);
-
-}
-
-void UInGameMenu::OnFaithPlusClicked()
-{
-	OnPlusBtnClicked(FaithLevel);
-}
-
-void UInGameMenu::OnLeaderPlusClicked()
-{
-	OnPlusBtnClicked(LeaderLevel);
-
-}
-
-
 void UInGameMenu::OnAcceptClicked_Skill()
 {
 	APlayerController* pc = GetOwningPlayer();
@@ -473,6 +462,7 @@ void UInGameMenu::OnAcceptClicked_Skill()
 	// combo - hit them hard, set cool down time, set damage multiplier
 	int level = AllSkillLevel[HitThemHardLevel].Level;
 	heroStats->SetDamageMultiplierByLevel_Combo(level);
+	heroStats->SetComboShootDamageScalerByLevel(level);
 	hero->SetSkillCoolDownTimeByLevelAt(Skill__Combo, level);
 
 	// powerHit - hit them hard, set cool down time, set damage multiplier
@@ -480,6 +470,8 @@ void UInGameMenu::OnAcceptClicked_Skill()
 	heroStats->SetDamageMultiplierByLevel_PowerHit_Sns(level);
 	heroStats->SetDamageMultiplierByLevel_PowerHit_Katana(level);
 	heroStats->SetDamageMultiplierByLevel_PowerHit_HV(level);
+	heroStats->SetExtraProjectileAmountByLevel(level);
+	heroStats->SetPowerShotBulletSpreadDistanceByLevel(level);
 	hero->SetSkillCoolDownTimeByLevelAt(Skill__PowerHit, level);
 
 	// Heal - heal amount and heal radius and CD
@@ -494,6 +486,9 @@ void UInGameMenu::OnAcceptClicked_Skill()
 
 }
 
+
+
+#pragma region  On Plus Clicked
 void UInGameMenu::OnPlusBtnClicked(int _index)
 {
 	if (CurrentSkillPoints_int <= 0 || AllSkillLevel[_index].Level >= MaxSkillLevel)
@@ -507,3 +502,160 @@ void UInGameMenu::OnPlusBtnClicked(int _index)
 	AllSkillLevel[_index].Text->SetText(FText::AsNumber(AllSkillLevel[_index].Level));
 }
 
+
+void UInGameMenu::OnSurviorPlusClicked()
+{
+
+	OnPlusBtnClicked(SurvivalTrainingLevel);
+
+}
+
+void UInGameMenu::OnStaminaPlusClicked()
+{
+	OnPlusBtnClicked(StaminaTraingingLevel);
+
+}
+
+void UInGameMenu::OnFarmerPlusClicked()
+{
+	OnPlusBtnClicked(FarmerLevel);
+
+}
+
+void UInGameMenu::OnBuilderPlusClicked()
+{
+
+	OnPlusBtnClicked(BuilderLevel);
+}
+
+void UInGameMenu::OnMinerPlusClicked()
+{
+	OnPlusBtnClicked(MinerLevel);
+}
+
+void UInGameMenu::OnSawyerPlusClicked()
+{
+	OnPlusBtnClicked(SawyerLevel);
+}
+
+void UInGameMenu::OnHitThemHardPlusClicked()
+{
+	OnPlusBtnClicked(HitThemHardLevel);
+
+}
+
+void UInGameMenu::OnMakeThemSufferPlusClicked()
+{
+	OnPlusBtnClicked(MakeThemSufferLevel);
+
+}
+
+void UInGameMenu::OnFaithPlusClicked()
+{
+	OnPlusBtnClicked(FaithLevel);
+}
+
+void UInGameMenu::OnLeaderPlusClicked()
+{
+	OnPlusBtnClicked(LeaderLevel);
+
+}
+
+#pragma endregion
+
+
+
+
+
+
+
+void UInGameMenu::OnSurviorPlusHovered()
+{
+	OnPlusHovered(SurvivalTrainingLevel);
+}
+
+void UInGameMenu::OnStaminaPlusHovered()
+{
+	OnPlusHovered(StaminaTraingingLevel);
+}
+
+void UInGameMenu::OnFarmerPlusHovered()
+{
+	OnPlusHovered(FarmerLevel);
+}
+
+void UInGameMenu::OnBuilderPlusHovered()
+{
+	OnPlusHovered(BuilderLevel);
+}
+
+void UInGameMenu::OnMinerPlusHovered()
+{
+	OnPlusHovered(MinerLevel);
+}
+
+
+void UInGameMenu::OnSawyerPlusHovered()
+{
+	OnPlusHovered(SawyerLevel);
+}
+
+void UInGameMenu::OnHitThemHardPlusHovered()
+{
+	OnPlusHovered(HitThemHardLevel);
+}
+
+void UInGameMenu::OnMakeThemSufferPlusHovered()
+{
+	OnPlusHovered(MakeThemSufferLevel);
+}
+
+void UInGameMenu::OnFaithPlusHovered()
+{
+	OnPlusHovered(FaithLevel);
+}
+
+void UInGameMenu::OnLeaderPlusHovered()
+{
+	OnPlusHovered(LeaderLevel);
+}
+
+
+
+
+void UInGameMenu::OnPlusHovered(int _index)
+{
+	if (WBP_SkillMenuPopUp)
+	{
+		PopUpWidget = CreateWidget<UUserWidget>(GetOwningPlayer(), WBP_SkillMenuPopUp);
+
+		FVector2D WidgetLocation = AllSkillLevel[_index].Button->GetCachedGeometry().GetAbsolutePosition();
+		//FVector2D MouseLocation = InMouseEvent.GetScreenSpacePosition();
+
+		FVector2D pixelPosition, viewPortPosition;
+
+		USlateBlueprintLibrary::AbsoluteToViewport(GetWorld(),
+			WidgetLocation, pixelPosition, viewPortPosition);
+
+		PopUpWidget->SetAlignmentInViewport(FVector2D(0.0f, 0.0f));
+		PopUpWidget->SetPositionInViewport(viewPortPosition);
+
+		USkillMenu_PopUp* PopUp = Cast<USkillMenu_PopUp>(PopUpWidget);
+		if (PopUp)
+		{
+			PopUp->SetUpSkillPopUp(_index, this);
+			PopUp->AddToViewport();
+		}
+		else
+			UE_LOG(LogTemp, Error, TEXT("PopUp == nullptr, UInGameMenu::OnPlusHovered"));
+	}
+	else
+		UE_LOG(LogTemp, Error, TEXT("WBP_SkillMenuPopUp == nullptr, UInGameMenu::OnPlusHovered"));
+
+}
+
+void UInGameMenu::OnPlusUnHovered()
+{
+	PopUpWidget->RemoveFromParent();
+	PopUpWidget = nullptr;
+}

@@ -76,7 +76,7 @@ AAIGroupBase::AAIGroupBase()
 	bIsAgreesive = false;
 	bIsLocationUpdateDiabled = false;
 	
-	SetInBattle(false);
+	//SetInBattle(false);
 }
 
 // Called when the game starts or when spawned
@@ -173,10 +173,10 @@ void AAIGroupBase::OnRangeVisionOverrlapBegin(UPrimitiveComponent* OverlappedCom
 void AAIGroupBase::OnRangeVisionOverrlapEnd(UPrimitiveComponent* OverlappedComponent,
 	AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) {}
 
-void AAIGroupBase::SetGroupVisionVolumn(float _maxGroupWidth, float _maxGroupLength)
-{
-	MeleeVision->SetBoxExtent(FVector(_maxGroupLength, _maxGroupWidth, GroupVolumnZ), true);
-}
+//void AAIGroupBase::SetGroupVisionVolumn(float _maxGroupWidth, float _maxGroupLength)
+//{
+//	MeleeVision->SetBoxExtent(FVector(_maxGroupLength, _maxGroupWidth, GroupVolumnZ), true);
+//}
 
 float AAIGroupBase::GetDivider(int _index) const
 {
@@ -333,7 +333,7 @@ FVector AAIGroupBase::GetFirstRowLocation() const
 {
 	int RowCount = GetMaxRowCount();
 
-	float rowPadding = AIToSpawn[0].RowPadding;
+	float rowPadding = GetRowPadding();
 
 	//TArray<ATheLastBastionAIBase*> firstRow = GetRowAt(0);
 
@@ -571,20 +571,39 @@ int AAIGroupBase::GetMaxRowCount() const
 	return 0;
 }
 
+void AAIGroupBase::SetGroupVisionBox(bool _includeRangeVision)
+{
+	int maxColCount = GetMaxColoumnCount();
+	int maxRowCount = GetMaxRowCount();
+
+	float maxGroupWidth = maxColCount * GetCurrentColumnPadding() * 0.5f + SIDEPADDING;
+	float maxGroupLength = maxRowCount * GetCurrentRowPadding() * 0.5f + FRONTPADDING;
+
+	MeleeVision->SetBoxExtent(FVector(maxGroupWidth, maxGroupLength, GroupVolumnZ), true);
+
+	if (_includeRangeVision)
+	{
+		maxGroupWidth += GetRangeUnitShootingRange();
+		maxGroupLength += GetRangeUnitShootingRange();
+		RangeVision->SetBoxExtent(FVector(maxGroupWidth, maxGroupLength, GroupVolumnZ), true);
+	}
+}
+
 
 void AAIGroupBase::SetInBattle(bool _val)
 {
 	bInBattle = _val;
-	if (bInBattle)
-	{
-		if (!MeleeVision->RelativeLocation.IsNearlyZero())
-			MeleeVision->AddLocalOffset(-MeleeVision->RelativeLocation);
-	}
-	else
-	{
-		if (MeleeVision->RelativeLocation.IsNearlyZero())
-			MeleeVision->AddLocalOffset(FVector(GroupFrontExtraVision, 0, 0)) ;
-	}
+
+	//if (bInBattle)
+	//{
+	//	if (!MeleeVision->RelativeLocation.IsNearlyZero())
+	//		MeleeVision->AddLocalOffset(-MeleeVision->RelativeLocation);
+	//}
+	//else
+	//{
+	//	if (MeleeVision->RelativeLocation.IsNearlyZero())
+	//		MeleeVision->AddLocalOffset(FVector(GroupFrontExtraVision, 0, 0)) ;
+	//}
 
 }
 

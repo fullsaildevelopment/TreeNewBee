@@ -238,7 +238,7 @@ void ASinglePlayerGM::UnRegisterEnemyGroupAt(int _index)
 		pc->GetInGameHUD()->RemoveEnemyGroupAt(_index);
 
 	// tell UI to show "press Enter to start next wave"
-	if (Enemies.Num() <= 0 && EnemyGroupSpawner->IsCurrentWaveFinished())
+	if (Enemies.Num() <= 0 && EnemyGroupSpawner->IsCurrentWaveFinishSpawning())
 	{
 		// TODO:  Display the notification for player once all the enemy groups in this wave get killed
 		if (pc)
