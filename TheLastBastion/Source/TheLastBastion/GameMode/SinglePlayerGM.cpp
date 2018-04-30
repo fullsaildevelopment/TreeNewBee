@@ -134,6 +134,15 @@ bool ASinglePlayerGM::HasAllyGroupUnitAt(int _index)
 	return 	Allies.IsValidIndex(_index);
 }
 
+bool ASinglePlayerGM::IsDuringWait() const
+{
+	ATheLastBastionHeroCharacter* Hero = Cast<ATheLastBastionHeroCharacter>(HeroPC->GetCharacter());
+	if (Hero)
+		return Hero->GetCanStartNextWave();
+
+	return false;
+}
+
 void ASinglePlayerGM::ToggleAllGroupUI(bool _val)
 {
 	// toggle all allies HUD
@@ -190,8 +199,6 @@ void ASinglePlayerGM::SpawnNewAllies(TSubclassOf<class ATheLastBastionAIBase> _c
 		gameHUD->AddAllyGroupIconAt(_index);
 		// Add Ally on Crew Bar
 		gameHUD->UpdateCrewInfoAt(_index, newAllyGroup->GetGroupSize(), newAllyGroup->GetThumbNail());
-
-
 
 	}
 

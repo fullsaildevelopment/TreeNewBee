@@ -88,8 +88,7 @@ void URecruitMenu::OnOpenRecruitMenu()
 	//}
 
 	AllMyCrew->OnOpenRecruitMenu();
-	bIsOpened = true;
-	
+	bIsOpened = true;	
 }
 
 void URecruitMenu::OnAcceptClicked()

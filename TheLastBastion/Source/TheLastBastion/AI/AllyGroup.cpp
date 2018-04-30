@@ -659,8 +659,16 @@ void AAllyGroup::OnGroupSizeChangeByNum(int _delta)
 		OnGroupSizeChanged_GroupSizeDecresed(expectedTotalNumber);
 	}
 	SetGroupVisionVolumn();
-
 	//SetAllyGroupVisionVolumn();
+
+	
+	UInGameHUD* gameHUD = PlayerHero->GetInGameHUD();
+	if (gameHUD)
+	{
+		// Update Ally info on Crew Bar
+		gameHUD->UpdateCrewInfoAt(CrewIndex, GetGroupSize(), GetThumbNail());
+	}
+
 }
 
 void AAllyGroup::OnGroupSizeChanged_GroupSizeIncresed(int _expectedNum)

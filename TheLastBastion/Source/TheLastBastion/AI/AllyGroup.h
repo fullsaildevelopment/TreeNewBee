@@ -118,6 +118,7 @@ public:
 
 	void OnDeSelected();
  
+	/** Called when the exsited ally group member amount is changed from recruit menu*/
 	void OnGroupSizeChangeByNum(int _delta);
 
 	int GetMaxColoumnCount() const override;
