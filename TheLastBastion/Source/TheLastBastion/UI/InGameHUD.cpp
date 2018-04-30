@@ -19,7 +19,28 @@
 #include "Components/WidgetSwitcher.h"
 
 
-//static TSubclassOf<UUserWidget> InGameTeamRow_WBPClass;
+const FString BattleDescription[15] =
+{
+	TEXT("BattleDescription 1"),
+	TEXT("BattleDescription 2"),
+	TEXT("BattleDescription 3"),
+	TEXT("BattleDescription 4"),
+	TEXT("BattleDescription 5"),
+	TEXT("BattleDescription 6"),
+	TEXT("BattleDescription 7"),
+	TEXT("BattleDescription 8"),
+	TEXT("BattleDescription 9"),
+	TEXT("BattleDescription 10"),
+	TEXT("BattleDescription 11"),
+	TEXT("BattleDescription 12"),
+	TEXT("BattleDescription 13"),
+	TEXT("BattleDescription 14"),
+	TEXT("BattleDescription 15")
+};
+
+
+#define WaitNotificationColor   FLinearColor(0.261106f,1.000000f,0.249277f,1.000000f)
+#define BattleNotificationColor FLinearColor(0.045752f,0.143075f,1.000000f,1.000000f)
 
 UInGameHUD::UInGameHUD(const FObjectInitializer& objInit) : Super(objInit)
 {
@@ -36,13 +57,13 @@ bool UInGameHUD::Initialize()
 	if (Super::Initialize() == false)
 		return false;
 
-	UE_LOG(LogTemp, Warning, TEXT("ON CLIENT !!!!!!!!!!!!!!"));
+	//UE_LOG(LogTemp, Warning, TEXT("ON CLIENT !!!!!!!!!!!!!!"));
 
 
 	// Bind Delegetes to Widget components
 	bool bAllWidgetAreGood =
 		PlayerRow != nullptr && TeamWindow != nullptr
-		&& FoodValue != nullptr && WoodValue != nullptr && MetalValue != nullptr && StoneValue != nullptr && PopUpNotification != nullptr && StartWaveNotification != nullptr
+		&& FoodValue != nullptr && WoodValue != nullptr && MetalValue != nullptr && StoneValue != nullptr && PopUpNotification != nullptr && WaveNotification != nullptr
 		&& CrossHair != nullptr && WeaponSlots && GroupCommandList && CrewBar && RadarHUD;
 
 	if (!bAllWidgetAreGood)
@@ -52,7 +73,10 @@ bool UInGameHUD::Initialize()
 	}
 	GroupCommandList->SetVisibility(ESlateVisibility::Hidden);
 	PopUpNotification->SetVisibility(ESlateVisibility::Hidden);
-	StartWaveNotification->SetVisibility(ESlateVisibility::Visible);
+	WaveNotification->SetVisibility(ESlateVisibility::Visible);
+
+	SetWaveNotificationOnWait();
+
 	return true;
 }
 
@@ -260,13 +284,31 @@ void UInGameHUD::SetPopUpNotificationVisibility(bool visiblity)
 		PopUpNotification->SetVisibility(ESlateVisibility::Hidden);
 }
 
-void UInGameHUD::SetStartWaveNotificationVisibility(bool visiblity)
+void UInGameHUD::SetWaveNotificationOnWave(int _index)
 {
-	if (visiblity == true)
-		StartWaveNotification->SetVisibility(ESlateVisibility::Visible);
-	else
-		StartWaveNotification->SetVisibility(ESlateVisibility::Hidden);
+	int wave = _index + 1;
+
+	FString NotificationOnWait = FString::Printf(TEXT("Wave %d: %s"), wave, *BattleDescription[_index]);
+	WaveNotification->SetText(FText::FromString(NotificationOnWait));
+	WaveNotification->SetColorAndOpacity(BattleNotificationColor);
+
 }
+
+void UInGameHUD::SetWaveNotificationOnWait()
+{
+	FString NotificationOnWait = TEXT("When you are ready, Press [Enter] to start next battle");
+	WaveNotification->SetText(FText::FromString(NotificationOnWait));
+	WaveNotification->SetColorAndOpacity(WaitNotificationColor);
+
+}
+
+//void UInGameHUD::SetStartWaveNotificationVisibility(bool visiblity)
+//{
+//	if (visiblity == true)
+//		WaveNotification->SetVisibility(ESlateVisibility::Visible);
+//	else
+//		WaveNotification->SetVisibility(ESlateVisibility::Hidden);
+//}
 
 
 

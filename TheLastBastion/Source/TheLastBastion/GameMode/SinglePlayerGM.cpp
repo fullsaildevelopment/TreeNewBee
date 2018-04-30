@@ -236,13 +236,16 @@ void ASinglePlayerGM::UnRegisterEnemyGroupAt(int _index)
 	ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	if (pc)
 		pc->GetInGameHUD()->RemoveEnemyGroupAt(_index);
-
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("pc == nullptr, ASinglePlayerGM::UnRegisterEnemyGroupAt"));
+		return;
+	}
 	// tell UI to show "press Enter to start next wave"
 	if (Enemies.Num() <= 0 && EnemyGroupSpawner->IsCurrentWaveFinishSpawning())
 	{
 		// TODO:  Display the notification for player once all the enemy groups in this wave get killed
-		if (pc)
-			pc->GetInGameHUD()->SetStartWaveNotificationVisibility(true);
+		pc->GetInGameHUD()->SetWaveNotificationOnWait();
 
 		// Fade in default theme
 		EnemyGroupSpawner->PlayDefaultTheme();
