@@ -213,9 +213,8 @@ void ASinglePlayerPC::LevelUp(int _deltaLevel)
 		
 		if (HeroStats)
 		{
-			for (int i = 0; i < _deltaLevel; i++)
-				HeroStats->LevelUp();
-
+			heroCharacter->SetCharacterLevel(_deltaLevel);
+			HeroStats->LevelUp();
 			mInGameHUD->SetPlayerRowOnLevelUp(HeroStats);
 		}
 	}

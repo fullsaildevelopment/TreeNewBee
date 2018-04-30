@@ -95,6 +95,7 @@ void AAllyGroup::SpawnChildGroup()
 	spawnParam.SpawnCollisionHandlingOverride 
 		= ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
+	int Level = PlayerHero->GetCharacerLevel();
 
 	int totalAllyCount = 0;
 	int maxColCount = 0;
@@ -149,11 +150,31 @@ void AAllyGroup::SpawnChildGroup()
 			GroupIndex = AICharactersInfo.Num();
 
 			ClassToSpawn = GetClassDuringAllySpawn(GroupIndex);
-			newCharacterInfo.AICharacter = world->SpawnActor<ATheLastBastionAIBase>(ClassToSpawn, spawnLocation, this->GetActorRotation(), spawnParam);
-			newCharacterInfo.AICharacter->SpawnDefaultController();
-			newCharacterInfo.AICharacter->SetParent(this, GroupIndex);
 
-			AICharactersInfo.Add(newCharacterInfo);
+			FTransform spawnTransform;
+			spawnTransform.SetLocation(spawnLocation);
+			spawnTransform.SetRotation(this->GetActorQuat());
+			spawnTransform.SetScale3D(FVector(1.0f, 1.0f, 1.0f));
+
+			newCharacterInfo.AICharacter
+				= world->SpawnActorDeferred<ATheLastBastionAIBase>(
+					ClassToSpawn, spawnTransform, nullptr, nullptr,
+					ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+
+			if (newCharacterInfo.AICharacter)
+			{
+				newCharacterInfo.AICharacter->SetCharacterLevel(Level);
+				UGameplayStatics::FinishSpawningActor(newCharacterInfo.AICharacter, spawnTransform);
+				// End Spawn
+				newCharacterInfo.AICharacter->SpawnDefaultController();
+				newCharacterInfo.AICharacter->SetParent(this, GroupIndex);
+				AICharactersInfo.Add(newCharacterInfo);
+			}
+
+			//newCharacterInfo.AICharacter = world->SpawnActor<ATheLastBastionAIBase>(ClassToSpawn, spawnLocation, this->GetActorRotation(), spawnParam);
+			//newCharacterInfo.AICharacter->SpawnDefaultController();
+			//newCharacterInfo.AICharacter->SetParent(this, GroupIndex);
+			//AICharactersInfo.Add(newCharacterInfo);
 
 			//// check if this should be the group speed
 			//characterMaxSpeed = newCharacterInfo.AICharacter->GetCurrentMaxSpeed();
@@ -591,6 +612,14 @@ void AAllyGroup::OnStopFollowing()
 	GetWorldTimerManager().ClearTimer(mFollowingTimer);
 	bIsFollowing = false;
 
+}
+
+void AAllyGroup::OnHeroLevelUp(int _heroLevel)
+{
+	for (size_t i = 0; i < AICharactersInfo.Num(); i++)
+	{
+		AICharactersInfo[i].AICharacter->OnHeroLevelUp(_heroLevel);
+	}
 }
 
 void AAllyGroup::OnSelected()

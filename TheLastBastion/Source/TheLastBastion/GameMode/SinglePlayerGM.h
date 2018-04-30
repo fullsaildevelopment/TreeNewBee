@@ -13,10 +13,6 @@
 #define MaxEnemyGroupAmount 5
 #define AllyGroupMaxAmount 4
 
-
-
-
-
 UCLASS()
 class THELASTBASTION_API ASinglePlayerGM : public AGameModeBase
 {
@@ -90,6 +86,8 @@ private:
 public:
 
 	void Tick(float DeltaSeconds) override;
+
+	void OnHeroLevelUp(int _heroLevel);
 
 	bool HasAllyGroupUnitAt(int _index);
 

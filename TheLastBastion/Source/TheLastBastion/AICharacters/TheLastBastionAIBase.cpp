@@ -497,6 +497,11 @@ void ATheLastBastionAIBase::Kill()
 	Destroy();
 }
 
+//void ATheLastBastionAIBase::OnLevelUp()
+//{
+//	PawnStats->LevelUp();
+//}
+
 bool ATheLastBastionAIBase::IsStuned() const
 {
 	return mAnimInstanceRef->GetCurrentActionState() == EAIActionState::GettingStuned;

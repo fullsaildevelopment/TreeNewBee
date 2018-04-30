@@ -119,6 +119,15 @@ void ASinglePlayerGM::Tick(float DeltaSeconds)
 	//CheckWaveState();
 }
 
+void ASinglePlayerGM::OnHeroLevelUp(int _heroLevel)
+{
+	for (size_t i = 0; i < Allies.Num(); i++)
+	{
+		if (Allies[i] != nullptr)
+			Allies[i]->OnHeroLevelUp(_heroLevel);
+	}
+}
+
 bool ASinglePlayerGM::HasAllyGroupUnitAt(int _index)
 {
 	return 	Allies.IsValidIndex(_index);

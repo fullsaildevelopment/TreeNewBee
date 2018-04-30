@@ -205,57 +205,58 @@ void UPawnStatsComponent::GenerateRawStatsByLevel(int _level)//, float& _baseDam
 /** Generater Max stats after the gear is loaded, set current to max*/
 void UPawnStatsComponent::GenerateMaxStats(bool _setCurrentToMax)
 {
-	float
-		factorHp = 1,
-		factorStamina = 1,
-		HpAdd = 0,
-		SpAdd = 0;
-		//criticalAdd = 0,
-		//stunAdd = 0;
+	//float
+	//	factorHp = 1,
+	//	factorStamina = 1,
+	//	HpAdd = 0,
+	//	SpAdd = 0;
+	//	//criticalAdd = 0,
+	//	//stunAdd = 0;
 
-	AGear* LeftHandWeapon = WeaponSlots[CurrentWeapon_Index].LeftHand;
-	AGear* RightHandWeapon = WeaponSlots[CurrentWeapon_Index].RightHand;
+	//AGear* LeftHandWeapon = WeaponSlots[CurrentWeapon_Index].LeftHand;
+	//AGear* RightHandWeapon = WeaponSlots[CurrentWeapon_Index].RightHand;
 
-	if (LeftHandWeapon)
-	{
-		factorHp += LeftHandWeapon->GetHpBonus_uint();
-		factorStamina += LeftHandWeapon->GetStaminaBonus_uint();
-		HpAdd += LeftHandWeapon->GetHpAdditive();
-		SpAdd += LeftHandWeapon->GetSpAdditive();
-		//criticalAdd += LeftHandWeapon->GetCriticalChance();
-		//stunAdd += LeftHandWeapon->GetStunChance();
-	}
+	//if (LeftHandWeapon)
+	//{
+	//	factorHp += LeftHandWeapon->GetHpBonus_uint();
+	//	factorStamina += LeftHandWeapon->GetStaminaBonus_uint();
+	//	HpAdd += LeftHandWeapon->GetHpAdditive();
+	//	SpAdd += LeftHandWeapon->GetSpAdditive();
+	//	//criticalAdd += LeftHandWeapon->GetCriticalChance();
+	//	//stunAdd += LeftHandWeapon->GetStunChance();
+	//}
 
-	if (RightHandWeapon)
-	{
-		//factorHp += RightHandWeapon->GetHpBonus_uint();
-		//factorStamina += RightHandWeapon->GetStaminaBonus_uint();
-		//HpAdd += RightHandWeapon->GetHpAdditive();
-		//SpAdd += RightHandWeapon->GetSpAdditive();
-		//criticalAdd += RightHandWeapon->GetCriticalChance();
-		//stunAdd += RightHandWeapon->GetStunChance();
-	}
+	//if (RightHandWeapon)
+	//{
+	//	//factorHp += RightHandWeapon->GetHpBonus_uint();
+	//	//factorStamina += RightHandWeapon->GetStaminaBonus_uint();
+	//	//HpAdd += RightHandWeapon->GetHpAdditive();
+	//	//SpAdd += RightHandWeapon->GetSpAdditive();
+	//	//criticalAdd += RightHandWeapon->GetCriticalChance();
+	//	//stunAdd += RightHandWeapon->GetStunChance();
+	//}
 
-	if (Armor)
-	{
-		factorHp += Armor->GetHpBonus_uint();
-		factorStamina += Armor->GetStaminaBonus_uint();
-		HpAdd += Armor->GetHpAdditive();
-		SpAdd += Armor->GetSpAdditive();
-		//criticalAdd += Armor->GetCriticalChance();
-		//stunAdd += Armor->GetStunChance();
-	}
+	//if (Armor)
+	//{
+	//	factorHp += Armor->GetHpBonus_uint();
+	//	factorStamina += Armor->GetStaminaBonus_uint();
+	//	HpAdd += Armor->GetHpAdditive();
+	//	SpAdd += Armor->GetSpAdditive();
+	//	//criticalAdd += Armor->GetCriticalChance();
+	//	//stunAdd += Armor->GetStunChance();
+	//}
 
-
-	HpMax = factorHp * HpRaw + HpAdd;
-	StaminaMax = factorStamina * StaminaRaw + SpAdd;
+	HpMax = HpRaw;
+	StaminaMax = StaminaRaw;
+	//HpMax = factorHp * HpRaw + HpAdd;
+	//StaminaMax = factorStamina * StaminaRaw + SpAdd;
 	//CriticalMax = CriticalRow + criticalAdd;
 	//StunMax = StunRow + stunAdd;
 	//DpCurrent = 0;
 
-	HpCurrent = (HpCurrent > HpMax) ? HpMax : HpCurrent;
-	DpCurrent = (DpCurrent > HpMax) ? HpMax : DpCurrent;
-	StaminaCurrent = (StaminaCurrent > StaminaMax) ? StaminaMax : StaminaCurrent;
+	//HpCurrent = (HpCurrent > HpMax) ? HpMax : HpCurrent;
+	//DpCurrent = (DpCurrent > HpMax) ? HpMax : DpCurrent;
+	//StaminaCurrent = (StaminaCurrent > StaminaMax) ? StaminaMax : StaminaCurrent;
 
 	if (_setCurrentToMax)
 	{
@@ -268,7 +269,9 @@ void UPawnStatsComponent::GenerateMaxStats(bool _setCurrentToMax)
 
 void UPawnStatsComponent::LevelUp()
 {
-
+	//Level++;
+	GenerateRawStatsByLevel(Level);
+	GenerateMaxStats(false);
 }
 
 void UPawnStatsComponent::Born()

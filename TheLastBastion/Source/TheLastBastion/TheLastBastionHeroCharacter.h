@@ -362,6 +362,7 @@ public:
 	/** Called after heal skill is succefully casted*/
 	void OnHealSkillCastSuccess();
 
+	
 	float PostDamageCalculate(float _damage) const override;
 
 	bool IsStuned() const override;

@@ -58,6 +58,9 @@ public:
 	/** Update health bar when the owner of this UI get hit*/
 	void UpdateHealthBar(const class UPawnStatsComponent * _pawnStatsComp);
 
+	/** Called when character level up with hero*/
+	void OnCharacterLevelUp(const class UPawnStatsComponent * _pawnStatsComp);
+
 	/** Play transparency animation when the AI get hit without being focused on*/
 	void ToggleUI(bool _turnOn, bool _playAnim);
 

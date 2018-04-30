@@ -237,7 +237,7 @@ public:
 	//void CalculateRawStatsByType(int _level);// , float& damage, float& _hp);
 
 	// Called after equip and unequip 
-	void GenerateMaxStats(bool _setCurrentToMax = true);
+	virtual void GenerateMaxStats(bool _setCurrentToMax = true);
 
 	// Called after character is level up, generater raw && max stats, recover full health
 	virtual void LevelUp();
