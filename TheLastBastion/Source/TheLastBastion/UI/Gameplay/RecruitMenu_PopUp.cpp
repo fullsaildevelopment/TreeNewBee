@@ -30,11 +30,23 @@ void URecruitMenu_PopUp::OnPopUp(TSubclassOf<class ATheLastBastionAIBase> _unitC
 		Description->SetText(defaultAI->GetAIDescription());
 
 		int Level = Cast<ATheLastBastionCharacter>(GetOwningPlayerPawn())->GetCharacerLevel();
-		float damage = 0, hp = 0;
-		defaultAI->GetPawnStatsComp()->CalculateRawStatsByType(Level, defaultAI->GetCharacterType(), damage, hp);
+		float damage = 0, hp = 0, hp_grow = 0, damage_grow = 0;
+
+		UPawnStatsComponent* pawnStats = defaultAI->GetPawnStatsComp();
+
+		if (pawnStats)
+		{
+			damage = pawnStats->GetRowDamageAtLevel(Level);
+			hp = pawnStats->GetRowHpAtLevel(Level);
+			hp_grow = pawnStats->GetRowHpGrow();
+			damage_grow = pawnStats->GetRowDamageGrow();
+
+		}
 
 		AddPopUpEntry(TEXT("Base Health: "), hp, UnitStats);
 		AddPopUpEntry(TEXT("Base Damage: "), damage, UnitStats);
+		AddPopUpEntry(TEXT("Health Grow (per Lv.): "), hp_grow, UnitStats);
+		AddPopUpEntry(TEXT("Damage Grow (per Lv.): "), damage_grow, UnitStats);
 
 		TArray<int> Cost = defaultAI->GetResourceCost();
 

@@ -11,16 +11,6 @@
  */
 
 
-UENUM(BlueprintType)
-enum class ElementalType : uint8
-{
-	None = 0    UMETA(DisplayName = "None"),
-	Physics = 1 UMETA(DisplayName = "Physics"),
-	Posion = 2  UMETA(DisplayName = "Posion"),
-	Fire = 3    UMETA(DisplayName = "Fire"),
-	Ice = 4     UMETA(DisplayName = "Ice")
-};
-
 
 UCLASS()
 class THELASTBASTION_API UTLBDamageType : public UDamageType
@@ -34,12 +24,11 @@ public:
 
 protected:
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = DamageRender)
-		ElementalType ElementalType;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	bool bIsComboShot;
 
-	
+public:
 
-
-
-	
+	FORCEINLINE void SetIsComboShot(bool _val) { bIsComboShot = _val; }
+	FORCEINLINE bool GetIsComboShot() const { return bIsComboShot; }
 };

@@ -399,7 +399,7 @@ void UHeroStatsComponent::LevelUp()
 	Level++;
 	SkillPoints++;
 	// Update the row value, so the gear merits can add on
-	GenerateRawStatsByLevel(Level, BaseDamage, HpRaw);
+	GenerateRawStatsByLevel(Level);// , CurrentRowDamage, HpRaw);
 	// apply the gear merits
 	GenerateMaxStats(true);
 
@@ -412,6 +412,40 @@ void UHeroStatsComponent::LevelUp()
 	{
 		UGameplayStatics::SpawnEmitterAttached(LevelUpParticle, PlayerMesh);
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), levelUpSfx, mHeroCharacter->GetActorLocation());
+	}
+}
+
+void UHeroStatsComponent::SetDamageMultiplierByLevel_PowerHit(int _level)
+{
+	Hero_PowerHit_DamageMultiplier_Sns = DamageMultiplier_PowerHit_Sns + DamageMultiplier_increment_onEachLevel_Combo * _level;
+	Hero_PowerHit_DamageMultiplier_Katana = DamageMultiplier_PowerHit_Katana + DamageMultiplier_increment_onEachLevel_Katana * _level;
+	Hero_PowerHit_DamageMultiplier_HV = DamageMultiplier_PowerHit_HV + DamageMultiplier_increment_onEachLevel_Combo * _level;
+
+	AGear* currentWeapon = GetCurrentRightHandWeapon();
+	if (currentWeapon == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("currentWeapon == nullptr, UHeroStatsComponent::SetDamageMultiplierByLevel_PowerHit"));
+		return;
+	}
+	EGearType gearType = currentWeapon->GetGearType();
+	switch (gearType)
+	{
+	case EGearType::DoubleHandWeapon:
+		Hero_PowerHit_DamageMultiplier = Hero_PowerHit_DamageMultiplier_Katana;
+		break;
+	case EGearType::WarAxe:
+	case EGearType::Mace:
+	case EGearType::LongSword:
+		Hero_PowerHit_DamageMultiplier = Hero_PowerHit_DamageMultiplier_Sns;
+		break;
+
+	case EGearType::GreatSword:
+	case EGearType::BattleAxe:
+	case EGearType::Hammer:
+		Hero_PowerHit_DamageMultiplier = Hero_PowerHit_DamageMultiplier_HV;
+		break;
+	default:
+		break;
 	}
 }
 

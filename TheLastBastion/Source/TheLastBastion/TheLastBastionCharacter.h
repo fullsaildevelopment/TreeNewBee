@@ -11,6 +11,10 @@
 #define RagDoll_RecoverLerpSpeed 5.0f
 #define RagDoll_MinimumGetUpTime 2.0f
 #define SecondBeforeKill 3.0f
+
+
+#define Damage_VirationRange 0.1f
+
 DECLARE_MULTICAST_DELEGATE(FOnBecomeUnavailbleTargetEvent);
 
 
@@ -185,11 +189,9 @@ protected:
 
 public:
 
-	FORCEINLINE bool IsEnemy() const { return bIsEnemy; }
 	void DuringRagDoll();
 	virtual void RagDollRecoverOnFinish();
 	void DuringRagDollRecovering(float _deltaTime);
-	FORCEINLINE bool IsOldKnockOut() const { return oldRagDollIndex == newRagDollIndex; }
 
 	UFUNCTION(BlueprintNativeEvent)
 		ECharacterVoiceType GetCharacterVoiceType() const;
@@ -213,9 +215,17 @@ public:
 	/** Calculate the damage based on the character extra buff*/
 	virtual float PostDamageCalculate(float _damage) const { return _damage; }
 
+	/** return the raw damage*/
+	virtual float GetDamage(const UDamageType * DamageType, 
+		FName _bone, bool& _isHeadShot, bool& _isCritical, bool& _isStun) const;
+
 public:
 
 	virtual bool IsStuned() const { return false; }
+
+	FORCEINLINE bool IsOldKnockOut() const { return oldRagDollIndex == newRagDollIndex; }
+	FORCEINLINE bool IsEnemy() const { return bIsEnemy; }
+
 
 	FORCEINLINE float GetMaxTurnRateForTravel() const { return  maxTurnRate_Travel; }
 	FORCEINLINE float GetMaxTurnRateForCombat() const { return  maxTurnRate_Combat; }

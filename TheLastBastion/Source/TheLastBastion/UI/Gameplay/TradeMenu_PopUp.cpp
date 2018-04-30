@@ -73,8 +73,8 @@ void UTradeMenu_PopUp::OnPopUp(TSubclassOf<class AGear> _GearClass)
 
 void UTradeMenu_PopUp::PopUpArmor(const AGear*  const _Armor)
 {
-	float physicalDefence = _Armor->GetPhysicalDefence();
-	AddPopUpEntry(TEXT("Physical Defence: "), physicalDefence, GearStats);
+	//float physicalDefence = _Armor->GetPhysicalDefence();
+	//AddPopUpEntry(TEXT("Physical Defence: "), physicalDefence, GearStats);
 
 	float hpBonus = _Armor->GetHpBonus();
 	if (hpBonus != 0)
@@ -86,15 +86,15 @@ void UTradeMenu_PopUp::PopUpArmor(const AGear*  const _Armor)
 
 	float spBonus = _Armor->GetStaminaBonus();
 	if (spBonus != 0)
-		AddPopUpEntryWithColor(FLinearColor::Green, TEXT("Sp Bonus(%): "), spBonus, GearStats);
+		AddPopUpEntryWithColor(FLinearColor::Green, TEXT("Sp Bonus(%): "), (int)spBonus, GearStats);
 
 	float spAdditive = _Armor->GetSpAdditive();
 	if (spAdditive != 0)
 		AddPopUpEntryWithColor(FLinearColor::Green, TEXT("Sp Add: "), spAdditive, GearStats);
 
-	float IceDefence = _Armor->GetIceDefence();
-	if (IceDefence != 0)
-		AddPopUpEntryWithColor(IceHit_FTColor, TEXT("Ice Defence: "), IceDefence, GearStats);
+	//float IceDefence = _Armor->GetIceDefence();
+	//if (IceDefence != 0)
+	//	AddPopUpEntryWithColor(IceHit_FTColor, TEXT("Ice Defence: "), IceDefence, GearStats);
 
 }
 
@@ -111,7 +111,9 @@ void UTradeMenu_PopUp::PopUpSharpWeapon(const AGear* const  _SharpWeapon)
 
 void UTradeMenu_PopUp::PopUpStunWeapon(const AGear* const  _StunWeapon)
 {
-	PopUpSharpWeapon(_StunWeapon);
+	float physicalDamage = _StunWeapon->GetPhysicalDamage();
+	AddPopUpEntry(TEXT("Physical Damage: "), physicalDamage, GearStats);
+
 	float stunChance = _StunWeapon->GetStunChance();
 	AddPopUpEntryWithColor(StunHit_FTColor, TEXT("Stun Chance(%): "), stunChance, GearStats);
 }

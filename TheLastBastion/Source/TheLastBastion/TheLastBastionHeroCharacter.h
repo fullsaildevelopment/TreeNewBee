@@ -380,6 +380,9 @@ public:
 	int GetExtraPowerShootBullet() const;
 	int GetPowerShotDistance() const;
 
+	float GetDamage(const UDamageType * DamageType,
+		FName _bone, bool& _isHeadShot, bool& _isCritical, bool& _isStun) const override;
+
 	FORCEINLINE class USphereComponent* GetTargetDetector() const { return TargetDetector; }
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

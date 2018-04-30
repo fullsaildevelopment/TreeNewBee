@@ -467,9 +467,7 @@ void UInGameMenu::OnAcceptClicked_Skill()
 
 	// powerHit - hit them hard, set cool down time, set damage multiplier
 	level = AllSkillLevel[MakeThemSufferLevel].Level;
-	heroStats->SetDamageMultiplierByLevel_PowerHit_Sns(level);
-	heroStats->SetDamageMultiplierByLevel_PowerHit_Katana(level);
-	heroStats->SetDamageMultiplierByLevel_PowerHit_HV(level);
+	heroStats->SetDamageMultiplierByLevel_PowerHit(level);
 	heroStats->SetExtraProjectileAmountByLevel(level);
 	heroStats->SetPowerShotBulletSpreadDistanceByLevel(level);
 	hero->SetSkillCoolDownTimeByLevelAt(Skill__PowerHit, level);

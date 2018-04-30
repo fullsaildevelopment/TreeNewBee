@@ -17,6 +17,7 @@
 #include "Combat/Weapon.h"
 #include "Combat/Armor.h"
 #include "Combat/HeroStatsComponent.h"
+#include "Combat/TLBDamageType.h"
 
 #include "GI_TheLastBastion.h"
 
@@ -1158,6 +1159,58 @@ int ATheLastBastionHeroCharacter::GetPowerShotDistance() const
 	return HeroStats->GetPowerShotBulletSpreadDistance();
 }
 
+float ATheLastBastionHeroCharacter::GetDamage(const UDamageType * DamageType, FName _bone, 
+	bool & _isHeadShot, bool & _isCritical, bool & _isStun) const
+{
+
+	const UTLBDamageType* projectileDamage = Cast<UTLBDamageType>(DamageType);
+	float damageMultiplier = 1.0f;
+
+	float baseDamage = PawnStats->GetCurrentRowDamage() 
+		+ PawnStats->GetCurrentRightHandWeapon()->GetPhysicalDamage();
+	
+	float criticalRate = FMath::SRand();
+	float stunRate = FMath::SRand();
+
+	AGear* currentWeapon = PawnStats->GetCurrentActivatedWeapon();
+	if (currentWeapon)
+	{
+		_isCritical = criticalRate < currentWeapon->GetCriticalChance_unit();
+		_isStun = stunRate < currentWeapon->GetStunChance_unit();
+	}
+	else
+		UE_LOG(LogTemp, Error, TEXT("currentWeapon == nullptr - ATheLastBastionHeroCharacter::GetDamage"));
+
+	if (projectileDamage)
+	{
+		// if this is projectile
+		_isHeadShot = _bone.Compare("head") == 0;
+
+		if (projectileDamage->GetIsComboShot())
+			damageMultiplier *= HeroStats->GetComboShootDamage_Scaler();
+
+		if (_isHeadShot)
+			damageMultiplier *= DamageMultiplier_HeadShot_CB;
+
+		if (_isCritical)
+			damageMultiplier *= DamageMultiplier_CriticalHit_CB;
+
+		baseDamage = baseDamage * damageMultiplier;
+		float range = 0.1f * baseDamage;
+		return FMath::RandRange(baseDamage - range, baseDamage + range);
+	}
+	else
+	{
+		if (_isCritical)
+			damageMultiplier *= PawnStats->GetCurrentCriticalDamageMulitiplier();
+		baseDamage *= damageMultiplier;
+		baseDamage = PostDamageCalculate(baseDamage);
+		float range = 0.1f * baseDamage;
+		return FMath::RandRange(baseDamage - range, baseDamage + range);
+	}
+
+}
+
 bool ATheLastBastionHeroCharacter::IsSkillCooled(int _index) const
 {
 	return	mInGameHUD->IsSkilledCooledDown(_index);
@@ -1207,18 +1260,31 @@ void ATheLastBastionHeroCharacter::OnTakeAnyDamageHandle(AActor * DamagedActor, 
 {
 }
 
-void ATheLastBastionHeroCharacter::OnTakePointDamageHandle(AActor * DamagedActor, float Damage, AController * InstigatedBy, FVector HitLocation, UPrimitiveComponent * FHitComponent, FName BoneName, FVector ShotFromDirection, const UDamageType * DamageType, AActor * DamageCauser)
+void ATheLastBastionHeroCharacter::OnTakePointDamageHandle(AActor * DamagedActor, float Damage, 
+	AController * InstigatedBy, FVector HitLocation, UPrimitiveComponent * FHitComponent, 
+	FName BoneName, FVector ShotFromDirection, const UDamageType * DamageType, AActor * DamageCauser)
 {
 
 	if (bIsDead)
 		return;
 
-	bool isCritical = false, isStun = false;
+	bool isCritical = false, isStun = false, isHeadShot;
 
 	// the relative position of damage causer to damaged actor
 	FVector damageCauserRelative = ShotFromDirection;
 
-	float totalDamage = HeroStats->CalculateDamage(Damage, DamageCauser, isCritical, isStun);
+	ATheLastBastionCharacter* attacker = Cast<ATheLastBastionCharacter>(DamageCauser);
+	if (attacker == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Attacker == nullptr - ATheLastBastionHeroCharacter::OnTakePointDamageHandle"));
+		return;
+	}
+
+
+
+	float totalDamage = attacker->GetDamage(DamageType, BoneName, isHeadShot, isCritical, isStun);
+
+	totalDamage = HeroStats->CalculateHealth(totalDamage);
 
 	if (mAnimInstanceRef->IsAnimCanNotInterruptByTakingDamage())
 		isStun = false;

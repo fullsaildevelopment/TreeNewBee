@@ -4,12 +4,25 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "TheLastBastionCharacter.h"
-
+#include "CustomType.h"
+#include "Combat/TLBDamageType.h"
 // Sets default values
+
+TSubclassOf <class UDamageType> AGear::ComboBullets_Type = nullptr;
+TSubclassOf <class UDamageType> AGear::NormalBullets_Type = nullptr;
+
+
 AGear::AGear()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	// SetReplicates(true);
+
+	if (ComboBullets_Type == nullptr)
+		UCustomType::FindClass<UDamageType>(ComboBullets_Type, TEXT("/Game/Blueprints/DamageType/DT_ComboBullets"));
+
+	if (NormalBullets_Type == nullptr)
+		UCustomType::FindClass<UDamageType>(NormalBullets_Type, TEXT("/Game/Blueprints/DamageType/DT_Bullets"));
+
 }
 
 // Called when the game starts or when spawned

@@ -5,6 +5,7 @@
 
 #include "Combat/PawnStatsComponent.h"
 #include "Combat/Gear.h"
+#include "Combat/TLBDamageType.h"
 
 #include "Animation/Base_AnimInstance.h"
 
@@ -195,6 +196,51 @@ void ATheLastBastionCharacter::OnDead(const FVector& dir, const AActor* _damageC
 
 void ATheLastBastionCharacter::Kill()
 {
+}
+
+float ATheLastBastionCharacter::GetDamage(const UDamageType * DamageType,
+	FName _bone, bool& _isHeadShot, bool& _isCritical, bool& _isStun) const
+{
+	const UTLBDamageType* projectileDamage = Cast<UTLBDamageType>(DamageType);
+	float damageMultiplier = 1.0f;
+	float baseDamage = PawnStats->GetCurrentRowDamage();
+
+
+	float criticalRate = FMath::SRand();
+	float stunRate = FMath::SRand();
+
+	AGear* currentWeapon = PawnStats->GetCurrentActivatedWeapon();
+	if (currentWeapon )
+	{
+		_isCritical = criticalRate < currentWeapon->GetCriticalChance_unit();
+		_isStun = stunRate < currentWeapon->GetStunChance_unit();
+	}
+	else
+		UE_LOG(LogTemp, Error, TEXT("currentWeapon == nullptr - ATheLastBastionCharacter::GetDamage"));
+
+
+
+	if (projectileDamage)
+	{
+		// if this is projectile
+		_isHeadShot = _bone.Compare("head") == 0;
+
+		if (_isHeadShot)
+			damageMultiplier *= DamageMultiplier_HeadShot_CB;
+
+		if (_isCritical)
+			damageMultiplier *= DamageMultiplier_CriticalHit_CB;
+
+	}
+	else
+	{
+		if (_isCritical)
+			damageMultiplier *= PawnStats->GetCurrentCriticalDamageMulitiplier();
+	}
+	
+	baseDamage = baseDamage * damageMultiplier;
+	float range = Damage_VirationRange * baseDamage;
+	return FMath::RandRange(baseDamage - range, baseDamage + range);
 }
 
 void ATheLastBastionCharacter::ClampCapsuleToMesh()

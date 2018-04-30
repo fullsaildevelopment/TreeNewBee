@@ -74,10 +74,12 @@ void AProjectile::SetInitFireVelocity(const FVector & _hor, float flyTime)
 	//UE_LOG(LogTemp, Log, TEXT("%f - AProjectile::SetInitFireVelocity "), ProjectileMovementComp->GetGravityZ());
 }
 
-void AProjectile::ProjectileOnFire(AGear * _rangeWeapon)
+void AProjectile::ProjectileOnFire(AGear * _rangeWeapon, bool _isComboProjectile)
 {
 	if (_rangeWeapon)
 	{
+
+		DamageType = _isComboProjectile ? ComboBullets_Type : NormalBullets_Type;
 		bIsFlying = true;
 		GearOwner = _rangeWeapon->GetGearOwner();
 		SetDamageIsEnabled(true);
@@ -154,8 +156,6 @@ void AProjectile::Tick(float _deltaTime)
 		DamageInfo.applyDamageType = EApplyDamageType::Point;
 		DamageInfo.damageType = DamageType;
 		DamageInfo.bIsProjectile = true;
-
-
 
 		//FVector damageBoxLocation = GetActorLocation() + GetActorForwardVector() * Bullets_DamageBoxOffset.X;
 

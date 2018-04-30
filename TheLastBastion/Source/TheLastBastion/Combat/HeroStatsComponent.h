@@ -274,7 +274,7 @@ public:
 	FORCEINLINE float GetHealRadius() const { return HealRadius_Skill; }
 	FORCEINLINE float GetHealAmount() const { return HealAmount_Skill * 0.01f; }
 	FORCEINLINE int GetExtraProjectileAmount() const { return PowerProjectileExtraAmount; }
-	FORCEINLINE int GetComboShootDamage_Scaler() const { return ComboShootDamage_Scaler; }
+	FORCEINLINE float GetComboShootDamage_Scaler() const { return ComboShootDamage_Scaler; }
 	FORCEINLINE int GetPowerShotBulletSpreadDistance() const {return PowerShotBulletSpreadDistance;}
 
 
@@ -284,10 +284,9 @@ public:
 	FORCEINLINE void SetDpGainByLevel_OnShieldBash(int _level) { Hero_DpGain_OnShieldBash = HeroDpGainOn_ShieldBash_Init + DpGain_Increment_OnEachLevel * _level; }
 	FORCEINLINE void SetDpGainByLevel_OnHVPowerHit(int _level) { Hero_DpGain_OnHVPowerHit = HeroDpGainOn_HVPowerHit_Init + DpGain_Increment_OnEachLevel * _level; }
 	FORCEINLINE void SetDamageMultiplierByLevel_Combo(int _level) { Hero_Combo_DamageMultiplier = DamageMultiplier_Combo + DamageMultiplier_increment_onEachLevel_Combo * _level; }
+	void SetDamageMultiplierByLevel_PowerHit(int _level); 
 
-	FORCEINLINE void SetDamageMultiplierByLevel_PowerHit_Sns(int _level) { Hero_Combo_DamageMultiplier = DamageMultiplier_PowerHit_Sns + DamageMultiplier_increment_onEachLevel_Combo * _level; }
-	FORCEINLINE void SetDamageMultiplierByLevel_PowerHit_Katana(int _level) { Hero_Combo_DamageMultiplier = DamageMultiplier_PowerHit_Katana + DamageMultiplier_increment_onEachLevel_Katana * _level; }
-	FORCEINLINE void SetDamageMultiplierByLevel_PowerHit_HV(int _level) { Hero_Combo_DamageMultiplier = DamageMultiplier_PowerHit_HV + DamageMultiplier_increment_onEachLevel_Combo * _level; }
+
 	FORCEINLINE void SetHealRadiusByLevel(int _level) { HealRadius_Skill = Skill_Heal_Radius_Init + _level * Skill_Heal_Radius_Increment_OnLevelUp; }
 	FORCEINLINE void SetHealAmountByLevel(int _level) { HealAmount_Skill = Skill_Heal_Amount_Init + _level * Skill_Heal_Amount_Increment_OnLevelUp; }
 	FORCEINLINE void SetSpRecoverRateDuringFaith(int _level) { HeroSpRecoverRateDuringFaith_Scaler = StaminaRecoverRateDuringFaith + _level * StaminaRecoverRateDuringFaith_Increment_OnLevelUp; }

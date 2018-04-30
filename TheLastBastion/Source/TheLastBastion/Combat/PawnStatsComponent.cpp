@@ -26,10 +26,6 @@
 #include "Components/AudioComponent.h"
 
 
-#define QueenGuard_BaseHp 2000
-#define QueenGuard_HpOnLevelUp 250
-#define QueenGuard_DamageOnLevelUp 100
-
 static TSubclassOf<class UUserWidget> FloatingText_WBP;
 
 // Sets default values for this component's properties
@@ -43,6 +39,13 @@ UPawnStatsComponent::UPawnStatsComponent()
 
 	StaminaRaw = 120.0f;
 	DpCurrent = 0;
+
+	BaseRowHp = BaseRowHp_Default;
+	RowHpIncreasementOnLevelUp = BaseRowDamage_Default;
+
+	BaseRowDamage = BaseRowDamage_Default;
+	RowDamageIncreasementOnLevelUp = BaseRowDamage_Increasement_OnLevelUp_Default;
+
 
 	if (!FloatingText_WBP)
 		UCustomType::FindClass<UUserWidget>(FloatingText_WBP, TEXT("/Game/UI/In-Game/WBP_FloatingText"));
@@ -85,6 +88,7 @@ void UPawnStatsComponent::BeginPlay()
 	}
 
 }
+
 
 // Called every frame
 void UPawnStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -177,43 +181,25 @@ bool UPawnStatsComponent::OnSwapBetweenMeleeAndRange()
 
 #pragma region Stats Generatrion
 
-void UPawnStatsComponent::GenerateRawStatsByLevel(int _level, float& _baseDamage, float& _hpRaw) 
+void UPawnStatsComponent::GenerateRawStatsByLevel(int _level)//, float& _baseDamage, float& _hpRaw) 
 {
 	Level = _level;
 
 	if (mCharacter)
 	{
-		CalculateRawStatsByType(Level, mCharacter->GetCharacterType(),_baseDamage, _hpRaw);
+		CurrentRowDamage = GetRowDamageAtLevel(_level);
+		HpRaw = GetRowHpAtLevel(_level);
+
+		//CalculateRawStatsByType(Level);//, _baseDamage, _hpRaw);
 	}
 	else
 		UE_LOG(LogTemp, Error, TEXT("mCharacter is Null - UPawnStatsComponent::GenerateRawStatsByLevel"));
 }
 
-void UPawnStatsComponent::CalculateRawStatsByType(int _level, ECharacterType _type, float & _damage, float & _hp)
-{
-	switch (_type)
-	{
-	default:
-	{
-		_hp = 500.0f + _level * 30.0f;
-		_damage = 25.0f * _level;
-	}
-	break;
-	case ECharacterType::Lan_QueenGuard:
-	{
-		_hp = QueenGuard_BaseHp + _level * QueenGuard_HpOnLevelUp;
-		_damage = QueenGuard_DamageOnLevelUp * _level;
-		DpCurrent = _hp;
-	}
-	break;
-	case ECharacterType::Ranger:
-	{
-		_hp = RangerInitHp + _level * 15;
-		_damage = 15.0f * _level;
-	}
-	break;
-	}
-}
+//void UPawnStatsComponent::CalculateRawStatsByType(int _level, float & _damage, float & _hp)
+//{
+//
+//}
 
 
 /** Generater Max stats after the gear is loaded, set current to max*/
@@ -223,48 +209,48 @@ void UPawnStatsComponent::GenerateMaxStats(bool _setCurrentToMax)
 		factorHp = 1,
 		factorStamina = 1,
 		HpAdd = 0,
-		SpAdd = 0,
-		criticalAdd = 0,
-		stunAdd = 0;
+		SpAdd = 0;
+		//criticalAdd = 0,
+		//stunAdd = 0;
 
 	AGear* LeftHandWeapon = WeaponSlots[CurrentWeapon_Index].LeftHand;
 	AGear* RightHandWeapon = WeaponSlots[CurrentWeapon_Index].RightHand;
 
 	if (LeftHandWeapon)
 	{
-		factorHp += LeftHandWeapon->GetHpBonus();
-		factorStamina += LeftHandWeapon->GetStaminaBonus();
+		factorHp += LeftHandWeapon->GetHpBonus_uint();
+		factorStamina += LeftHandWeapon->GetStaminaBonus_uint();
 		HpAdd += LeftHandWeapon->GetHpAdditive();
 		SpAdd += LeftHandWeapon->GetSpAdditive();
-		criticalAdd += LeftHandWeapon->GetCriticalChance();
-		stunAdd += LeftHandWeapon->GetStunChance();
+		//criticalAdd += LeftHandWeapon->GetCriticalChance();
+		//stunAdd += LeftHandWeapon->GetStunChance();
 	}
 
 	if (RightHandWeapon)
 	{
-		factorHp += RightHandWeapon->GetHpBonus();
-		factorStamina += RightHandWeapon->GetStaminaBonus();
-		HpAdd += RightHandWeapon->GetHpAdditive();
-		SpAdd += RightHandWeapon->GetSpAdditive();
-		criticalAdd += RightHandWeapon->GetCriticalChance();
-		stunAdd += RightHandWeapon->GetStunChance();
+		//factorHp += RightHandWeapon->GetHpBonus_uint();
+		//factorStamina += RightHandWeapon->GetStaminaBonus_uint();
+		//HpAdd += RightHandWeapon->GetHpAdditive();
+		//SpAdd += RightHandWeapon->GetSpAdditive();
+		//criticalAdd += RightHandWeapon->GetCriticalChance();
+		//stunAdd += RightHandWeapon->GetStunChance();
 	}
 
 	if (Armor)
 	{
-		factorHp += Armor->GetHpBonus();
-		factorStamina += Armor->GetStaminaBonus();
+		factorHp += Armor->GetHpBonus_uint();
+		factorStamina += Armor->GetStaminaBonus_uint();
 		HpAdd += Armor->GetHpAdditive();
 		SpAdd += Armor->GetSpAdditive();
-		criticalAdd += Armor->GetCriticalChance();
-		stunAdd += Armor->GetStunChance();
+		//criticalAdd += Armor->GetCriticalChance();
+		//stunAdd += Armor->GetStunChance();
 	}
 
 
-	HpMax = (1.0f + factorHp * 0.01f) * HpRaw + HpAdd;
-	StaminaMax = (1.0f + factorStamina * 0.01f) * StaminaRaw + SpAdd;
-	CriticalMax = CriticalRow + criticalAdd;
-	StunMax = StunRow + stunAdd;
+	HpMax = factorHp * HpRaw + HpAdd;
+	StaminaMax = factorStamina * StaminaRaw + SpAdd;
+	//CriticalMax = CriticalRow + criticalAdd;
+	//StunMax = StunRow + stunAdd;
 	//DpCurrent = 0;
 
 	HpCurrent = (HpCurrent > HpMax) ? HpMax : HpCurrent;
@@ -288,7 +274,7 @@ void UPawnStatsComponent::LevelUp()
 void UPawnStatsComponent::Born()
 {
 	Level = 1;
-	GenerateRawStatsByLevel(Level, BaseDamage, HpRaw);
+	GenerateRawStatsByLevel(Level);//, BaseDamage, HpRaw);
 	HpCurrent = HpMax;
 	StaminaCurrent = StaminaMax;
 }
@@ -297,7 +283,7 @@ void UPawnStatsComponent::GenerateStatsAtBeginPlay()
 {
 	if (bGenerateRawStatsAtBeginPlay)
 	{
-		GenerateRawStatsByLevel(Level, BaseDamage, HpRaw);
+		GenerateRawStatsByLevel(Level);// , BaseDamage, HpRaw);
 	}
 
 	UWorld* world = GetWorld();
@@ -367,71 +353,79 @@ TSubclassOf<class UUserWidget> UPawnStatsComponent::GetFloatingText_WBP()
 	return FloatingText_WBP;
 }
 
-
-float UPawnStatsComponent::CalculateDamage(float baseDamage, AActor * _damageCauser, bool & _isCritical, bool & _isStun)
+float UPawnStatsComponent::CalculateHealth(float _damage)
 {
-
-	ATheLastBastionCharacter* damageCauser = Cast<ATheLastBastionCharacter>(_damageCauser); 
-	if (damageCauser == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("damageCauser == nullptr - UPawnStatsComponent::CalculateDamage"));
-	}
-
-	UPawnStatsComponent* dCPawnStats = damageCauser->GetPawnStatsComp();
-	if (dCPawnStats == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("dCPawnStats == nullptr - UPawnStatsComponent::CalculateDamage"));
-	}
-
-	float criticalRate = FMath::SRand();
-	float stunRate = FMath::SRand();
-
-	_isCritical = criticalRate< dCPawnStats->GetCriticalMax() * 0.01f;
-	_isStun = stunRate < dCPawnStats->GetStunMax() * 0.01f;
-
-	const AGear* dcRightHandWeapon = dCPawnStats->GetCurrentRightHandWeapon();
-	const AGear* dcLeftHandWeapon = dCPawnStats->GetCurrentLeftHandWeapon();
-	if (dcRightHandWeapon == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("dcRightHandWeapon == nullptr - UPawnStatsComponent::CalculateDamage"));
-		return 0;
-	}
-
-	// For now we only consider physical damage
-	float weaponDamage = dcRightHandWeapon->GetPhysicalDamage();
-
-	if (dcLeftHandWeapon)
-		weaponDamage += dcLeftHandWeapon->GetPhysicalDamage();
-
-	float totalDamage = baseDamage + FMath::RandRange(10, 100) + weaponDamage;
-	totalDamage = damageCauser->PostDamageCalculate(totalDamage);
-
 	if (DpCurrent > 0)
 	{
 		// if we have defence point, we are going to go reduce health
 		// total damage will be applied by dp Physical damage reduction
-		totalDamage *= DpPhysicalDamageReduction;
-		DpCurrent = DpCurrent - totalDamage;
+		_damage *= DpPhysicalDamageReduction;
+		DpCurrent = DpCurrent - _damage;
 		DpCurrent = FMath::Clamp(DpCurrent, 0.0f, HpMax);
 	}
 	else
 	{
 		if (!mCharacter->GetIsGodMode())
-			HpCurrent = HpCurrent - totalDamage;
+			HpCurrent = HpCurrent - _damage;
 
 		HpCurrent = FMath::Clamp(HpCurrent, 0.0f, HpMax);
 	}
-
-	//UE_LOG(LogTemp, Log, TEXT("Enemy::OnTakePointDamageHandle, critical: %f, stun: %f"), criticalRate, stunRate);
-
-	return totalDamage;
+	return _damage;
 }
+
+//float UPawnStatsComponent::CalculateDamage(float baseDamage, AActor * _damageCauser, bool & _isCritical, bool & _isStun)
+//{
+//
+//	ATheLastBastionCharacter* damageCauser = Cast<ATheLastBastionCharacter>(_damageCauser); 
+//	if (damageCauser == nullptr)
+//	{
+//		UE_LOG(LogTemp, Error, TEXT("damageCauser == nullptr - UPawnStatsComponent::CalculateDamage"));
+//	}
+//
+//
+//
+//
+//	//UE_LOG(LogTemp, Log, TEXT("Enemy::OnTakePointDamageHandle, critical: %f, stun: %f"), criticalRate, stunRate);
+//
+//	return totalDamage;
+//}
 
 float UPawnStatsComponent::GetBaseDamage()
 {
 	return 5.0f;
 }
 #pragma endregion
+
+float UPawnStatsComponent::GetCriticalDamageMultiplier(EGearType _gearType) const
+{
+
+	switch (_gearType)
+	{
+	case EGearType::LongSword:
+	case EGearType::GreatSword:
+		return DamageMultiplier_CriticalHit_Swords;
+	case EGearType::CrossBow:
+		return DamageMultiplier_CriticalHit_CB;
+	case EGearType::WarAxe:
+	case EGearType::BattleAxe:
+		return DamageMultiplier_CriticalHit_Axe;
+	case EGearType::DaiKatana:
+	case EGearType::DoubleHandWeapon:
+		return DamageMultiplier_CriticalHit_Katana;
+	case EGearType::Shield:
+		return DamageMultiplier_CriticalHit_Shield;
+
+	default:
+		return 1.0f;
+	}
+}
+
+float UPawnStatsComponent::GetCurrentCriticalDamageMulitiplier() const
+{
+	AGear* curretnActivatedWeapon = GetCurrentActivatedWeapon();
+
+	return (curretnActivatedWeapon == nullptr) ? 1.0f : GetCriticalDamageMultiplier(curretnActivatedWeapon->GetGearType());
+}
 
 void UPawnStatsComponent::PlaySFXForImpact(USoundCue* _sfx, int _surfaceType, ATheLastBastionCharacter* _damagedCharacter) const
 {   

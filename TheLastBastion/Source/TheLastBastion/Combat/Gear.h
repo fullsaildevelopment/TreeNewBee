@@ -72,53 +72,56 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = DamageCalculation)
 		TSubclassOf <class UDamageType> DamageType;
 
+	static TSubclassOf <class UDamageType> ComboBullets_Type;
+	static TSubclassOf <class UDamageType> NormalBullets_Type;
+
 	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = UI)
 	//	/** Visual appearence as UI element*/
 	//	UTexture2D* ThumbNail;
 
-private:
+protected:
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		float PhysicalDamage;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-		float PhysicalDefence;
+	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	//	float PhysicalDefence;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-		float FireDefence;
+	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	//	float FireDefence;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-		float IceDefence;
+	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	//	float IceDefence;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		/** Percentage */
 		float HpBonus;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		float StaminaBonus;
 	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		/** Additive Hp on the max Hp*/
 	    float HpAdditive;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		/** Additive Sp on the max Hp*/
 		float SpAdditive;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		float CriticalChance;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		float StunChance;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		float Force;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		float CriticalForce;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-		EElementalType ElementalType;
+	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	//	EElementalType ElementalType;
 
 public:
 
@@ -129,23 +132,30 @@ public:
 	FORCEINLINE virtual class UParticleSystemComponent* GetParticleSystemComp() const { return nullptr; }
 	FORCEINLINE TSubclassOf<class UDamageType> GetDamageType() { return DamageType; }
 
+	
 	FORCEINLINE float GetHpBonus() const { return HpBonus;}
 	FORCEINLINE float GetStaminaBonus() const { return StaminaBonus; }
+	FORCEINLINE float GetHpBonus_uint() const { return HpBonus * 0.01f; }
+	FORCEINLINE float GetStaminaBonus_uint() const { return StaminaBonus * 0.01f; }
+
+
 	FORCEINLINE float GetPhysicalDamage() const { return PhysicalDamage; }
 	//FORCEINLINE float GetElementalDamage() const { return ElementalDamage; }
 	//FORCEINLINE float GetFireDamage() const { return FireDamage; }
 	//FORCEINLINE float GetIceDamage() const { return IceDamage; }
-	FORCEINLINE float GetPhysicalDefence() const { return PhysicalDefence; }
-	//FORCEINLINE float GetElementalDefence() const { return ElementalDefence; }
-	FORCEINLINE float GetFireDefence() const { return FireDefence; }
-	FORCEINLINE float GetIceDefence() const { return IceDefence; }
+	//FORCEINLINE float GetPhysicalDefence() const { return PhysicalDefence; }
+	////FORCEINLINE float GetElementalDefence() const { return ElementalDefence; }
+	//FORCEINLINE float GetFireDefence() const { return FireDefence; }
+	//FORCEINLINE float GetIceDefence() const { return IceDefence; }
 	FORCEINLINE float GetHpAdditive() const { return HpAdditive; }
 	FORCEINLINE float GetSpAdditive() const { return SpAdditive; }
 	FORCEINLINE float GetCriticalChance() const { return CriticalChance; }
 	FORCEINLINE float GetStunChance() const { return StunChance; }
+	FORCEINLINE float GetCriticalChance_unit() const { return CriticalChance * 0.01f; }
+	FORCEINLINE float GetStunChance_unit() const { return StunChance * 0.01f; }
 	FORCEINLINE float GetForce() const { return Force; }
 	FORCEINLINE float GetCriticalForce() const { return CriticalForce; }
-	FORCEINLINE EElementalType GetElementalType() const { return ElementalType; }
+	//FORCEINLINE EElementalType GetElementalType() const { return ElementalType; }
 
 	////UFUNCTION(BlueprintPure)
 	////	FORCEINLINE FText GetGearName() const { return Name; }

@@ -347,21 +347,30 @@ void ATheLastBastionAIBase::OnTakePointDamageHandle(AActor * DamagedActor,
 	if (bIsDead)
 		return;
 
-	bool isCritical = false, isStun = false;
+	bool isCritical = false, isStun = false, bIsHeadShot = false;
 
 	// the relative position of damage causer to damaged actor
 	FVector damageCauserRelative = ShotFromDirection;
 
-	ATheLastBastionHeroCharacter* heroAttacker = Cast<ATheLastBastionHeroCharacter>(DamageCauser);
+	ATheLastBastionCharacter* attacker = Cast<ATheLastBastionCharacter>(DamageCauser);
+	if (attacker == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Attacker == nullptr - ATheLastBastionAIBase::OnTakePointDamageHandle"));
+		return;
+	}
 
-	float totalDamage = AIStats->CalculateDamage(Damage, DamageCauser, isCritical, isStun);
+	float totalDamage = attacker->GetDamage(DamageType, BoneName, bIsHeadShot, isCritical, isStun);
+
+	totalDamage = AIStats->CalculateHealth(totalDamage);
+
 	float currentHp = AIStats->GetHpCurrent();
 
+	ATheLastBastionHeroCharacter* heroAttacker = Cast<ATheLastBastionHeroCharacter>(DamageCauser);
 	AI_HUD->UpdateHealthBar(AIStats);
 
 	if (heroAttacker)
 	{
-		OnTakeDamageFromHero(HitLocation, heroAttacker, totalDamage, isCritical, isStun);
+		OnTakeDamageFromHero(HitLocation, heroAttacker, totalDamage, isCritical, isStun, bIsHeadShot);
 	}
 
 	////////////////////////////////////////////// innocent line ////////////////////////////

@@ -7,8 +7,21 @@
 #include "PawnStatsComponent.generated.h"
 
 
+#define BaseRowHp_Default 210.0f
+#define BaseRowHp_Increasement_OnLevelUp_Default 30.0f
+
+
+#define BaseRowDamage_Default 30.0f
+#define BaseRowDamage_Increasement_OnLevelUp_Default 5.0f
+
 #define DpPhysicalDamageReduction 0.5f
-#define RangerInitHp 230.0f
+
+#define DamageMultiplier_HeadShot_CB 1.7f
+#define DamageMultiplier_CriticalHit_CB 1.7f
+#define DamageMultiplier_CriticalHit_Katana 3.0f
+#define DamageMultiplier_CriticalHit_Swords 2.5f
+#define DamageMultiplier_CriticalHit_Axe    2.1f
+#define DamageMultiplier_CriticalHit_Shield 1.5f
 
 
 enum class EGearType : uint8;
@@ -115,7 +128,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = CharactorStats)
 		// Hp & Dp without any armor
 		float HpRaw;
-
+	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = CharactorStats)
 		// Sp without any armor
 		float StaminaRaw;
@@ -145,24 +158,44 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		float DivByStaminaMax;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
-		float CriticalRow;
+	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+	//	float CriticalRow;
+
+	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+	//	float StunRow;
+
+	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+	//	float CriticalMax;
+
+	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
+	//	float StunMax;
+
+
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = CharacterStats)
+		/** character base damage at level 0, with no gear*/
+		float BaseRowDamage;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = CharacterStats)
+		/** damage grow amount on level up*/
+		float RowDamageIncreasementOnLevelUp;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
-		float StunRow;
+		/** row damage at current level, with no gear*/
+		float CurrentRowDamage;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
-		float CriticalMax;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = CharacterStats)
+		/** character base hp at level 0, with no gear*/
+		float BaseRowHp;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
-		float StunMax;
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
-		/** character base damage that is improved by level*/
-		float BaseDamage;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = CharacterStats)
+		/** hp grow amount on level up*/
+		float RowHpIncreasementOnLevelUp;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CharacterStats)
 		int Level;
+
+
 
 
 #pragma endregion
@@ -178,13 +211,14 @@ protected:
 	void GenerateStatsAtBeginPlay();
 
 	// Calculate and output the raw stats according to its level
-	void GenerateRawStatsByLevel(int Level, float& _baseDamage, float& _hpRaw);
+	void GenerateRawStatsByLevel(int Level);// , float& _baseDamage, float& _hpRaw);
 
 
 public:	
 
-	// Calculate the damage, remain health that this character suffered
-	virtual float CalculateDamage(float baseDamage, AActor* _damageCauser, bool& _isCritical, bool& _isStun);
+	//// Calculate the damage base on Dp, apply damage to health remain health that this character suffered
+	float CalculateHealth(float _damage);
+	//virtual float CalculateDamage(float baseDamage, AActor* _damageCauser, bool& _isCritical, bool& _isStun);
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -200,7 +234,7 @@ public:
 
 	virtual bool OnSwapBetweenMeleeAndRange();
 
-	void CalculateRawStatsByType(int _level, ECharacterType _type, float& damage, float& _hp);
+	//void CalculateRawStatsByType(int _level);// , float& damage, float& _hp);
 
 	// Called after equip and unequip 
 	void GenerateMaxStats(bool _setCurrentToMax = true);
@@ -222,18 +256,25 @@ public:
 	FORCEINLINE float GetHpRaw() const { return HpRaw; }
 	FORCEINLINE float GetStamina() const { return StaminaRaw; }
 	FORCEINLINE float GetHpCurrent() const { return HpCurrent; }
+	FORCEINLINE float GetHpCurrent_unit() const { return HpCurrent * DivByHpMax; }
 	FORCEINLINE float GetDpCurrent() const { return DpCurrent; }
 	FORCEINLINE float GetStaminaCurrent() const { return StaminaCurrent; }
 	/** Get Current Max Dp or Hp*/
 	FORCEINLINE float GetHpMax() const { return HpMax; }
 	FORCEINLINE float GetStaminaMax() const { return StaminaMax; }
-	FORCEINLINE float GetCriticalMax() const { return CriticalMax; }
-	FORCEINLINE float GetStunMax() const { return StunMax; }
+	//FORCEINLINE float GetCriticalMax() const { return CriticalMax * 0.01f; }
+	//FORCEINLINE float GetStunMax() const { return StunMax * 0.01f; }
 	FORCEINLINE float GetDivByHpMax() const { return DivByHpMax; }
 	FORCEINLINE float GetDivBySpMax() const { return DivByStaminaMax; }
 	FORCEINLINE int   GetCharacterLevel() const { return Level; }
 	FORCEINLINE bool IsFullHp() const { return HpCurrent == HpMax; }
 	FORCEINLINE bool IsFullSp() const { return StaminaCurrent == StaminaMax; }
+
+	FORCEINLINE float GetRowDamageAtLevel(int _level) const { return BaseRowDamage + _level * RowDamageIncreasementOnLevelUp; }
+	FORCEINLINE float GetRowHpAtLevel(int _level) const { return BaseRowHp + _level * RowHpIncreasementOnLevelUp; }
+	FORCEINLINE float GetCurrentRowDamage() const { return CurrentRowDamage; }
+	FORCEINLINE float GetRowDamageGrow() const { return RowDamageIncreasementOnLevelUp; }
+	FORCEINLINE float GetRowHpGrow() const { return RowHpIncreasementOnLevelUp; }
 
 	/** Check if the left hand weapon is current use to deal damage */
 	FORCEINLINE bool IsUsingLeftWeapon() const { return bUsingLeftHandWeapon; }
@@ -242,6 +283,10 @@ public:
 	FORCEINLINE AGear* GetCurrentActivatedWeapon() const { return bUsingLeftHandWeapon? GetCurrentLeftHandWeapon() : GetCurrentRightHandWeapon(); }
 	FORCEINLINE int GetMaxNumOfWeaponSlot() const { return WeaponSlots.Num(); }
 	FORCEINLINE FWeaponSlot GetWeaponSlotAt(int _index) const { return WeaponSlots[_index]; }
+	float GetCriticalDamageMultiplier(EGearType _gearType) const;
+
+	float GetCurrentCriticalDamageMulitiplier() const;
+
 	static TSubclassOf<class UUserWidget> GetFloatingText_WBP();
 
 
@@ -265,6 +310,7 @@ public:
 	FORCEINLINE void AddSpByPercent(float _delta) { StaminaCurrent = FMath::Clamp(StaminaCurrent + StaminaMax *_delta, 0.0f, StaminaMax); }
 
 	FORCEINLINE void SetSp(float _val) { StaminaCurrent = _val; }
+
 
 
 protected:

@@ -84,7 +84,7 @@ void ATheLastBastionEnemyCharacter::HitResponse(AActor * DamageCauser, float _cu
 }
 
 void ATheLastBastionEnemyCharacter::OnTakeDamageFromHero(const FVector & HitLocation,
-	const ATheLastBastionHeroCharacter * heroAttacker, float totalDamage, bool isCritical, bool isStun)
+	const ATheLastBastionHeroCharacter * heroAttacker, float totalDamage, bool isCritical, bool isStun, bool _isHeadShot)
 {
 	// if this AI is not being locked on, 
 	// we will display UI temporary with a opacity animation
@@ -112,6 +112,8 @@ void ATheLastBastionEnemyCharacter::OnTakeDamageFromHero(const FVector & HitLoca
 			damageFT->AddToViewport();
 			UInGameFloatingText* criticalFT = nullptr;
 			UInGameFloatingText* stunFT = nullptr;
+			UInGameFloatingText* headShotFT = nullptr;
+
 			// if it is a critical hit
 			if (isCritical)
 			{
@@ -141,28 +143,55 @@ void ATheLastBastionEnemyCharacter::OnTakeDamageFromHero(const FVector & HitLoca
 				stunFT->SetStyle(EFloatingTextStyle::Stun);
 			}
 
-			// paint the text
-			switch (heroAttacker->GetCurrentWeapon()->GetElementalType())
+			if (_isHeadShot)
 			{
-			case::EElementalType::None:
+				headShotFT = Cast<UInGameFloatingText>(CreateWidget<UUserWidget>(world, fT_WBP));
+				headShotFT->SetInGameFTProperty(FText::FromString(TEXT("HeadShot !!!")));
+				headShotFT
+					->SetRenderTranslation(
+						FVector2D(screenPos.X + FMath::RandRange(-20.0f, 20.0f),
+							screenPos.Y + FMath::RandRange(10.0f, 20.0f)));
+
+				headShotFT->AddToViewport();
+				headShotFT->SetFontSize(FontSize_Critical);
+				headShotFT->SetStyle(EFloatingTextStyle::Stun);
+
+			}
+
+			// paint the text
+
+			if (heroAttacker->HasEnchartedWeapon())
+			{
+				damageFT->SetStyle(EFloatingTextStyle::Fire);
+				if (criticalFT)
+					criticalFT->SetStyle(EFloatingTextStyle::Fire);
+			}
+			else
+			{
 				if (criticalFT)
 				{
 					damageFT->SetStyle(EFloatingTextStyle::Critical);
 					criticalFT->SetStyle(EFloatingTextStyle::Critical);
 				}
-				break;
-			case::EElementalType::Fire:
-
-				damageFT->SetStyle(EFloatingTextStyle::Fire);
-				if (criticalFT)
-					criticalFT->SetStyle(EFloatingTextStyle::Fire);
-				break;
-			case::EElementalType::Ice:
-				damageFT->SetStyle(EFloatingTextStyle::Ice);
-				if (criticalFT)
-					criticalFT->SetStyle(EFloatingTextStyle::Ice);
-				break;
 			}
+			
+			//switch (heroAttacker->GetCurrentWeapon()->GetElementalType())
+			//{
+			//case::EElementalType::None:
+			//	if (criticalFT)
+			//	{
+			//		damageFT->SetStyle(EFloatingTextStyle::Critical);
+			//		criticalFT->SetStyle(EFloatingTextStyle::Critical);
+			//	}
+			//	break;
+			//case::EElementalType::Fire:
+			//	break;
+			//case::EElementalType::Ice:
+			//	damageFT->SetStyle(EFloatingTextStyle::Ice);
+			//	if (criticalFT)
+			//		criticalFT->SetStyle(EFloatingTextStyle::Ice);
+			//	break;
+			//}
 		}
 	}
 

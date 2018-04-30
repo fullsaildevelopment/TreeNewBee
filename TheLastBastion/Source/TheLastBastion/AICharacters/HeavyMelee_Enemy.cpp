@@ -10,6 +10,11 @@
 #include "Sound/SoundCue.h"
 
 
+#define HitResponse_Threshold_QG         0.5f
+#define HitResponse_Threshold_Legend     0.5f
+#define HitResponse_Threshold_NKG        0.7f
+
+
 bool AHeavyMelee_Enemy::OnParry(const struct FDamageInfo* const _damageInfo, const class UPawnStatsComponent* const _damageCauserPawnStats)
 {
 
@@ -160,5 +165,26 @@ FName AHeavyMelee_Enemy::GetParrySectionName(const struct FDamageInfo* const _da
 
 bool AHeavyMelee_Enemy::ShouldPlayHitAnimation() const
 {
-	return mAnimInstanceRef->GetCurrentActionState() != EAIActionState::GettingHurt ;
+
+	float hpRemaining = AIStats->GetHpCurrent_unit();
+	float threshold = 1.0f;
+	switch (CharacterType)
+	{
+	case ECharacterType::Lan_QueenGuard:
+		threshold = HitResponse_Threshold_QG;
+		break;
+	case ECharacterType::Ebony_Heavy_BA:
+		threshold = HitResponse_Threshold_Legend;
+		break;
+	case ECharacterType::White_Berserker:
+		threshold = HitResponse_Threshold_NKG;
+		break;
+	default:
+		break;
+	}
+
+	if (hpRemaining > threshold)
+		return false;
+	else
+		return mAnimInstanceRef->GetCurrentActionState() != EAIActionState::GettingHurt;
 }

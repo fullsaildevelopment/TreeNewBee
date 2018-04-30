@@ -23,9 +23,11 @@ AEnemyGroupSpawner::AEnemyGroupSpawner()
 	//FindAllEnemyGroupPreset();
 
 	SpawnDelay = 5.0f;
-	TestGroupAmount = 1;
+	TestingSpawnFreq = 5.0f;
+	TestGroupAmount = 2;
 	TestGroupSize = 2;
-	TestingRoute = EPath::South_TrooperRoute_0;
+	TestMaxCol = 2;
+	TestingRoute = EPath::South_CastleSouth_0;
 
 	// initialize default spawning state
 	bEnableSpawning = false;
@@ -199,7 +201,7 @@ void AEnemyGroupSpawner::Spawn()
 			classToSpawn = TestGroup;
 			pathIndex = TestingRoute;
 			totalNumber = TestGroupSize;
-			maxColumn = TestGroupSize;
+			maxColumn = TestMaxCol;
 		}
 		else
 		{
@@ -274,8 +276,13 @@ void AEnemyGroupSpawner::EnableSpawning()
 	{
 		SpawnDelay = AllWaves[CurrentWaveIndex].WaveUnits[CurrentWaveUnitIndex].SpawnDelay;
 		GetWorldTimerManager().ClearTimer(SpawnTimer);
-		GetWorldTimerManager().SetTimer(SpawnTimer, this,
-			&AEnemyGroupSpawner::Spawn, 0.1f, false, SpawnDelay);
+
+		if (bTestingMode)
+			GetWorldTimerManager().SetTimer(SpawnTimer, this,
+				&AEnemyGroupSpawner::Spawn, TestingSpawnFreq, true, 5.0f);
+		else
+			GetWorldTimerManager().SetTimer(SpawnTimer, this,
+				&AEnemyGroupSpawner::Spawn, 0.1f, false, SpawnDelay);
 		
 		// Fade In BGM
 		if (CurrentWaveIndex >= LannisterFirstWave && CurrentWaveIndex < LannisterMiddleWave)
@@ -367,6 +374,8 @@ void AEnemyGroupSpawner::FadeInDefaultTheme()
 {
 	// Set Music for Music Player
 	MusicPlayer->SetSound(UAudioManager::GetSFX(ESoundEffectType::EDefaultTheme));
+
+	
 	int StartPoint = FMath::RandRange(0, 1);
 	if (StartPoint == 0)
 		MusicPlayer->FadeIn(10.0f, 1.0f, DefaultTheme_StartPoint_0);

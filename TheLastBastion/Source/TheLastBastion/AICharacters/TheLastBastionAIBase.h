@@ -322,7 +322,7 @@ protected:
 
 	/** Generate floating text to represent damage*/
 	virtual void OnTakeDamageFromHero(const FVector& HitLocation, const class ATheLastBastionHeroCharacter* heroAttacker,
-		float totalDamage, bool isCritical, bool isStun) {}
+		float totalDamage, bool isCritical, bool isStun, bool _isHeadShot) {}
 
 	virtual void EvaluateAttackerThreat(AActor* DamageCauser, float hp);
 

@@ -242,7 +242,7 @@ void ARangeWeapon::ComboFire()
 			world->SpawnActorDeferred<AProjectile>(ProjectileClassBP,
 				spawnTransform, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 
-		CrossbowProjectile->ProjectileOnFire(this);
+		CrossbowProjectile->ProjectileOnFire(this, true);
 		CrossbowProjectile->FinishSpawning(spawnTransform);
 			
 		TraceEnd_Actual = TraceEnd_Ideal + FMath::RandRange(-ComboShootVibrate, ComboShootVibrate) * GetActorForwardVector();

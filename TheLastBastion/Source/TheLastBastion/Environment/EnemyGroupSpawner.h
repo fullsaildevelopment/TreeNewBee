@@ -32,19 +32,16 @@
 UENUM(BlueprintType)
 enum class EPath : uint8 
 {
-	South_TrooperRoute_0 = 0   UMETA(DisplayName = "South to Castle - Trooper_0"), 
-	South_TrooperRoute_1 = 1   UMETA(DisplayName = "South to Castle - Trooper_1"),
-	South_ShooterRoute_0 = 2   UMETA(DisplayName = "South to Castle - Shooter"),
-	East_TrooperRoute  = 3     UMETA(DisplayName = "East  to Castle - Trooper"),
-	East_SouthMine  = 4        UMETA(DisplayName = "East to South Mine"),
-	East_NorthMine  = 5        UMETA(DisplayName = "East to North Mine"),
-	North_NorthMine = 6        UMETA(DisplayName = "North to North Mine"),
-	North_TrooperRoute = 7     UMETA(DisplayName = "North to Castle - Trooper"),
-	North_Wood = 8             UMETA(DisplayName = "North to Wood"),
-	North_Food = 9             UMETA(DisplayName = "North to Food"),
-	East_Shooter = 10          UMETA(DisplayName = "South to Castle - Shooter "),
-	North_Shooter = 11         UMETA(DisplayName = "North to Castle - Shooter"),
-	East_Stone = 12            UMETA(DisplayName = "East to Stone")
+	South_CastleSouth_0 = 0      UMETA(DisplayName = "South to Castle South 0"), 
+	South_CastleSouth_1 = 1      UMETA(DisplayName = "South to Castle South 1"),
+	South_SouthMine = 2          UMETA(DisplayName = "South to South Mine"),
+	East_CastleEast = 3          UMETA(DisplayName = "East to Castle East"),
+	East_SouthMine = 4           UMETA(DisplayName = "East to South Mine"),
+	East_Stone = 5               UMETA(DisplayName = "East to Stone"),
+	East_Food  = 6               UMETA(DisplayName = "East to Food"),
+	North_CastleNorth = 7        UMETA(DisplayName = "North to Castle North"),
+	North_Wood_Trooper = 8       UMETA(DisplayName = "North to Wood Trooper"),
+	North_Wood_Shooter = 9       UMETA(DisplayName = "North to Wood Shooter")
 };
 
 USTRUCT(BlueprintType)
@@ -125,10 +122,21 @@ protected:
 		TSubclassOf<class AEnemyGroup> TestGroup;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpawnTest, meta = (AllowPrivateAccess = "true"))
+		/** The amount of testing group*/
 		int TestGroupAmount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpawnTest, meta = (AllowPrivateAccess = "true"))
+		/** The amount of group member for each testing group*/
 		int TestGroupSize;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpawnTest, meta = (AllowPrivateAccess = "true"))
+		/** The max row size*/
+		int TestMaxCol;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpawnTest)
+		/** Time between Spawn during testing mode*/
+		float TestingSpawnFreq;
+
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
 		float SpawnDelay;
@@ -145,12 +153,11 @@ protected:
 		/** How many wave units we are going to spawn in current wave*/
 		int MaxWaveUnitAmount;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpawnTest)
 		/** How many wave units we are going to spawn in current wave*/
 		EPath TestingRoute;
 
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpawnTest)
 		/** Spawn a group without any pathing settings*/
 		bool bTestingMode;
 
@@ -158,7 +165,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		/** All Unit Spawn Position*/
 		bool bEnableSpawning;
-
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
 		bool bIsCurrentWaveFinishSpawning;
