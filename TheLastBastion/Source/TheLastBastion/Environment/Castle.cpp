@@ -11,6 +11,9 @@
 #include "GameMode/SinglePlayerGM.h"
 
 
+#define CastleBarColor_Healthy         FLinearColor(0.049797f,0.280313f,1.000000f,1.000000f)
+#define CastleBarColor_UnderAttack     FLinearColor(1.000000f,0.000000f,0.049108f,1.000000f)
+
 // Sets default values
 ACastle::ACastle()
 {
@@ -40,10 +43,15 @@ void ACastle::BeginPlay()
 		return;
 	}
 
-	if (OutpostType == EOutpostType::None)
-		gm->RegisterCastle(this);
+	gm->RegisterCastle(this);
 
-
+	ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if (hero)
+	{
+		GameHUD = hero->GetInGameHUD();
+		if (GameHUD == nullptr)
+			UE_LOG(LogTemp, Error, TEXT("GameHUD == nullptr, ACastle::BeginPlay"));
+	}
 }
 
 // Called every frame
@@ -63,6 +71,32 @@ void ACastle::OnWaveFinished(ASinglePlayerGM * _gm)
 	_gm->AddStone(stoneCost);
 
 	CurrentHp += stoneCost;
+
+	// update UI
+	float CurrentHpPercentage = CurrentHp * MaxHpDiv;
+
+	GameHUD->SetCastleBarValue(CurrentHpPercentage);
+
+	//ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	//if (hero)
+	//{
+	//	UInGameHUD* gameHUD = hero->GetInGameHUD();
+	//	if (gameHUD)
+	//}
+
+}
+
+void ACastle::SetIsOccupied(bool _val)
+{
+	bIsOccupied = _val;
+	GameHUD->SetCastleBarColor((bIsOccupied) ? CastleBarColor_UnderAttack : CastleBarColor_Healthy);
+
+	//ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	//if (hero)
+	//{
+	//	UInGameHUD* gameHUD = hero->GetInGameHUD();
+	//	if (gameHUD)
+	//}
 }
 
 void ACastle::UpdateByTimer()
@@ -77,7 +111,7 @@ void ACastle::UpdateByTimer()
 
 	if (EnemiesGroup.Num() == 0)
 	{
-		bIsOccupied = false;
+		SetIsOccupied(false);
 		return;
 	}
 
@@ -96,7 +130,8 @@ void ACastle::UpdateByTimer()
 				if (currentEnemy && currentEnemy->GetIsDead() == false)
 				{
 					damageToCastle += currentEnemy->GetSiegePoint();
-					bIsOccupied = true;
+					SetIsOccupied(true);
+					//bIsOccupied = true;
 				}
 			}
 		}
@@ -117,13 +152,14 @@ void ACastle::UpdateByTimer()
 		float CurrentHpPercentage = CurrentHp * MaxHpDiv;
 		// UI Call
 
-		ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-		if (hero)
-		{
-			UInGameHUD* gameHUD = hero->GetInGameHUD();
-			if (gameHUD)
-				gameHUD->SetCastleBarValue(CurrentHpPercentage);
-		}
+		GameHUD->SetCastleBarValue(CurrentHpPercentage);
+		//ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		//if (hero)
+		//{
+		//	UInGameHUD* gameHUD = hero->GetInGameHUD();
+		//	if (gameHUD)
+		//		gameHUD->SetCastleBarValue(CurrentHpPercentage);
+		//}
 	}
 
 	if (CurrentHp == 0)

@@ -441,13 +441,13 @@ void UInGameMenu::OnAcceptClicked_Skill()
 			outPost_Temp->SetAdditionAmount(ResourceSkillAddAmountOnEachLevel * AllSkillLevel[FarmerLevel].Level);
 			break;
 		case EOutpostType::Wood:
-			outPost_Temp->SetAdditionAmount(ResourceSkillAddAmountOnEachLevel * AllSkillLevel[BuilderLevel].Level);
+			outPost_Temp->SetAdditionAmount(ResourceSkillAddAmountOnEachLevel * AllSkillLevel[SawyerLevel].Level);
 			break;
 		case EOutpostType::Metal:
 			outPost_Temp->SetAdditionAmount(ResourceSkillAddAmountOnEachLevel * AllSkillLevel[MinerLevel].Level);
 			break;
 		case EOutpostType::Stone:
-			outPost_Temp->SetAdditionAmount(ResourceSkillAddAmountOnEachLevel * AllSkillLevel[SawyerLevel].Level);
+			outPost_Temp->SetAdditionAmount(ResourceSkillAddAmountOnEachLevel * AllSkillLevel[BuilderLevel].Level);
 			break;
 		}
 	}

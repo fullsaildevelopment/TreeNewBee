@@ -148,7 +148,7 @@ void AOutpost::OnOutPostBoxOverlap_Start(UPrimitiveComponent * OverlappedCompone
 			VocalWarning = UAudioManager::GetSFX(ESoundEffectType::EWoodWarning);
 			break;
 		case EOutpostType::Castle:
-			VocalWarning = UAudioManager::GetSFX(ESoundEffectType::EWoodWarning);
+			VocalWarning = UAudioManager::GetSFX(ESoundEffectType::ECastleWarning);
 			break;
 		case EOutpostType::None:
 		default:

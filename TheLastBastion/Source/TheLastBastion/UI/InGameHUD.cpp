@@ -166,6 +166,11 @@ void UInGameHUD::SetCastleBarValue(float _val)
 	PlayerRow->SetCastleHealth(_val);
 }
 
+void UInGameHUD::SetCastleBarColor(FLinearColor _color)
+{
+	PlayerRow->SetCastleHpBarColor(_color);
+}
+
 void UInGameHUD::SetPlayerRowOnLevelUp(const UHeroStatsComponent * _heroStats)
 {
 	PlayerRow->SetHp(_heroStats->GetHpCurrent(), 

@@ -92,6 +92,11 @@ void UInGamePlayerRow::SetCastleHealth(float _val)
 	CastleBar->SetPercent(_val);
 }
 
+void UInGamePlayerRow::SetCastleHpBarColor(const FLinearColor& _color)
+{
+	CastleBar->SetFillColorAndOpacity(_color);
+}
+
 void UInGamePlayerRow::SetExpBar(float _val)
 {
 	ExpBar->SetPercent(_val);

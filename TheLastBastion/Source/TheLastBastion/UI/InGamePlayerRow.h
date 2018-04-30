@@ -80,7 +80,12 @@ public:
 	/** Set the percentatge of Castle Health Bar, 0 - 1*/
 	void SetCastleHealth(float _val);
 
+	/** Set Castle Hp Bar color*/
+	void SetCastleHpBarColor(const FLinearColor& _color);
+
+
 	/** Set the percentatge of Exp Bar, 0 - 1*/
 	void SetExpBar(float _val);
+
 
 }; 

@@ -20,6 +20,8 @@ public:
 protected:
 
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CastleDefence)
+		class UInGameHUD* GameHUD;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = CastleDefence)
 		/** Max value of castle hp*/
@@ -36,6 +38,8 @@ protected:
 		/** The percentage of damage is applied to castle due to commander presence*/
 		float DamageReduction;
 
+
+
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CastleDefence)
 		/** Command presence skilll is enabled, it help to reduce the damage caused by enemies*/
 		bool bCommanderPresence;
@@ -51,6 +55,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void OnWaveFinished(class ASinglePlayerGM* _gm);
+
+	void SetIsOccupied(bool _val);
 
 protected:
 

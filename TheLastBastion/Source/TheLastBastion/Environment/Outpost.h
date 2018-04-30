@@ -67,7 +67,6 @@ protected:
 		/** Addition Amount in unit value, that will add to each increment*/
 		float AdditionAmount;
 
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Outpost)
 		EOutpostType OutpostType;
 

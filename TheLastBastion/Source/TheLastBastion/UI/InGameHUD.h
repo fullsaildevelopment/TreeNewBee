@@ -88,6 +88,7 @@ public:
 	void SetDpOnDpChange(const class UPawnStatsComponent * _pawnStats);
 	void SetExpBarValue(float _val);
 	void SetCastleBarValue(float _val);
+	void SetCastleBarColor(FLinearColor _color);
 
 	void SetPlayerRowOnLevelUp(const class UHeroStatsComponent * _heroStats);
 

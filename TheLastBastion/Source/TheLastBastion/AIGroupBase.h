@@ -8,8 +8,8 @@
 #include "AIGroupBase.generated.h"
 
 
-#define SIDEPADDING 600 //350.0f
-#define FRONTPADDING 800 //500.0f
+#define SIDEPADDING 600 
+#define FRONTPADDING 800 
 #define GroupFrontExtraVision 200.0f
 #define RangeGroupTargetAmount 4
 
@@ -258,11 +258,6 @@ protected:
 	// all unit target on the first threat, when there comes the first threat
 	void RangeTargetSelect_OnFirstOverlap(AActor* TargetActor);
 
-	//void SetRangeGroupTarget(AActor* TargetActor);
-
-	///** Called when group target is dead, assigned group with new target
-	//  * bind the target request delegate*/
-	//void OnGroupGroupTargetDeadHandle();
 
 
 	UFUNCTION()
@@ -405,6 +400,9 @@ public:
 	FORCEINLINE FVector GetGroupTargetRight() const { return GroupTargetRight; }
 	FORCEINLINE UTexture2D* GetThumbNail() const { return ThumbNail; };
 	FORCEINLINE virtual float GetRowPadding() const { return AIToSpawn.IsValidIndex(0) ? AIToSpawn[0].RowPadding : DefaultPadding;}
+	
+
+
 	///** Get the group center offset for the melee vision box when not in battle*/
 	//FVector GetGroupCenterOffset() const;
 
