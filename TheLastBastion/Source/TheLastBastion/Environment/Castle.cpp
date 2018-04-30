@@ -40,10 +40,7 @@ void ACastle::BeginPlay()
 		return;
 	}
 
-	if (OutpostType == EOutpostType::None)
-		gm->RegisterCastle(this);
-
-
+	gm->RegisterCastle(this);
 }
 
 // Called every frame
