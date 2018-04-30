@@ -95,6 +95,8 @@ public:
 
 	bool HasAllyGroupUnitAt(int _index);
 
+	bool IsDuringWait() const;
+
 	FORCEINLINE class AAllyGroup* GetAllyGroupUnitAt(int _index) {return (Allies.IsValidIndex(_index)) ? Allies[_index] : nullptr;}
 	FORCEINLINE class AEnemyGroup* GetEnemyGroupUnitAt(int _index) { return (Enemies.IsValidIndex(_index)) ? Enemies[_index] : nullptr; }
 

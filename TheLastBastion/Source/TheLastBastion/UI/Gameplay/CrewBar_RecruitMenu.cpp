@@ -55,6 +55,9 @@ void UCrewBar_RecruitMenu::OnOpenRecruitMenu()
 		return;
 	}
 
+	// if it is during wait, dismiss will be enabled regardless
+	bool isDuringWait = gm->IsDuringWait();
+
 	UCrewSlotUI *currCrewSlot = nullptr;
 	AAllyGroup* currGroup = nullptr;
 	totalAmount = 0;
@@ -66,16 +69,28 @@ void UCrewBar_RecruitMenu::OnOpenRecruitMenu()
 		//currCrewSlot = mCrewRow[iCrew].Crew;
 		currGroup = gm->GetAllyGroupUnitAt(iCrew);
 		currCrewSlot = AllCrewBlock[iCrew]->GetCrewSlot();
-
 		AllCrewBlock[iCrew]->SetAllyIndex(iCrew);
+
 		if (currGroup == nullptr)
 		{
+			// if it is empty slot
 			AllCrewBlock[iCrew]->SetOperationEnabled(false);
 			currCrewSlot->SetUnitClass(nullptr);
 			currCrewSlot->SetImage(nullptr);
 			AllCrewBlock[iCrew]->SetCrewNum(0);
 
 			continue;
+		}
+		else if (currGroup->IsInBattle())
+		{
+			// if the group is in battle, we are not allow to do anything to that group 
+			AllCrewBlock[iCrew]->SetOperationEnabled(false);
+		}
+		else
+		{
+			AllCrewBlock[iCrew]->SetOperationEnabled(true);
+			if (!isDuringWait)
+				AllCrewBlock[iCrew]->SetDismissEnabled(false);
 		}
 
 		currCrewSlot->SetUnitClass(currGroup->GetAllyGroupClass());
@@ -132,7 +147,7 @@ void UCrewBar_RecruitMenu::OnAccept()
 				// This group has no change, go to next group
 				continue;
 			}
-			currGroup->OnGroupSizeChangeByNum(deltaAmount);
+			currGroup->OnGroupSizeChangeByNum(deltaAmount);			
 		}
 	}
 

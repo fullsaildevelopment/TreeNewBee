@@ -68,7 +68,7 @@ void ACastle::OnWaveFinished(ASinglePlayerGM * _gm)
 	int stoneExpected = (MaxHp - CurrentHp);
 
 	int stoneCost = (stone > stoneExpected) ? stoneExpected : stone;
-	_gm->AddStone(stoneCost);
+	_gm->AddStone(-stoneCost);
 
 	CurrentHp += stoneCost;
 

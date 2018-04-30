@@ -216,6 +216,11 @@ void UCrewBlock::SetOperationEnabled(int _enabled)
 	FastRecruit->SetIsEnabled(_enabled);
 }
 
+void UCrewBlock::SetDismissEnabled(bool _enable)
+{
+	Dismiss->SetIsEnabled(_enable);
+}
+
 void UCrewBlock::UpdateResourcePreview(int _num)//, TSubclassOf<ATheLastBastionAIBase> _unitClass)
 {
 	

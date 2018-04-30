@@ -86,6 +86,7 @@ public:
 
 	void SetCrewNum(int _groupSize);
 	void SetOperationEnabled(int _enabled);
+	void SetDismissEnabled(bool _enable);
 
 
 private:
