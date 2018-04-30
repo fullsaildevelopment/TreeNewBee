@@ -249,7 +249,7 @@ void AEnemyGroupSpawner::EnableSpawning()
 	// Turn off the text notification
 	ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	if (pc)
-		pc->GetInGameHUD()->SetStartWaveNotificationVisibility(false);
+		pc->GetInGameHUD()->SetWaveNotificationOnWave(CurrentWaveIndex);
 
 	bIsCurrentWaveFinishSpawning = false;
 

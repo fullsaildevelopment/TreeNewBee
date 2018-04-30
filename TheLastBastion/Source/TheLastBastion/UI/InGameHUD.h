@@ -45,7 +45,7 @@ protected:
 		class UTextBlock* PopUpNotification;
 
 	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* StartWaveNotification;
+		class UTextBlock* WaveNotification;
 
 	UPROPERTY(meta = (BindWidget))
 		class UWidget* CrossHair;
@@ -122,5 +122,9 @@ public:
 
 	// In Game Text Pop Up Notification
 	void SetPopUpNotificationVisibility(bool visiblity);
-	void SetStartWaveNotificationVisibility(bool visiblity);
+
+	void SetWaveNotificationOnWave(int _index);
+
+	void SetWaveNotificationOnWait();
+	//void SetWaveNotificationVisibility(bool visiblity);
 };
