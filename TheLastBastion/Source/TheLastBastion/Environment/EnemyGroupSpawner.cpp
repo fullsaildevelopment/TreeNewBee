@@ -32,6 +32,7 @@ AEnemyGroupSpawner::AEnemyGroupSpawner()
 	// initialize default spawning state
 	bEnableSpawning = false;
 	bIsCurrentWaveFinishSpawning = true;
+	StartWaveIndex = 0;
 	CurrentWaveIndex = 0;
 }
 
@@ -41,7 +42,7 @@ void AEnemyGroupSpawner::BeginPlay()
 	Super::BeginPlay();
 	
 	//EditWaves();
-
+	CurrentWaveIndex = StartWaveIndex;
 	Hero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 	if (Hero == nullptr)
 	{
@@ -119,15 +120,6 @@ void AEnemyGroupSpawner::InitCurrentWave()
 
 }
 
-//void AEnemyGroupSpawner::OnWaveBegin(int _waveIndex)
-//{
-//	// if we are given a unvalid wave index, just restart from first wave
-//}
-//
-//void AEnemyGroupSpawner::OnWaveEnd(int _waveIndex)
-//{
-//}
-
 void AEnemyGroupSpawner::OnSpawnFinished()
 {
 	// play warning sound if we have
@@ -151,19 +143,10 @@ void AEnemyGroupSpawner::OnSpawnFinished()
 	GetWorldTimerManager().ClearTimer(SpawnTimer);
 	GetWorldTimerManager().SetTimer(SpawnTimer, this,
 		&AEnemyGroupSpawner::Spawn, 0.1f, false, SpawnDelay);
-
-
-
 }
 
 void AEnemyGroupSpawner::FindAllEnemyGroupPreset()
 {
-	//UCustomType::FindClass<AEnemyGroup>(LanT0,
-	//	TEXT("/Game/Blueprints/AI/GroupPreset/EnemyGroupPreset/LanT0_Bp"));
-
-	//UCustomType::FindClass<AEnemyGroup>(LanT0_CB,
-	//	TEXT("/Game/Blueprints/AI/GroupPreset/EnemyGroupPreset/LanT0_CB_Bp"));
-
 }
 
 void AEnemyGroupSpawner::Spawn()

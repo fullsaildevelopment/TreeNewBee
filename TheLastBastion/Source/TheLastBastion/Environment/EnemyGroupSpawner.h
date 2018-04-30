@@ -153,6 +153,10 @@ protected:
 		/** How many wave units we are going to spawn in current wave*/
 		int MaxWaveUnitAmount;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
+		/** Starting wave*/
+		int StartWaveIndex;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpawnTest)
 		/** How many wave units we are going to spawn in current wave*/
 		EPath TestingRoute;
@@ -213,12 +217,6 @@ private:
 
 	/** Reset CurrentWaveUnitIndex, If CurrentWaveIndex is out of scope, assigne the currentWaveIndex with max index*/
 	void InitCurrentWave();
-
-	///** Called on wave begin */
-	//void OnWaveBegin(int _waveIndex);
-
-	///** Called on wave end */
-	//void OnWaveEnd(int _waveIndex);
 
 	/** Called EveryTime after successfully spawn a Group */
 	void OnSpawnFinished();
