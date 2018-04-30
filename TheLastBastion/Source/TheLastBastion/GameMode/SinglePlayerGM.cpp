@@ -11,6 +11,7 @@
 #include "AudioManager.h"
 #include "Environment/Barracks.h"
 #include "Environment/EnemyGroupSpawner.h"
+#include "Environment/Castle.h"
 
 #include "UI/InGameHUD.h"
 #include "UI/Gameplay/TradeMenu.h"
@@ -98,7 +99,7 @@ void ASinglePlayerGM::BeginPlay()
 
 	HeroPC = Cast<ASinglePlayerPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	if (HeroPC == nullptr)
-		UE_LOG(LogTemp, Error, TEXT("HeroPC == nullptr - ASinglePlayerGM::AddFood"));
+		UE_LOG(LogTemp, Error, TEXT("HeroPC == nullptr - ASinglePlayerGM::BeginPlay"));
 
 }
 
@@ -250,7 +251,9 @@ void ASinglePlayerGM::UnRegisterEnemyGroupAt(int _index)
 		UE_LOG(LogTemp, Error, TEXT("pc == nullptr, ASinglePlayerGM::UnRegisterEnemyGroupAt"));
 		return;
 	}
-	// tell UI to show "press Enter to start next wave"
+
+
+	// check if player survive the current wave
 	if (Enemies.Num() <= 0 && EnemyGroupSpawner->IsCurrentWaveFinishSpawning())
 	{
 		// TODO:  Display the notification for player once all the enemy groups in this wave get killed
@@ -262,6 +265,9 @@ void ASinglePlayerGM::UnRegisterEnemyGroupAt(int _index)
 		ATheLastBastionHeroCharacter* Hero = Cast<ATheLastBastionHeroCharacter>(pc->GetCharacter());
 		if (Hero)
 			Hero->SetCanStartNextWave(true);
+
+		Castle->OnWaveFinished(this);
+
 		return;
 	}
 

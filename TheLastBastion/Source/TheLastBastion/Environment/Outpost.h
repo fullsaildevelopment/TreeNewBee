@@ -13,7 +13,8 @@ enum class EOutpostType : uint8
 	Food = 1                  UMETA(DisplayName = "Food"),
 	Wood = 2                  UMETA(DisplayName = "Wood"),
 	Metal = 3                 UMETA(DisplayName = "Metal"),
-	Stone = 4                 UMETA(DisplayName = "Stone")
+	Stone = 4                 UMETA(DisplayName = "Stone"),
+	Castle = 5                UMETA(DisplayName = "Castle")
 };
 
 #define FoodIncrement 10
