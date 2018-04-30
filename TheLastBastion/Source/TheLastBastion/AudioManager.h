@@ -34,6 +34,7 @@ enum class ESoundEffectType : uint8
 	EMineWarning,
 	EStoneWarning,
 	EWoodWarning,
+	ECastleWarning,
 	ESoldierDialog,
 	EDefaultTheme,
 	ELannisterTheme1,
@@ -90,6 +91,7 @@ private:
 	static class USoundCue* MineWarning;
 	static class USoundCue* StoneWarning;
 	static class USoundCue* WoodWarning;
+	static class USoundCue* CastleWarning;
 
 	// Background music
 	static class USoundCue* SoldierDialog;

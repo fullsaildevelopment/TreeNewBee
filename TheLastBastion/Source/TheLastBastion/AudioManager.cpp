@@ -31,6 +31,7 @@ USoundCue* UAudioManager::FoodWarning = nullptr;
 USoundCue* UAudioManager::MineWarning = nullptr;
 USoundCue* UAudioManager::StoneWarning = nullptr;
 USoundCue* UAudioManager::WoodWarning = nullptr;
+USoundCue* UAudioManager::CastleWarning = nullptr;
 USoundCue* UAudioManager::SoldierDialog = nullptr;
 USoundCue* UAudioManager::DefaultTheme = nullptr;
 USoundCue* UAudioManager::LannisterTheme1 = nullptr;
@@ -79,6 +80,7 @@ UAudioManager::UAudioManager()
 	MineWarning = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Vocal/MineWarning"));
 	StoneWarning = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Vocal/StoneWarning"));
 	WoodWarning = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Vocal/WoodWarning"));
+	CastleWarning = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Vocal/CastleWarning"));
 
 	// BGM
 	SoldierDialog= FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Vocal/SoldiersDialog"));
@@ -170,6 +172,9 @@ USoundCue * UAudioManager::GetSFX(ESoundEffectType _sfxType)
 
 	case ESoundEffectType::EWoodWarning:
 		return WoodWarning;
+
+	case ESoundEffectType::ECastleWarning:
+		return CastleWarning;
 
 	case ESoundEffectType::ESoldierDialog:
 		return SoldierDialog;
