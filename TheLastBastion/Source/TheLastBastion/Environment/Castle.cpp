@@ -8,6 +8,7 @@
 #include "AIGroupBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/InGameHUD.h"
+#include "GameMode/SinglePlayerGM.h"
 
 
 // Sets default values
@@ -20,6 +21,7 @@ ACastle::ACastle()
 	MaxHp = 2000.0f;
 	CurrentHp = MaxHp;
 	DamageReduction = 0.0f;
+	OutpostType = EOutpostType::Castle;
 
 }
 
@@ -30,19 +32,37 @@ void ACastle::BeginPlay()
 
 	MaxHpDiv = 1.0f / MaxHp;
 
-	//if (CastleBox)
-	//{
-	//	CastleBox->OnComponentBeginOverlap.AddDynamic(this, &ACastle::OnCastleBoxOverlap_Start);
-	//	CastleBox->OnComponentEndOverlap.AddDynamic(this, &ACastle::OnCastleBoxOverlap_End);
-	//}
-	//// Set Health update timer;
-	//GetWorldTimerManager().SetTimer(HealthTimer, this, &ACastle::UpdateCastleHealth, UpdateFreq, true, 0.1f);
+
+	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (gm == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("gm == nullptr"));
+		return;
+	}
+
+	if (OutpostType == EOutpostType::None)
+		gm->RegisterCastle(this);
+
+
 }
 
 // Called every frame
 void ACastle::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void ACastle::OnWaveFinished(ASinglePlayerGM * _gm)
+{
+	int stone = _gm->GetStoneTotal();
+
+	// stone expect to fix castle
+	int stoneExpected = (MaxHp - CurrentHp);
+
+	int stoneCost = (stone > stoneExpected) ? stoneExpected : stone;
+	_gm->AddStone(stoneCost);
+
+	CurrentHp += stoneCost;
 }
 
 void ACastle::UpdateByTimer()
@@ -53,6 +73,14 @@ void ACastle::UpdateByTimer()
 	AAIGroupBase* currentEnemyGroup = nullptr;
 	ATheLastBastionAIBase* currentEnemy = nullptr;
 	int currentGroupSize = 0;
+
+
+	if (EnemiesGroup.Num() == 0)
+	{
+		bIsOccupied = false;
+		return;
+	}
+
 
 	for (int iGroup = 0; iGroup < EnemiesGroup.Num(); iGroup++)
 	{
@@ -81,19 +109,6 @@ void ACastle::UpdateByTimer()
 	}
 
 
-	//bool bGetDamaged = false;
-	//if (Enemies[iEnemies]->GetIsDead())
-	//{
-	//	// if this is dead, clear it out of castle enemies list
-	//	Enemies.RemoveAtSwap(iEnemies);
-	//}
-	//else
-	//{
-	//	// if this is lived, add its siege point to the castle damage
-	//	damageToCastle += Enemies[iEnemies]->GetSiegePoint();
-	//	bGetDamaged = true;
-	//}
-
 
 	if (bIsOccupied)
 	{
@@ -120,15 +135,6 @@ void ACastle::UpdateByTimer()
 
 }
 
-//void ACastle::OnEnemiesEnter(class ATheLastBastionAIBase* _enemy)
-//{
-//	Enemies.Add(_enemy);
-//}
-//
-//void ACastle::OnEnemiesLeave(ATheLastBastionAIBase * _enemy)
-//{
-//	Enemies.RemoveSingleSwap(_enemy);
-//}
 
 void ACastle::OnOutPostBoxOverlap_Start(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
@@ -140,26 +146,16 @@ void ACastle::OnOutPostBoxOverlap_Start(UPrimitiveComponent * OverlappedComponen
 	}
 	else
 	{
-		AEnemyGroup* enemyGroup = Cast<AEnemyGroup>(OtherActor);
-		if (enemyGroup)
-		{
-			EnemiesGroup.Add(enemyGroup);
-		}
+
+		Super::OnOutPostBoxOverlap_Start(OverlappedComponent, 
+			OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+		//AEnemyGroup* enemyGroup = Cast<AEnemyGroup>(OtherActor);
+		//if (enemyGroup)
+		//{
+		//	EnemiesGroup.Add(enemyGroup);
+		//}
 	}
 
-	//ATheLastBastionCharacter* overlapCharacter = Cast<ATheLastBastionCharacter>(OtherActor);
-	//if (overlapCharacter)
-	//{
-	//	if (overlapCharacter->IsEnemy())
-	//	{
-	//		ATheLastBastionAIBase* aiCharacter = Cast<ATheLastBastionAIBase>(overlapCharacter);
-	//		if (aiCharacter)
-	//			OnEnemiesEnter(aiCharacter);
-	//	}
-	//	else
-	//	{
-	//	}
-	//}
 }
 
 void ACastle::OnOutPostBoxOverlap_End(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
@@ -172,31 +168,16 @@ void ACastle::OnOutPostBoxOverlap_End(UPrimitiveComponent * OverlappedComponent,
 	}
 	else
 	{
-		AEnemyGroup* enemyGroup = Cast<AEnemyGroup>(OtherActor);
-		if (enemyGroup)
-		{
-			EnemiesGroup.RemoveSingleSwap(enemyGroup);
-		}
-	}
 
-	//ATheLastBastionCharacter* overlapCharacter = Cast<ATheLastBastionCharacter>(OtherActor);
-	//if (overlapCharacter)
-	//{
-	//	if (overlapCharacter->IsEnemy())
-	//	{
-	//		ATheLastBastionAIBase* aiCharacter = Cast<ATheLastBastionAIBase>(overlapCharacter);
-	//		if (aiCharacter)
-	//			OnEnemiesLeave(aiCharacter);
-	//	}
-	//	else
-	//	{
-	//		ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(overlapCharacter);
-	//		if (hero)
-	//		{
-	//			bCommanderPresence = false;
-	//		}
-	//	}
-	//}
+		Super::OnOutPostBoxOverlap_End(OverlappedComponent, 
+			OtherActor, OtherComp, OtherBodyIndex);
+
+		//AEnemyGroup* enemyGroup = Cast<AEnemyGroup>(OtherActor);
+		//if (enemyGroup)
+		//{
+		//	EnemiesGroup.RemoveSingleSwap(enemyGroup);
+		//}
+	}
 
 }
 

@@ -233,6 +233,8 @@ public:
 
 	void LevelUp() override;
 
+	void GenerateMaxStats(bool _setCurrentToMax = true) override;
+
 public:
 
 	FORCEINLINE const class ATheLastBastionEnemyCharacter* GetCurrentTarget() const { return mCurrentTarget; }

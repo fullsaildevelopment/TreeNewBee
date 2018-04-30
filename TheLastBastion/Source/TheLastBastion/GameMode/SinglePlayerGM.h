@@ -13,10 +13,6 @@
 #define MaxEnemyGroupAmount 5
 #define AllyGroupMaxAmount 4
 
-
-
-
-
 UCLASS()
 class THELASTBASTION_API ASinglePlayerGM : public AGameModeBase
 {
@@ -62,6 +58,10 @@ private:
 		class ABarracks* Barracks;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
+		class ACastle* Castle;
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
 		int Food;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Resource, meta = (AllowPrivateAccess = "true"))
@@ -90,6 +90,8 @@ private:
 public:
 
 	void Tick(float DeltaSeconds) override;
+
+	void OnHeroLevelUp(int _heroLevel);
 
 	bool HasAllyGroupUnitAt(int _index);
 
@@ -137,6 +139,7 @@ public:
 	FORCEINLINE int GetStoneTotal() const { return Stone; }
 
 	FORCEINLINE void RegisterOutpost(class AOutpost* _outpost) { AllOutpost.Add(_outpost); }
+	FORCEINLINE void RegisterCastle(class ACastle* _castle) { Castle = _castle; }
 	FORCEINLINE class AOutpost* GetOutpostAt(int _index) { return AllOutpost[_index]; }
 	FORCEINLINE int GetAllOutpostAmount() const { return AllOutpost.Num(); }
 
@@ -144,7 +147,6 @@ public:
 	void AddMetal(int _val);
 	void AddWood(int _val);
 	void AddStone(int _val);
-
 
 	void OnTradeMenuAccept(int _metal, int _wood);
 	void OnRecruitMenuAccept(int _food, int _metal, int _wood);

@@ -28,6 +28,7 @@
 #define WhiteWalkerTheme_StartPoint_0 0.0f
 #define WhiteWalkerTheme_StartPoint_1 23.0f
 
+#define WaveAmount 15
 
 UENUM(BlueprintType)
 enum class EPath : uint8 

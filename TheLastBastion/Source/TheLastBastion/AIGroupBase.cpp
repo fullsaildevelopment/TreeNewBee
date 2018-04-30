@@ -414,7 +414,7 @@ AActor* AAIGroupBase::OnTargetRequest_Melee(const ATheLastBastionCharacter * _re
 	for (auto& Elem : ThreatMap)
 	{
 		currentThreat = Elem.Key;
-		if (currentThreat->GetIsDead())
+		if (currentThreat->GetIsDead() || currentThreat == nullptr)
 			RemoveThreat(currentThreat);
 	}
 

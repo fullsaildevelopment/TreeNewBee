@@ -309,6 +309,8 @@ public:
 	// Called on actor destroyed
 	void Kill() override;
 
+	virtual void OnHeroLevelUp(int _heroLevel) {}
+
 protected:
 
 

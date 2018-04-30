@@ -205,3 +205,10 @@ void ATheLastBastionAllyCharacter::OnGetUp()
 	//GetMesh()->SetCollisionProfileName("HeroBody");
 
 }
+
+void ATheLastBastionAllyCharacter::OnHeroLevelUp(int _heroLevel)
+{
+	AIStats->SetCharacterLevel(_heroLevel);
+	AIStats->LevelUp();
+	AI_HUD->OnCharacterLevelUp(AIStats);
+}

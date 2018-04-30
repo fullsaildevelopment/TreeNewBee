@@ -6,6 +6,8 @@
 #include "Environment/Outpost.h"
 #include "Castle.generated.h"
 
+
+
 UCLASS(BlueprintType)
 class THELASTBASTION_API ACastle : public AOutpost
 {
@@ -48,6 +50,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void OnWaveFinished(class ASinglePlayerGM* _gm);
+
 protected:
 
 	/** Check castle health based on how many enemies inside the castle*/
@@ -62,4 +66,7 @@ protected:
 		void OnOutPostBoxOverlap_End(UPrimitiveComponent* OverlappedComponent,
 			AActor* OtherActor, UPrimitiveComponent* OtherComp, 
 			int32 OtherBodyIndex) override;
+
+
+
 };

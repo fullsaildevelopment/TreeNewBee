@@ -40,4 +40,7 @@ public:
 
 	void OnGetUp() override;
 
+	void OnHeroLevelUp(int _heroLevel) override;
+
+
 };

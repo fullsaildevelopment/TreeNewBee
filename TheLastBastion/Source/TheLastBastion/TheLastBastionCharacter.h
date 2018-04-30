@@ -260,7 +260,6 @@ public:
 	void SetCharacterLevel(int _level);
 	int GetCharacerLevel() const;
 
-
 	bool IsOnDefend() const;
 	bool IsUsingHeavyWeapon() const;
 

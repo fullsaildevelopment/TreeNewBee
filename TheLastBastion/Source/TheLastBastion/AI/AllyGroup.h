@@ -109,6 +109,7 @@ public:
 
 		void OnStopFollowing();
 
+	void OnHeroLevelUp(int _heroLevel);
 
 	void OnChildDeath(int _childIndex) override;
 

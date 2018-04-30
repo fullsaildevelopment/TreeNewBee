@@ -51,6 +51,12 @@ void UInGameAIHUD::UpdateHealthBar(const UPawnStatsComponent * _pawnStatsComp)
 	HpBar->SetPercent(_pawnStatsComp->GetHpCurrent() * _pawnStatsComp->GetDivByHpMax());
 }
 
+void UInGameAIHUD::OnCharacterLevelUp(const UPawnStatsComponent * _pawnStatsComp)
+{
+	HpBar->SetPercent(_pawnStatsComp->GetHpCurrent() * _pawnStatsComp->GetDivByHpMax());
+	AILevel->SetText(FText::AsNumber(_pawnStatsComp->GetCharacterLevel()));
+}
+
 void UInGameAIHUD::ToggleUI(bool _turnOn, bool _playAnim)
 {
 

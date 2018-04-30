@@ -55,7 +55,8 @@ void AOutpost::BeginPlay()
 		return;
 	}
 
-	gm->RegisterOutpost(this);
+	if (OutpostType != EOutpostType::None)
+		gm->RegisterOutpost(this);
 
 	float delay = FMath::RandRange(0.1f, 3.0f);
 	// Set Health update timer;
@@ -144,6 +145,9 @@ void AOutpost::OnOutPostBoxOverlap_Start(UPrimitiveComponent * OverlappedCompone
 			VocalWarning = UAudioManager::GetSFX(ESoundEffectType::EStoneWarning);
 			break;
 		case EOutpostType::Wood:
+			VocalWarning = UAudioManager::GetSFX(ESoundEffectType::EWoodWarning);
+			break;
+		case EOutpostType::Castle:
 			VocalWarning = UAudioManager::GetSFX(ESoundEffectType::EWoodWarning);
 			break;
 		case EOutpostType::None:

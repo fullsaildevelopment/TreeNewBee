@@ -17,6 +17,7 @@
 #include "UI/Gameplay/InventoryUI.h"
 #include "AudioManager.h"
 #include "Sound/SoundCue.h"
+#include "GameMode/SinglePlayerGM.h"
 
 
 UHeroStatsComponent::UHeroStatsComponent()
@@ -413,6 +414,80 @@ void UHeroStatsComponent::LevelUp()
 		UGameplayStatics::SpawnEmitterAttached(LevelUpParticle, PlayerMesh);
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), levelUpSfx, mHeroCharacter->GetActorLocation());
 	}
+
+	
+	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (gm == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("gm == nullptr, UHeroStatsComponent::LevelUp"));
+		return;
+	}
+
+	gm->OnHeroLevelUp(Level);
+}
+
+void UHeroStatsComponent::GenerateMaxStats(bool _setCurrentToMax)
+{
+	float
+		factorHp = 1,
+		factorStamina = 1,
+		HpAdd = 0,
+		SpAdd = 0;
+	//criticalAdd = 0,
+	//stunAdd = 0;
+
+	AGear* LeftHandWeapon = WeaponSlots[CurrentWeapon_Index].LeftHand;
+	AGear* RightHandWeapon = WeaponSlots[CurrentWeapon_Index].RightHand;
+
+	if (LeftHandWeapon)
+	{
+		factorHp += LeftHandWeapon->GetHpBonus_uint();
+		factorStamina += LeftHandWeapon->GetStaminaBonus_uint();
+		HpAdd += LeftHandWeapon->GetHpAdditive();
+		SpAdd += LeftHandWeapon->GetSpAdditive();
+		//criticalAdd += LeftHandWeapon->GetCriticalChance();
+		//stunAdd += LeftHandWeapon->GetStunChance();
+	}
+
+	if (RightHandWeapon)
+	{
+		//factorHp += RightHandWeapon->GetHpBonus_uint();
+		//factorStamina += RightHandWeapon->GetStaminaBonus_uint();
+		//HpAdd += RightHandWeapon->GetHpAdditive();
+		//SpAdd += RightHandWeapon->GetSpAdditive();
+		//criticalAdd += RightHandWeapon->GetCriticalChance();
+		//stunAdd += RightHandWeapon->GetStunChance();
+	}
+
+	if (Armor)
+	{
+		factorHp += Armor->GetHpBonus_uint();
+		factorStamina += Armor->GetStaminaBonus_uint();
+		HpAdd += Armor->GetHpAdditive();
+		SpAdd += Armor->GetSpAdditive();
+		//criticalAdd += Armor->GetCriticalChance();
+		//stunAdd += Armor->GetStunChance();
+	}
+
+
+	HpMax = factorHp * HpRaw + HpAdd;
+	StaminaMax = factorStamina * StaminaRaw + SpAdd;
+	//CriticalMax = CriticalRow + criticalAdd;
+	//StunMax = StunRow + stunAdd;
+	//DpCurrent = 0;
+
+	HpCurrent = (HpCurrent > HpMax) ? HpMax : HpCurrent;
+	DpCurrent = (DpCurrent > HpMax) ? HpMax : DpCurrent;
+	StaminaCurrent = (StaminaCurrent > StaminaMax) ? StaminaMax : StaminaCurrent;
+
+	if (_setCurrentToMax)
+	{
+		HpCurrent = HpMax;
+		StaminaCurrent = StaminaMax;
+	}
+	DivByHpMax = 1 / HpMax;
+	DivByStaminaMax = 1 / StaminaMax;
+
 }
 
 void UHeroStatsComponent::SetDamageMultiplierByLevel_PowerHit(int _level)
