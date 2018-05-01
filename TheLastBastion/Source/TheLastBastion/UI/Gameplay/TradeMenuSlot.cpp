@@ -232,6 +232,7 @@ bool UTradeMenuSlot::CostCheck(TSubclassOf<class AGear> _gear) const
 
 	// check if player has the resource for the cost
 	AGear* dragGear = _gear.GetDefaultObject();
+
 	TArray<int> costs = dragGear->GetResourceCost();
 
 	int requiredMetal = costs[0];

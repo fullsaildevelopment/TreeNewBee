@@ -37,7 +37,7 @@ AProjectile::AProjectile()
 	ProjectileMovementComp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComp"));
 	ProjectileMovementComp->UpdatedComponent = RootComp;
 	ProjectileMovementComp->InitialSpeed = 3000.f;
-	ProjectileMovementComp->MaxSpeed = 3000.f;
+	ProjectileMovementComp->MaxSpeed = 4000.0f;
 	ProjectileMovementComp->bRotationFollowsVelocity = true;
 	ProjectileMovementComp->bShouldBounce = false;
 	ProjectileMovementComp->bAutoActivate = false;
@@ -74,7 +74,7 @@ void AProjectile::SetInitFireVelocity(const FVector & _hor, float flyTime)
 	//UE_LOG(LogTemp, Log, TEXT("%f - AProjectile::SetInitFireVelocity "), ProjectileMovementComp->GetGravityZ());
 }
 
-void AProjectile::ProjectileOnFire(AGear * _rangeWeapon, bool _isComboProjectile)
+void AProjectile::ProjectileOnFire(ARangeWeapon * _rangeWeapon, bool _isComboProjectile)
 {
 	if (_rangeWeapon)
 	{
@@ -82,6 +82,7 @@ void AProjectile::ProjectileOnFire(AGear * _rangeWeapon, bool _isComboProjectile
 		DamageType = _isComboProjectile ? ComboBullets_Type : NormalBullets_Type;
 		bIsFlying = true;
 		GearOwner = _rangeWeapon->GetGearOwner();
+		ProjectileMovementComp->MaxSpeed = _rangeWeapon->GetBulletSpeed();
 		SetDamageIsEnabled(true);
 		//RootComponent->SetWorldScale3D(FVector(2.0f, 2.0f, 2.0f));
 		if (GearOwner->IsA<ATheLastBastionHeroCharacter>())

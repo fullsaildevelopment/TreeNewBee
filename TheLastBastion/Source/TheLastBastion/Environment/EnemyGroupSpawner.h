@@ -197,6 +197,7 @@ public:
 	/** The resting gap between waves */
     bool IsDuringWait() const;
 
+	FORCEINLINE int GetCurrentWaveIndex() const { return CurrentWaveIndex; }
 
 	FORCEINLINE bool HasNextWayPointOnPath
 	(int _pathIndex, int _wayPointIndex) const { return Paths[_pathIndex].WayPoints.IsValidIndex(_wayPointIndex); }

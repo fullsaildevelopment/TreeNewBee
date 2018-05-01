@@ -73,7 +73,7 @@ public:
 	/** Returns ProjectileMovement subobject **/
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovementComp() const { return ProjectileMovementComp; }
 
-	void ProjectileOnFire(class AGear* _rangeWeapon, bool _isComboProjectile = false);
+	void ProjectileOnFire(class ARangeWeapon* _rangeWeapon, bool _isComboProjectile = false);
 
 private:
 

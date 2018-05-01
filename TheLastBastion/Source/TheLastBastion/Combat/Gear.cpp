@@ -23,6 +23,7 @@ AGear::AGear()
 	if (NormalBullets_Type == nullptr)
 		UCustomType::FindClass<UDamageType>(NormalBullets_Type, TEXT("/Game/Blueprints/DamageType/DT_Bullets"));
 
+	//bIsUnlocked = false;
 }
 
 // Called when the game starts or when spawned

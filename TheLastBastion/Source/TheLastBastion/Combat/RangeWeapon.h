@@ -32,11 +32,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "RangeWeapon")
 	float ShootingRange;
 
-	UPROPERTY(EditDefaultsOnly, Category = "RangeWeapon")
+	UPROPERTY(EditAnywhere, Category = "RangeWeapon")
 	//* horizontal velocity //
 	float BulletSpeed;
 
-	UPROPERTY(EditDefaultsOnly, Category = "RangeWeapon")
+	UPROPERTY(VisibleAnywhere, Category = "RangeWeapon")
 	//* PowerShoot bullet amount //
 	int BulletSpreadAmount;
 
@@ -74,6 +74,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual void NPCFire(const AActor* _target);
+
+	FORCEINLINE float GetBulletSpeed() const { return BulletSpeed; }
 
 protected:
 	virtual void BeginPlay() override;

@@ -120,6 +120,7 @@ void UTradeMenu_PopUp::PopUpStunWeapon(const AGear* const  _StunWeapon)
 
 void UTradeMenu_PopUp::PopUpCost(const AGear* const  _gear)
 {
+
 	TArray<int> Cost = _gear->GetResourceCost();
 
 	// Metal 
@@ -133,33 +134,7 @@ void UTradeMenu_PopUp::PopUpCost(const AGear* const  _gear)
 	if (WoodCost > 0)
 		AddPopUpEntryWithColor(WoodUI_Color, TEXT("Wood Require:"), WoodCost, CostList);
 
+
+
 }
 
-//void UTradeMenu_PopUp::AddPopUpEntry(FString _text, int _val)
-//{
-//
-//	UTradePopUp_Entry*	popUpEntry =
-//		Cast<UTradePopUp_Entry>(CreateWidget<UUserWidget>(GetOwningPlayer(), WBP_TradePopUpEntry));
-//
-//	if (popUpEntry)
-//	{
-//		popUpEntry->EditEntry(FText::FromString(_text), FText::AsNumber(_val));
-//	}
-//	
-//	DataList->AddChildToVerticalBox(popUpEntry);
-//}
-//
-//void UTradeMenu_PopUp::AddPopUpEntryWithColor(FLinearColor _color, FString _text, int _val)
-//{
-//	UTradePopUp_Entry*	popUpEntry =
-//		Cast<UTradePopUp_Entry>(CreateWidget<UUserWidget>(GetOwningPlayer(), WBP_TradePopUpEntry));
-//
-//	if (popUpEntry)
-//	{
-//		popUpEntry->EditEntry(FText::FromString(_text), FText::AsNumber(_val));
-//		popUpEntry->EditColor(_color);
-//	}
-//
-//	DataList->AddChildToVerticalBox(popUpEntry);
-//
-//}

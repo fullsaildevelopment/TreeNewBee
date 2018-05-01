@@ -120,6 +120,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		float CriticalForce;
 
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	//	bool bIsUnlocked;
+
 	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	//	EElementalType ElementalType;
 
@@ -155,7 +158,9 @@ public:
 	FORCEINLINE float GetStunChance_unit() const { return StunChance * 0.01f; }
 	FORCEINLINE float GetForce() const { return Force; }
 	FORCEINLINE float GetCriticalForce() const { return CriticalForce; }
-	//FORCEINLINE EElementalType GetElementalType() const { return ElementalType; }
+	//FORCEINLINE bool GetIsUnlocked() const { return bIsUnlocked; }
+	////FORCEINLINE EElementalType GetElementalType() const { return ElementalType; }
+	//FORCEINLINE void Unlock()  {  bIsUnlocked = true; }
 
 	////UFUNCTION(BlueprintPure)
 	////	FORCEINLINE FText GetGearName() const { return Name; }

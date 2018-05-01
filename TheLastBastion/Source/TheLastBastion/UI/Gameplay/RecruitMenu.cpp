@@ -8,8 +8,15 @@
 #include "TheLastBastionHeroCharacter.h"
 #include "Combat/HeroStatsComponent.h"
 #include "PCs/SinglePlayerPC.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameMode/SinglePlayerGM.h"
+#include "Environment/EnemyGroupSpawner.h"
 
 
+#define Wolf_Unlock 2
+#define Nord_Unlock 4
+#define Dwarven_Unlock 7
+#define Ebony_Unlock 9
 
 bool URecruitMenu::Initialize()
 {
@@ -63,29 +70,41 @@ bool URecruitMenu::Initialize()
 void URecruitMenu::OnOpenRecruitMenu()
 {   
 	//// Display available ally types to player based on Player's level
-	//ATheLastBastionHeroCharacter* Player = Cast<ATheLastBastionHeroCharacter>(GetOwningPlayerPawn());
-	//if (Player)
-	//{
-	//	UHeroStatsComponent* PlayerStats = Player->GetHeroStatsComp();
-	//	if (PlayerStats)
-	//	{
-	//		int CurrentPlayerLevel = PlayerStats->GetCharacterLevel();
-	//		if (CurrentPlayerLevel >= 15)
-	//		{
-	//			NordicRow->SetIsEnabled(true);
-	//			if (CurrentPlayerLevel >= 25)
-	//			{
-	//				DwarvenRow->SetIsEnabled(true);
-	//				if (CurrentPlayerLevel >= 35)
-	//				{
-	//					EbonyRow->SetIsEnabled(true);
-	//					if (CurrentPlayerLevel >= 45)
-	//						DaedricRow->SetIsEnabled(true);
-	//				}
-	//			}
-	//		}
-	//	}
-	//}
+	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (gm == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("gm == nullptr, URecruitMenu::OnOpenRecruitMenu"));
+		return;
+	}
+
+	AEnemyGroupSpawner* enemySpawner = gm->GetEnemyGroupSpawner();
+	if (enemySpawner == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("enemySpawner == nullptr, URecruitMenu::OnOpenRecruitMenu"));
+		return;
+	}
+
+	int currentWave = enemySpawner->GetCurrentWaveIndex();
+
+	Wolf->SetIsEnabled(false);
+	Nord->SetIsEnabled(false);
+	Dwarven->SetIsEnabled(false);
+	Ebony->SetIsEnabled(false);
+
+	if (currentWave >= Wolf_Unlock)
+	{
+		Wolf->SetIsEnabled(true);
+		if (currentWave >= Nord_Unlock)
+		{
+			Nord->SetIsEnabled(true);
+			if (currentWave >= Dwarven_Unlock)
+			{
+				Dwarven->SetIsEnabled(true);
+				if (currentWave >= Ebony_Unlock)
+					Ebony->SetIsEnabled(true);
+			}
+		}
+	}
 
 	AllMyCrew->OnOpenRecruitMenu();
 	bIsOpened = true;	
