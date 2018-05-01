@@ -23,6 +23,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CastleDefence)
 		class UInGameHUD* GameHUD;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CastleDefence)
+		class ASinglePlayerGM* SpGameMode;
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = CastleDefence)
 		/** Max value of castle hp*/
 		float MaxHp;
@@ -44,6 +47,8 @@ protected:
 		/** Command presence skilll is enabled, it help to reduce the damage caused by enemies*/
 		bool bCommanderPresence;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = CastleDefence)
+		bool bIsCastleDestory;
 
 
 protected:
@@ -54,9 +59,19 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void OnWaveFinished(class ASinglePlayerGM* _gm);
+	/** Repair the wall with player resource for each wave ended*/
+	void FixWall(class ASinglePlayerGM* _gm, bool _forFree = false);
 
 	void SetIsOccupied(bool _val);
+
+
+	FORCEINLINE bool GetCastleDestroy() const {return bIsCastleDestory;}
+
+
+private:
+
+	// tell our enemySpawner that our castle is destroied, stop the current wave
+	void OnCastleDestroy();
 
 protected:
 

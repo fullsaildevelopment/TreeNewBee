@@ -114,6 +114,7 @@ void ASinglePlayerGM::GetAllSpawnClass()
 
 }
 
+
 void ASinglePlayerGM::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -250,33 +251,26 @@ void ASinglePlayerGM::UnRegisterEnemyGroupAt(int _index)
 
 	Enemies.RemoveAtSwap(_index);
 
-	ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	if (pc)
-		pc->GetInGameHUD()->RemoveEnemyGroupAt(_index);
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("pc == nullptr, ASinglePlayerGM::UnRegisterEnemyGroupAt"));
-		return;
-	}
+	HeroPC->GetInGameHUD()->RemoveEnemyGroupAt(_index);
+	//ASinglePlayerPC* pc = Cast<ASinglePlayerPC>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	//if (pc)
+	//	pc->GetInGameHUD()->RemoveEnemyGroupAt(_index);
+	//else
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("pc == nullptr, ASinglePlayerGM::UnRegisterEnemyGroupAt"));
+	//	return;
+	//}
 
 
 	// check if player survive the current wave
-	if (Enemies.Num() <= 0 && EnemyGroupSpawner->IsCurrentWaveFinishSpawning())
-	{
-		// TODO:  Display the notification for player once all the enemy groups in this wave get killed
-		pc->GetInGameHUD()->SetWaveNotificationOnWait();
-
-		// Fade in wait BGM
-		EnemyGroupSpawner->PlayWaitBGM();
-		
-		ATheLastBastionHeroCharacter* Hero = Cast<ATheLastBastionHeroCharacter>(pc->GetCharacter());
-		if (Hero)
-			Hero->SetCanStartNextWave(true);
-
-		Castle->OnWaveFinished(this);
-
+	if (Enemies.Num() <= 0)
+	{	
+		OnEnemiesGroupAllDied();
 		return;
 	}
+
+
+
 
 	// re - index each enemy group
 	for (int iEnemyGroup = 0; iEnemyGroup < Enemies.Num(); iEnemyGroup++)
@@ -285,6 +279,44 @@ void ASinglePlayerGM::UnRegisterEnemyGroupAt(int _index)
 	}
 
 }
+
+void ASinglePlayerGM::OnEnemiesGroupAllDied()
+{
+	if (Castle->GetCastleDestroy())
+	{
+		HeroPC->GetInGameHUD()->SetWaveNotificationOnWait();
+		// Fade in wait BGM
+		EnemyGroupSpawner->PlayWaitBGM();
+
+		ATheLastBastionHeroCharacter* Hero = Cast<ATheLastBastionHeroCharacter>(HeroPC->GetCharacter());
+		if (Hero)
+			Hero->SetCanStartNextWave(true);
+
+		Castle->FixWall(this, true);
+	}
+	else if (EnemyGroupSpawner->GetIsVictory())
+	{
+		// TODO:  Display the notification for player once all the enemy groups in this wave get killed
+		HeroPC->GetInGameHUD()->SetVictoryNotification();
+		EnemyGroupSpawner->PlayWaitBGM();
+
+	}
+	else if (EnemyGroupSpawner->IsCurrentWaveFinishSpawning())
+	{
+		// TODO:  Display the notification for player once all the enemy groups in this wave get killed
+		HeroPC->GetInGameHUD()->SetWaveNotificationOnWait();
+
+		// Fade in wait BGM
+		EnemyGroupSpawner->PlayWaitBGM();
+
+		ATheLastBastionHeroCharacter* Hero = Cast<ATheLastBastionHeroCharacter>(HeroPC->GetCharacter());
+		if (Hero)
+			Hero->SetCanStartNextWave(true);
+
+		Castle->FixWall(this);
+	}
+}
+
 
 void ASinglePlayerGM::OnTradeMenuAccept(int _metal, int _wood)
 {
@@ -319,6 +351,11 @@ void ASinglePlayerGM::OnRecruitMenuAccept(int _food, int _metal, int _wood)
 		UE_LOG(LogTemp, Error, TEXT("HeroPC == nullptr, ASinglePlayerGM::OnRecruitMenuAccept"));
 	}
 
+}
+
+bool ASinglePlayerGM::IsCastleDestroy() const
+{
+	return Castle->GetCastleDestroy();
 }
 
 void ASinglePlayerGM::AddFood(int _val)

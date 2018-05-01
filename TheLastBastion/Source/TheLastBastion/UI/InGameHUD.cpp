@@ -38,7 +38,8 @@ const FString BattleDescription[15] =
 	TEXT("BattleDescription 15")
 };
 
-
+#define CastleDestoryNotificationColor      FLinearColor::Red
+#define VictoryNotificationColor   FLinearColor(0.607313f,0.015308f,1.000000f,1.000000f)
 #define WaitNotificationColor   FLinearColor(0.261106f,1.000000f,0.249277f,1.000000f)
 #define BattleNotificationColor FLinearColor(0.045752f,0.143075f,1.000000f,1.000000f)
 
@@ -305,6 +306,20 @@ void UInGameHUD::SetWaveNotificationOnWait()
 	WaveNotification->SetText(FText::FromString(NotificationOnWait));
 	WaveNotification->SetColorAndOpacity(WaitNotificationColor);
 
+}
+
+void UInGameHUD::SetCastleDestoryNotification()
+{
+	FString NotificationOnWait = TEXT("The Castle has lost, clear the remaining enemies and repair the battle");
+	WaveNotification->SetText(FText::FromString(NotificationOnWait));
+	WaveNotification->SetColorAndOpacity(CastleDestoryNotificationColor);
+}
+
+void UInGameHUD::SetVictoryNotification()
+{
+	FString NotificationOnWait = TEXT("You beat the death, and the livings survive because of you");
+	WaveNotification->SetText(FText::FromString(NotificationOnWait));
+	WaveNotification->SetColorAndOpacity(VictoryNotificationColor);
 }
 
 //void UInGameHUD::SetStartWaveNotificationVisibility(bool visiblity)
