@@ -21,24 +21,25 @@
 
 const FString BattleDescription[15] =
 {
-	TEXT("BattleDescription 1"),
-	TEXT("BattleDescription 2"),
-	TEXT("BattleDescription 3"),
-	TEXT("BattleDescription 4"),
-	TEXT("BattleDescription 5"),
-	TEXT("BattleDescription 6"),
-	TEXT("BattleDescription 7"),
-	TEXT("BattleDescription 8"),
-	TEXT("BattleDescription 9"),
-	TEXT("BattleDescription 10"),
-	TEXT("BattleDescription 11"),
-	TEXT("BattleDescription 12"),
-	TEXT("BattleDescription 13"),
-	TEXT("BattleDescription 14"),
-	TEXT("BattleDescription 15")
+	TEXT("Some scouts - Defend the Castle"),
+	TEXT("The first wave -  Defend the Castle"),
+	TEXT("They are here -  Defend the Castle"),
+	TEXT("Elite troop -  Defend the Castle"),
+	TEXT("Heavy Legion -  Defend the Castle"),
+	TEXT("Chaos -  Defend the Castle"),
+	TEXT("Blood Lust -  Defend the Castle"),
+	TEXT("Rain the arrow -  Defend the Castle"),
+	TEXT("Unbow -  Defend the Castle"),
+	TEXT("Queen Justice -  Defend the Castle"),
+	TEXT("Lannister -  Defend the Castle"),
+	TEXT("Hear me roar-  Defend the Castle"),
+	TEXT("Legacy -  Defend the Castle"),
+	TEXT("Win or lose  -  Defend the Castle"),
+	TEXT("Winter is here -  Defeat the Deads")
 };
 
-
+#define CastleDestoryNotificationColor      FLinearColor::Red
+#define VictoryNotificationColor   FLinearColor(0.607313f,0.015308f,1.000000f,1.000000f)
 #define WaitNotificationColor   FLinearColor(0.261106f,1.000000f,0.249277f,1.000000f)
 #define BattleNotificationColor FLinearColor(0.045752f,0.143075f,1.000000f,1.000000f)
 
@@ -305,6 +306,20 @@ void UInGameHUD::SetWaveNotificationOnWait()
 	WaveNotification->SetText(FText::FromString(NotificationOnWait));
 	WaveNotification->SetColorAndOpacity(WaitNotificationColor);
 
+}
+
+void UInGameHUD::SetCastleDestoryNotification()
+{
+	FString NotificationOnWait = TEXT("The Castle has lost, clear the remaining enemies and repair the battle");
+	WaveNotification->SetText(FText::FromString(NotificationOnWait));
+	WaveNotification->SetColorAndOpacity(CastleDestoryNotificationColor);
+}
+
+void UInGameHUD::SetVictoryNotification()
+{
+	FString NotificationOnWait = TEXT("You beat the death, and the livings survive because of you");
+	WaveNotification->SetText(FText::FromString(NotificationOnWait));
+	WaveNotification->SetColorAndOpacity(VictoryNotificationColor);
 }
 
 //void UInGameHUD::SetStartWaveNotificationVisibility(bool visiblity)

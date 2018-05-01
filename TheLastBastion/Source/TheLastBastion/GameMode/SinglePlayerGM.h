@@ -87,6 +87,8 @@ private:
 
 	void GetAllSpawnClass();
 
+	void OnEnemiesGroupAllDied();
+
 public:
 
 	void Tick(float DeltaSeconds) override;
@@ -153,4 +155,7 @@ public:
 	void OnTradeMenuAccept(int _metal, int _wood);
 	void OnRecruitMenuAccept(int _food, int _metal, int _wood);
 
+
+	// victory or loss
+	bool IsCastleDestroy() const;
 };

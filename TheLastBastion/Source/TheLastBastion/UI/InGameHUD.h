@@ -127,5 +127,9 @@ public:
 	void SetWaveNotificationOnWave(int _index);
 
 	void SetWaveNotificationOnWait();
+
+	void SetCastleDestoryNotification();
+
+	void SetVictoryNotification();
 	//void SetWaveNotificationVisibility(bool visiblity);
 };

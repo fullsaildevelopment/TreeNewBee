@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "UI/InGameHUD.h"
 #include "GameMode/SinglePlayerGM.h"
+#include "Environment/EnemyGroupSpawner.h"
 
 
 #define CastleBarColor_Healthy         FLinearColor(0.049797f,0.280313f,1.000000f,1.000000f)
@@ -25,6 +26,7 @@ ACastle::ACastle()
 	CurrentHp = MaxHp;
 	DamageReduction = 0.0f;
 	OutpostType = EOutpostType::Castle;
+	bIsCastleDestory = false;
 
 }
 
@@ -36,14 +38,14 @@ void ACastle::BeginPlay()
 	MaxHpDiv = 1.0f / MaxHp;
 
 
-	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (gm == nullptr)
+	SpGameMode = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (SpGameMode == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("gm == nullptr"));
+		UE_LOG(LogTemp, Error, TEXT("SpGameMode == nullptr"));
 		return;
 	}
 
-	gm->RegisterCastle(this);
+	SpGameMode->RegisterCastle(this);
 
 	ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 	if (hero)
@@ -60,8 +62,17 @@ void ACastle::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ACastle::OnWaveFinished(ASinglePlayerGM * _gm)
+void ACastle::FixWall(ASinglePlayerGM * _gm, bool _forFree)
 {
+	bIsCastleDestory = false;
+	if (_forFree)
+	{
+		CurrentHp = MaxHp;
+		GameHUD->SetCastleBarValue(1.0f);
+		return;
+	}
+
+
 	int stone = _gm->GetStoneTotal();
 
 	// stone expect to fix castle
@@ -90,13 +101,14 @@ void ACastle::SetIsOccupied(bool _val)
 {
 	bIsOccupied = _val;
 	GameHUD->SetCastleBarColor((bIsOccupied) ? CastleBarColor_UnderAttack : CastleBarColor_Healthy);
+}
 
-	//ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	//if (hero)
-	//{
-	//	UInGameHUD* gameHUD = hero->GetInGameHUD();
-	//	if (gameHUD)
-	//}
+void ACastle::OnCastleDestroy()
+{
+	if (SpGameMode->GetEnemyGroupSpawner()->GetCurrentWaveIndex() == WhiteWalkerWave)
+		return;
+	bIsCastleDestory = true;
+	GameHUD->SetCastleDestoryNotification();
 }
 
 void ACastle::UpdateByTimer()
@@ -165,6 +177,7 @@ void ACastle::UpdateByTimer()
 	if (CurrentHp == 0)
 	{
 		// Game Over
+		OnCastleDestroy();
 	}
 
 	//UE_LOG(LogTemp, Log, TEXT("%f Current Hp"), CurrentHp);

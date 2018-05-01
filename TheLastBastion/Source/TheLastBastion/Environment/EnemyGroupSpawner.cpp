@@ -34,6 +34,8 @@ AEnemyGroupSpawner::AEnemyGroupSpawner()
 
 	// initialize default spawning state
 	bEnableSpawning = false;
+	bVictory = false;
+ 
 	bIsCurrentWaveFinishSpawning = true;
 	StartWaveIndex = 0;
 	CurrentWaveIndex = 0;
@@ -57,15 +59,15 @@ void AEnemyGroupSpawner::BeginPlay()
 	//GetWorldTimerManager().SetTimer(SpawnTimer, this, 
 	//	&AEnemyGroupSpawner::Spawn, SpawnFrequency, true, FirstSpawnDelay);
 
-	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (gm == nullptr)
+	SpGameMode = Cast<ASinglePlayerGM>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (SpGameMode == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("gm is null - AEnemyGroupSpawner::BeginPlay"));
+		UE_LOG(LogTemp, Error, TEXT("SpGameMode is null - AEnemyGroupSpawner::BeginPlay"));
 		return;
 	}
 
 	bIsCurrentWaveFinishSpawning = true;
-	gm->RegisterEnemySpawner(this);
+	SpGameMode->RegisterEnemySpawner(this);
 
 	//
 	//PlayDefaultTheme();
@@ -115,6 +117,10 @@ void AEnemyGroupSpawner::InitCurrentWave()
 
 void AEnemyGroupSpawner::OnSpawnFinished()
 {
+	// stop the spawning if the catsle is destroy
+	if (SpGameMode->IsCastleDestroy())
+		return;
+
 	// play warning sound if we have
 	USoundCue* warningSound = AllWaves[CurrentWaveIndex].WaveUnits[CurrentWaveUnitIndex].WarningSound;
 	if (warningSound)
@@ -128,14 +134,17 @@ void AEnemyGroupSpawner::OnSpawnFinished()
 	{
 		bIsCurrentWaveFinishSpawning = true;
 		CurrentWaveIndex++;
+		if (CurrentWaveUnitIndex > WhiteWalkerWave)
+			bVictory = true;
 		return;
 	}
 
-	// update the spawn delay, setup the timer for next spawn
+	// update the spawn delay, setup the timer for next spawn, if the castle is alive
 	SpawnDelay = AllWaves[CurrentWaveIndex].WaveUnits[CurrentWaveUnitIndex].SpawnDelay;
 	GetWorldTimerManager().ClearTimer(SpawnTimer);
 	GetWorldTimerManager().SetTimer(SpawnTimer, this,
 		&AEnemyGroupSpawner::Spawn, 0.1f, false, SpawnDelay);
+
 }
 
 void AEnemyGroupSpawner::FindAllEnemyGroupPreset()
@@ -147,17 +156,17 @@ void AEnemyGroupSpawner::Spawn()
 	if (!bEnableSpawning)
 		return;
 
-	ASinglePlayerGM* gm = Cast<ASinglePlayerGM>
-		(UGameplayStatics::GetGameMode(GetWorld()));
-	if (gm == nullptr)
-	{
-		UE_LOG(LogTemp, Error,
-			TEXT("gm = nullptr - AEnemyGroupSpawner::Spawn"));
-		return;
-	}
+	//ASinglePlayerGM* gm = Cast<ASinglePlayerGM>
+	//	(UGameplayStatics::GetGameMode(GetWorld()));
+	//if (gm == nullptr)
+	//{
+	//	UE_LOG(LogTemp, Error,
+	//		TEXT("gm = nullptr - AEnemyGroupSpawner::Spawn"));
+	//	return;
+	//}
 
 	bool HasRoomToSpawn = (bTestingMode) ? 
-		gm->GetEnemyGroupAmount() < TestGroupAmount : true;
+		SpGameMode->GetEnemyGroupAmount() < TestGroupAmount : true;
 
 	if (HasRoomToSpawn)
 	{
@@ -215,7 +224,7 @@ void AEnemyGroupSpawner::Spawn()
 			UGameplayStatics::FinishSpawningActor(newEnemyGroup, spawnTransform);
 			newEnemyGroup->SpawnDefaultController();
 
-			gm->RegisterEnemyGroup(newEnemyGroup);
+			SpGameMode->RegisterEnemyGroup(newEnemyGroup);
 
 			if (bTestingMode == false)
 				OnSpawnFinished();
@@ -285,6 +294,7 @@ void AEnemyGroupSpawner::EnableSpawning()
 	}
 
 }
+
 
 
 
@@ -393,72 +403,4 @@ void AEnemyGroupSpawner::BGMFadeOut()
 }
 
 
-
-//void AEnemyGroupSpawner::FadeInDefaultTheme()
-//{
-//	// Set Music for Music Player
-//	MusicPlayer->SetSound(UAudioManager::GetSFX(ESoundEffectType::EDefaultTheme));
-//
-//	
-//	int StartPoint = FMath::RandRange(0, 1);
-//	if (StartPoint == 0)
-//		MusicPlayer->FadeIn(10.0f, 1.0f, DefaultTheme_StartPoint_0);
-//	else
-//		MusicPlayer->FadeIn(10.0f, 1.0f, DefaultTheme_StartPoint_1);
-//}
-//
-//void AEnemyGroupSpawner::FadeInLannisterTheme1()
-//{
-//	// Set Music for Music Player
-//	MusicPlayer->SetSound(UAudioManager::GetSFX(ESoundEffectType::ELannisterTheme1));
-//	int StartPoint = FMath::RandRange(0, 2);
-//	if (StartPoint == 0)
-//		MusicPlayer->FadeIn(10.0f, 1.0f, LannisterTheme1_StartPoint_0);
-//	else if (StartPoint == 1)
-//		MusicPlayer->FadeIn(10.0f, 1.0f, LannisterTheme1_StartPoint_1);
-//	else
-//		MusicPlayer->FadeIn(10.0f, 1.0f, LannisterTheme1_StartPoint_2);
-//}
-//
-//void AEnemyGroupSpawner::FadeInLannisterTheme2()
-//{
-//	// Set Music for Music Player
-//	MusicPlayer->SetSound(UAudioManager::GetSFX(ESoundEffectType::ELannisterTheme2));
-//	int StartPoint = FMath::RandRange(0, 1);
-//	if (StartPoint == 0)
-//		MusicPlayer->FadeIn(10.0f, 1.0f, LannisterTheme2_StartPoint_0);
-//	else
-//		MusicPlayer->FadeIn(10.0f, 1.0f, LannisterTheme2_StartPoint_1);
-//}
-//
-//void AEnemyGroupSpawner::FadeInWhiteWalkerTheme()
-//{
-//	// Set Music for Music Player
-//	if (CurrentWaveIndex == WhiteWalkerFirstWave)
-//	{
-//		MusicPlayer->SetSound(UAudioManager::GetSFX(ESoundEffectType::EFinalBattleDialog));
-//		MusicPlayer->FadeIn(2.0f);
-//
-//		// Setup a delay
-//		float DialogDuration = 21.0f;
-//		GetWorldTimerManager().ClearTimer(MusicFadeInTimer);
-//		GetWorldTimerManager().SetTimer(MusicFadeInTimer, this, &AEnemyGroupSpawner::FirstTimeFadeInWhiteWalkerTheme, 1.0F, false, DialogDuration);
-//
-//	}
-//	else
-//	{
-//		MusicPlayer->SetSound(UAudioManager::GetSFX(ESoundEffectType::EBBGM_WhiteWalker));
-//		int StartPoint = FMath::RandRange(0, 1);
-//		if (StartPoint == 0)
-//			MusicPlayer->FadeIn(10.0f, 1.0f, WhiteWalkerTheme_StartPoint_0);
-//		else
-//			MusicPlayer->FadeIn(10.0f, 1.0f, WhiteWalkerTheme_StartPoint_1);
-//	}
-//}
-
-//void AEnemyGroupSpawner::FirstTimeFadeInWhiteWalkerTheme()
-//{
-//	MusicPlayer->SetSound(UAudioManager::GetSFX(ESoundEffectType::EBBGM_WhiteWalker));
-//	MusicPlayer->FadeIn(5.0f, 1.0f, WhiteWalkerTheme_StartPoint_0);
-//}
 

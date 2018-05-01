@@ -124,6 +124,9 @@ protected:
 		/** All Availble Path*/
 		TArray<FMarchPath> Paths;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class ASinglePlayerGM* SpGameMode;
+
 	FTimerHandle SpawnTimer;
 
 	FTimerHandle MusicFadeInTimer;
@@ -133,6 +136,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpawnTest, meta = (AllowPrivateAccess = "true"))
 		TSubclassOf<class AEnemyGroup> TestGroup;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Music)
+		class UAudioComponent* MusicPlayer;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Music)
+		class USoundCue* CurrentBGM;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = SpawnTest, meta = (AllowPrivateAccess = "true"))
 		/** The amount of testing group*/
@@ -178,6 +187,8 @@ protected:
 		/** Spawn a group without any pathing settings*/
 		bool bTestingMode;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
+		bool bVictory;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		/** All Unit Spawn Position*/
@@ -186,11 +197,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawning)
 		bool bIsCurrentWaveFinishSpawning;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Music)
-		class UAudioComponent* MusicPlayer;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Music)
-		class USoundCue* CurrentBGM;
 private:
 
 	UPROPERTY()
@@ -212,17 +218,13 @@ public:
     bool IsDuringWait() const;
 
 	FORCEINLINE int GetCurrentWaveIndex() const { return CurrentWaveIndex; }
-
+	FORCEINLINE bool GetIsVictory() const { return bVictory; }
 	FORCEINLINE bool HasNextWayPointOnPath
 	(int _pathIndex, int _wayPointIndex) const { return Paths[_pathIndex].WayPoints.IsValidIndex(_wayPointIndex); }
 
 	void EnableSpawning();
 
-	//void PlayDefaultTheme();
-	//void PlayLannisterFirstTheme();
-	//void PlayLannisterSecondTheme();
-	//void PlayWhiteWalkerTheme();
-
+	//void OnCastleDestroy();
 
 private:
 	/** Setup indexes that manipulate the spawn process */
@@ -247,13 +249,6 @@ private:
 	void BGMFadeIn();
 
 	void BGMFadeOut();
-
-	//void FadeInDefaultTheme();
-	//void FadeInLannisterTheme1();
-	//void FadeInLannisterTheme2();
-	//void FadeInWhiteWalkerTheme();
-
-	//void FirstTimeFadeInWhiteWalkerTheme();
 
 public:
 
