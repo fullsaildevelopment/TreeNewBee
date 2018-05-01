@@ -64,7 +64,7 @@ void ACastle::Tick(float DeltaTime)
 
 void ACastle::FixWall(ASinglePlayerGM * _gm, bool _forFree)
 {
-
+	bIsCastleDestory = false;
 	if (_forFree)
 	{
 		CurrentHp = MaxHp;
