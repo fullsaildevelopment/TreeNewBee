@@ -266,8 +266,8 @@ void ASinglePlayerGM::UnRegisterEnemyGroupAt(int _index)
 		// TODO:  Display the notification for player once all the enemy groups in this wave get killed
 		pc->GetInGameHUD()->SetWaveNotificationOnWait();
 
-		// Fade in default theme
-		EnemyGroupSpawner->PlayDefaultTheme();
+		// Fade in wait BGM
+		EnemyGroupSpawner->PlayWaitBGM();
 		
 		ATheLastBastionHeroCharacter* Hero = Cast<ATheLastBastionHeroCharacter>(pc->GetCharacter());
 		if (Hero)

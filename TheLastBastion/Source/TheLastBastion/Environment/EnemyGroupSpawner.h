@@ -6,15 +6,17 @@
 #include "GameFramework/Actor.h"
 #include "EnemyGroupSpawner.generated.h"
 
-//#define South_TrooperRoute_0 0
-//#define South_TrooperRoute_1 1
-//#define South_ShooterRoute_0 2
-//#define North_WoodOutputTakingRoute 3
-#define LannisterFirstWave 0
-#define LannisterMiddleWave 5
-#define LannisterLastWave 9
-#define WhiteWalkerFirstWave 10
-#define WhiteWalkerLastWave 14
+
+
+//#define LannisterFirstWave 0
+//#define LannisterMiddleWave 5
+//#define LannisterLastWave 9
+
+#define WhiteWalkerWave 14
+#define FinalBattleDialogDuration 21.0f
+#define FinalBattleDialog_FadeInTime 2.0f
+
+
 #define DefaultTheme_StartPoint_0 0.0f
 #define DefaultTheme_StartPoint_1 42.0f
 
@@ -29,6 +31,11 @@
 #define WhiteWalkerTheme_StartPoint_1 23.0f
 
 #define WaveAmount 15
+#define BGM_FadeOutTime  5.0f
+#define BGM_FadeInTime 10.0f
+
+
+//enum class ESoundEffectType : uint8;
 
 UENUM(BlueprintType)
 enum class EPath : uint8 
@@ -89,6 +96,11 @@ struct FWave
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Spawning)
 		TArray<FWaveUnit> WaveUnits;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = BGM)
+		USoundCue* WaitingBGM;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = BGM)
+		USoundCue* BattleBGM;
 };
 
 
@@ -177,6 +189,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Music)
 		class UAudioComponent* MusicPlayer;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Music)
+		class USoundCue* CurrentBGM;
 private:
 
 	UPROPERTY()
@@ -204,16 +218,13 @@ public:
 
 	void EnableSpawning();
 
-	void PlayDefaultTheme();
+	//void PlayDefaultTheme();
+	//void PlayLannisterFirstTheme();
+	//void PlayLannisterSecondTheme();
+	//void PlayWhiteWalkerTheme();
 
-	void PlayLannisterFirstTheme();
-
-	void PlayLannisterSecondTheme();
-
-	void PlayWhiteWalkerTheme();
 
 private:
-
 	/** Setup indexes that manipulate the spawn process */
 	void InitWaveSpawner();
 
@@ -230,13 +241,22 @@ private:
 	/** Get Spawn Location and direction by path*/
 	void GetSpawnTransform(FVector& _location, FQuat& _rotation, int _pathIndex) const;
 
-	void FadeInDefaultTheme();
+	/** Play BGM on current Wave, fade out current bgm*/
+	void PlayBGM(bool _duringWait = true);
 
-	void FadeInLannisterTheme1();
+	void BGMFadeIn();
 
-	void FadeInLannisterTheme2();
+	void BGMFadeOut();
 
-	void FadeInWhiteWalkerTheme();
+	//void FadeInDefaultTheme();
+	//void FadeInLannisterTheme1();
+	//void FadeInLannisterTheme2();
+	//void FadeInWhiteWalkerTheme();
 
-	void FirstTimeFadeInWhiteWalkerTheme();
+	//void FirstTimeFadeInWhiteWalkerTheme();
+
+public:
+
+	FORCEINLINE void PlayWaitBGM() { PlayBGM(); }
+	FORCEINLINE void PlayBattleBGM() { PlayBGM(false); }
 };

@@ -32,13 +32,36 @@ USoundCue* UAudioManager::MineWarning = nullptr;
 USoundCue* UAudioManager::StoneWarning = nullptr;
 USoundCue* UAudioManager::WoodWarning = nullptr;
 USoundCue* UAudioManager::CastleWarning = nullptr;
-USoundCue* UAudioManager::SoldierDialog = nullptr;
-USoundCue* UAudioManager::DefaultTheme = nullptr;
-USoundCue* UAudioManager::LannisterTheme1 = nullptr;
-USoundCue* UAudioManager::LannisterTheme2 = nullptr;
-USoundCue* UAudioManager::WhiteWalkerTheme = nullptr;
 USoundCue* UAudioManager::PlayerLevelUp = nullptr;
 USoundCue* UAudioManager::PlayerCastHealing = nullptr;
+
+
+//USoundCue* UAudioManager::SoldierDialog = nullptr;
+//USoundCue* UAudioManager::DefaultTheme = nullptr;
+//USoundCue* UAudioManager::LannisterTheme1 = nullptr;
+//USoundCue* UAudioManager::LannisterTheme2 = nullptr;
+//USoundCue* UAudioManager::WhiteWalkerTheme = nullptr;
+
+USoundCue* UAudioManager::FinalBattleDialog = nullptr;
+
+USoundCue* UAudioManager::BBGM_WhiteWalker = nullptr;
+USoundCue* UAudioManager::BBGM_TakingWinterFell = nullptr;
+USoundCue* UAudioManager::BBGM_LionLegacy = nullptr;
+USoundCue* UAudioManager::BBGM_Bastard = nullptr;
+USoundCue* UAudioManager::BBGM_Targaryen = nullptr;
+USoundCue* UAudioManager::BBGM_QueenJustice = nullptr;
+USoundCue* UAudioManager::BBGM_War0 = nullptr;
+USoundCue* UAudioManager::BBGM_War1 = nullptr;
+
+USoundCue* UAudioManager::WBGM_Brother = nullptr;
+USoundCue* UAudioManager::WBGM_KingArrival = nullptr;
+USoundCue* UAudioManager::WBGM_KingsRoad = nullptr;
+USoundCue* UAudioManager::WBGM_Lannister = nullptr;
+USoundCue* UAudioManager::WBGM_Love = nullptr;
+USoundCue* UAudioManager::WBGM_QueenOneDay = nullptr;
+USoundCue* UAudioManager::WBGM_Raven = nullptr;
+USoundCue* UAudioManager::WBGM_Theme = nullptr;
+
 
 UAudioManager::UAudioManager()
 {   
@@ -83,11 +106,25 @@ UAudioManager::UAudioManager()
 	CastleWarning = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Vocal/CastleWarning"));
 
 	// BGM
-	SoldierDialog= FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Vocal/SoldiersDialog"));
-	DefaultTheme = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/DefaultTheme"));
-	LannisterTheme1 = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/LannisterTheme1"));
-	LannisterTheme2 = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/LannisterTheme2"));
-	WhiteWalkerTheme = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/WhiteWalkerTheme"));
+	FinalBattleDialog     = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Vocal/SoldiersDialog"));
+
+	BBGM_WhiteWalker      = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/BBGM_WhiteWalker"));
+	BBGM_TakingWinterFell = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/BBGM_TakingWinterFell"));
+	BBGM_LionLegacy       = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/BBGM_LionLegacy"));
+	BBGM_Bastard          = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/BBGM_Bastard"));
+	BBGM_Targaryen        = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/BBGM_Targaryen"));
+	BBGM_QueenJustice     = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/BBGM_QueenJustice"));
+	BBGM_War0             = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/BBGM_War0"));
+	BBGM_War1             = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/BBGM_War1"));
+
+	WBGM_Brother          = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/WBGM_Brother"));
+	WBGM_KingArrival      = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/WBGM_KingArrival"));
+	WBGM_KingsRoad        = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/WBGM_KingsRoad"));
+	WBGM_Lannister        = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/WBGM_Lannister"));
+	WBGM_Love             = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/WBGM_Love"));
+	WBGM_QueenOneDay      = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/WBGM_QueenOneDay"));
+	WBGM_Raven            = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/WBGM_Raven"));
+	WBGM_Theme            = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Music/WBGM_Theme"));
 
 	//Player ability
 	PlayerLevelUp = FindSoundCue(TEXT("/Game/Assets/Audio/AudioCues/Player/PlayerLevelUp"));
@@ -176,20 +213,41 @@ USoundCue * UAudioManager::GetSFX(ESoundEffectType _sfxType)
 	case ESoundEffectType::ECastleWarning:
 		return CastleWarning;
 
-	case ESoundEffectType::ESoldierDialog:
-		return SoldierDialog;
+	case ESoundEffectType::EFinalBattleDialog:
+		return FinalBattleDialog;
 
-	case ESoundEffectType::EDefaultTheme:
-		return DefaultTheme;
-
-	case ESoundEffectType::ELannisterTheme1:
-		return LannisterTheme1;
-
-	case ESoundEffectType::ELannisterTheme2:
-		return LannisterTheme2;
-
-	case ESoundEffectType::EWhiteWalkerTheme:
-		return WhiteWalkerTheme;
+	case ESoundEffectType::EBBGM_WhiteWalker:															 
+		return BBGM_WhiteWalker;																		
+	case ESoundEffectType::EBBGM_TakingWinterFell:														 
+		return BBGM_TakingWinterFell;																	
+	case ESoundEffectType::EBBGM_LionLegacy:															 
+		return BBGM_LionLegacy;																			
+	case ESoundEffectType::EBBGM_Bastard:																 
+		return BBGM_Bastard;																			
+	case ESoundEffectType::EBBGM_Targaryen:																 
+		return BBGM_Targaryen;
+	case ESoundEffectType::EBBGM_QueenJustice:															 
+		return BBGM_QueenJustice;																		
+	case ESoundEffectType::EBBGM_War0:																	 
+		return BBGM_War0;																				
+	case ESoundEffectType::EBBGM_War1:
+		return BBGM_War1;			
+	case ESoundEffectType::EWBGM_Brother:																 
+		return WBGM_Brother;
+	case ESoundEffectType::EWBGM_KingArrival:
+		return WBGM_KingArrival;
+	case ESoundEffectType::EWBGM_KingsRoad:
+		return WBGM_KingsRoad;
+	case ESoundEffectType::EWBGM_Lannister:
+		return WBGM_Lannister;
+	case ESoundEffectType::EWBGM_Love:
+		return WBGM_Love;
+	case ESoundEffectType::EWBGM_QueenOneDay:
+		return WBGM_QueenOneDay;
+	case ESoundEffectType::EWBGM_Raven:
+		return WBGM_Raven;
+	case ESoundEffectType::EWBGM_Theme:
+		return WBGM_Theme;
 
 	case ESoundEffectType::EPlayerLevelUp:
 		return PlayerLevelUp;

@@ -35,13 +35,27 @@ enum class ESoundEffectType : uint8
 	EStoneWarning,
 	EWoodWarning,
 	ECastleWarning,
-	ESoldierDialog,
-	EDefaultTheme,
-	ELannisterTheme1,
-	ELannisterTheme2,
-	EWhiteWalkerTheme,
 	EPlayerLevelUp,
-	EPlayerCastHealing
+	EPlayerCastHealing,
+
+	EFinalBattleDialog,
+	EBBGM_WhiteWalker,
+	EBBGM_TakingWinterFell,
+	EBBGM_LionLegacy,
+	EBBGM_Bastard,
+	EBBGM_Targaryen,
+	EBBGM_QueenJustice,
+	EBBGM_War0,
+	EBBGM_War1,
+
+	EWBGM_Brother,
+	EWBGM_KingArrival,
+	EWBGM_KingsRoad,
+	EWBGM_Lannister,
+	EWBGM_Love,
+	EWBGM_QueenOneDay,
+	EWBGM_Raven,
+	EWBGM_Theme
 };
 /**
  * 
@@ -94,11 +108,25 @@ private:
 	static class USoundCue* CastleWarning;
 
 	// Background music
-	static class USoundCue* SoldierDialog;
-	static class USoundCue* DefaultTheme;
-	static class USoundCue* LannisterTheme1;
-	static class USoundCue* LannisterTheme2;
-	static class USoundCue* WhiteWalkerTheme;
+
+	static class USoundCue* FinalBattleDialog;
+	static class USoundCue* BBGM_WhiteWalker;
+	static class USoundCue* BBGM_TakingWinterFell;
+	static class USoundCue* BBGM_LionLegacy;
+	static class USoundCue* BBGM_Bastard;
+	static class USoundCue* BBGM_Targaryen;
+	static class USoundCue* BBGM_QueenJustice;
+	static class USoundCue* BBGM_War0;
+	static class USoundCue* BBGM_War1;
+
+	static class USoundCue* WBGM_Brother;
+	static class USoundCue* WBGM_KingArrival;
+	static class USoundCue* WBGM_KingsRoad;
+	static class USoundCue* WBGM_Lannister;
+	static class USoundCue* WBGM_Love;
+	static class USoundCue* WBGM_QueenOneDay;
+	static class USoundCue* WBGM_Raven;
+	static class USoundCue* WBGM_Theme;
 
 	// Player Ability
 	static class USoundCue* PlayerLevelUp;
