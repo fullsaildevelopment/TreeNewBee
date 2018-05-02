@@ -135,7 +135,10 @@ void AEnemyGroupSpawner::OnSpawnFinished()
 		bIsCurrentWaveFinishSpawning = true;
 		CurrentWaveIndex++;
 		if (CurrentWaveIndex > WhiteWalkerWave)
+		{
+			CurrentWaveIndex = WhiteWalkerWave;
 			bVictory = true;
+		}
 		return;
 	}
 
