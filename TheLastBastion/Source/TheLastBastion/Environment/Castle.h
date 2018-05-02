@@ -68,7 +68,7 @@ public:
 
 
 	FORCEINLINE bool GetCastleDestroy() const {return bIsCastleDestory;}
-	FORCEINLINE void SetCastleHpMaxByLevel(int _level) {MaxHp = Castle_Hp_Init + _level * Castle_Hp_Increasement;}
+	FORCEINLINE void SetCastleHpMaxByLevel(int _level) {MaxHp = Castle_Hp_Init + _level * Castle_Hp_Increasement; MaxHpDiv = 1.0f / MaxHp;}
 
 private:
 
