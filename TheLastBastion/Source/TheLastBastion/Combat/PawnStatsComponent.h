@@ -16,7 +16,7 @@
 
 #define DpPhysicalDamageReduction 0.5f
 
-#define DamageMultiplier_HeadShot_CB 1.7f
+#define DamageMultiplier_HeadShot_CB 3.0f
 #define DamageMultiplier_CriticalHit_CB 1.7f
 #define DamageMultiplier_CriticalHit_Katana 3.0f
 #define DamageMultiplier_CriticalHit_Swords 2.5f
