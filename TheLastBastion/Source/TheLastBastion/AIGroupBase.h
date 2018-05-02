@@ -9,7 +9,7 @@
 
 
 #define SIDEPADDING 600 
-#define FRONTPADDING 800 
+#define FRONTPADDING 1000
 #define GroupFrontExtraVision 200.0f
 #define RangeGroupTargetAmount 4
 

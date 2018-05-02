@@ -9,13 +9,14 @@
 
 #include "GameMode/SinglePlayerGM.h"
 #include "Kismet/GameplayStatics.h"
-#include "Environment/Outpost.h"
+#include "Environment/Castle.h"
 
 #include "Combat/HeroStatsComponent.h"
 #include "TheLastBastionHeroCharacter.h"
 #include "CustomType.h"
 #include "UI/Gameplay/SkillMenu_PopUp.h"
 #include "SlateBlueprintLibrary.h"
+
 
 #define MENUCOUNT 3
 const FString MenuNameList[MENUCOUNT] = { TEXT("Pause Menu"), TEXT("Option Menu"), TEXT("Skill Menu") };
@@ -477,6 +478,7 @@ void UInGameMenu::OnAcceptClicked_Skill()
 	heroStats->SetHealRadiusByLevel(level);
 	heroStats->SetHealAmountByLevel(level);
 	hero->SetSkillCoolDownTimeByLevelAt(Skill__Heal, level);
+	gm->GetCastle()->SetCastleHpMaxByLevel(level);
 
 	// faith - reduce the stamina recover punishment
 	level = AllSkillLevel[FaithLevel].Level;

@@ -11,7 +11,7 @@
 #define RagDoll_RecoverLerpSpeed 5.0f
 #define RagDoll_MinimumGetUpTime 2.0f
 #define SecondBeforeKill 3.0f
-
+#define Max_Level 70
 
 #define Damage_VirationRange 0.1f
 

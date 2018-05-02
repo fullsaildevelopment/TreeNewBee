@@ -217,6 +217,7 @@ public:
 	/** The resting gap between waves */
     bool IsDuringWait() const;
 
+	FORCEINLINE void OnCastleDestory() { CurrentWaveIndex = bIsCurrentWaveFinishSpawning ? CurrentWaveIndex - 1 : CurrentWaveIndex; }
 	FORCEINLINE int GetCurrentWaveIndex() const { return CurrentWaveIndex; }
 	FORCEINLINE bool GetIsVictory() const { return bVictory; }
 	FORCEINLINE bool HasNextWayPointOnPath

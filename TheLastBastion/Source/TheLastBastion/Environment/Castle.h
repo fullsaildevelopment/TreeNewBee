@@ -7,6 +7,8 @@
 #include "Castle.generated.h"
 
 
+#define Castle_Hp_Init 3000.0f
+#define Castle_Hp_Increasement 600.0f
 
 UCLASS(BlueprintType)
 class THELASTBASTION_API ACastle : public AOutpost
@@ -66,7 +68,7 @@ public:
 
 
 	FORCEINLINE bool GetCastleDestroy() const {return bIsCastleDestory;}
-
+	FORCEINLINE void SetCastleHpMaxByLevel(int _level) {MaxHp = Castle_Hp_Init + _level * Castle_Hp_Increasement;}
 
 private:
 

@@ -145,6 +145,8 @@ public:
 	FORCEINLINE void RegisterOutpost(class AOutpost* _outpost) { AllOutpost.Add(_outpost); }
 	FORCEINLINE void RegisterCastle(class ACastle* _castle) { Castle = _castle; }
 	FORCEINLINE class AOutpost* GetOutpostAt(int _index) { return AllOutpost[_index]; }
+	FORCEINLINE class ACastle* GetCastle() { return Castle; }
+
 	FORCEINLINE int GetAllOutpostAmount() const { return AllOutpost.Num(); }
 
 	void AddFood(int _val);

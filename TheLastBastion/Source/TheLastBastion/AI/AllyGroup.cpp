@@ -375,6 +375,7 @@ void AAllyGroup::SwitchToRow()
 		yOffset = i * CurrentPadding - centerOffset;
 		AICharactersInfo[i].GroupRelativeOffset = FVector(xOffset, yOffset, 0);
 	}
+
 	SetGroupVisionVolumn();
 
 	//SetAllyGroupVisionVolumn();

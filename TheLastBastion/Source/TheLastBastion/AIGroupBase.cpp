@@ -579,13 +579,13 @@ void AAIGroupBase::SetGroupVisionBox(bool _includeRangeVision)
 	float maxGroupWidth = maxColCount * GetCurrentColumnPadding() * 0.5f + SIDEPADDING;
 	float maxGroupLength = maxRowCount * GetCurrentRowPadding() * 0.5f + FRONTPADDING;
 
-	MeleeVision->SetBoxExtent(FVector(maxGroupWidth, maxGroupLength, GroupVolumnZ), true);
+	MeleeVision->SetBoxExtent(FVector(maxGroupLength, maxGroupWidth, GroupVolumnZ), true);
 
 	if (_includeRangeVision)
 	{
 		maxGroupWidth += GetRangeUnitShootingRange();
 		maxGroupLength += GetRangeUnitShootingRange();
-		RangeVision->SetBoxExtent(FVector(maxGroupWidth, maxGroupLength, GroupVolumnZ), true);
+		RangeVision->SetBoxExtent(FVector(maxGroupLength, maxGroupWidth, GroupVolumnZ), true);
 	}
 }
 

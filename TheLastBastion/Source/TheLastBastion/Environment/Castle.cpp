@@ -22,7 +22,7 @@ ACastle::ACastle()
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
-	MaxHp = 2000.0f;
+	MaxHp = Castle_Hp_Init;
 	CurrentHp = MaxHp;
 	DamageReduction = 0.0f;
 	OutpostType = EOutpostType::Castle;
@@ -109,6 +109,7 @@ void ACastle::OnCastleDestroy()
 		return;
 	bIsCastleDestory = true;
 	GameHUD->SetCastleDestoryNotification();
+	SpGameMode->GetEnemyGroupSpawner()->OnCastleDestory();
 }
 
 void ACastle::UpdateByTimer()

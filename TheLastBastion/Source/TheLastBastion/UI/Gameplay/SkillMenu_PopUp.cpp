@@ -7,6 +7,7 @@
 #include "TheLastBastionHeroCharacter.h"
 #include "CustomType.h"
 #include "UI/Gameplay/InGameMenu.h"
+#include "Environment/Castle.h"
 
 namespace SkillMenu_PopUp_Strings
 {
@@ -33,7 +34,7 @@ namespace SkillMenu_PopUp_Strings
 		TEXT("Reduce cool down time and increase damage for Combo melee skills and Combo Shots"),
 		TEXT("Reduce cool down time and increase damage for PowerHit Skills, gain large amount defence point point if using single hand weapon, multiple damage if using katana, gain fair amount of defence point and multiple damage if using heavy weapon, add extra bullets amount and reduce bullet spread if using crossbow"),
 		TEXT("Reduce stamina recovery punishment when Flaming sword is activated"),
-		TEXT("Heal yourself and allies, increase radius and heal amount")
+		TEXT("Heal yourself and allies, increase radius and heal amount, increase castle defence")
 	};
 };
 
@@ -220,5 +221,8 @@ void USkillMenu_PopUp::AddEntryFor_Leader(const UInGameMenu * const _inGameMenu)
 
 	val = Skill_Heal_Amount_Init + skillLevel * Skill_Heal_Amount_Increment_OnLevelUp;
 	AddPopUpEntryWithColor(FLinearColor::Green, TEXT("Heal Amount(%): "), val, BonusList);
+
+	val = Castle_Hp_Init + skillLevel * Castle_Hp_Increasement;
+	AddPopUpEntryWithColor(FLinearColor::Green, TEXT("Castle Defence: "), val, BonusList);
 
 }

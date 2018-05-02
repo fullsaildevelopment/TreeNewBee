@@ -14,6 +14,13 @@
 
 #define ShopRowSize 9
 
+#define NordSet_Level 20
+#define DwarvenSet_Level 35
+#define EbonySet_Level 50
+#define DaeSet_Level 65
+
+
+
 UTradeMenu::UTradeMenu(const FObjectInitializer & ObjectInit) : Super(ObjectInit)
 {
 	//Wolf_Bp
@@ -87,16 +94,16 @@ void UTradeMenu::OnOpenTradeMenu(UHeroStatsComponent * _heroStats)
 		if (PlayerStats)
 		{
 			int CurrentPlayerLevel = PlayerStats->GetCharacterLevel();
-			if (CurrentPlayerLevel >= 15)
+			if (CurrentPlayerLevel >= NordSet_Level)
 			{
 				NordicRow->SetIsEnabled(true);
-				if (CurrentPlayerLevel >= 25)
+				if (CurrentPlayerLevel >= DwarvenSet_Level)
 				{
 					DwarvenRow->SetIsEnabled(true);
-					if (CurrentPlayerLevel >= 35)
+					if (CurrentPlayerLevel >= EbonySet_Level)
 					{
 						EbonyRow->SetIsEnabled(true);
-						if (CurrentPlayerLevel >= 45)
+						if (CurrentPlayerLevel >= DaeSet_Level)
 							DaedricRow->SetIsEnabled(true);
 					}
 				}
