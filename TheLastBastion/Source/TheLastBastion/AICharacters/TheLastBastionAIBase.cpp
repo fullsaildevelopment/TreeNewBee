@@ -450,20 +450,19 @@ void ATheLastBastionAIBase::OnDead(const FVector& dir, const AActor* _damageCaus
 void ATheLastBastionAIBase::AddExp(ATheLastBastionHeroCharacter * _heroAttacker)
 {
 
-	if (_heroAttacker->GetCharacerLevel() == Max_Level)
-		return;
 
 	if (IsEnemy())
 	{
 		// if enemies defeated by hero, hero gain 1.5 x exp
 		if (_heroAttacker != nullptr)
 		{
-			_heroAttacker->AddExp(1.5f * this->GetExperience());
+			if (_heroAttacker->GetCharacerLevel() < Max_Level)
+				_heroAttacker->AddExp(1.5f * this->GetExperience());
 		}
 		else
 		{
 			ATheLastBastionHeroCharacter* hero = Cast<ATheLastBastionHeroCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-			if (hero)
+			if (hero && hero->GetCharacerLevel() < Max_Level)
 			{
 				hero->AddExp(this->GetExperience());
 			}

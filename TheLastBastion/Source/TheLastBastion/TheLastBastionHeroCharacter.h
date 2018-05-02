@@ -22,9 +22,9 @@
 
 //#define  Skill__BattleCommand 5    
 
-#define Skill_Combo_CD       7.0f//12.0f
-#define Skill_PowerHit_CD	 7.0f//12.0f
-#define Skill_Heal_CD               18.0f
+#define Skill_Combo_CD       12.0f
+#define Skill_PowerHit_CD	 12.0f
+#define Skill_Heal_CD               20.0f
 #define Skill_WeaponCastingFire_CD  5.0f
 #define WeaponCasting_DamageBuff    1.5f
 #define Skill_LevelUp_CD_Deduction  1.0f
