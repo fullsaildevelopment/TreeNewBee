@@ -376,6 +376,8 @@ void AEnemyGroupSpawner::PlayBGM(bool _duringWait)
 	{
 
 		CurrentBGM = (_duringWait) ? AllWaves[CurrentWaveIndex].WaitingBGM : AllWaves[CurrentWaveIndex].BattleBGM;
+
+
 		if (MusicPlayer->IsPlaying())
 			BGMFadeOut();
 		else
